@@ -1,0 +1,23 @@
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  image_size: 512
+
+retfound:
+  repo: https://github.com/rmaphoh/RETFound_MAE
+  checkpoint_path: third_party/retfound/checkpoints/RETFound_cfp_weights.pth
+  embedding_dim: 1024   # ViT-Large
+
+classifier:
+  task: rfmid_multilabel   # rfmid_multilabel | odir_multilabel
+  num_classes: 28          # ajuster selon le sous-ensemble RFMiD retenu
+  lr: 1e-4
+  epochs: 20
+  batch_size: 32
+  freeze_backbone: true    # phase 1 : sonde/fine-tuning léger uniquement
+
+quality_control:
+  blur_variance_threshold: 100.0   # variance du Laplacien, seuil à calibrer
+
+eval:
+  metrics: [auroc_macro, auroc_per_class, f1_macro]

@@ -1,0 +1,12 @@
+torch>=2.2
+torchvision
+timm
+opencv-python-headless
+pillow
+scikit-learn
+pandas
+numpy
+grad-cam
+albumentations
+pyyaml
+tqdm
