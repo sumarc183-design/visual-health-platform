@@ -57,9 +57,35 @@ docs/                    roadmap et arbitrage des cas d'usage
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-bash scripts/setup_retfound.sh
+bash scripts/setup_retfound.sh   # récupérer le checkpoint RETFound (voir THIRD_PARTY_NOTICES.md)
 python scripts/download_rfmid_odir.py --out data/raw
 ```
+
+## Licence RETFound — important
+
+RETFound est en **CC BY-NC 4.0 (NonCommercial)**, pas MIT. Utilisable
+librement pour la phase recherche/reproduction, mais **pas dans un produit
+commercial** sans licence séparée des auteurs. Voir `THIRD_PARTY_NOTICES.md`
+pour le détail et les options avant un lancement commercial.
+
+## État du code
+
+`src/models/retfound_backbone.py`, `src/models/pos_embed.py` et
+`src/explainability/gradcam.py` sont adaptés du dépôt officiel RETFound
+(architecture ViT-Large/16, chargement de checkpoint avec interpolation des
+position embeddings). Testés ici avec un checkpoint synthétique : forward
+pass (303M paramètres, conforme au ViT-L/16 attendu), chargement de
+checkpoint avec clés `model`/`teacher`, interpolation pos_embed pour un
+changement de résolution (224→256), tête de classification multi-label, et
+Grad-CAM adapté aux ViT (un Grad-CAM standard ne fonctionne pas sur un
+transformer sans `reshape_transform` — corrigé). Le contrôle qualité
+(`src/pipeline/quality_control.py`) est également testé (image nette,
+floue, sous-résolue).
+
+Le téléchargement réel de RFMiD/ODIR (plateformes de challenge, pas de lien
+direct) et du checkpoint RETFound n'a pas pu être validé depuis cet
+environnement (accès réseau restreint du sandbox) — à faire depuis votre
+poste.
 
 ## Roadmap
 

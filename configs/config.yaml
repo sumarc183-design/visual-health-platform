@@ -9,8 +9,22 @@ retfound:
   embedding_dim: 1024   # ViT-Large
 
 classifier:
-  task: rfmid_multilabel   # rfmid_multilabel | odir_multilabel
-  num_classes: 28          # ajuster selon le sous-ensemble RFMiD retenu
+  # RFMiD et ODIR ont des taxonomies différentes -- ne pas les traiter comme
+  # une seule tête à num_classes générique. Sources : RIADD/RFMiD challenge
+  # (45 pathologies annotées, sous-ensemble de 28 classes couramment utilisé
+  # pour la classification -- hors "Disease_Risk" qui est un label binaire
+  # séparé) ; ODIR-5K (8 classes, tutelle Shenzhen Zhongke, fortement
+  # déséquilibré : Normal=2873 vs Hypertension=128).
+  datasets:
+    rfmid:
+      num_classes: 28
+      multilabel: true
+      note: hors label binaire "Disease_Risk", évalué séparément si besoin
+    odir:
+      num_classes: 8
+      multilabel: true
+      class_names: [N, D, G, C, A, H, M, O]   # Normal/Diabetes/Glaucoma/Cataract/AMD/Hypertension/Myopie patho/Autre
+      note: fortement déséquilibré (Normal 2873 vs Hypertension 128) -- utiliser class weights ou focal loss
   lr: 1e-4
   epochs: 20
   batch_size: 32
