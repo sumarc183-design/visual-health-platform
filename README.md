@@ -82,10 +82,11 @@ transformer sans `reshape_transform` — corrigé). Le contrôle qualité
 (`src/pipeline/quality_control.py`) est également testé (image nette,
 floue, sous-résolue).
 
-Le téléchargement réel de RFMiD/ODIR (plateformes de challenge, pas de lien
-direct) et du checkpoint RETFound n'a pas pu être validé depuis cet
-environnement (accès réseau restreint du sandbox) — à faire depuis votre
-poste.
+RFMiD et ODIR ont été téléchargés et le pipeline validé de bout en bout sur
+les vraies images (`tests/test_real_datasets.py`, backbone toujours à poids
+aléatoires faute de checkpoint RETFound réel) : voir "Tester sur les
+vraies données" ci-dessous. Le checkpoint RETFound lui-même (CC BY-NC 4.0)
+reste à récupérer manuellement avant un entraînement réel.
 
 ## Tester sans données réelles (smoke test)
 
@@ -102,9 +103,35 @@ pytest tests/ -m "not slow"      # unitaires seulement, rapide
 
 `tests/test_pipeline_smoke.py::test_full_pipeline_end_to_end` fait tourner
 génération -> contrôle qualité -> RETFound -> classification -> Grad-CAM en
-une passe. 10/10 tests passent. À REMPLACER par les vraies images RFMiD/ODIR
-dès que possible : les prédictions sur données synthétiques ne sont pas
-interprétables médicalement.
+une passe. Gardé pour la CI, qui n'a pas les données réelles (~10 Go).
+
+## Tester sur les vraies données
+
+Une fois RFMiD/ODIR téléchargés et organisés (`scripts/download_rfmid_odir.py`,
+voir "Démarrage") dans `data/raw/{rfmid,odir}/` :
+
+```bash
+pytest tests/test_real_datasets.py -v
+```
+
+`src/data/rfmid_dataset.py` et `src/data/odir_dataset.py` lisent la structure
+Kaggle réelle (pas le format `C0..C27` générique du générateur synthétique) :
+
+- **RFMiD** : CSV à 45 colonnes de pathologies + `Disease_Risk` (label binaire
+  à part) ; le sous-ensemble de 28 classes du config est dérivé du train set
+  (>= 5 exemples positifs), jamais recalculé sur val/test pour éviter la fuite.
+- **ODIR** : `full_df.csv` a deux étiquettes différentes par ligne — les
+  colonnes `N/D/G/C/A/H/M/O` (diagnostic patient, les deux yeux) et une
+  colonne `target`/`labels` par œil (parsing de mots-clés). Le loader utilise
+  `N..O`, conforme au config ; `Testing Images/` n'a pas de label (jeu de
+  test caché du challenge Kaggle d'origine) donc le split train/val est fait
+  par tirage aléatoire fixe sur `Training Images/`.
+
+`tests/test_real_datasets.py` fait tourner tout le pipeline sur ces vraies
+images (16 échantillons RFMiD + 16 ODIR) — backbone toujours à poids
+aléatoires faute de checkpoint RETFound réel, donc validation de plomberie
+uniquement, pas de prédictions interprétables. Sauté automatiquement si
+`data/raw/` est absent.
 
 ## CI
 
