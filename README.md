@@ -87,6 +87,29 @@ direct) et du checkpoint RETFound n'a pas pu être validé depuis cet
 environnement (accès réseau restreint du sandbox) — à faire depuis votre
 poste.
 
+## Tester sans données réelles (smoke test)
+
+`scripts/generate_synthetic_fundus_dataset.py` génère des images de fond
+d'œil synthétiques (bruit + vignettage, pas de vraie physiologie) au format
+RFMiD/ODIR, pour faire tourner tout le pipeline en attendant le
+téléchargement réel :
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/ -v                 # tests unitaires + bout-en-bout (~2 min)
+pytest tests/ -m "not slow"      # unitaires seulement, rapide
+```
+
+`tests/test_pipeline_smoke.py::test_full_pipeline_end_to_end` fait tourner
+génération -> contrôle qualité -> RETFound -> classification -> Grad-CAM en
+une passe. 10/10 tests passent. À REMPLACER par les vraies images RFMiD/ODIR
+dès que possible : les prédictions sur données synthétiques ne sont pas
+interprétables médicalement.
+
+## CI
+
+`.github/workflows/ci.yml` lance la suite de tests à chaque push/PR.
+
 ## Roadmap
 
 Voir `docs/ROADMAP.md`.
