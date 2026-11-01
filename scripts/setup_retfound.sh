@@ -9,5 +9,5 @@ if [ ! -d retfound ]; then
   git clone https://github.com/rmaphoh/RETFound_MAE.git retfound
 fi
 
-echo "Récupérer les poids préentraînés (CFP/OCT) selon les instructions de"
-echo "third_party/retfound/README.md et les placer sous third_party/retfound/checkpoints/"
+echo "Poids préentraînés : python scripts/download_retfound_checkpoint.py --out third_party/retfound/checkpoints"
+echo "(dépôt HuggingFace gated, voir README)."

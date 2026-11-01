@@ -6,6 +6,7 @@ pillow
 scikit-learn
 pandas
 numpy
+numpy<2; sys_platform == "darwin" and platform_machine == "x86_64"  # torch s'arrête à 2.2.x sur Mac Intel, compilé contre NumPy 1.x
 grad-cam
 albumentations
 pyyaml

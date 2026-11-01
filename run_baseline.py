@@ -23,7 +23,7 @@ Exemples :
 
     # Vos vraies données ODIR + vrai checkpoint RETFound (premier vrai AUROC)
     python run_baseline.py --dataset odir --data-root data/raw/odir \\
-        --checkpoint third_party/retfound/checkpoints/RETFound_cfp_weights.pth
+        --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
 """
 from __future__ import annotations
 

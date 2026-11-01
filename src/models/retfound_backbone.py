@@ -9,6 +9,7 @@ Requires `timm` (already in requirements.txt).
 """
 from __future__ import annotations
 
+import pickle
 from functools import partial
 from pathlib import Path
 
@@ -69,11 +70,17 @@ def load_pretrained_backbone(checkpoint_path: str | Path, img_size: int = 224, g
     if not checkpoint_path.exists():
         raise FileNotFoundError(
             f"Poids RETFound introuvables : {checkpoint_path}. "
-            "Suivre third_party/retfound/README.md pour les récupérer."
+            "Les télécharger avec scripts/download_retfound_checkpoint.py (voir README)."
         )
     model = build_retfound_vit_large(img_size=img_size, global_pool=global_pool)
 
-    checkpoint = torch.load(checkpoint_path, map_location="cpu")
+    try:
+        checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+    except pickle.UnpicklingError:
+        # Les checkpoints MAE embarquent parfois des objets non-tenseurs (ex.
+        # argparse.Namespace dans "args"), refusés par weights_only=True --
+        # défaut de torch>=2.6. Repli acceptable : fichier officiel RETFound.
+        checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     checkpoint_model = _extract_state_dict(checkpoint)
     checkpoint_model = {k.replace("backbone.", ""): v for k, v in checkpoint_model.items()}
 

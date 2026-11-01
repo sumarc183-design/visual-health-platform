@@ -49,7 +49,7 @@ class SyntheticFundusDataset(Dataset):
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-dir", required=True)
-    parser.add_argument("--checkpoint", default="third_party/retfound/checkpoints/RETFound_cfp_weights.pth")
+    parser.add_argument("--checkpoint", default="third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth")
     parser.add_argument("--image-size", type=int, default=224)
     args = parser.parse_args()
 

@@ -37,8 +37,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         "--repo-id", default="YukunZhou/RETFound_mae_natureCFP",
-        help="Dépôt HuggingFace du checkpoint (voir le tableau du README de rmaphoh/RETFound_MAE "
-        "pour les variantes : natureCFP, natureOCT, meh, shanghai, dinov2_meh, dinov2_shanghai).",
+        help="Dépôt HuggingFace du checkpoint. Seules les variantes MAE (ViT-L/16) sont compatibles "
+        "avec src/models/retfound_backbone.py : RETFound_mae_natureCFP, RETFound_mae_natureOCT, "
+        "RETFound_mae_meh, RETFound_mae_shanghai. Les variantes dinov2 (ViT-L/14) ne le sont pas.",
     )
     parser.add_argument("--out", type=Path, required=True, help="Dossier de destination")
     args = parser.parse_args()

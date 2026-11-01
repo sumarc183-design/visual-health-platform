@@ -5,7 +5,7 @@ data:
 
 retfound:
   repo: https://github.com/rmaphoh/RETFound_MAE
-  checkpoint_path: third_party/retfound/checkpoints/RETFound_cfp_weights.pth
+  checkpoint_path: third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
   embedding_dim: 1024   # ViT-Large
 
 classifier:
