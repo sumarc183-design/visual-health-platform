@@ -57,9 +57,22 @@ docs/                    roadmap et arbitrage des cas d'usage
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-bash scripts/setup_retfound.sh   # récupérer le checkpoint RETFound (voir THIRD_PARTY_NOTICES.md)
+bash scripts/setup_retfound.sh   # clone le code officiel RETFound (voir THIRD_PARTY_NOTICES.md)
+
+# Poids RETFound (dépôt HuggingFace gated -- nécessite un compte + token,
+# et d'accepter les conditions sur la page du modèle choisi) :
+huggingface-cli login --token VOTRE_TOKEN
+python scripts/download_retfound_checkpoint.py \
+    --repo-id YukunZhou/RETFound_mae_natureCFP \
+    --out third_party/retfound/checkpoints
+
 python scripts/download_rfmid_odir.py --out data/raw
 ```
+
+huggingface.co est hors de la liste d'hôtes autorisés de l'environnement de
+développement utilisé pour ce dépôt (confirmé : la commande ci-dessus renvoie
+un 403 de politique réseau, pas une erreur d'identifiants) — à lancer depuis
+votre poste ou une instance cloud avec accès internet normal.
 
 ## Licence RETFound — important
 

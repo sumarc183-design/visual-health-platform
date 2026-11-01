@@ -10,3 +10,4 @@ grad-cam
 albumentations
 pyyaml
 tqdm
+huggingface_hub
