@@ -74,6 +74,16 @@ développement utilisé pour ce dépôt (confirmé : la commande ci-dessus renvo
 un 403 de politique réseau, pas une erreur d'identifiants) — à lancer depuis
 votre poste ou une instance cloud avec accès internet normal.
 
+## Lancer sur GPU gratuit (Google Colab)
+
+[![Ouvrir dans Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sumarc183-design/visual-health-platform/blob/main/notebooks/colab_baseline_retfound.ipynb)
+
+`notebooks/colab_baseline_retfound.ipynb` récupère les poids RETFound
+(token HuggingFace dans les Secrets Colab, nommé `HF_TOKEN`), télécharge
+RFMiD ou ODIR depuis Kaggle et lance `run_baseline.py` avec le backbone sur
+GPU (`--device cuda`, choisi automatiquement si disponible). Sélectionner
+`GPU T4` dans le type d'exécution avant de lancer.
+
 ## Licence RETFound — important
 
 RETFound est en **CC BY-NC 4.0 (NonCommercial)**, pas MIT. Utilisable

@@ -92,12 +92,23 @@ def run_quality_control(dataset, n_samples: int = 50) -> None:
     print(f"Contrôle qualité (échantillon de {n_check}) : {n_rejected} rejetée(s)")
 
 
-def collect_embeddings(backbone: RETFoundBackbone, dataset, batch_size: int = 16):
-    loader = DataLoader(dataset, batch_size=batch_size)
+# RETFound est préentraîné (et fine-tuné dans main_finetune.py) sur des images
+# normalisées ImageNet ; les datasets renvoient des images dans [0, 1] (le
+# contrôle qualité en a besoin), la normalisation se fait donc juste avant le
+# backbone.
+IMAGENET_MEAN = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+
+
+def collect_embeddings(backbone: RETFoundBackbone, dataset, batch_size: int = 16,
+                       device: str = "cpu", num_workers: int = 0):
+    loader = DataLoader(dataset, batch_size=batch_size, num_workers=num_workers)
+    mean, std = IMAGENET_MEAN.to(device), IMAGENET_STD.to(device)
     embeddings, labels = [], []
     with torch.no_grad():
         for images, batch_labels in loader:
-            embeddings.append(backbone(images).numpy())
+            images = (images.to(device) - mean) / std
+            embeddings.append(backbone(images).cpu().numpy())
             labels.append(batch_labels.numpy())
     return np.concatenate(embeddings), np.concatenate(labels)
 
@@ -121,6 +132,10 @@ def main() -> None:
     parser.add_argument("--checkpoint", type=Path, default=None, help="Checkpoint RETFound officiel. Omis = poids aléatoires.")
     parser.add_argument("--image-size", type=int, default=224)
     parser.add_argument("--epochs", type=int, default=5)
+    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu",
+                        help="cuda (GPU Colab/Kaggle) ou cpu. Par défaut : cuda si disponible.")
+    parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument("--num-workers", type=int, default=0)
     args = parser.parse_args()
 
     is_synthetic = args.data_root is None
@@ -151,19 +166,21 @@ def main() -> None:
 
         run_quality_control(train_dataset)
 
-        backbone = RETFoundBackbone(checkpoint_path, img_size=args.image_size, embedding_dim=1024)
+        backbone = RETFoundBackbone(checkpoint_path, img_size=args.image_size, embedding_dim=1024).to(args.device)
+        print(f"Backbone sur : {args.device}")
+        embed_kwargs = dict(batch_size=args.batch_size, device=args.device, num_workers=args.num_workers)
 
         print("Extraction des embeddings (train)...")
-        X_train, y_train = collect_embeddings(backbone, train_dataset)
+        X_train, y_train = collect_embeddings(backbone, train_dataset, **embed_kwargs)
         print("Extraction des embeddings (val)...")
-        X_val, y_val = collect_embeddings(backbone, val_dataset)
+        X_val, y_val = collect_embeddings(backbone, val_dataset, **embed_kwargs)
 
-        train_loader = DataLoader(list(zip(torch.from_numpy(X_train), torch.from_numpy(y_train))), batch_size=16)
+        train_loader = DataLoader(list(zip(torch.from_numpy(X_train), torch.from_numpy(y_train))), batch_size=16, shuffle=True)
         head = MultiLabelHead(embedding_dim=1024, num_classes=len(class_names))
-        head = train_head(head, train_loader, train_loader, epochs=args.epochs, lr=1e-3)
+        head = train_head(head, train_loader, train_loader, epochs=args.epochs, lr=1e-3, device=args.device)
 
         with torch.no_grad():
-            probs = torch.sigmoid(head(torch.from_numpy(X_val))).numpy()
+            probs = torch.sigmoid(head(torch.from_numpy(X_val).to(args.device))).cpu().numpy()
         results = evaluate_auroc(y_val, probs, class_names)
 
     print("=" * 60)
