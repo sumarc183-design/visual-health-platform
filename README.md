@@ -4,6 +4,27 @@ Socle modulaire d'analyse d'images médicales. Premier cas d'usage : classificat
 et localisation sur images de fond d'œil, backbone [RETFound](https://github.com/rmaphoh/RETFound_MAE)
 (modèle fondamental rétinien préentraîné, poids publics).
 
+## Résultats
+
+| Date | Données | Classes | Split | AUROC macro |
+|---|---|---|---|---|
+| 2026-11-02 | RFMiD | 28 | train officiel (1 920) / val officielle (640) | **0,855** |
+| 2026-11-02 | ODIR-5K | 8 (N/D/G/C/A/H/M/O) | par patient, 85/15 (5 439 / 953 images) | **0,806** |
+
+Backbone RETFound (`RETFound_mae_natureCFP`) figé, tête linéaire multi-label
+(30 epochs), images 224×224 normalisées ImageNet. Lancé sur Colab GPU T4 via
+`notebooks/colab_baseline_retfound.ipynb`, sorties brutes (AUROC par classe)
+dans `results/`.
+
+Lecture :
+- Sonde sur backbone figé, pas le fine-tuning complet des chiffres publiés
+  RETFound : attendre quelques points de moins.
+- RFMiD : les classes très rares en validation (TV, ST, RP...) ont une AUROC
+  instable, peu interprétable.
+- ODIR : les labels N..O sont posés au niveau patient et dupliqués sur les
+  deux yeux (voir `src/data/odir_dataset.py`), ce bruit de labels plafonne
+  surtout N, D et O. Piste : labels par œil depuis les mots-clés diagnostiques.
+
 ## Pourquoi le fond d'œil en premier
 
 Double usage : le pipeline construit ici (contrôle qualité, prétraitement,
@@ -106,10 +127,10 @@ transformer sans `reshape_transform` — corrigé). Le contrôle qualité
 floue, sous-résolue).
 
 RFMiD et ODIR ont été téléchargés et le pipeline validé de bout en bout sur
-les vraies images (`tests/test_real_datasets.py`, backbone toujours à poids
-aléatoires faute de checkpoint RETFound réel) : voir "Tester sur les
-vraies données" ci-dessous. Le checkpoint RETFound lui-même (CC BY-NC 4.0)
-reste à récupérer manuellement avant un entraînement réel.
+les vraies images (`tests/test_real_datasets.py`, à poids aléatoires pour la
+CI) : voir "Tester sur les vraies données" ci-dessous. Avec le vrai
+checkpoint RETFound (CC BY-NC 4.0), premières AUROC obtenues sur RFMiD et
+ODIR (voir "Résultats" en haut de ce fichier).
 
 ## Tester sans données réelles (smoke test)
 

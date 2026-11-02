@@ -1,0 +1,70 @@
+Classes (28) : ['DR', 'ARMD', 'MH', 'DN', 'MYA', 'BRVO', 'TSLN', 'ERM', 'LS', 'MS', 'CSR', 'ODC', 'CRVO', 'TV', 'AH', 'ODP', 'ODE', 'ST', 'AION', 'PT', 'RT', 'RS', 'CRS', 'EDN', 'RPEC', 'MHL', 'RP', 'PTCR']
+Train : 1920 images | Val : 640 images
+Contrôle qualité (échantillon de 50) : 0 rejetée(s)
+RETFound loaded -- missing: 2 keys, unexpected: 106 keys
+Backbone sur : cuda
+Extraction des embeddings (train)...
+Extraction des embeddings (val)...
+epoch 1/30 — train loss: 0.1565
+epoch 2/30 — train loss: 0.0822
+epoch 3/30 — train loss: 0.1109
+epoch 4/30 — train loss: 0.1257
+epoch 5/30 — train loss: 0.0847
+epoch 6/30 — train loss: 0.0945
+epoch 7/30 — train loss: 0.1054
+epoch 8/30 — train loss: 0.1052
+epoch 9/30 — train loss: 0.1290
+epoch 10/30 — train loss: 0.0908
+epoch 11/30 — train loss: 0.1058
+epoch 12/30 — train loss: 0.0813
+epoch 13/30 — train loss: 0.0852
+epoch 14/30 — train loss: 0.0740
+epoch 15/30 — train loss: 0.0822
+epoch 16/30 — train loss: 0.0730
+epoch 17/30 — train loss: 0.0799
+epoch 18/30 — train loss: 0.0636
+epoch 19/30 — train loss: 0.0858
+epoch 20/30 — train loss: 0.0738
+epoch 21/30 — train loss: 0.0580
+epoch 22/30 — train loss: 0.0824
+epoch 23/30 — train loss: 0.0909
+epoch 24/30 — train loss: 0.0892
+epoch 25/30 — train loss: 0.0864
+epoch 26/30 — train loss: 0.0677
+epoch 27/30 — train loss: 0.0642
+epoch 28/30 — train loss: 0.0772
+epoch 29/30 — train loss: 0.0664
+epoch 30/30 — train loss: 0.0725
+============================================================
+Dataset          : RFMID (RÉEL)
+Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
+AUROC macro      : 0.8549
+                    DR : 0.9371
+                  ARMD : 0.9769
+                    MH : 0.9647
+                    DN : 0.7428
+                   MYA : 0.9940
+                  BRVO : 0.9307
+                  TSLN : 0.9442
+                   ERM : 0.6561
+                    LS : 0.9768
+                    MS : 0.7414
+                   CSR : 0.8575
+                   ODC : 0.7219
+                  CRVO : 0.9775
+                    TV : 0.3777
+                    AH : 0.8318
+                   ODP : 0.7816
+                   ODE : 0.9132
+                    ST : 0.5075
+                  AION : 0.9817
+                    PT : 0.9796
+                    RT : 0.9855
+                    RS : 0.9901
+                   CRS : 0.8013
+                   EDN : 0.9654
+                  RPEC : 0.7584
+                   MHL : 0.7525
+                    RP : 1.0000
+                  PTCR : 0.8905
+============================================================

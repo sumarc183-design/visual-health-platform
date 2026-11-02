@@ -1,0 +1,50 @@
+Classes (8) : ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
+Train : 5439 images | Val : 953 images
+Contrôle qualité (échantillon de 50) : 0 rejetée(s)
+RETFound loaded -- missing: 2 keys, unexpected: 106 keys
+Backbone sur : cuda
+Extraction des embeddings (train)...
+Extraction des embeddings (val)...
+epoch 1/30 — train loss: 0.3362
+epoch 2/30 — train loss: 0.3459
+epoch 3/30 — train loss: 0.2410
+epoch 4/30 — train loss: 0.3189
+epoch 5/30 — train loss: 0.3258
+epoch 6/30 — train loss: 0.3322
+epoch 7/30 — train loss: 0.2236
+epoch 8/30 — train loss: 0.2917
+epoch 9/30 — train loss: 0.2019
+epoch 10/30 — train loss: 0.2350
+epoch 11/30 — train loss: 0.3415
+epoch 12/30 — train loss: 0.2662
+epoch 13/30 — train loss: 0.2604
+epoch 14/30 — train loss: 0.2798
+epoch 15/30 — train loss: 0.2473
+epoch 16/30 — train loss: 0.2785
+epoch 17/30 — train loss: 0.2589
+epoch 18/30 — train loss: 0.2470
+epoch 19/30 — train loss: 0.2777
+epoch 20/30 — train loss: 0.2401
+epoch 21/30 — train loss: 0.2153
+epoch 22/30 — train loss: 0.3369
+epoch 23/30 — train loss: 0.2543
+epoch 24/30 — train loss: 0.2270
+epoch 25/30 — train loss: 0.2528
+epoch 26/30 — train loss: 0.2983
+epoch 27/30 — train loss: 0.1982
+epoch 28/30 — train loss: 0.2628
+epoch 29/30 — train loss: 0.1974
+epoch 30/30 — train loss: 0.2808
+============================================================
+Dataset          : ODIR (RÉEL)
+Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
+AUROC macro      : 0.8064
+                     N : 0.7503
+                     D : 0.7221
+                     G : 0.8514
+                     C : 0.9487
+                     A : 0.8341
+                     H : 0.7627
+                     M : 0.9345
+                     O : 0.6473
+============================================================
