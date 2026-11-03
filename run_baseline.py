@@ -201,7 +201,7 @@ def main() -> None:
 
         print("Extraction des embeddings (train)...")
         X_train, y_train = collect_embeddings(backbone, train_dataset, **embed_kwargs)
-        print("Extraction des embeddings (val)...")
+        print(f"Extraction des embeddings ({args.eval_split})...")
         X_val, y_val = collect_embeddings(backbone, val_dataset, **embed_kwargs)
 
         torch.manual_seed(args.seed)  # initialisation de la tête et ordre des mini-batchs

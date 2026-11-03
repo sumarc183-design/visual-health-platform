@@ -1,0 +1,40 @@
+Classes (28) : ['DR', 'ARMD', 'MH', 'DN', 'MYA', 'BRVO', 'TSLN', 'ERM', 'LS', 'MS', 'CSR', 'ODC', 'CRVO', 'TV', 'AH', 'ODP', 'ODE', 'ST', 'AION', 'PT', 'RT', 'RS', 'CRS', 'EDN', 'RPEC', 'MHL', 'RP', 'PTCR']
+Train : 1920 images | Test : 640 images
+Contrôle qualité (échantillon de 50) : 0 signalée(s), aucune retirée
+RETFound loaded -- missing: 2 keys, unexpected: 106 keys
+Backbone sur : cuda
+============================================================
+Dataset          : RFMID (RÉEL)
+Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
+Évaluation       : test
+AUROC macro sur 27/28 classes (les autres n'ont aucun positif en test)
+AUROC macro      : 0.8323  (train 0.9738, gap +0.1414)
+F1 macro (0,5)   : 0.2396  (train 0.4158, gap +0.1763)
+                    DR : 0.9353
+                  ARMD : 0.9531
+                    MH : 0.9669
+                    DN : 0.7632
+                   MYA : 0.9907
+                  BRVO : 0.9054
+                  TSLN : 0.9461
+                   ERM : 0.7027
+                    LS : 0.8617
+                    MS : 0.7371
+                   CSR : 0.9183
+                   ODC : 0.7386
+                  CRVO : 0.9709
+                    TV : 0.5839
+                    AH : 0.8957
+                   ODP : 0.8379
+                   ODE : 0.9389
+                    ST : 0.4412
+                  AION : 0.7704
+                    PT : 0.7618
+                    RT : 0.8557
+                    RS : 0.9500
+                   CRS : 0.8618
+                   EDN : 0.9316
+                  RPEC : 0.7170
+                   MHL : 0.5374
+                    RP : 1.0000
+============================================================

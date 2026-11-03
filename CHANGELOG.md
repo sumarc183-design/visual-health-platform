@@ -18,7 +18,8 @@ Premier jalon : socle fond d'œil de bout en bout avec les vrais poids RETFound.
   de la tête (`--save-head`).
 - `--eval-split test` : évaluation sur le jeu de test officiel RFMiD.
 - Notebook Google Colab (poids via `HF_TOKEN`, données via kagglehub).
-- Résultats : AUROC macro 0,855 sur RFMiD, 0,806 sur ODIR (étiquettes patient).
+- Résultats : AUROC macro 0,855 sur RFMiD (validation), 0,832 sur son test
+  officiel, 0,806 sur ODIR (étiquettes patient).
 - CI (lint ruff puis tests), `pyproject.toml`, `pre-commit`, carte du modèle,
   guide d'utilisation, test du classifieur de modalité.
 
