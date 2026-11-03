@@ -42,7 +42,7 @@ requires_real_data = pytest.mark.skipif(
     "dataset_cls, root, expected_classes",
     [(RFMiDDataset, RFMID_ROOT, 28), (ODIRDataset, ODIR_ROOT, 8)],
 )
-def test_real_dataset_end_to_end(dataset_cls, root, expected_classes):
+def test_real_dataset_end_to_end(dataset_cls, root, expected_classes, tmp_path):
     dataset = dataset_cls(root, split="train", image_size=224)
     assert len(dataset) > 0
     assert len(dataset.class_names) == expected_classes
@@ -55,14 +55,10 @@ def test_real_dataset_end_to_end(dataset_cls, root, expected_classes):
         assert check_quality(raw_image, blur_threshold=1.0).is_usable
 
     backbone_model = build_retfound_vit_large(img_size=224, global_pool=True)
-    ckpt_path = Path(dataset.root) / "_test_ckpt.pth"
+    ckpt_path = tmp_path / "ckpt.pth"
     torch.save({"model": backbone_model.state_dict()}, ckpt_path)
-    try:
-        backbone = RETFoundBackbone(ckpt_path, img_size=224, embedding_dim=1024)
-
-        embeddings = [backbone(image_t.unsqueeze(0)).detach() for image_t in images]
-    finally:
-        ckpt_path.unlink(missing_ok=True)
+    backbone = RETFoundBackbone(ckpt_path, img_size=224, embedding_dim=1024)
+    embeddings = [backbone(image_t.unsqueeze(0)).detach() for image_t in images]
 
     X = torch.cat(embeddings)
     y = torch.stack(labels)
