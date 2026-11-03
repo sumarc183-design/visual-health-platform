@@ -17,6 +17,16 @@ Premier jalon : socle fond d'œil de bout en bout avec les vrais poids RETFound.
   (`scripts/gradcam_examples.py`, planches pas encore produites), sauvegarde
   de la tête (`--save-head`).
 - `--eval-split test` : évaluation sur le jeu de test officiel RFMiD.
+- Intervalles de confiance à 95 % des AUROC (bootstrap sur les patients),
+  nombre de positifs par classe, alerte sous 10 positifs.
+- `--predictions` : probabilités image par image ; `scripts/compare_predictions.py`
+  compare deux runs par différence d'AUROC appariée.
+- Split ODIR 70/15/15 par patient (`--odir-test-fraction`, `--eval-split test`
+  pour ODIR) : validation inchangée, test tiré dans l'ancien train.
+- Cache d'embeddings (`--embeddings-cache`) : le backbone n'est chargé que
+  pour les images absentes du cache.
+- Notebook : compare `none` et `crop-mask` en un run, cache sur Google Drive,
+  test final protégé par `RUN_TEST`.
 - Prétraitement commun `--preprocess crop-mask` : recadrage sur la rétine et
   masque identique pour toutes les images, contre le raccourci d'acquisition
   (format d'image lié à la maladie dans ODIR).
@@ -31,6 +41,12 @@ Premier jalon : socle fond d'œil de bout en bout avec les vrais poids RETFound.
   guide d'utilisation, test du classifieur de modalité.
 
 ### Corrigé
+- La loss affichée à chaque epoch est la moyenne de l'epoch, plus celle du
+  dernier batch.
+- Occlusion avec `crop-mask` : champ rétinien = masque commun exact, plus un
+  seuillage qui comptait les zones sombres de la rétine comme du fond.
+- `scripts/download_rfmid_odir.py` copie ou relie les données (kagglehub) au
+  lieu de déplacer les fichiers source.
 - Un checkpoint RETFound auquel il manque des poids de l'encodeur était
   chargé en silence (couches aléatoires) : il est maintenant refusé.
 - Le contrôle qualité annonçait des images « rejetées » qui restaient dans

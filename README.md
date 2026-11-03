@@ -47,6 +47,14 @@ images 224×224, Colab GPU T4.
   avant. Étiquettes changées en entraînement et en évaluation, même split.
 - Sonde sur backbone figé, pas le fine-tuning complet des chiffres publiés
   par RETFound : attendre quelques points de moins.
+- **Incertitude** : sur la validation ODIR, l'IC à 95 % d'une AUROC par
+  classe va de ±0,03 (N, 442 positifs) à ±0,09 (H, 34 positifs). Les écarts
+  entre variantes se jugent donc par différence appariée sur les mêmes images
+  (`scripts/compare_predictions.py`), pas en comparant deux chiffres.
+- **Split ODIR** : les chiffres ci-dessus utilisent le split d'origine 85/15
+  sans test. Les prochains runs passent à 70/15/15 par patient (même
+  validation, test tiré dans l'ancien train) : nouvelle référence à mesurer,
+  avec moins d'images d'entraînement.
 
 ## Explicabilité
 

@@ -24,11 +24,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     needs: lint
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]  # 3.10 = minimum annoncé dans pyproject.toml
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Installer les dépendances
         run: pip install -r requirements-dev.txt

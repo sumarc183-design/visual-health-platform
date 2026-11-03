@@ -76,6 +76,7 @@ def load_val_dataset(dataset_name: str, data_root: Path, head_ckpt: dict):
             image_size=image_size,
             label_level=head_ckpt.get("odir_labels") or "patient",
             preprocess=preprocess,
+            test_fraction=head_ckpt.get("odir_test_fraction") or 0.0,  # val identique quel que soit ce réglage
         )
     if list(dataset.class_names) != class_names:
         raise SystemExit("Les classes du dataset ne correspondent pas à celles de la tête sauvegardée.")

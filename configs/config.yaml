@@ -1,42 +1,35 @@
-# Fichier de référence : aucun script ne le lit. Les runs réels (README,
-# "Résultats") utilisent les arguments de run_baseline.py : images 224x224,
-# tête linéaire lr 1e-3, 30 epochs, batch 16 -- pas les valeurs ci-dessous.
+# Fichier de référence, lu par aucun script : il résume les réglages des runs
+# publiés (README, « Résultats »). La source de vérité est run_baseline.py
+# (valeurs par défaut) et la cellule 4 du notebook Colab.
 
 data:
-  raw_dir: data/raw
-  processed_dir: data/processed
-  image_size: 512
+  image_size: 224            # résolution de préentraînement de RETFound
+  preprocess: [none, crop-mask]   # comparés sur val ; voir src/data/fundus_preprocess.py
+  rfmid:
+    splits: officiels (train / val / test)
+    classes: 28              # au moins 5 positifs dans le train (hors Disease_Risk)
+  odir:
+    classes: [N, D, G, C, A, H, M, O]
+    labels: eye              # étiquette de l'œil photographié (patient = ~21 % d'images mal étiquetées)
+    split: 70/15/15 par patient   # val = split d'origine 85/15 ; test tiré dans l'ancien train
 
 retfound:
-  repo: https://github.com/rmaphoh/RETFound_MAE
-  checkpoint_path: third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
-  embedding_dim: 1024   # ViT-Large
+  checkpoint: third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
+  architecture: ViT-L/16, global pool, figé
+  embedding_dim: 1024
 
-classifier:
-  # RFMiD et ODIR ont des taxonomies différentes -- ne pas les traiter comme
-  # une seule tête à num_classes générique. Sources : RIADD/RFMiD challenge
-  # (45 pathologies annotées, sous-ensemble de 28 classes couramment utilisé
-  # pour la classification -- hors "Disease_Risk" qui est un label binaire
-  # séparé) ; ODIR-5K (8 classes, tutelle Shenzhen Zhongke, fortement
-  # déséquilibré : Normal=2873 vs Hypertension=128).
-  datasets:
-    rfmid:
-      num_classes: 28
-      multilabel: true
-      note: hors label binaire "Disease_Risk", évalué séparément si besoin
-    odir:
-      num_classes: 8
-      multilabel: true
-      class_names: [N, D, G, C, A, H, M, O]   # Normal/Diabetes/Glaucoma/Cataract/AMD/Hypertension/Myopie patho/Autre
-      note: fortement déséquilibré (Normal 2873 vs Hypertension 128) -- utiliser class weights ou focal loss
-      label_level: eye   # eye = étiquette de l'œil photographié (mots-clés) ; patient = diagnostic des deux yeux recopié (~21 % d'images mal étiquetées)
-  lr: 1e-4
-  epochs: 20
-  batch_size: 32
-  freeze_backbone: true    # phase 1 : sonde/fine-tuning léger uniquement
-
-quality_control:
-  blur_variance_threshold: 100.0   # variance du Laplacien, seuil à calibrer
+head:
+  type: linéaire multi-label (BCE)
+  optimizer: Adam
+  lr: 1.0e-3
+  epochs: 30
+  batch_size: 16
+  seed: 42
 
 eval:
-  metrics: [auroc_macro, auroc_per_class, f1_macro]
+  metrics: [auroc_macro, auroc_per_class, f1_macro, gap_train_val]
+  ci: bootstrap 1000 tirages sur les patients, IC 95 %
+  comparison: différence appariée (scripts/compare_predictions.py), sur val
+
+quality_control:
+  blur_threshold: 1.0        # signale sans filtrer ; seuil à calibrer (classe déjà testée : 100)

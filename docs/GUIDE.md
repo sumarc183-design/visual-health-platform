@@ -47,9 +47,11 @@ python -c "import kagglehub; print(kagglehub.dataset_download('andrewmvd/ocular-
 ```
 
 Les chemins affichés ont directement la structure attendue par les loaders.
-`scripts/download_rfmid_odir.py` sert seulement à ranger un téléchargement
-manuel dans `data/raw/{rfmid,odir}/` ; `scripts/download_isic.py` prépare la
-phase 2 (dermatologie).
+`python scripts/download_rfmid_odir.py --out data/raw` fait la même chose et
+les relie dans `data/raw/{rfmid,odir}/` (lien symbolique, `--copy` pour
+copier ; `--rfmid-from`/`--odir-from` pour une archive extraite à la main,
+copiée sans toucher la source). `scripts/download_isic.py` prépare la phase 2
+(dermatologie).
 
 ### RFMiD
 
@@ -69,9 +71,15 @@ photographié depuis ses propres mots-clés diagnostiques. Validation : le OU
 des deux yeux redonne exactement le diagnostic patient pour 3 358 / 3 358
 patients. `--odir-labels patient` reproduit l'ancien protocole.
 
-Le split train/validation est **groupé par patient** (les deux yeux d'un
-patient restent du même côté). `Testing Images/` n'a pas de label (test caché
-du challenge d'origine) et n'est pas utilisé.
+Le split est **groupé par patient** (les deux yeux d'un patient restent du
+même côté) : 70 % train, 15 % validation, 15 % test. La validation est
+identique au split d'origine 85/15, sur lequel les premières décisions ont
+été prises (étiquettes par œil, prétraitement) ; le test est donc tiré dans
+l'ancien train, jamais évalué. Toutes les décisions se prennent sur la
+validation, le test n'est lu qu'une fois à la fin. `--odir-test-fraction 0`
+redonne le split d'origine sans test (premiers résultats publiés).
+`Testing Images/` n'a pas de label (test caché du challenge d'origine) et
+n'est pas utilisé.
 
 ## Lancer la baseline
 
@@ -83,11 +91,41 @@ python run_baseline.py --dataset rfmid --data-root <chemin RFMiD> \
 
 Enchaîne contrôle qualité → embeddings RETFound figés (images 224×224
 normalisées ImageNet) → tête linéaire multi-label → AUROC macro et par
-classe, F1 macro (seuil 0,5), et gap train − validation. `--seed` fixe
-l'entraînement de la tête. `--eval-split test` évalue RFMiD sur son jeu de
-test officiel, à lancer une seule fois, réglages figés sur la validation
-(ODIR n'a pas de test étiqueté). Sans `--data-root` : images synthétiques ; sans
-`--checkpoint` : poids aléatoires (plomberie uniquement, signalé en sortie).
+classe avec IC à 95 %, F1 macro (seuil 0,5), et gap train − validation.
+`--seed` fixe l'entraînement de la tête. `--eval-split test` évalue sur le
+test (officiel pour RFMiD, 15 % des patients pour ODIR), à lancer une seule
+fois, réglages figés sur la validation. Sans `--data-root` : images
+synthétiques ; sans `--checkpoint` : poids aléatoires (plomberie uniquement,
+signalé en sortie).
+
+Options utiles :
+
+- `--embeddings-cache <dossier>` : le backbone est figé, l'embedding d'une
+  image ne dépend que de l'image, du prétraitement, de la taille et du
+  checkpoint. Le cache (un `.npz` par combinaison, indexé par image) évite de
+  refaire ~10 min de GPU à chaque run ; si tout est en cache, le backbone
+  n'est même pas chargé et le run tourne sur CPU en quelques secondes.
+- `--predictions <fichier.npz>` : probabilités image par image du jeu évalué,
+  avec les étiquettes et les patients. De quoi calculer IC, comparaisons,
+  seuils par classe ou calibration sans relancer le GPU.
+- `--bootstrap N` (défaut 1000) : IC à 95 % par bootstrap **sur les
+  patients** (les deux yeux d'un patient sont corrélés ; les tirer image par
+  image rétrécirait les intervalles). Classes à moins de 10 positifs
+  signalées : leur IC est peu fiable.
+
+### Comparer deux variantes
+
+Sur la validation ODIR, une AUROC par classe a un IC de ±0,03 à ±0,09 :
+deux runs ne se comparent pas en regardant leurs chiffres séparés.
+`scripts/compare_predictions.py` calcule la différence **appariée** (mêmes
+images, mêmes tirages de patients pour les deux runs), bien plus précise :
+
+```bash
+python scripts/compare_predictions.py results/pred_odir_none_val.npz \
+    results/pred_odir_crop-mask_val.npz --json results/compare_odir_val.json
+```
+
+Un écart n'est retenu que si son IC exclut 0. Toujours sur la validation.
 
 ### Google Colab (GPU gratuit)
 
@@ -95,7 +133,10 @@ test officiel, à lancer une seule fois, réglages figés sur la validation
 
 `GPU T4` dans le type d'exécution, token HuggingFace dans les Secrets Colab
 sous le nom `HF_TOKEN`, puis `Tout exécuter`. Le notebook récupère les poids,
-télécharge RFMiD ou ODIR, lance la baseline puis la planche Grad-CAM.
+télécharge RFMiD ou ODIR, évalue les variantes de prétraitement sur la
+validation (cache d'embeddings sur Google Drive) et les compare, produit les
+planches Grad-CAM et d'occlusion, puis, si `RUN_TEST = True`, le chiffre
+final sur le test.
 
 ### Prétraitement commun (`crop-mask`)
 

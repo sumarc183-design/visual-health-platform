@@ -67,6 +67,16 @@ class RFMiDDataset(Dataset):
         self.df = pd.read_csv(_labels_csv_path(self.root, split))
         self.images_dir = _images_dir(self.root, split)
 
+    @property
+    def image_keys(self) -> list[str]:
+        """Identifiant stable de chaque image (les ID se répètent d'un split à l'autre)."""
+        return [f"{self.split}/{int(i)}" for i in self.df["ID"]]
+
+    @property
+    def groups(self) -> list[str]:
+        """Unité du bootstrap : RFMiD ne donne pas de patient, chaque image compte seule."""
+        return self.image_keys
+
     def __len__(self) -> int:
         return len(self.df)
 

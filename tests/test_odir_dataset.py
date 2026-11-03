@@ -79,3 +79,26 @@ def test_eye_level_labels_follow_the_photographed_eye(synthetic_odir_root):
 )
 def test_keywords_to_classes(keywords, expected):
     assert keywords_to_classes(keywords) == expected
+
+
+def test_three_way_split_keeps_original_val_and_draws_test_from_old_train(synthetic_odir_root):
+    """val = split d'origine 85/15 (sur lequel on a déjà décidé) ; le test
+    vient de l'ancien train, jamais évalué ; aucun patient partagé."""
+    old_train = set(ODIRDataset(synthetic_odir_root, split="train", test_fraction=0).df["ID"])
+    old_val = set(ODIRDataset(synthetic_odir_root, split="val", test_fraction=0).df["ID"])
+    new = {s: set(ODIRDataset(synthetic_odir_root, split=s).df["ID"]) for s in ("train", "val", "test")}
+
+    assert new["val"] == old_val
+    assert new["test"] and new["test"] <= old_train
+    assert new["train"].isdisjoint(new["test"]) and new["train"] | new["test"] == old_train
+
+
+def test_no_test_split_without_test_fraction(synthetic_odir_root):
+    with pytest.raises(ValueError):
+        ODIRDataset(synthetic_odir_root, split="test", test_fraction=0)
+
+
+def test_image_keys_and_groups(synthetic_odir_root):
+    dataset = ODIRDataset(synthetic_odir_root, split="val")
+    assert dataset.image_keys == list(dataset.df["filename"])
+    assert dataset.groups == [str(i) for i in dataset.df["ID"]]

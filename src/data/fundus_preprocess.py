@@ -72,6 +72,15 @@ def fundus_bbox(image: Image.Image, probe_size: int = 512) -> tuple[int, int, in
     )
 
 
+def common_mask(image_size: int) -> np.ndarray:
+    """Masque booléen (H, W) de la rétine conservée par crop-mask, identique
+    pour toutes les images."""
+    yy, xx = np.mgrid[:image_size, :image_size]
+    center = (image_size - 1) / 2
+    inside = (yy - center) ** 2 + (xx - center) ** 2 <= (MASK_RADIUS * image_size / 2) ** 2
+    return inside & (np.abs(yy - center) <= MASK_BAND * image_size / 2)
+
+
 def crop_mask(image: Image.Image, image_size: int) -> np.ndarray:
     """Recadre sur la rétine, complète en carré noir centré, redimensionne,
     puis noircit tout ce qui est hors du masque commun. Sortie uint8 (H, W, 3)."""
@@ -82,12 +91,7 @@ def crop_mask(image: Image.Image, image_size: int) -> np.ndarray:
     square = Image.new("RGB", (side, side))
     square.paste(image, ((side - image.width) // 2, (side - image.height) // 2))
     array = np.asarray(square.resize((image_size, image_size), Image.BILINEAR)).copy()
-
-    yy, xx = np.mgrid[:image_size, :image_size]
-    center = (image_size - 1) / 2
-    outside = (yy - center) ** 2 + (xx - center) ** 2 > (MASK_RADIUS * image_size / 2) ** 2
-    outside |= np.abs(yy - center) > MASK_BAND * image_size / 2
-    array[outside] = 0
+    array[~common_mask(image_size)] = 0
     return array
 
 

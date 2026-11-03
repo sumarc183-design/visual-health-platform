@@ -29,12 +29,15 @@ def train_head(
 
     for epoch in range(epochs):
         head.train()
+        total, count = 0.0, 0
         for embeddings, labels in train_loader:
             embeddings, labels = embeddings.to(device), labels.float().to(device)
             optimizer.zero_grad()
             loss = criterion(head(embeddings), labels)
             loss.backward()
             optimizer.step()
-        print(f"epoch {epoch + 1}/{epochs} — train loss: {loss.item():.4f}")
+            total, count = total + loss.item() * len(labels), count + len(labels)
+        # Moyenne sur l'epoch : la loss du dernier batch seul oscille au hasard du tirage.
+        print(f"epoch {epoch + 1}/{epochs} — train loss: {total / count:.4f}")
 
     return head

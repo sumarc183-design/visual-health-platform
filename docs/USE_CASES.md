@@ -11,7 +11,8 @@
 ## Pourquoi le fond d'œil en premier
 
 Le pipeline construit pour cette indication (contrôle qualité rétine,
-identification du disque optique, prétraitement fond d'œil) est directement
+prétraitement fond d'œil commun, explicabilité par occlusion ; localisation
+du disque optique prévue au J60) est directement
 réutilisable pour la piste TSA dès que l'accès aux données AI-Hub sera
 négocié. Investir dans ce socle maintenant ne se perd pas si la piste TSA
 prend plus de temps que prévu à débloquer.

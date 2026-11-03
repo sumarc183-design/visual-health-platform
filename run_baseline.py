@@ -36,16 +36,17 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from scripts.generate_synthetic_fundus_dataset import generate_dataset
 from src.data.fundus_preprocess import PREPROCESS_CHOICES
-from src.data.odir_dataset import ODIRDataset
+from src.data.odir_dataset import TEST_FRACTION, ODIRDataset
 from src.data.rfmid_dataset import RFMiDDataset
-from src.eval.metrics import evaluate_multilabel
+from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel
 from src.models.classifier_head import MultiLabelHead, train_head
+from src.models.embedding_cache import EmbeddingCache, cache_file_name
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone, build_retfound_vit_large
 from src.pipeline.quality_control import check_quality
 
@@ -112,6 +113,22 @@ def collect_embeddings(
     return np.concatenate(embeddings), np.concatenate(labels)
 
 
+def dataset_embeddings(dataset, label: str, get_backbone, cache: EmbeddingCache | None, embed_kwargs: dict):
+    """Embeddings et étiquettes d'un jeu. Avec cache, seules les images
+    absentes passent dans le backbone (chargé seulement s'il le faut)."""
+    if cache is None:
+        print(f"Extraction des embeddings ({label})...")
+        return collect_embeddings(get_backbone(), dataset, **embed_kwargs)
+    keys = dataset.image_keys
+    todo = [i for i, key in enumerate(keys) if key in set(cache.missing(keys))]
+    print(f"Embeddings ({label}) : {len(keys) - len(todo)} en cache, {len(todo)} à extraire")
+    if todo:
+        X_new, _ = collect_embeddings(get_backbone(), Subset(dataset, todo), **embed_kwargs)
+        cache.add([keys[i] for i in todo], X_new)
+        cache.save()
+    return cache.get(keys), dataset.df[dataset.class_names].to_numpy(dtype=np.float32)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dataset", choices=["rfmid", "odir"], required=True)
@@ -149,8 +166,32 @@ def main() -> None:
         "--eval-split",
         choices=["val", "test"],
         default="val",
-        help="Jeu d'évaluation. test = jeu de test officiel RFMiD, à n'utiliser qu'une fois les "
-        "réglages figés sur val. ODIR n'a pas de test étiqueté : val uniquement.",
+        help="Jeu d'évaluation. test = jeu de test (officiel pour RFMiD, 15 %% des patients mis de côté "
+        "pour ODIR), à n'utiliser qu'une fois les réglages figés sur val.",
+    )
+    parser.add_argument(
+        "--odir-test-fraction",
+        type=float,
+        default=TEST_FRACTION,
+        help="ODIR : part des images mise de côté pour le test (défaut 0,15 : split 70/15/15). "
+        "0 = split d'origine 85/15 sans test (premiers résultats publiés).",
+    )
+    parser.add_argument(
+        "--embeddings-cache",
+        type=Path,
+        default=None,
+        help="Dossier du cache d'embeddings (Google Drive dans Colab) : les images déjà vues ne repassent "
+        "pas dans le backbone. Ignoré en synthétique ou avec des poids aléatoires.",
+    )
+    parser.add_argument(
+        "--predictions",
+        type=Path,
+        default=None,
+        help="Enregistre les probabilités image par image du jeu évalué (.npz) : intervalles de confiance, "
+        "comparaison appariée (scripts/compare_predictions.py), seuils, calibration sans relancer le GPU.",
+    )
+    parser.add_argument(
+        "--bootstrap", type=int, default=1000, help="Tirages bootstrap pour les IC à 95 %% (0 = désactivé)"
     )
     parser.add_argument(
         "--seed", type=int, default=42, help="Graine de l'entraînement de la tête (résultats reproductibles)"
@@ -168,8 +209,10 @@ def main() -> None:
         help="Sauvegarde la tête entraînée (+ classes, dataset, taille d'image) pour scripts/gradcam_examples.py.",
     )
     args = parser.parse_args()
-    if args.eval_split == "test" and (args.dataset != "rfmid" or args.data_root is None):
-        parser.error("--eval-split test n'existe que pour RFMiD réel (ODIR : pas de test étiqueté).")
+    if args.eval_split == "test" and args.data_root is None:
+        parser.error("--eval-split test demande des données réelles (--data-root).")
+    if args.eval_split == "test" and args.dataset == "odir" and args.odir_test_fraction == 0:
+        parser.error("--eval-split test impossible avec --odir-test-fraction 0 (split d'origine sans test).")
 
     is_synthetic = args.data_root is None
     is_random_checkpoint = args.checkpoint is None
@@ -194,9 +237,14 @@ def main() -> None:
                 args.data_root, split=args.eval_split, image_size=args.image_size, preprocess=args.preprocess
             )
         else:
-            odir_kwargs = dict(image_size=args.image_size, label_level=args.odir_labels, preprocess=args.preprocess)
+            odir_kwargs = dict(
+                image_size=args.image_size,
+                label_level=args.odir_labels,
+                preprocess=args.preprocess,
+                test_fraction=args.odir_test_fraction,
+            )
             train_dataset = ODIRDataset(args.data_root, split="train", **odir_kwargs)
-            val_dataset = ODIRDataset(args.data_root, split="val", **odir_kwargs)
+            val_dataset = ODIRDataset(args.data_root, split=args.eval_split, **odir_kwargs)
 
         class_names = train_dataset.class_names
         print(f"Classes ({len(class_names)}) : {class_names}")
@@ -204,14 +252,24 @@ def main() -> None:
 
         run_quality_control(train_dataset)
 
-        backbone = RETFoundBackbone(checkpoint_path, img_size=args.image_size, embedding_dim=1024).to(args.device)
-        print(f"Backbone sur : {args.device}")
-        embed_kwargs = dict(batch_size=args.batch_size, device=args.device, num_workers=args.num_workers)
+        backbone_holder: list[RETFoundBackbone] = []
 
-        print("Extraction des embeddings (train)...")
-        X_train, y_train = collect_embeddings(backbone, train_dataset, **embed_kwargs)
-        print(f"Extraction des embeddings ({args.eval_split})...")
-        X_val, y_val = collect_embeddings(backbone, val_dataset, **embed_kwargs)
+        def get_backbone() -> RETFoundBackbone:
+            if not backbone_holder:
+                backbone_holder.append(
+                    RETFoundBackbone(checkpoint_path, img_size=args.image_size, embedding_dim=1024).to(args.device)
+                )
+                print(f"Backbone sur : {args.device}")
+            return backbone_holder[0]
+
+        cache = None
+        if args.embeddings_cache is not None and not (is_synthetic or is_random_checkpoint):
+            cache = EmbeddingCache(
+                args.embeddings_cache / cache_file_name(args.dataset, args.preprocess, args.image_size, args.checkpoint)
+            )
+        embed_kwargs = dict(batch_size=args.batch_size, device=args.device, num_workers=args.num_workers)
+        X_train, y_train = dataset_embeddings(train_dataset, "train", get_backbone, cache, embed_kwargs)
+        X_val, y_val = dataset_embeddings(val_dataset, args.eval_split, get_backbone, cache, embed_kwargs)
 
         torch.manual_seed(args.seed)  # initialisation de la tête et ordre des mini-batchs
         train_loader = DataLoader(
@@ -225,6 +283,21 @@ def main() -> None:
             train_probs = torch.sigmoid(head(torch.from_numpy(X_train).to(args.device))).cpu().numpy()
         results = evaluate_multilabel(y_val, probs, class_names)
         train_results = evaluate_multilabel(y_train, train_probs, class_names)
+        eval_keys = getattr(val_dataset, "image_keys", [str(i) for i in range(len(val_dataset))])
+        eval_groups = getattr(val_dataset, "groups", eval_keys)
+        if args.bootstrap > 0:
+            results.update(bootstrap_auroc_ci(y_val, probs, class_names, eval_groups, n_boot=args.bootstrap))
+        if args.predictions is not None:
+            args.predictions.parent.mkdir(parents=True, exist_ok=True)
+            np.savez(
+                args.predictions,
+                keys=np.array(eval_keys),
+                groups=np.array(eval_groups),
+                y_true=y_val,
+                probs=probs,
+                class_names=np.array(class_names),
+            )
+            print(f"Prédictions : {args.predictions}")
 
         if args.save_head is not None:
             args.save_head.parent.mkdir(parents=True, exist_ok=True)
@@ -236,6 +309,7 @@ def main() -> None:
                     "image_size": args.image_size,
                     "preprocess": args.preprocess,
                     "odir_labels": args.odir_labels if args.dataset == "odir" else None,
+                    "odir_test_fraction": args.odir_test_fraction if args.dataset == "odir" else None,
                     "auroc_per_class": results["auroc_per_class"],
                 },
                 args.save_head,
@@ -257,16 +331,22 @@ def main() -> None:
             f"AUROC macro sur {n_auroc}/{len(class_names)} classes "
             f"(les autres n'ont aucun positif en {args.eval_split})"
         )
+    macro_ci = results.get("auroc_macro_ci")
+    ci_text = f" [IC 95 % {macro_ci[0]:.3f}-{macro_ci[1]:.3f}]" if macro_ci else ""
     print(
-        f"AUROC macro      : {results['auroc_macro']:.4f}  (train {train_results['auroc_macro']:.4f}, "
+        f"AUROC macro      : {results['auroc_macro']:.4f}{ci_text}  (train {train_results['auroc_macro']:.4f}, "
         f"gap {train_results['auroc_macro'] - results['auroc_macro']:+.4f})"
     )
     print(
         f"F1 macro (0,5)   : {results['f1_macro']:.4f}  (train {train_results['f1_macro']:.4f}, "
         f"gap {train_results['f1_macro'] - results['f1_macro']:+.4f})"
     )
+    class_ci = results.get("auroc_per_class_ci", {})
     for name, value in results["auroc_per_class"].items():
-        print(f"  {name:>20s} : {value:.4f}")
+        ci = f"  [{class_ci[name][0]:.3f}-{class_ci[name][1]:.3f}]" if name in class_ci else ""
+        n_pos = results["positives_per_class"][name]
+        unstable = "  ⚠ moins de 10 positifs : IC peu fiable" if n_pos < 10 else ""
+        print(f"  {name:>20s} : {value:.4f}{ci}  (n+ = {n_pos}){unstable}")
     print("=" * 60)
     if args.results_json is not None:
         args.results_json.parent.mkdir(parents=True, exist_ok=True)
@@ -275,6 +355,7 @@ def main() -> None:
                 {
                     "dataset": args.dataset,
                     "odir_labels": args.odir_labels if args.dataset == "odir" else None,
+                    "odir_test_fraction": args.odir_test_fraction if args.dataset == "odir" else None,
                     "synthetic": is_synthetic,
                     "checkpoint": None if is_random_checkpoint else str(args.checkpoint),
                     "eval_split": args.eval_split,
@@ -282,7 +363,7 @@ def main() -> None:
                     "seed": args.seed,
                     "epochs": args.epochs,
                     "val": results,
-                    "train": {k: v for k, v in train_results.items() if k != "auroc_per_class"},
+                    "train": {k: v for k, v in train_results.items() if k in ("auroc_macro", "f1_macro")},
                 },
                 indent=2,
                 ensure_ascii=False,

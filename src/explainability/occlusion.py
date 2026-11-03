@@ -73,12 +73,16 @@ def occlusion_map(
 
 
 @torch.no_grad()
-def background_test(model: nn.Module, image_t: torch.Tensor, class_idx: int) -> dict:
+def background_test(model: nn.Module, image_t: torch.Tensor, class_idx: int, mask: torch.Tensor | None = None) -> dict:
     """Logit d'origine, logit avec tout le hors-champ remplacé par du gris,
-    et part de l'image hors champ. Une forte chute = raccourci sur le fond."""
+    et part de l'image hors champ. Une forte chute = raccourci sur le fond.
+
+    `mask` : champ rétinien connu (masque commun de crop-mask). Sinon, estimé
+    par seuillage (fundus_mask), qui compte aussi comme « hors champ » les
+    zones très sombres de la rétine."""
     device = next(model.parameters()).device
     image_t = image_t.to(device)
-    outside = ~fundus_mask(image_t)
+    outside = ~(mask.to(device) if mask is not None else fundus_mask(image_t))
     grayed = torch.where(outside, FILL.to(device), image_t)
     base, gray = class_logit(model, torch.stack([image_t, grayed]), class_idx).tolist()
     return {"logit": base, "logit_fond_gris": gray, "part_hors_champ": float(outside.float().mean())}

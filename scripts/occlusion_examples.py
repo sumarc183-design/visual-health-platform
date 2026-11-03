@@ -35,6 +35,7 @@ from pytorch_grad_cam.utils.image import show_cam_on_image
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.gradcam_examples import caption, load_val_dataset, pick_default_classes, top_true_positives
+from src.data.fundus_preprocess import common_mask
 from src.explainability.gradcam import RETFoundClassifier
 from src.explainability.occlusion import background_test, fundus_mask, occlusion_map, outside_share
 from src.models.classifier_head import MultiLabelHead
@@ -72,6 +73,8 @@ def main() -> None:
         parser.error(f"La tête a été entraînée sur {head_ckpt['dataset']}, pas sur {args.dataset}")
     class_names, image_size = head_ckpt["class_names"], head_ckpt["image_size"]
     dataset, labels = load_val_dataset(args.dataset, args.data_root, head_ckpt)
+    # Avec crop-mask, le champ rétinien est exactement le masque commun ; sinon il est estimé image par image.
+    known_mask = torch.from_numpy(common_mask(image_size)) if head_ckpt.get("preprocess") == "crop-mask" else None
     positives_per_class = {c: int(labels[:, i].sum()) for i, c in enumerate(class_names)}
 
     classes = args.classes or pick_default_classes(
@@ -100,8 +103,9 @@ def main() -> None:
         for idx, prob in picks:
             image_t, _ = dataset[idx]
             heat, _ = occlusion_map(model, image_t, class_idx, args.patch, args.stride, args.batch_size)
-            bg = background_test(model, image_t, class_idx)
-            share = outside_share(heat, fundus_mask(image_t).numpy())
+            mask = known_mask if known_mask is not None else fundus_mask(image_t)
+            bg = background_test(model, image_t, class_idx, mask)
+            share = outside_share(heat, mask.numpy())
             delta = bg["logit_fond_gris"] - bg["logit"]
             # nan = aucune occlusion ne fait baisser le logit : rien à répartir (None en JSON)
             records.append(

@@ -12,7 +12,9 @@ Format inspiré des *Model Cards* (Mitchell et al., 2019).
   pathologie, sigmoïde) sur l'embedding de 1 024 dimensions.
 - **Tâche** : dépistage multi-pathologies sur photo de fond d'œil ; une image
   peut porter plusieurs pathologies à la fois.
-- **Explicabilité** : cartes Grad-CAM adaptées aux ViT.
+- **Explicabilité** : test d'occlusion (zones dont le masquage fait chuter
+  la prédiction). Grad-CAM est conservé pour comparaison mais trompeur sur
+  ce modèle (voir les limites).
 
 ## Usage prévu
 
@@ -27,17 +29,20 @@ Format inspiré des *Model Cards* (Mitchell et al., 2019).
 ## Données d'évaluation
 
 - **RFMiD** (challenge RIADD) : 28 pathologies retenues (au moins 5 positifs
-  dans le train), split train / validation officiel.
+  dans le train), splits train / validation / test officiels.
 - **ODIR-5K** : 8 classes (Normal, Diabète, Glaucome, Cataracte, DMLA,
-  Hypertension, Myopie pathologique, Autre), split 85/15 **groupé par
-  patient**. Étiquettes par œil reconstruites depuis les mots-clés
+  Hypertension, Myopie pathologique, Autre), split 70/15/15 **groupé par
+  patient** (premiers résultats : 85/15 sans test, validation identique). Étiquettes par œil reconstruites depuis les mots-clés
   diagnostiques (le diagnostic patient recopié sur les deux yeux étiquetait
   faux 20,8 % des images).
 
 ## Métriques
 
-AUROC macro et par classe (référence du domaine, indépendante du seuil),
-F1 macro au seuil 0,5, gap train − validation. Résultats à jour :
+AUROC macro et par classe (référence du domaine, indépendante du seuil)
+avec IC à 95 % par bootstrap sur les patients, F1 macro au seuil 0,5 (peu
+parlant pour les classes rares, en attendant des seuils par classe), gap
+train − validation. Choix des variantes sur la validation par différence
+appariée ; le test n'est lu qu'une fois. Résultats à jour :
 [README](../README.md#résultats).
 
 ## Limites connues

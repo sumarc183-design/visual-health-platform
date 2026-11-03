@@ -18,8 +18,13 @@ représenter un œil à plusieurs pathologies.
 
 `Testing Images/` (1000 fichiers) n'a pas d'étiquette dans full_df.csv --
 c'est le jeu de test caché du challenge Kaggle d'origine, inutilisable pour
-une évaluation supervisée. Le split train/val est donc fait ici sur les
-images annotées de `Training Images/`.
+une évaluation supervisée. Le split est donc fait ici sur les images
+annotées de `Training Images/` : 70 % train, 15 % val, 15 % test par
+défaut. Le test est mis de côté : les choix (étiquettes, prétraitement,
+réglages de la tête) se font sur val, le test n'est lu qu'une fois à la
+fin. val est identique au split d'origine 85/15 ; le test est pris dans
+l'ancien train (voir split_by_patient). `test_fraction=0` redonne le split
+d'origine sans test (premiers résultats publiés).
 
 Piège n°2 : chaque patient a 2 lignes (œil gauche + œil droit) qui
 partagent le même label N..O. Un split ligne-par-ligne peut mettre l'œil
@@ -43,6 +48,7 @@ from .fundus_preprocess import load_fundus_image
 CLASS_NAMES = ["N", "D", "G", "C", "A", "H", "M", "O"]
 PATIENT_ID_COLUMN = "ID"
 VAL_FRACTION = 0.15
+TEST_FRACTION = 0.15
 SPLIT_SEED = 42
 
 # Mots-clés qui décrivent la prise de vue, pas l'œil : ne donnent aucune classe.
@@ -95,6 +101,23 @@ def eye_level_labels(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def split_by_patient(df: pd.DataFrame, val_fraction: float, test_fraction: float, seed: int) -> dict:
+    """Indices train/val(/test) groupés par patient.
+
+    val est le split d'origine (85/15), inchangé : c'est sur lui qu'ont été
+    prises les décisions jusqu'ici (étiquettes par œil, prétraitement). Le
+    test est donc tiré dans l'ancien train, jamais évalué : tiré ailleurs, il
+    recouvrirait des images déjà utilisées pour décider."""
+    groups = df[PATIENT_ID_COLUMN]
+    splitter = GroupShuffleSplit(n_splits=1, test_size=val_fraction, random_state=seed)
+    train_idx, val_idx = next(splitter.split(df, groups=groups))
+    if test_fraction == 0:
+        return {"train": train_idx, "val": val_idx}
+    splitter = GroupShuffleSplit(n_splits=1, test_size=test_fraction / (1 - val_fraction), random_state=seed)
+    train_rel, test_rel = next(splitter.split(train_idx, groups=groups.iloc[train_idx]))
+    return {"train": train_idx[train_rel], "val": val_idx, "test": train_idx[test_rel]}
+
+
 class ODIRDataset(Dataset):
     def __init__(
         self,
@@ -102,12 +125,15 @@ class ODIRDataset(Dataset):
         split: str = "train",
         image_size: int = 224,
         val_fraction: float = VAL_FRACTION,
+        test_fraction: float = TEST_FRACTION,
         seed: int = SPLIT_SEED,
         label_level: str = "eye",
         preprocess: str = "none",
     ):
-        if split not in ("train", "val"):
-            raise ValueError(f"split doit être train/val, reçu {split!r}")
+        if split not in ("train", "val", "test"):
+            raise ValueError(f"split doit être train/val/test, reçu {split!r}")
+        if split == "test" and test_fraction == 0:
+            raise ValueError("pas de split test avec test_fraction=0 (split d'origine 85/15)")
         if label_level not in ("eye", "patient"):
             raise ValueError(f"label_level doit être eye/patient, reçu {label_level!r}")
         self.label_level = label_level
@@ -119,16 +145,25 @@ class ODIRDataset(Dataset):
         df = pd.read_csv(self.root / "full_df.csv")
         if label_level == "eye":
             df = eye_level_labels(df)
-        splitter = GroupShuffleSplit(n_splits=1, test_size=val_fraction, random_state=seed)
-        train_idx, val_idx = next(splitter.split(df, groups=df[PATIENT_ID_COLUMN]))
+        indices = split_by_patient(df, val_fraction, test_fraction, seed)
 
-        # Un même patient ne doit jamais apparaître des deux côtés du split.
-        train_patients = set(df.iloc[train_idx][PATIENT_ID_COLUMN])
-        val_patients = set(df.iloc[val_idx][PATIENT_ID_COLUMN])
-        assert train_patients.isdisjoint(val_patients), "fuite patient train/val détectée"
+        # Un même patient ne doit jamais apparaître dans deux splits.
+        patients = {name: set(df.iloc[idx][PATIENT_ID_COLUMN]) for name, idx in indices.items()}
+        for a, b in (("train", "val"), ("train", "test"), ("val", "test")):
+            assert patients.get(a, set()).isdisjoint(patients.get(b, set())), f"fuite patient {a}/{b} détectée"
 
-        self.df = df.iloc[train_idx if split == "train" else val_idx].reset_index(drop=True)
+        self.df = df.iloc[indices[split]].reset_index(drop=True)
         self.images_dir = self.root / "ODIR-5K" / "ODIR-5K" / "Training Images"
+
+    @property
+    def image_keys(self) -> list[str]:
+        """Identifiant stable de chaque image (cache d'embeddings, prédictions)."""
+        return list(self.df["filename"])
+
+    @property
+    def groups(self) -> list[str]:
+        """Patient de chaque image : unité du bootstrap (les deux yeux sont liés)."""
+        return [str(i) for i in self.df[PATIENT_ID_COLUMN]]
 
     def __len__(self) -> int:
         return len(self.df)
