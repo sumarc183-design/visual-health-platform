@@ -1,20 +1,54 @@
 Classes (8) : ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
 Train : 5439 images | Val : 953 images
-Contrôle qualité (échantillon de 50) : 0 rejetée(s)
+Contrôle qualité (échantillon de 50) : 0 signalée(s), aucune retirée
 RETFound loaded -- missing: 2 keys, unexpected: 106 keys
 Backbone sur : cuda
 Extraction des embeddings (train)...
 Extraction des embeddings (val)...
+epoch 1/30 — train loss: 0.2861
+epoch 2/30 — train loss: 0.2963
+epoch 3/30 — train loss: 0.2443
+epoch 4/30 — train loss: 0.2065
+epoch 5/30 — train loss: 0.1915
+epoch 6/30 — train loss: 0.1996
+epoch 7/30 — train loss: 0.2196
+epoch 8/30 — train loss: 0.2270
+epoch 9/30 — train loss: 0.2379
+epoch 10/30 — train loss: 0.2506
+epoch 11/30 — train loss: 0.2388
+epoch 12/30 — train loss: 0.1410
+epoch 13/30 — train loss: 0.2281
+epoch 14/30 — train loss: 0.1805
+epoch 15/30 — train loss: 0.1603
+epoch 16/30 — train loss: 0.1966
+epoch 17/30 — train loss: 0.1791
+epoch 18/30 — train loss: 0.1821
+epoch 19/30 — train loss: 0.1597
+epoch 20/30 — train loss: 0.2313
+epoch 21/30 — train loss: 0.1676
+epoch 22/30 — train loss: 0.1433
+epoch 23/30 — train loss: 0.2043
+epoch 24/30 — train loss: 0.2093
+epoch 25/30 — train loss: 0.2819
+epoch 26/30 — train loss: 0.2084
+epoch 27/30 — train loss: 0.1359
+epoch 28/30 — train loss: 0.1719
+epoch 29/30 — train loss: 0.1513
+epoch 30/30 — train loss: 0.1460
+Tête sauvegardée : heads/odir_head.pt
 ============================================================
-Dataset          : ODIR (RÉEL)
+Dataset          : ODIR (RÉEL, étiquettes par œil)
 Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
-AUROC macro      : 0.8064
-                     N : 0.7503
-                     D : 0.7221
-                     G : 0.8514
-                     C : 0.9487
-                     A : 0.8341
-                     H : 0.7627
-                     M : 0.9345
-                     O : 0.6473
+Évaluation       : val
+AUROC macro      : 0.8451  (train 0.9067, gap +0.0616)
+F1 macro (0,5)   : 0.4539  (train 0.5353, gap +0.0814)
+                     N : 0.7714
+                     D : 0.7436
+                     G : 0.8812
+                     C : 0.9851
+                     A : 0.8690
+                     H : 0.7761
+                     M : 0.9869
+                     O : 0.7474
 ============================================================
+Résultats JSON : results_odir.json

@@ -31,7 +31,7 @@ images 224×224, Colab GPU T4.
 | 2026-11-02 | RFMiD | 28 | train / val officiels (1 920 / 640) | **0,855** |
 | 2026-11-03 | RFMiD | 27 (PTCR absent du test) | train / **test** officiels (1 920 / 640) | **0,832** |
 | 2026-11-02 | ODIR-5K, étiquettes patient | 8 | par patient, 85/15 (5 439 / 953) | **0,806** |
-| à venir | ODIR-5K, étiquettes par œil (défaut actuel) | 8 | même split | — |
+| 2026-11-03 | ODIR-5K, étiquettes par œil (défaut actuel) | 8 | même split | **0,845** |
 
 - **Très bien reconnues** (AUROC > 0,93 sur RFMiD) : rétinopathie diabétique,
   DMLA, myopie, occlusions veineuses. Les classes très rares en validation
@@ -42,7 +42,9 @@ images 224×224, Colab GPU T4.
   au programme de J60. Détail par classe : [`results/`](results/).
 - **ODIR** : le diagnostic patient recopié sur les deux yeux étiquetait faux
   20,8 % des images ; le loader utilise désormais l'étiquette de l'œil
-  photographié ([explication](docs/GUIDE.md#odir-5k)).
+  photographié ([explication](docs/GUIDE.md#odir-5k)). Gain : 0,806 → 0,845, toutes
+  les classes progressent, surtout O (0,647 → 0,747), la plus mal étiquetée
+  avant. Étiquettes changées en entraînement et en évaluation, même split.
 - Sonde sur backbone figé, pas le fine-tuning complet des chiffres publiés
   par RETFound : attendre quelques points de moins.
 
@@ -69,7 +71,7 @@ pytest tests/                   # unitaires + bout-en-bout sur images synthétiq
 | 3. Prétraitement fond d'œil | ✅ Normalisation ImageNet, 224×224 |
 | 4. Classification multi-label | ✅ RFMiD et ODIR, AUROC mesurée |
 | 5. Localisation des zones suspectes | ⬜ J60 |
-| 6. Explicabilité (Grad-CAM) | 🟡 [Planche RFMiD](results/gradcam_rfmid.png) : chaleur surtout en bordure, rarement sur les lésions ; test d'occlusion à faire pour trancher (artefact ViT ou raccourci) |
+| 6. Explicabilité (Grad-CAM) | 🟡 Planches [RFMiD](results/gradcam_rfmid.png) et [ODIR](results/gradcam_odir.png) : chaleur surtout sur la bordure et le fond noir, rarement sur les lésions (sauf cataracte) ; test d'occlusion à faire pour trancher (artefact ViT ou raccourci) |
 | 7. Score de confiance calibré | ⬜ J60 |
 
 ## Données

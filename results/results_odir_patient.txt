@@ -1,0 +1,20 @@
+Classes (8) : ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
+Train : 5439 images | Val : 953 images
+Contrôle qualité (échantillon de 50) : 0 rejetée(s)
+RETFound loaded -- missing: 2 keys, unexpected: 106 keys
+Backbone sur : cuda
+Extraction des embeddings (train)...
+Extraction des embeddings (val)...
+============================================================
+Dataset          : ODIR (RÉEL)
+Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
+AUROC macro      : 0.8064
+                     N : 0.7503
+                     D : 0.7221
+                     G : 0.8514
+                     C : 0.9487
+                     A : 0.8341
+                     H : 0.7627
+                     M : 0.9345
+                     O : 0.6473
+============================================================

@@ -1,0 +1,27 @@
+{
+  "dataset": "odir",
+  "odir_labels": "eye",
+  "synthetic": false,
+  "checkpoint": "third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth",
+  "eval_split": "val",
+  "seed": 42,
+  "epochs": 30,
+  "val": {
+    "auroc_macro": 0.8450984179918536,
+    "auroc_per_class": {
+      "N": 0.7713825256129849,
+      "D": 0.7436438878168954,
+      "G": 0.8812367559237141,
+      "C": 0.9850765772829438,
+      "A": 0.8690406265296132,
+      "H": 0.7760993407156116,
+      "M": 0.9869383490073145,
+      "O": 0.7473692810457516
+    },
+    "f1_macro": 0.45390752488437247
+  },
+  "train": {
+    "auroc_macro": 0.9067233800851862,
+    "f1_macro": 0.5352835621565213
+  }
+}
