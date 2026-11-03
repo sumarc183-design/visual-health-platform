@@ -1,3 +1,7 @@
+# Fichier de référence : aucun script ne le lit. Les runs réels (README,
+# "Résultats") utilisent les arguments de run_baseline.py : images 224x224,
+# tête linéaire lr 1e-3, 30 epochs, batch 16 -- pas les valeurs ci-dessous.
+
 data:
   raw_dir: data/raw
   processed_dir: data/processed

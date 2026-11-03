@@ -69,13 +69,17 @@ cas d'usage envisagés.
 ## Structure
 
 ```
-configs/                configuration
-scripts/                téléchargement des données, setup RETFound
+run_baseline.py         point d'entrée unique : contrôle qualité -> RETFound -> tête -> AUROC
+configs/                hyperparamètres de référence (non lus par les scripts)
+scripts/                téléchargement des poids, Grad-CAM, générateur synthétique
 src/pipeline/           contrôle qualité, identification de modalité
-src/models/              backbone RETFound, têtes de classification
-src/explainability/     Grad-CAM
-src/eval/                métriques (AUROC, etc.)
-docs/                    roadmap et arbitrage des cas d'usage
+src/data/               loaders RFMiD et ODIR (structure Kaggle réelle)
+src/models/             backbone RETFound, têtes de classification
+src/explainability/     Grad-CAM adapté aux ViT
+src/eval/               métriques (AUROC, etc.)
+notebooks/              notebook Google Colab (GPU gratuit)
+results/                sorties brutes des runs réels
+docs/                   roadmap et arbitrage des cas d'usage
 ```
 
 ## Démarrage
@@ -92,13 +96,18 @@ python scripts/download_retfound_checkpoint.py \
     --repo-id YukunZhou/RETFound_mae_natureCFP \
     --out third_party/retfound/checkpoints
 
-python scripts/download_rfmid_odir.py --out data/raw
+# RFMiD et ODIR depuis Kaggle, sans compte (pip install kagglehub) :
+python -c "import kagglehub; print(kagglehub.dataset_download('andrewmvd/retinal-disease-classification'))"
+python -c "import kagglehub; print(kagglehub.dataset_download('andrewmvd/ocular-disease-recognition-odir5k'))"
+
+python run_baseline.py --dataset rfmid --data-root <chemin RFMiD affiché> \
+    --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth --epochs 30
 ```
 
-huggingface.co est hors de la liste d'hôtes autorisés de l'environnement de
-développement utilisé pour ce dépôt (confirmé : la commande ci-dessus renvoie
-un 403 de politique réseau, pas une erreur d'identifiants) — à lancer depuis
-votre poste ou une instance cloud avec accès internet normal.
+Les chemins affichés par `kagglehub` ont directement la structure attendue
+par les loaders. Une erreur 401/403 sur les poids RETFound vient du token
+ou des conditions non acceptées sur la page du modèle. Sans GPU local,
+passer par le notebook Colab (voir ci-dessous).
 
 ## Lancer sur GPU gratuit (Google Colab)
 
@@ -129,12 +138,15 @@ pour le détail et les options avant un lancement commercial.
 `src/models/retfound_backbone.py`, `src/models/pos_embed.py` et
 `src/explainability/gradcam.py` sont adaptés du dépôt officiel RETFound
 (architecture ViT-Large/16, chargement de checkpoint avec interpolation des
-position embeddings). Testés ici avec un checkpoint synthétique : forward
-pass (303M paramètres, conforme au ViT-L/16 attendu), chargement de
-checkpoint avec clés `model`/`teacher`, interpolation pos_embed pour un
-changement de résolution (224→256), tête de classification multi-label, et
-Grad-CAM adapté aux ViT (un Grad-CAM standard ne fonctionne pas sur un
-transformer sans `reshape_transform` — corrigé). Le contrôle qualité
+position embeddings). Le vrai checkpoint `RETFound_mae_natureCFP` se
+charge (2 clés absentes, `fc_norm` créée à neuf comme dans le fine-tuning
+officiel ; 106 clés du décodeur MAE ignorées). Testés en CI avec un
+checkpoint synthétique : forward pass (303M paramètres, conforme au
+ViT-L/16 attendu), chargement de checkpoint avec clés `model`/`teacher`,
+interpolation pos_embed pour un changement de résolution (224→256), tête de
+classification multi-label, et Grad-CAM adapté aux ViT (`reshape_transform`
+pour replier les tokens en grille, et entrée rendue dérivable : sans elle,
+Grad-CAM échoue sur un backbone gelé). Le contrôle qualité
 (`src/pipeline/quality_control.py`) est également testé (image nette,
 floue, sous-résolue).
 
@@ -153,7 +165,7 @@ téléchargement réel :
 
 ```bash
 pip install -r requirements-dev.txt
-pytest tests/ -v                 # tests unitaires + bout-en-bout (~2 min)
+pytest tests/ -v                 # tests unitaires + bout-en-bout (quelques minutes sur CPU)
 pytest tests/ -m "not slow"      # unitaires seulement, rapide
 ```
 
@@ -186,9 +198,11 @@ Kaggle réelle (pas le format `C0..C27` générique du générateur synthétique
   par tirage aléatoire fixe sur `Training Images/`.
 
 `tests/test_real_datasets.py` fait tourner tout le pipeline sur ces vraies
-images (16 échantillons RFMiD + 16 ODIR) — backbone toujours à poids
-aléatoires faute de checkpoint RETFound réel, donc validation de plomberie
-uniquement, pas de prédictions interprétables. Sauté automatiquement si
+images (16 échantillons RFMiD + 16 ODIR), le script Grad-CAM sur la
+validation RFMiD, et vérifie que les étiquettes ODIR par œil redonnent les
+diagnostics patient. Poids aléatoires (le checkpoint RETFound n'est pas
+versionné) : validation de plomberie, pas de prédictions interprétables ;
+les vrais chiffres sont dans "Résultats". Sauté automatiquement si
 `data/raw/` est absent.
 
 ## CI
