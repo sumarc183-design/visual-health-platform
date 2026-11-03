@@ -1,40 +1,40 @@
 Classes (28) : ['DR', 'ARMD', 'MH', 'DN', 'MYA', 'BRVO', 'TSLN', 'ERM', 'LS', 'MS', 'CSR', 'ODC', 'CRVO', 'TV', 'AH', 'ODP', 'ODE', 'ST', 'AION', 'PT', 'RT', 'RS', 'CRS', 'EDN', 'RPEC', 'MHL', 'RP', 'PTCR']
 Train : 1920 images | Val : 640 images
-Contrôle qualité (échantillon de 50) : 0 rejetée(s)
+Contrôle qualité (échantillon de 50) : 0 signalée(s), aucune retirée
 RETFound loaded -- missing: 2 keys, unexpected: 106 keys
 Backbone sur : cuda
-Extraction des embeddings (train)...
-Extraction des embeddings (val)...
 ============================================================
 Dataset          : RFMID (RÉEL)
 Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
-AUROC macro      : 0.8549
+Évaluation       : val
+AUROC macro      : 0.8579  (train 0.9738, gap +0.1159)
+F1 macro (0,5)   : 0.2091  (train 0.4158, gap +0.2068)
                     DR : 0.9371
-                  ARMD : 0.9769
-                    MH : 0.9647
+                  ARMD : 0.9777
+                    MH : 0.9643
                     DN : 0.7428
-                   MYA : 0.9940
-                  BRVO : 0.9307
-                  TSLN : 0.9442
-                   ERM : 0.6561
-                    LS : 0.9768
-                    MS : 0.7414
-                   CSR : 0.8575
-                   ODC : 0.7219
-                  CRVO : 0.9775
-                    TV : 0.3777
-                    AH : 0.8318
-                   ODP : 0.7816
-                   ODE : 0.9132
-                    ST : 0.5075
-                  AION : 0.9817
-                    PT : 0.9796
-                    RT : 0.9855
-                    RS : 0.9901
-                   CRS : 0.8013
-                   EDN : 0.9654
-                  RPEC : 0.7584
-                   MHL : 0.7525
+                   MYA : 0.9942
+                  BRVO : 0.9328
+                  TSLN : 0.9435
+                   ERM : 0.6527
+                    LS : 0.9770
+                    MS : 0.7556
+                   CSR : 0.8592
+                   ODC : 0.7236
+                  CRVO : 0.9771
+                    TV : 0.4028
+                    AH : 0.8306
+                   ODP : 0.7784
+                   ODE : 0.9139
+                    ST : 0.5122
+                  AION : 0.9836
+                    PT : 0.9804
+                    RT : 0.9869
+                    RS : 0.9906
+                   CRS : 0.8034
+                   EDN : 0.9657
+                  RPEC : 0.7553
+                   MHL : 0.7488
                     RP : 1.0000
-                  PTCR : 0.8905
+                  PTCR : 0.9311
 ============================================================

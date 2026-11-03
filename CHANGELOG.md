@@ -21,7 +21,7 @@ Premier jalon : socle fond d'œil de bout en bout avec les vrais poids RETFound.
   contrôle des cartes Grad-CAM sur les mêmes images, avec mesure de
   l'effet du fond.
 - Notebook Google Colab (poids via `HF_TOKEN`, données via kagglehub).
-- Résultats : AUROC macro 0,855 sur RFMiD (validation), 0,832 sur son test
+- Résultats : AUROC macro 0,858 sur RFMiD (validation), 0,832 sur son test
   officiel ; 0,845 sur ODIR avec étiquettes par œil (0,806 avec étiquettes
   patient).
 - CI (lint ruff puis tests), `pyproject.toml`, `pre-commit`, carte du modèle,

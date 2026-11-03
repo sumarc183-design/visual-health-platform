@@ -28,7 +28,7 @@ images 224×224, Colab GPU T4.
 
 | Date | Données | Classes | Split | AUROC macro |
 |---|---|---|---|---|
-| 2026-11-02 | RFMiD | 28 | train / val officiels (1 920 / 640) | **0,855** |
+| 2026-11-03 | RFMiD | 28 | train / val officiels (1 920 / 640) | **0,858** |
 | 2026-11-03 | RFMiD | 27 (PTCR absent du test) | train / **test** officiels (1 920 / 640) | **0,832** |
 | 2026-11-02 | ODIR-5K, étiquettes patient | 8 | par patient, 85/15 (5 439 / 953) | **0,806** |
 | 2026-11-03 | ODIR-5K, étiquettes par œil (défaut actuel) | 8 | même split | **0,845** |
@@ -36,8 +36,8 @@ images 224×224, Colab GPU T4.
 - **Très bien reconnues** (AUROC > 0,93 sur RFMiD) : rétinopathie diabétique,
   DMLA, myopie, occlusions veineuses. Les classes très rares en validation
   ont une AUROC instable.
-- **Test RFMiD** : 0,832, à 0,02 de la validation (0,854 sur les mêmes 27
-  classes) : le chiffre de validation n'était pas optimiste. Gap train − test
+- **Test RFMiD** : 0,832, à 0,02 de la validation (0,855 sur les mêmes 27
+  classes, même tête) : le chiffre de validation n'était pas optimiste. Gap train − test
   +0,14 et F1 macro 0,24 au seuil 0,5 : seuils par classe et calibration
   au programme de J60. Détail par classe : [`results/`](results/).
 - **ODIR** : le diagnostic patient recopié sur les deux yeux étiquetait faux

@@ -1,0 +1,110 @@
+[
+  {
+    "classe": "MYA",
+    "index": 79,
+    "p": 0.9993321299552917,
+    "logit": 7.310858249664307,
+    "logit_fond_gris": 4.857501983642578,
+    "part_hors_champ": 0.49683114886283875,
+    "part_effet_hors_champ": 0.39988998824252797
+  },
+  {
+    "classe": "MYA",
+    "index": 506,
+    "p": 0.9993249177932739,
+    "logit": 7.299963474273682,
+    "logit_fond_gris": 5.5755181312561035,
+    "part_hors_champ": 0.3046875,
+    "part_effet_hors_champ": 0.26866176409608067
+  },
+  {
+    "classe": "MYA",
+    "index": 80,
+    "p": 0.9993072748184204,
+    "logit": 7.2741875648498535,
+    "logit_fond_gris": 4.764232158660889,
+    "part_hors_champ": 0.49850526452064514,
+    "part_effet_hors_champ": 0.4411307172075091
+  },
+  {
+    "classe": "RS",
+    "index": 42,
+    "p": 0.5689175724983215,
+    "logit": 0.27743518352508545,
+    "logit_fond_gris": 3.3983523845672607,
+    "part_hors_champ": 0.4986646771430969,
+    "part_effet_hors_champ": 0.37613124542465165
+  },
+  {
+    "classe": "RS",
+    "index": 72,
+    "p": 0.41168850660324097,
+    "logit": -0.35699087381362915,
+    "logit_fond_gris": 0.4698925018310547,
+    "part_hors_champ": 0.49864476919174194,
+    "part_effet_hors_champ": 0.4944996447152325
+  },
+  {
+    "classe": "RS",
+    "index": 41,
+    "p": 0.33021867275238037,
+    "logit": -0.7071961164474487,
+    "logit_fond_gris": 3.3704471588134766,
+    "part_hors_champ": 0.4984653890132904,
+    "part_effet_hors_champ": 0.1522427602135935
+  },
+  {
+    "classe": "ARMD",
+    "index": 504,
+    "p": 0.9876201748847961,
+    "logit": 4.379236698150635,
+    "logit_fond_gris": -1.0961108207702637,
+    "part_hors_champ": 0.30303332209587097,
+    "part_effet_hors_champ": 0.21162740994533127
+  },
+  {
+    "classe": "ARMD",
+    "index": 166,
+    "p": 0.9603369832038879,
+    "logit": 3.1868679523468018,
+    "logit_fond_gris": -0.34590595960617065,
+    "part_hors_champ": 0.49647241830825806,
+    "part_effet_hors_champ": 0.4879290102206427
+  },
+  {
+    "classe": "ARMD",
+    "index": 93,
+    "p": 0.9512653350830078,
+    "logit": 2.9714012145996094,
+    "logit_fond_gris": 2.8761045932769775,
+    "part_hors_champ": 0.4968510866165161,
+    "part_effet_hors_champ": 0.4676673917213651
+  },
+  {
+    "classe": "LS",
+    "index": 607,
+    "p": 0.892071545124054,
+    "logit": 2.1120779514312744,
+    "logit_fond_gris": 0.4476149082183838,
+    "part_hors_champ": 0.2886638939380646,
+    "part_effet_hors_champ": 0.14760961082724636
+  },
+  {
+    "classe": "LS",
+    "index": 6,
+    "p": 0.8636624813079834,
+    "logit": 1.8460487127304077,
+    "logit_fond_gris": -5.8062591552734375,
+    "part_hors_champ": 0.49788743257522583,
+    "part_effet_hors_champ": 0.41794862204849903
+  },
+  {
+    "classe": "LS",
+    "index": 3,
+    "p": 0.8131582736968994,
+    "logit": 1.4706636667251587,
+    "logit_fond_gris": -8.220636367797852,
+    "part_hors_champ": 0.4979671537876129,
+    "part_effet_hors_champ": 0.4337076277895097
+  }
+]

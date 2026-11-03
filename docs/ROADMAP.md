@@ -3,7 +3,7 @@
 ## J30 — Socle
 - [x] Contrôle qualité (flou/cadrage) opérationnel (seuil de flou encore à calibrer)
 - [x] Backbone RETFound intégré (embeddings figés)
-- [x] Premier classifieur fond d'œil sur RFMiD/ODIR, première AUROC (RFMiD 0,855 / ODIR 0,806 en étiquettes patient, 2026-11-02 ; ODIR en étiquettes par œil à mesurer)
+- [x] Premier classifieur fond d'œil sur RFMiD/ODIR, première AUROC (2026-11-03, tête figée : RFMiD 0,858 en validation et 0,832 sur le test officiel ; ODIR 0,845 en étiquettes par œil, 0,806 en étiquettes patient)
 - [ ] Grad-CAM fonctionnel sur les prédictions (code prêt : `scripts/gradcam_examples.py` + cellule du notebook Colab ; reste à le lancer avec les vrais poids et à relire les cartes)
 
 ## J60 — Localisation
