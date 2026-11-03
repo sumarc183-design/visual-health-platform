@@ -48,6 +48,27 @@ images 224×224, Colab GPU T4.
 - Sonde sur backbone figé, pas le fine-tuning complet des chiffres publiés
   par RETFound : attendre quelques points de moins.
 
+## Explicabilité
+
+Les cartes Grad-CAM ([RFMiD](results/gradcam_rfmid.png), [ODIR](results/gradcam_odir.png))
+s'allument surtout sur le fond noir et les bords. Le test d'occlusion
+([RFMiD](results/occlusion_rfmid.png), [ODIR](results/occlusion_odir.png)),
+qui cache des zones de l'image et mesure la chute de la prédiction, tranche
+classe par classe :
+
+| Classe | Ce que le modèle utilise |
+|---|---|
+| Myopie (MYA, M), DMLA sur RFMiD (ARMD), RS | ✅ la rétine : lésions, pôle postérieur |
+| Cataracte (C) | ✅ le voile de toute l'image (aucune zone isolée ne compte) |
+| Glaucome (G, ODIR) | 🟡 en partie le disque optique, en partie les bords |
+| DMLA sur ODIR (A) | ❌ **raccourci** : 89 à 97 % de l'effet hors de la rétine (pour 38 à 57 % de la surface), les lésions maculaires ne comptent pas |
+
+Grad-CAM est donc trompeur sur ce modèle (tokens « artefacts » des ViT MAE)
+et l'occlusion sert d'explication. Le score DMLA d'ODIR (AUROC 0,869) repose
+au moins en partie sur l'acquisition (forme des marges, caméra), pas sur la
+maladie. Correctif prévu : recadrage et masque circulaire identiques pour
+toutes les images, puis nouvelle mesure. Méthode : [GUIDE](docs/GUIDE.md#contrôle-par-occlusion).
+
 ## Démarrage rapide
 
 **Sans installation** : bouton *Open in Colab* ci-dessus, `GPU T4`, token
@@ -71,7 +92,7 @@ pytest tests/                   # unitaires + bout-en-bout sur images synthétiq
 | 3. Prétraitement fond d'œil | ✅ Normalisation ImageNet, 224×224 |
 | 4. Classification multi-label | ✅ RFMiD et ODIR, AUROC mesurée |
 | 5. Localisation des zones suspectes | ⬜ J60 |
-| 6. Explicabilité (Grad-CAM) | 🟡 Planches [RFMiD](results/gradcam_rfmid.png) et [ODIR](results/gradcam_odir.png) : chaleur surtout sur la bordure et le fond noir, rarement sur les lésions (sauf cataracte) ; test d'occlusion prêt (`scripts/occlusion_examples.py`), à lancer pour trancher (artefact ViT ou raccourci) |
+| 6. Explicabilité | 🟡 Grad-CAM peu fiable sur ce ViT (chaleur sur le fond) ; l'occlusion le remplace. Voir [Explicabilité](#explicabilité) |
 | 7. Score de confiance calibré | ⬜ J60 |
 
 ## Données

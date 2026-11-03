@@ -51,8 +51,16 @@ F1 macro au seuil 0,5, gap train − validation. Résultats à jour :
   d'image.
 - **Seuil de flou** du contrôle qualité encore à calibrer sur des images
   réelles rejetables.
-- **Grad-CAM** montre où le modèle regarde, pas pourquoi : une carte
-  plausible ne prouve pas un raisonnement médical correct.
+- **Grad-CAM est trompeur sur ce modèle** : il s'allume sur le fond noir
+  (artefacts des ViT MAE). L'explication de référence est l'occlusion
+  (`scripts/occlusion_examples.py`), qui ne montre elle aussi que *où*, pas
+  *pourquoi*.
+- **Raccourci d'acquisition sur la DMLA d'ODIR** : 89 à 97 % de l'effet
+  d'occlusion tombe hors de la rétine et remplacer le fond fait chuter la
+  prédiction ; l'AUROC DMLA d'ODIR (0,869) surestime la reconnaissance de la
+  maladie. Le glaucome d'ODIR s'appuie en partie sur les bords. Sensibilité
+  générale au fond (remplacé en gris) sur les autres classes, à confirmer
+  avec un prétraitement commun (recadrage + masque circulaire).
 
 ## Considérations éthiques
 
