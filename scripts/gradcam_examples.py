@@ -62,6 +62,21 @@ def top_true_positives(
     return [(int(positive_idx[i]), float(probs[i])) for i in order]
 
 
+def load_val_dataset(dataset_name: str, data_root: Path, head_ckpt: dict):
+    """Validation du jeu de la tête, avec les étiquettes sur lesquelles elle a
+    été entraînée, et ses étiquettes en tableau (images, classes)."""
+    class_names, image_size = head_ckpt["class_names"], head_ckpt["image_size"]
+    if dataset_name == "rfmid":
+        dataset = RFMiDDataset(data_root, split="val", image_size=image_size)
+    else:
+        dataset = ODIRDataset(
+            data_root, split="val", image_size=image_size, label_level=head_ckpt.get("odir_labels") or "patient"
+        )
+    if list(dataset.class_names) != class_names:
+        raise SystemExit("Les classes du dataset ne correspondent pas à celles de la tête sauvegardée.")
+    return dataset, dataset.df[class_names].to_numpy(dtype=np.float32)
+
+
 def caption(tile: np.ndarray, text: str) -> np.ndarray:
     canvas = Image.new("RGB", (tile.shape[1], tile.shape[0] + CAPTION_HEIGHT), "white")
     canvas.paste(Image.fromarray(tile), (0, CAPTION_HEIGHT))
@@ -96,16 +111,7 @@ def main() -> None:
     if head_ckpt["dataset"] != args.dataset:
         parser.error(f"La tête a été entraînée sur {head_ckpt['dataset']}, pas sur {args.dataset}")
     class_names, image_size = head_ckpt["class_names"], head_ckpt["image_size"]
-
-    if args.dataset == "rfmid":
-        dataset = RFMiDDataset(args.data_root, split="val", image_size=image_size)
-    else:  # mêmes étiquettes que celles sur lesquelles la tête a été entraînée
-        dataset = ODIRDataset(
-            args.data_root, split="val", image_size=image_size, label_level=head_ckpt.get("odir_labels") or "patient"
-        )
-    if list(dataset.class_names) != class_names:
-        raise SystemExit("Les classes du dataset ne correspondent pas à celles de la tête sauvegardée.")
-    labels = dataset.df[class_names].to_numpy(dtype=np.float32)
+    dataset, labels = load_val_dataset(args.dataset, args.data_root, head_ckpt)
     positives_per_class = {c: int(labels[:, i].sum()) for i, c in enumerate(class_names)}
 
     classes = args.classes or pick_default_classes(

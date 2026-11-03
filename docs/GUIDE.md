@@ -118,6 +118,36 @@ Deux pièges propres aux ViT, gérés dans `src/explainability/gradcam.py` :
 - le backbone est gelé : sans entrée dérivable, aucune activation ne porte de
   gradient et Grad-CAM échoue. L'entrée est donc rendue dérivable.
 
+### Contrôle par occlusion
+
+Sur RETFound, Grad-CAM s'allume surtout sur le fond noir et les bords
+(planches de `results/`) : tokens « artefacts » de forte norme des ViT MAE,
+ou vrai raccourci (forme du masque, caméra) ? L'occlusion tranche sans passer
+par les gradients :
+
+```bash
+python scripts/occlusion_examples.py --dataset rfmid --data-root <chemin RFMiD> \
+    --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth \
+    --head heads/rfmid_head.pt --out results/occlusion_rfmid.png --json results/occlusion_rfmid.json
+```
+
+Mêmes classes et mêmes images que la planche Grad-CAM. Un carré gris de
+32 px glisse sur l'image (pas de 16 px) ; la carte montre la chute du
+**logit** de la classe quand chaque zone est cachée (le logit, car à p = 1,00
+la probabilité est saturée). Gris = moyenne ImageNet, pas noir : du noir sur
+le fond noir ne changerait rien et masquerait un raccourci sur la forme du
+masque. Deux mesures par image :
+
+- `fond Δ` : variation du logit quand tout le hors-champ (marges noires ou
+  blanches) est remplacé par du gris. Proche de 0 : le fond ne compte pas.
+  Fortement négatif : raccourci.
+- `hors champ a/b` : part de l'effet d'occlusion hors rétine (a) contre part
+  de l'image hors rétine (b). a nettement au-dessus de b : le modèle
+  s'appuie sur le fond plus que sa surface ne l'explique.
+
+Si l'occlusion tombe sur les lésions alors que Grad-CAM tombe sur le fond,
+c'est Grad-CAM qui se trompe sur ce modèle, pas le modèle.
+
 ## Tests
 
 ```bash

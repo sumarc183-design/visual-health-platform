@@ -71,7 +71,7 @@ pytest tests/                   # unitaires + bout-en-bout sur images synthétiq
 | 3. Prétraitement fond d'œil | ✅ Normalisation ImageNet, 224×224 |
 | 4. Classification multi-label | ✅ RFMiD et ODIR, AUROC mesurée |
 | 5. Localisation des zones suspectes | ⬜ J60 |
-| 6. Explicabilité (Grad-CAM) | 🟡 Planches [RFMiD](results/gradcam_rfmid.png) et [ODIR](results/gradcam_odir.png) : chaleur surtout sur la bordure et le fond noir, rarement sur les lésions (sauf cataracte) ; test d'occlusion à faire pour trancher (artefact ViT ou raccourci) |
+| 6. Explicabilité (Grad-CAM) | 🟡 Planches [RFMiD](results/gradcam_rfmid.png) et [ODIR](results/gradcam_odir.png) : chaleur surtout sur la bordure et le fond noir, rarement sur les lésions (sauf cataracte) ; test d'occlusion prêt (`scripts/occlusion_examples.py`), à lancer pour trancher (artefact ViT ou raccourci) |
 | 7. Score de confiance calibré | ⬜ J60 |
 
 ## Données
