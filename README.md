@@ -9,7 +9,8 @@ et localisation sur images de fond d'œil, backbone [RETFound](https://github.co
 | Date | Données | Classes | Split | AUROC macro |
 |---|---|---|---|---|
 | 2026-11-02 | RFMiD | 28 | train officiel (1 920) / val officielle (640) | **0,855** |
-| 2026-11-02 | ODIR-5K | 8 (N/D/G/C/A/H/M/O) | par patient, 85/15 (5 439 / 953 images) | **0,806** |
+| 2026-11-02 | ODIR-5K, étiquettes patient | 8 (N/D/G/C/A/H/M/O) | par patient, 85/15 (5 439 / 953 images) | **0,806** |
+| à venir | ODIR-5K, étiquettes par œil (défaut actuel) | 8 | même split | — |
 
 Backbone RETFound (`RETFound_mae_natureCFP`) figé, tête linéaire multi-label
 (30 epochs), images 224×224 normalisées ImageNet. Lancé sur Colab GPU T4 via
@@ -21,9 +22,13 @@ Lecture :
   RETFound : attendre quelques points de moins.
 - RFMiD : les classes très rares en validation (TV, ST, RP...) ont une AUROC
   instable, peu interprétable.
-- ODIR : les labels N..O sont posés au niveau patient et dupliqués sur les
-  deux yeux (voir `src/data/odir_dataset.py`), ce bruit de labels plafonne
-  surtout N, D et O. Piste : labels par œil depuis les mots-clés diagnostiques.
+- ODIR, étiquettes patient : le diagnostic patient N..O recopié sur les deux
+  yeux étiquette faux 20,8 % des images (un œil sain de patient diabétique
+  devient "D" ; 45 % des "O" sont faux), ce qui plafonnait surtout N, D et O.
+  Le loader utilise désormais par défaut l'étiquette de l'œil photographié
+  (mots-clés diagnostiques, validée : elle redonne 100 % des diagnostics
+  patient). Les deux chiffres ne portent pas sur les mêmes étiquettes de
+  validation : `--odir-labels patient` reproduit l'ancien protocole.
 
 ## Pourquoi le fond d'œil en premier
 
@@ -171,10 +176,12 @@ Kaggle réelle (pas le format `C0..C27` générique du générateur synthétique
 - **RFMiD** : CSV à 45 colonnes de pathologies + `Disease_Risk` (label binaire
   à part) ; le sous-ensemble de 28 classes du config est dérivé du train set
   (>= 5 exemples positifs), jamais recalculé sur val/test pour éviter la fuite.
-- **ODIR** : `full_df.csv` a deux étiquettes différentes par ligne — les
-  colonnes `N/D/G/C/A/H/M/O` (diagnostic patient, les deux yeux) et une
-  colonne `target`/`labels` par œil (parsing de mots-clés). Le loader utilise
-  `N..O`, conforme au config ; `Testing Images/` n'a pas de label (jeu de
+- **ODIR** : chaque ligne de `full_df.csv` est l'image d'un œil, mais les
+  colonnes `N/D/G/C/A/H/M/O` sont le diagnostic patient (les deux yeux). Le
+  loader reconstruit par défaut l'étiquette de l'œil photographié depuis ses
+  mots-clés diagnostiques (`label_level="eye"`, voir
+  `src/data/odir_dataset.py`) ; `label_level="patient"` garde l'ancien
+  comportement. Split par patient dans les deux cas ; `Testing Images/` n'a pas de label (jeu de
   test caché du challenge Kaggle d'origine) donc le split train/val est fait
   par tirage aléatoire fixe sur `Training Images/`.
 

@@ -125,3 +125,19 @@ def test_gradcam_examples_script_on_real_rfmid(tmp_path):
 
     width, height = Image.open(out).size
     assert (width, height) == (2 * 2 * 224, 224 + 22)  # 2 images x (originale + CAM), 1 ligne + légende
+
+
+@requires_real_data
+def test_odir_eye_labels_reproduce_patient_labels():
+    """Le OU des étiquettes par œil (mots-clés) des deux yeux doit redonner
+    exactement le diagnostic patient N..O du CSV : valide keywords_to_classes."""
+    import pandas as pd
+
+    from src.data.odir_dataset import CLASS_NAMES, keywords_to_classes
+
+    patients = pd.read_csv(ODIR_ROOT / "full_df.csv").drop_duplicates("ID")
+    for _, row in patients.iterrows():
+        classes = keywords_to_classes(row["Left-Diagnostic Keywords"]) | keywords_to_classes(row["Right-Diagnostic Keywords"])
+        if len(classes) > 1:
+            classes.discard("N")
+        assert classes == {c for c in CLASS_NAMES if row[c] == 1}, row["ID"]

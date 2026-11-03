@@ -25,6 +25,7 @@ classifier:
       multilabel: true
       class_names: [N, D, G, C, A, H, M, O]   # Normal/Diabetes/Glaucoma/Cataract/AMD/Hypertension/Myopie patho/Autre
       note: fortement déséquilibré (Normal 2873 vs Hypertension 128) -- utiliser class weights ou focal loss
+      label_level: eye   # eye = étiquette de l'œil photographié (mots-clés) ; patient = diagnostic des deux yeux recopié (~21 % d'images mal étiquetées)
   lr: 1e-4
   epochs: 20
   batch_size: 32

@@ -128,6 +128,10 @@ def main() -> None:
                         help="cuda (GPU Colab/Kaggle) ou cpu. Par défaut : cuda si disponible.")
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--num-workers", type=int, default=0)
+    parser.add_argument("--odir-labels", choices=["eye", "patient"], default="eye",
+                        help="ODIR : étiquette de l'œil photographié (défaut) ou diagnostic patient "
+                             "recopié sur les deux yeux (comportement d'origine, ~21 %% d'images mal "
+                             "étiquetées -- voir src/data/odir_dataset.py).")
     parser.add_argument("--save-head", type=Path, default=None,
                         help="Sauvegarde la tête entraînée (+ classes, dataset, taille d'image) pour "
                              "scripts/gradcam_examples.py.")
@@ -152,8 +156,8 @@ def main() -> None:
             train_dataset = RFMiDDataset(args.data_root, split="train", image_size=args.image_size)
             val_dataset = RFMiDDataset(args.data_root, split="val", image_size=args.image_size)
         else:
-            train_dataset = ODIRDataset(args.data_root, split="train", image_size=args.image_size)
-            val_dataset = ODIRDataset(args.data_root, split="val", image_size=args.image_size)
+            train_dataset = ODIRDataset(args.data_root, split="train", image_size=args.image_size, label_level=args.odir_labels)
+            val_dataset = ODIRDataset(args.data_root, split="val", image_size=args.image_size, label_level=args.odir_labels)
 
         class_names = train_dataset.class_names
         print(f"Classes ({len(class_names)}) : {class_names}")
@@ -185,12 +189,14 @@ def main() -> None:
                 "class_names": list(class_names),
                 "dataset": args.dataset,
                 "image_size": args.image_size,
+                "odir_labels": args.odir_labels if args.dataset == "odir" else None,
                 "auroc_per_class": results["auroc_per_class"],
             }, args.save_head)
             print(f"Tête sauvegardée : {args.save_head}")
 
     print("=" * 60)
-    print(f"Dataset          : {args.dataset.upper()} ({'SYNTHÉTIQUE' if is_synthetic else 'RÉEL'})")
+    labels_desc = f", étiquettes {'par œil' if args.odir_labels == 'eye' else 'patient'}" if args.dataset == "odir" else ""
+    print(f"Dataset          : {args.dataset.upper()} ({'SYNTHÉTIQUE' if is_synthetic else 'RÉEL'}{labels_desc})")
     print(f"Checkpoint       : {'ALÉATOIRE (pas de poids RETFound officiels)' if is_random_checkpoint else args.checkpoint}")
     print(f"AUROC macro      : {results['auroc_macro']:.4f}")
     for name, value in results["auroc_per_class"].items():
