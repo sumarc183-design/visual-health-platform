@@ -19,7 +19,6 @@ class MultiLabelHead(nn.Module):
 def train_head(
     head: MultiLabelHead,
     train_loader: DataLoader,
-    val_loader: DataLoader,
     epochs: int,
     lr: float,
     device: str = "cuda" if torch.cuda.is_available() else "cpu",

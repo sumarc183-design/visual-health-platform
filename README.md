@@ -59,12 +59,12 @@ pytest tests/                   # unitaires + bout-en-bout sur images synthétiq
 
 | Étape | État |
 |---|---|
-| 1. Contrôle qualité (flou, résolution) | ✅ Testé (seuil de flou à calibrer) |
+| 1. Contrôle qualité (flou, résolution) | 🟡 Testé, signale sans filtrer (seuil de flou à calibrer) |
 | 2. Identification de la modalité | 🟡 Architecture en place, pas encore entraînée |
 | 3. Prétraitement fond d'œil | ✅ Normalisation ImageNet, 224×224 |
 | 4. Classification multi-label | ✅ RFMiD et ODIR, AUROC mesurée |
 | 5. Localisation des zones suspectes | ⬜ J60 |
-| 6. Explicabilité (Grad-CAM) | 🟡 Prêt, à lancer sur les vraies prédictions |
+| 6. Explicabilité (Grad-CAM) | 🟡 Script prêt (`scripts/gradcam_examples.py`), planches à produire et relire |
 | 7. Score de confiance calibré | ⬜ J60 |
 
 ## Données

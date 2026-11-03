@@ -85,14 +85,16 @@ class SyntheticFundusDataset(torch.utils.data.Dataset):
 
 
 def run_quality_control(dataset, n_samples: int = 50) -> None:
+    """Sonde sur un échantillon, sans filtrer : le seuil de flou n'est pas
+    encore calibré sur de vraies images, retirer des images fausserait le jeu."""
     n_check = min(n_samples, len(dataset))
-    n_rejected = 0
+    n_flagged = 0
     for i in range(n_check):
         image_t, _ = dataset[i]
         raw = (image_t.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
         if not check_quality(raw, blur_threshold=1.0).is_usable:
-            n_rejected += 1
-    print(f"Contrôle qualité (échantillon de {n_check}) : {n_rejected} rejetée(s)")
+            n_flagged += 1
+    print(f"Contrôle qualité (échantillon de {n_check}) : {n_flagged} signalée(s), aucune retirée")
 
 
 def collect_embeddings(
@@ -136,6 +138,13 @@ def main() -> None:
         "étiquetées -- voir src/data/odir_dataset.py).",
     )
     parser.add_argument(
+        "--eval-split",
+        choices=["val", "test"],
+        default="val",
+        help="Jeu d'évaluation. test = jeu de test officiel RFMiD, à n'utiliser qu'une fois les "
+        "réglages figés sur val. ODIR n'a pas de test étiqueté : val uniquement.",
+    )
+    parser.add_argument(
         "--seed", type=int, default=42, help="Graine de l'entraînement de la tête (résultats reproductibles)"
     )
     parser.add_argument(
@@ -151,6 +160,8 @@ def main() -> None:
         help="Sauvegarde la tête entraînée (+ classes, dataset, taille d'image) pour scripts/gradcam_examples.py.",
     )
     args = parser.parse_args()
+    if args.eval_split == "test" and (args.dataset != "rfmid" or args.data_root is None):
+        parser.error("--eval-split test n'existe que pour RFMiD réel (ODIR : pas de test étiqueté).")
 
     is_synthetic = args.data_root is None
     is_random_checkpoint = args.checkpoint is None
@@ -169,7 +180,7 @@ def main() -> None:
             val_dataset = train_dataset  # un seul jeu synthétique : plomberie uniquement, annoncé plus bas
         elif args.dataset == "rfmid":
             train_dataset = RFMiDDataset(args.data_root, split="train", image_size=args.image_size)
-            val_dataset = RFMiDDataset(args.data_root, split="val", image_size=args.image_size)
+            val_dataset = RFMiDDataset(args.data_root, split=args.eval_split, image_size=args.image_size)
         else:
             train_dataset = ODIRDataset(
                 args.data_root, split="train", image_size=args.image_size, label_level=args.odir_labels
@@ -180,7 +191,7 @@ def main() -> None:
 
         class_names = train_dataset.class_names
         print(f"Classes ({len(class_names)}) : {class_names}")
-        print(f"Train : {len(train_dataset)} images | Val : {len(val_dataset)} images")
+        print(f"Train : {len(train_dataset)} images | {args.eval_split.capitalize()} : {len(val_dataset)} images")
 
         run_quality_control(train_dataset)
 
@@ -198,7 +209,7 @@ def main() -> None:
             list(zip(torch.from_numpy(X_train), torch.from_numpy(y_train), strict=True)), batch_size=16, shuffle=True
         )
         head = MultiLabelHead(embedding_dim=1024, num_classes=len(class_names))
-        head = train_head(head, train_loader, train_loader, epochs=args.epochs, lr=1e-3, device=args.device)
+        head = train_head(head, train_loader, epochs=args.epochs, lr=1e-3, device=args.device)
 
         with torch.no_grad():
             probs = torch.sigmoid(head(torch.from_numpy(X_val).to(args.device))).cpu().numpy()
@@ -228,6 +239,13 @@ def main() -> None:
     print(f"Dataset          : {args.dataset.upper()} ({'SYNTHÉTIQUE' if is_synthetic else 'RÉEL'}{labels_desc})")
     checkpoint_desc = "ALÉATOIRE (pas de poids RETFound officiels)" if is_random_checkpoint else args.checkpoint
     print(f"Checkpoint       : {checkpoint_desc}")
+    print(f"Évaluation       : {args.eval_split}")
+    n_auroc = len(results["auroc_per_class"])
+    if n_auroc < len(class_names):
+        print(
+            f"AUROC macro sur {n_auroc}/{len(class_names)} classes "
+            f"(les autres n'ont aucun positif en {args.eval_split})"
+        )
     print(
         f"AUROC macro      : {results['auroc_macro']:.4f}  (train {train_results['auroc_macro']:.4f}, "
         f"gap {train_results['auroc_macro'] - results['auroc_macro']:+.4f})"
@@ -248,6 +266,7 @@ def main() -> None:
                     "odir_labels": args.odir_labels if args.dataset == "odir" else None,
                     "synthetic": is_synthetic,
                     "checkpoint": None if is_random_checkpoint else str(args.checkpoint),
+                    "eval_split": args.eval_split,
                     "seed": args.seed,
                     "epochs": args.epochs,
                     "val": results,

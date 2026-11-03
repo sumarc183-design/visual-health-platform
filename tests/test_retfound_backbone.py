@@ -1,6 +1,7 @@
 """Vérifie le backbone RETFound (architecture, chargement de checkpoint,
 interpolation des position embeddings)."""
 
+import pytest
 import torch
 
 from src.models.classifier_head import MultiLabelHead
@@ -24,6 +25,29 @@ def test_backbone_loads_checkpoint_with_model_key(tmp_path):
     backbone = RETFoundBackbone(ckpt_path, img_size=224, embedding_dim=1024)
     out = backbone(torch.randn(2, 3, 224, 224))
     assert out.shape == (2, 1024)
+
+
+def test_backbone_accepts_mae_checkpoint_without_fc_norm(tmp_path):
+    """Les poids MAE préentraînés n'ont pas fc_norm : cas normal, pas une erreur."""
+    state = build_retfound_vit_large(img_size=224, global_pool=True).state_dict()
+    for key in ("fc_norm.weight", "fc_norm.bias"):
+        del state[key]
+    ckpt_path = tmp_path / "ckpt.pth"
+    torch.save({"model": state}, ckpt_path)
+
+    RETFoundBackbone(ckpt_path, img_size=224, embedding_dim=1024)
+
+
+def test_backbone_rejects_checkpoint_missing_encoder_keys(tmp_path):
+    """Un checkpoint où manquent des poids de l'encodeur ne doit pas se
+    charger en silence avec des couches aléatoires."""
+    state = build_retfound_vit_large(img_size=224, global_pool=True).state_dict()
+    state = {k: v for k, v in state.items() if not k.startswith("blocks.0.")}
+    ckpt_path = tmp_path / "ckpt.pth"
+    torch.save({"model": state}, ckpt_path)
+
+    with pytest.raises(RuntimeError, match="Checkpoint incompatible"):
+        RETFoundBackbone(ckpt_path, img_size=224, embedding_dim=1024)
 
 
 def test_pos_embed_interpolation_on_resolution_change(tmp_path):

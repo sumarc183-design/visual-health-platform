@@ -26,6 +26,8 @@ from .pos_embed import interpolate_pos_embed
 IMAGENET_MEAN = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
 IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
 
+ALLOWED_MISSING_KEYS = {"fc_norm.weight", "fc_norm.bias"}
+
 
 class RETFoundViT(timm.models.vision_transformer.VisionTransformer):
     """ViT avec moyenne globale des tokens au lieu du token CLS, comme dans le
@@ -111,6 +113,16 @@ def load_pretrained_backbone(checkpoint_path: str | Path, img_size: int = 224, g
     interpolate_pos_embed(model, checkpoint_model)
     missing, unexpected = model.load_state_dict(checkpoint_model, strict=False)
     print(f"RETFound loaded -- missing: {len(missing)} keys, unexpected: {len(unexpected)} keys")
+    # Un checkpoint MAE préentraîné n'a pas fc_norm (créée pour le global
+    # pool, restée à l'identité) ; ses clés en trop (décodeur, mask_token,
+    # norm) sont ignorées. Toute autre clé manquante = encodeur partiellement
+    # aléatoire, qui donnerait des chiffres faux sans planter : on refuse.
+    unexplained = sorted(set(missing) - ALLOWED_MISSING_KEYS)
+    if unexplained:
+        raise RuntimeError(
+            f"Checkpoint incompatible avec RETFound ViT-L/16 : {len(unexplained)} clé(s) de l'encodeur "
+            f"absente(s), ex. {unexplained[:5]}. Vérifier le fichier (poids MAE ou fine-tunés RETFound)."
+        )
 
     for param in model.parameters():
         param.requires_grad = False

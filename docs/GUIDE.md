@@ -84,7 +84,9 @@ python run_baseline.py --dataset rfmid --data-root <chemin RFMiD> \
 Enchaîne contrôle qualité → embeddings RETFound figés (images 224×224
 normalisées ImageNet) → tête linéaire multi-label → AUROC macro et par
 classe, F1 macro (seuil 0,5), et gap train − validation. `--seed` fixe
-l'entraînement de la tête. Sans `--data-root` : images synthétiques ; sans
+l'entraînement de la tête. `--eval-split test` évalue RFMiD sur son jeu de
+test officiel, à lancer une seule fois, réglages figés sur la validation
+(ODIR n'a pas de test étiqueté). Sans `--data-root` : images synthétiques ; sans
 `--checkpoint` : poids aléatoires (plomberie uniquement, signalé en sortie).
 
 ### Google Colab (GPU gratuit)

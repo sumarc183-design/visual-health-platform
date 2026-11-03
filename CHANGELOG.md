@@ -13,14 +13,20 @@ Premier jalon : socle fond d'œil de bout en bout avec les vrais poids RETFound.
   train − validation, graine fixée (`--seed`), export JSON (`--results-json`).
 - Loaders RFMiD et ODIR sur la structure Kaggle réelle ; étiquettes ODIR par
   œil (`--odir-labels`), split par patient.
-- Grad-CAM sur les vraies prédictions (`scripts/gradcam_examples.py`),
-  sauvegarde de la tête (`--save-head`).
+- Script Grad-CAM sur les prédictions de la tête entraînée
+  (`scripts/gradcam_examples.py`, planches pas encore produites), sauvegarde
+  de la tête (`--save-head`).
+- `--eval-split test` : évaluation sur le jeu de test officiel RFMiD.
 - Notebook Google Colab (poids via `HF_TOKEN`, données via kagglehub).
 - Résultats : AUROC macro 0,855 sur RFMiD, 0,806 sur ODIR (étiquettes patient).
 - CI (lint ruff puis tests), `pyproject.toml`, `pre-commit`, carte du modèle,
   guide d'utilisation, test du classifieur de modalité.
 
 ### Corrigé
+- Un checkpoint RETFound auquel il manque des poids de l'encodeur était
+  chargé en silence (couches aléatoires) : il est maintenant refusé.
+- Le contrôle qualité annonçait des images « rejetées » qui restaient dans
+  le jeu : il les signale désormais comme telles, sans filtrer.
 - Normalisation ImageNet manquante avant RETFound.
 - Plantage sur GPU (tête sur `cuda`, embeddings de validation sur CPU).
 - Grad-CAM inopérant sur backbone gelé (entrée non dérivable).

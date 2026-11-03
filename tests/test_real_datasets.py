@@ -69,7 +69,7 @@ def test_real_dataset_end_to_end(dataset_cls, root, expected_classes):
 
     loader = torch.utils.data.DataLoader(list(zip(X, y, strict=True)), batch_size=8)
     head = MultiLabelHead(embedding_dim=1024, num_classes=expected_classes)
-    head = train_head(head, loader, loader, epochs=2, lr=1e-3)
+    head = train_head(head, loader, epochs=2, lr=1e-3)
 
     with torch.no_grad():
         probs = torch.sigmoid(head(X))

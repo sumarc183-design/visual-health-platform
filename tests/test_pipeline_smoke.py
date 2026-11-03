@@ -54,7 +54,7 @@ def test_full_pipeline_end_to_end(tmp_path):
 
     loader = torch.utils.data.DataLoader(list(zip(X, y, strict=True)), batch_size=8)
     head = MultiLabelHead(embedding_dim=1024, num_classes=len(class_names))
-    head = train_head(head, loader, loader, epochs=2, lr=1e-3)
+    head = train_head(head, loader, epochs=2, lr=1e-3)
 
     with torch.no_grad():
         probs = torch.sigmoid(head(X))
