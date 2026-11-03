@@ -16,6 +16,30 @@ from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 
+from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD
+
+
+class RETFoundClassifier(nn.Module):
+    """Normalisation ImageNet + backbone RETFound + tête, en un seul module
+    dérivable de bout en bout (RETFoundBackbone.forward est sous no_grad,
+    inutilisable pour Grad-CAM). Entrée : images dans [0, 1], comme les
+    datasets du projet ; sortie : logits."""
+
+    def __init__(self, vit: nn.Module, head: nn.Module):
+        super().__init__()
+        self.vit, self.head = vit, head
+        self.register_buffer("mean", IMAGENET_MEAN.clone())
+        self.register_buffer("std", IMAGENET_STD.clone())
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.head(self.vit.forward_features((x - self.mean) / self.std))
+
+    @property
+    def gradcam_target_layer(self) -> nn.Module:
+        # Dernière LayerNorm avant l'attention du dernier bloc : couche
+        # recommandée par pytorch_grad_cam pour les ViT.
+        return self.vit.blocks[-1].norm1
+
 
 def vit_reshape_transform(tensor: torch.Tensor, patch_grid_size: int) -> torch.Tensor:
     """(batch, 1 + patch_grid_size**2, dim) -> (batch, dim, grid, grid), en
@@ -44,6 +68,10 @@ def generate_gradcam(
     )
     cam = GradCAM(model=model, target_layers=[target_layer], reshape_transform=reshape_transform)
     targets = None if target_class is None else [ClassifierOutputTarget(target_class)]
+    # Backbone gelé (requires_grad=False partout) : sans entrée dérivable,
+    # aucune activation ne porte de gradient et GradCAM échoue -- pytorch_grad_cam
+    # ne rend l'entrée dérivable que si compute_input_gradient=True.
+    input_tensor = input_tensor.detach().clone().requires_grad_(True)
     grayscale_cam = cam(input_tensor=input_tensor, targets=targets)[0]
     image_float = image.astype(np.float32) / 255.0
     return show_cam_on_image(image_float, grayscale_cam, use_rgb=True)

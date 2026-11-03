@@ -19,6 +19,12 @@ import timm.models.vision_transformer
 
 from .pos_embed import interpolate_pos_embed
 
+# RETFound est préentraîné (et fine-tuné dans main_finetune.py) sur des images
+# normalisées ImageNet. Les datasets du projet renvoient des images dans
+# [0, 1] (le contrôle qualité en a besoin) : normaliser juste avant le backbone.
+IMAGENET_MEAN = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+
 
 class RETFoundViT(timm.models.vision_transformer.VisionTransformer):
     """ViT with global average pooling instead of the CLS token, matching

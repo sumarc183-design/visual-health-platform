@@ -42,7 +42,7 @@ from scripts.generate_synthetic_fundus_dataset import generate_dataset
 from src.data.odir_dataset import ODIRDataset
 from src.data.rfmid_dataset import RFMiDDataset
 from src.models.classifier_head import MultiLabelHead, train_head
-from src.models.retfound_backbone import RETFoundBackbone, build_retfound_vit_large
+from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone, build_retfound_vit_large
 from src.pipeline.quality_control import check_quality
 
 
@@ -92,14 +92,6 @@ def run_quality_control(dataset, n_samples: int = 50) -> None:
     print(f"Contrôle qualité (échantillon de {n_check}) : {n_rejected} rejetée(s)")
 
 
-# RETFound est préentraîné (et fine-tuné dans main_finetune.py) sur des images
-# normalisées ImageNet ; les datasets renvoient des images dans [0, 1] (le
-# contrôle qualité en a besoin), la normalisation se fait donc juste avant le
-# backbone.
-IMAGENET_MEAN = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
-IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
-
-
 def collect_embeddings(backbone: RETFoundBackbone, dataset, batch_size: int = 16,
                        device: str = "cpu", num_workers: int = 0):
     loader = DataLoader(dataset, batch_size=batch_size, num_workers=num_workers)
@@ -136,6 +128,9 @@ def main() -> None:
                         help="cuda (GPU Colab/Kaggle) ou cpu. Par défaut : cuda si disponible.")
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--num-workers", type=int, default=0)
+    parser.add_argument("--save-head", type=Path, default=None,
+                        help="Sauvegarde la tête entraînée (+ classes, dataset, taille d'image) pour "
+                             "scripts/gradcam_examples.py.")
     args = parser.parse_args()
 
     is_synthetic = args.data_root is None
@@ -182,6 +177,17 @@ def main() -> None:
         with torch.no_grad():
             probs = torch.sigmoid(head(torch.from_numpy(X_val).to(args.device))).cpu().numpy()
         results = evaluate_auroc(y_val, probs, class_names)
+
+        if args.save_head is not None:
+            args.save_head.parent.mkdir(parents=True, exist_ok=True)
+            torch.save({
+                "state_dict": head.cpu().state_dict(),
+                "class_names": list(class_names),
+                "dataset": args.dataset,
+                "image_size": args.image_size,
+                "auroc_per_class": results["auroc_per_class"],
+            }, args.save_head)
+            print(f"Tête sauvegardée : {args.save_head}")
 
     print("=" * 60)
     print(f"Dataset          : {args.dataset.upper()} ({'SYNTHÉTIQUE' if is_synthetic else 'RÉEL'})")

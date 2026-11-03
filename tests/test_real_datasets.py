@@ -91,3 +91,37 @@ def test_real_dataset_end_to_end(dataset_cls, root, expected_classes):
 
     cam_image = generate_gradcam(wrapper, target_layer, raw_image, input_tensor, target_class=0, patch_grid_size=14)
     assert cam_image.shape == (224, 224, 3)
+
+
+@pytest.mark.slow
+@requires_real_data
+def test_gradcam_examples_script_on_real_rfmid(tmp_path):
+    """scripts/gradcam_examples.py de bout en bout sur la validation RFMiD
+    réelle (poids aléatoires : plomberie uniquement)."""
+    from PIL import Image
+
+    from scripts.gradcam_examples import main as gradcam_main
+
+    ckpt_path = tmp_path / "ckpt.pth"
+    torch.save({"model": build_retfound_vit_large(img_size=224, global_pool=True).state_dict()}, ckpt_path)
+    class_names = RFMiDDataset(RFMID_ROOT, split="train").class_names
+    head_path = tmp_path / "head.pt"
+    torch.save({
+        "state_dict": MultiLabelHead(embedding_dim=1024, num_classes=len(class_names)).state_dict(),
+        "class_names": list(class_names), "dataset": "rfmid", "image_size": 224,
+        "auroc_per_class": {c: 0.5 for c in class_names},
+    }, head_path)
+
+    out = tmp_path / "gradcam.png"
+    argv_backup, sys.argv = sys.argv, [
+        "gradcam_examples", "--dataset", "rfmid", "--data-root", str(RFMID_ROOT),
+        "--checkpoint", str(ckpt_path), "--head", str(head_path),
+        "--classes", "MYA", "--per-class", "2", "--out", str(out), "--device", "cpu",
+    ]
+    try:
+        gradcam_main()
+    finally:
+        sys.argv = argv_backup
+
+    width, height = Image.open(out).size
+    assert (width, height) == (2 * 2 * 224, 224 + 22)  # 2 images x (originale + CAM), 1 ligne + légende

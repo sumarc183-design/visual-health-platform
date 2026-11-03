@@ -105,6 +105,13 @@ RFMiD ou ODIR depuis Kaggle et lance `run_baseline.py` avec le backbone sur
 GPU (`--device cuda`, choisi automatiquement si disponible). Sélectionner
 `GPU T4` dans le type d'exécution avant de lancer.
 
+Il produit ensuite une planche Grad-CAM (`scripts/gradcam_examples.py`, à
+partir de la tête sauvegardée par `run_baseline.py --save-head`) : pour les
+classes les mieux reconnues, les vrais positifs de validation les plus sûrs,
+côte à côte avec la zone qui a le plus pesé dans la prédiction. À relire
+pour vérifier que le modèle regarde des structures plausibles (lésions,
+disque optique, macula) et pas un artefact (bords, fond noir, texte).
+
 ## Licence RETFound — important
 
 RETFound est en **CC BY-NC 4.0 (NonCommercial)**, pas MIT. Utilisable
