@@ -1,4 +1,5 @@
 """Métriques d'évaluation pour la classification multi-label d'images médicales."""
+
 from __future__ import annotations
 
 import numpy as np

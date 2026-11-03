@@ -1,23 +1,29 @@
-# Attributions and licensing
+# Attributions et licences
 
-## RETFound (src/models/retfound_backbone.py, src/models/pos_embed.py)
+## RETFound (`src/models/retfound_backbone.py`, `src/models/pos_embed.py`)
 
-- Repository: https://github.com/rmaphoh/RETFound_MAE
-- **License: CC BY-NC 4.0 (Attribution-NonCommercial) — NOT MIT/Apache.**
+- Dépôt : https://github.com/rmaphoh/RETFound_MAE
+- **Licence : CC BY-NC 4.0 (Attribution - Pas d'utilisation commerciale) — PAS MIT/Apache.**
 
-This means the RETFound code and pretrained weights are free to use for
-**research and non-commercial purposes only** (exactly our phase 1:
-reproduction and internal benchmarking). They **cannot** be used in a
-commercial product or service without a separate license from the
-authors.
+Le code et les poids préentraînés de RETFound sont libres d'usage **pour la
+recherche et un usage non commercial uniquement** (exactement la phase 1 :
+reproduction et évaluation interne). Ils **ne peuvent pas** être utilisés dans
+un produit ou un service commercial sans licence séparée des auteurs.
 
-**Action needed before any commercial launch of Visual Health**: either
-(a) negotiate a commercial license with the RETFound authors, or (b) plan
-a backbone that is not NC-encumbered — e.g. self-supervised pretraining on
-our own fundus data, or another retina foundation model released under a
-permissive license (MIT/Apache-2.0). Do not ship RETFound weights inside a
-paid product until this is resolved.
+**Action nécessaire avant tout lancement commercial de Visual Health** : soit
+(a) négocier une licence commerciale avec les auteurs de RETFound, soit (b)
+prévoir un backbone sans clause NC — par exemple un préentraînement
+auto-supervisé sur nos propres images de fond d'œil, ou un autre modèle
+fondamental rétinien publié sous licence permissive (MIT/Apache-2.0). Ne pas
+livrer les poids RETFound dans un produit payant tant que ce point n'est pas
+réglé.
 
-Code adapted here is limited to model construction and checkpoint loading
-(architecture + interpolate_pos_embed), kept faithful to the original so
-official checkpoints load without remapping.
+Le code adapté ici se limite à la construction du modèle et au chargement du
+checkpoint (architecture + `interpolate_pos_embed`), fidèle à l'original pour
+que les checkpoints officiels se chargent sans renommage.
+
+## Jeux de données
+
+- **RFMiD** et **ODIR-5K** : téléchargés depuis Kaggle (miroirs publics des
+  challenges RIADD et ODIR-2019). Respecter les conditions d'usage propres à
+  chaque jeu ; les images ne sont pas versionnées dans ce dépôt.

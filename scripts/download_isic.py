@@ -2,6 +2,7 @@
 
 pip install isic-cli
 """
+
 import argparse
 import subprocess
 

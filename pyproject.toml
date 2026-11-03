@@ -1,0 +1,24 @@
+[project]
+name = "visual-health-platform"
+version = "0.1.0"
+description = "Socle modulaire d'analyse d'images médicales : RETFound sur fond d'œil (RFMiD, ODIR), contrôle qualité, classification multi-label, Grad-CAM."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Marc Su" }]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = ["third_party", "data", "notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# Ces points d'entrée ajoutent la racine du dépôt à sys.path avant d'importer src/
+"run_baseline.py" = ["E402"]
+"scripts/*" = ["E402"]
+"tests/*" = ["E402"]
+
+[tool.pytest.ini_options]
+markers = ["slow: bout-en-bout sur données synthétiques (plus lent que les tests unitaires)"]

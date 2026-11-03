@@ -1,5 +1,6 @@
 """Vérifie le backbone RETFound (architecture, chargement de checkpoint,
 interpolation des position embeddings)."""
+
 import torch
 
 from src.models.classifier_head import MultiLabelHead
@@ -9,7 +10,7 @@ from src.models.retfound_backbone import RETFoundBackbone, build_retfound_vit_la
 def test_vit_large_param_count_and_forward():
     model = build_retfound_vit_large(img_size=224, global_pool=True)
     n_params = sum(p.numel() for p in model.parameters())
-    assert 280e6 < n_params < 320e6, f"{n_params/1e6:.1f}M params, attendu ~304M pour un ViT-L/16"
+    assert 280e6 < n_params < 320e6, f"{n_params / 1e6:.1f}M params, attendu ~304M pour un ViT-L/16"
 
     out = model.forward_features(torch.randn(2, 3, 224, 224))
     assert out.shape == (2, 1024)

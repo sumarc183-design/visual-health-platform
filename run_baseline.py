@@ -25,9 +25,11 @@ Exemples :
     python run_baseline.py --dataset odir --data-root data/raw/odir \\
         --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
 """
+
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -41,6 +43,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from scripts.generate_synthetic_fundus_dataset import generate_dataset
 from src.data.odir_dataset import ODIRDataset
 from src.data.rfmid_dataset import RFMiDDataset
+from src.eval.metrics import evaluate_multilabel
 from src.models.classifier_head import MultiLabelHead, train_head
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone, build_retfound_vit_large
 from src.pipeline.quality_control import check_quality
@@ -92,8 +95,9 @@ def run_quality_control(dataset, n_samples: int = 50) -> None:
     print(f"Contrôle qualité (échantillon de {n_check}) : {n_rejected} rejetée(s)")
 
 
-def collect_embeddings(backbone: RETFoundBackbone, dataset, batch_size: int = 16,
-                       device: str = "cpu", num_workers: int = 0):
+def collect_embeddings(
+    backbone: RETFoundBackbone, dataset, batch_size: int = 16, device: str = "cpu", num_workers: int = 0
+):
     loader = DataLoader(dataset, batch_size=batch_size, num_workers=num_workers)
     mean, std = IMAGENET_MEAN.to(device), IMAGENET_STD.to(device)
     embeddings, labels = [], []
@@ -105,36 +109,47 @@ def collect_embeddings(backbone: RETFoundBackbone, dataset, batch_size: int = 16
     return np.concatenate(embeddings), np.concatenate(labels)
 
 
-def evaluate_auroc(y_true: np.ndarray, y_prob: np.ndarray, class_names: list[str]) -> dict:
-    from sklearn.metrics import roc_auc_score
-
-    per_class = {}
-    for i, name in enumerate(class_names):
-        if len(np.unique(y_true[:, i])) < 2:
-            continue
-        per_class[name] = float(roc_auc_score(y_true[:, i], y_prob[:, i]))
-    macro = float(np.mean(list(per_class.values()))) if per_class else float("nan")
-    return {"auroc_macro": macro, "auroc_per_class": per_class}
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dataset", choices=["rfmid", "odir"], required=True)
-    parser.add_argument("--data-root", type=Path, default=None, help="Dossier des données téléchargées. Omis = synthétique.")
-    parser.add_argument("--checkpoint", type=Path, default=None, help="Checkpoint RETFound officiel. Omis = poids aléatoires.")
+    parser.add_argument(
+        "--data-root", type=Path, default=None, help="Dossier des données téléchargées. Omis = synthétique."
+    )
+    parser.add_argument(
+        "--checkpoint", type=Path, default=None, help="Checkpoint RETFound officiel. Omis = poids aléatoires."
+    )
     parser.add_argument("--image-size", type=int, default=224)
     parser.add_argument("--epochs", type=int, default=5)
-    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu",
-                        help="cuda (GPU Colab/Kaggle) ou cpu. Par défaut : cuda si disponible.")
+    parser.add_argument(
+        "--device",
+        default="cuda" if torch.cuda.is_available() else "cpu",
+        help="cuda (GPU Colab/Kaggle) ou cpu. Par défaut : cuda si disponible.",
+    )
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--num-workers", type=int, default=0)
-    parser.add_argument("--odir-labels", choices=["eye", "patient"], default="eye",
-                        help="ODIR : étiquette de l'œil photographié (défaut) ou diagnostic patient "
-                             "recopié sur les deux yeux (comportement d'origine, ~21 %% d'images mal "
-                             "étiquetées -- voir src/data/odir_dataset.py).")
-    parser.add_argument("--save-head", type=Path, default=None,
-                        help="Sauvegarde la tête entraînée (+ classes, dataset, taille d'image) pour "
-                             "scripts/gradcam_examples.py.")
+    parser.add_argument(
+        "--odir-labels",
+        choices=["eye", "patient"],
+        default="eye",
+        help="ODIR : étiquette de l'œil photographié (défaut) ou diagnostic patient "
+        "recopié sur les deux yeux (comportement d'origine, ~21 %% d'images mal "
+        "étiquetées -- voir src/data/odir_dataset.py).",
+    )
+    parser.add_argument(
+        "--seed", type=int, default=42, help="Graine de l'entraînement de la tête (résultats reproductibles)"
+    )
+    parser.add_argument(
+        "--results-json",
+        type=Path,
+        default=None,
+        help="Enregistre les métriques (validation, train, gap) dans ce fichier JSON",
+    )
+    parser.add_argument(
+        "--save-head",
+        type=Path,
+        default=None,
+        help="Sauvegarde la tête entraînée (+ classes, dataset, taille d'image) pour scripts/gradcam_examples.py.",
+    )
     args = parser.parse_args()
 
     is_synthetic = args.data_root is None
@@ -156,8 +171,12 @@ def main() -> None:
             train_dataset = RFMiDDataset(args.data_root, split="train", image_size=args.image_size)
             val_dataset = RFMiDDataset(args.data_root, split="val", image_size=args.image_size)
         else:
-            train_dataset = ODIRDataset(args.data_root, split="train", image_size=args.image_size, label_level=args.odir_labels)
-            val_dataset = ODIRDataset(args.data_root, split="val", image_size=args.image_size, label_level=args.odir_labels)
+            train_dataset = ODIRDataset(
+                args.data_root, split="train", image_size=args.image_size, label_level=args.odir_labels
+            )
+            val_dataset = ODIRDataset(
+                args.data_root, split="val", image_size=args.image_size, label_level=args.odir_labels
+            )
 
         class_names = train_dataset.class_names
         print(f"Classes ({len(class_names)}) : {class_names}")
@@ -174,37 +193,76 @@ def main() -> None:
         print("Extraction des embeddings (val)...")
         X_val, y_val = collect_embeddings(backbone, val_dataset, **embed_kwargs)
 
-        train_loader = DataLoader(list(zip(torch.from_numpy(X_train), torch.from_numpy(y_train))), batch_size=16, shuffle=True)
+        torch.manual_seed(args.seed)  # initialisation de la tête et ordre des mini-batchs
+        train_loader = DataLoader(
+            list(zip(torch.from_numpy(X_train), torch.from_numpy(y_train), strict=True)), batch_size=16, shuffle=True
+        )
         head = MultiLabelHead(embedding_dim=1024, num_classes=len(class_names))
         head = train_head(head, train_loader, train_loader, epochs=args.epochs, lr=1e-3, device=args.device)
 
         with torch.no_grad():
             probs = torch.sigmoid(head(torch.from_numpy(X_val).to(args.device))).cpu().numpy()
-        results = evaluate_auroc(y_val, probs, class_names)
+            train_probs = torch.sigmoid(head(torch.from_numpy(X_train).to(args.device))).cpu().numpy()
+        results = evaluate_multilabel(y_val, probs, class_names)
+        train_results = evaluate_multilabel(y_train, train_probs, class_names)
 
         if args.save_head is not None:
             args.save_head.parent.mkdir(parents=True, exist_ok=True)
-            torch.save({
-                "state_dict": head.cpu().state_dict(),
-                "class_names": list(class_names),
-                "dataset": args.dataset,
-                "image_size": args.image_size,
-                "odir_labels": args.odir_labels if args.dataset == "odir" else None,
-                "auroc_per_class": results["auroc_per_class"],
-            }, args.save_head)
+            torch.save(
+                {
+                    "state_dict": head.cpu().state_dict(),
+                    "class_names": list(class_names),
+                    "dataset": args.dataset,
+                    "image_size": args.image_size,
+                    "odir_labels": args.odir_labels if args.dataset == "odir" else None,
+                    "auroc_per_class": results["auroc_per_class"],
+                },
+                args.save_head,
+            )
             print(f"Tête sauvegardée : {args.save_head}")
 
     print("=" * 60)
-    labels_desc = f", étiquettes {'par œil' if args.odir_labels == 'eye' else 'patient'}" if args.dataset == "odir" else ""
+    labels_desc = (
+        f", étiquettes {'par œil' if args.odir_labels == 'eye' else 'patient'}" if args.dataset == "odir" else ""
+    )
     print(f"Dataset          : {args.dataset.upper()} ({'SYNTHÉTIQUE' if is_synthetic else 'RÉEL'}{labels_desc})")
-    print(f"Checkpoint       : {'ALÉATOIRE (pas de poids RETFound officiels)' if is_random_checkpoint else args.checkpoint}")
-    print(f"AUROC macro      : {results['auroc_macro']:.4f}")
+    checkpoint_desc = "ALÉATOIRE (pas de poids RETFound officiels)" if is_random_checkpoint else args.checkpoint
+    print(f"Checkpoint       : {checkpoint_desc}")
+    print(
+        f"AUROC macro      : {results['auroc_macro']:.4f}  (train {train_results['auroc_macro']:.4f}, "
+        f"gap {train_results['auroc_macro'] - results['auroc_macro']:+.4f})"
+    )
+    print(
+        f"F1 macro (0,5)   : {results['f1_macro']:.4f}  (train {train_results['f1_macro']:.4f}, "
+        f"gap {train_results['f1_macro'] - results['f1_macro']:+.4f})"
+    )
     for name, value in results["auroc_per_class"].items():
         print(f"  {name:>20s} : {value:.4f}")
     print("=" * 60)
+    if args.results_json is not None:
+        args.results_json.parent.mkdir(parents=True, exist_ok=True)
+        args.results_json.write_text(
+            json.dumps(
+                {
+                    "dataset": args.dataset,
+                    "odir_labels": args.odir_labels if args.dataset == "odir" else None,
+                    "synthetic": is_synthetic,
+                    "checkpoint": None if is_random_checkpoint else str(args.checkpoint),
+                    "seed": args.seed,
+                    "epochs": args.epochs,
+                    "val": results,
+                    "train": {k: v for k, v in train_results.items() if k != "auroc_per_class"},
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        print(f"Résultats JSON : {args.results_json}")
     if is_synthetic or is_random_checkpoint:
-        print("Ces résultats ne sont PAS interprétables médicalement (données et/ou "
-              "checkpoint non réels) -- ils valident uniquement que le pipeline tourne.")
+        print(
+            "Ces résultats ne sont PAS interprétables médicalement (données et/ou "
+            "checkpoint non réels) -- ils valident uniquement que le pipeline tourne."
+        )
 
 
 if __name__ == "__main__":

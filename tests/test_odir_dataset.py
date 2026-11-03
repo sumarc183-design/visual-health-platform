@@ -2,7 +2,6 @@
 même patient a 2 lignes -- œil gauche/droit -- partageant le même label ;
 un split ligne-par-ligne mettrait parfois les deux yeux d'un même patient
 de part et d'autre du split)."""
-import os
 
 import numpy as np
 import pandas as pd
@@ -63,17 +62,20 @@ def test_eye_level_labels_follow_the_photographed_eye(synthetic_odir_root):
     assert (patient_ds.df["C"] == 1).all()  # comportement d'origine : diagnostic patient sur les deux yeux
 
 
-@pytest.mark.parametrize("keywords, expected", [
-    ("normal fundus", {"N"}),
-    ("normal fundus，lens dust", {"N"}),
-    ("moderate non proliferative retinopathy", {"D"}),
-    ("mild nonproliferative retinopathy，hypertensive retinopathy", {"D", "H"}),
-    ("suspected glaucoma", {"G"}),
-    ("dry age-related macular degeneration", {"A"}),
-    ("pathological myopia", {"M"}),
-    ("epiretinal membrane", {"O"}),
-    ("normal fundus，drusen", {"O"}),  # une pathologie efface N
-    ("low image quality", set()),
-])
+@pytest.mark.parametrize(
+    "keywords, expected",
+    [
+        ("normal fundus", {"N"}),
+        ("normal fundus，lens dust", {"N"}),
+        ("moderate non proliferative retinopathy", {"D"}),
+        ("mild nonproliferative retinopathy，hypertensive retinopathy", {"D", "H"}),
+        ("suspected glaucoma", {"G"}),
+        ("dry age-related macular degeneration", {"A"}),
+        ("pathological myopia", {"M"}),
+        ("epiretinal membrane", {"O"}),
+        ("normal fundus，drusen", {"O"}),  # une pathologie efface N
+        ("low image quality", set()),
+    ],
+)
 def test_keywords_to_classes(keywords, expected):
     assert keywords_to_classes(keywords) == expected

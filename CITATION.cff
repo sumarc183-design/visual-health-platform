@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "Si vous utilisez ce travail, merci de le citer ainsi que RETFound."
+title: "Visual Health Platform : socle d'analyse d'images médicales (RETFound, fond d'œil)"
+authors:
+  - family-names: Su
+    given-names: Marc
+version: 0.1.0
+date-released: 2026-11-03
+repository-code: "https://github.com/sumarc183-design/visual-health-platform"
+keywords:
+  - medical imaging
+  - retina
+  - foundation model
+  - RETFound
+  - explainability
+references:
+  - type: software
+    title: "RETFound"
+    repository-code: "https://github.com/rmaphoh/RETFound_MAE"
+    authors:
+      - name: "Les auteurs de RETFound"

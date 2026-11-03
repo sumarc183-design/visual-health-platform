@@ -1,4 +1,5 @@
 """Vérifie le contrôle qualité (flou, résolution)."""
+
 import numpy as np
 
 from src.pipeline.quality_control import check_quality, compute_blur_score

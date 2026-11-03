@@ -1,10 +1,11 @@
-"""Position-embedding interpolation for loading a ViT checkpoint pretrained
-at a different image resolution than the one we fine-tune at.
+"""Interpolation des position embeddings, pour charger un checkpoint ViT
+préentraîné à une autre résolution d'image que celle utilisée ici.
 
-Vendored from rmaphoh/RETFound_MAE (util/pos_embed.py), itself adapted from
-Meta's MAE/DeiT reference code. See THIRD_PARTY_NOTICES.md -- RETFound is
-CC BY-NC 4.0 (research/non-commercial use only).
+Repris de rmaphoh/RETFound_MAE (util/pos_embed.py), lui-même adapté du code de
+référence MAE/DeiT de Meta. Voir THIRD_PARTY_NOTICES.md -- RETFound est sous
+licence CC BY-NC 4.0 (usage recherche / non commercial uniquement).
 """
+
 from __future__ import annotations
 
 import torch

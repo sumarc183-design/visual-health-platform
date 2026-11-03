@@ -22,6 +22,7 @@ Exemple :
         --repo-id YukunZhou/RETFound_mae_natureCFP \\
         --out third_party/retfound/checkpoints
 """
+
 from __future__ import annotations
 
 import argparse
@@ -36,7 +37,8 @@ WEIGHT_EXTENSIONS = (".pth", ".pt", ".bin", ".safetensors")
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
-        "--repo-id", default="YukunZhou/RETFound_mae_natureCFP",
+        "--repo-id",
+        default="YukunZhou/RETFound_mae_natureCFP",
         help="Dépôt HuggingFace du checkpoint. Seules les variantes MAE (ViT-L/16) sont compatibles "
         "avec src/models/retfound_backbone.py : RETFound_mae_natureCFP, RETFound_mae_natureOCT, "
         "RETFound_mae_meh, RETFound_mae_shanghai. Les variantes dinov2 (ViT-L/14) ne le sont pas.",

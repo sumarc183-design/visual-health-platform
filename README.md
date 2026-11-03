@@ -1,214 +1,115 @@
 # Visual Health Platform
 
-Socle modulaire d'analyse d'images médicales. Premier cas d'usage : classification
-et localisation sur images de fond d'œil, backbone [RETFound](https://github.com/rmaphoh/RETFound_MAE)
-(modèle fondamental rétinien préentraîné, poids publics).
+[![CI](https://github.com/sumarc183-design/visual-health-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/sumarc183-design/visual-health-platform/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+[![Ruff](https://img.shields.io/badge/code%20style-ruff-261230)](https://docs.astral.sh/ruff/)
+[![Ouvrir dans Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sumarc183-design/visual-health-platform/blob/main/notebooks/colab_baseline_retfound.ipynb)
+
+Socle modulaire d'analyse d'images médicales. Premier cas d'usage : dépistage
+multi-pathologies sur images de fond d'œil, avec
+[RETFound](https://github.com/rmaphoh/RETFound_MAE) (modèle fondamental
+rétinien préentraîné) comme backbone. Chaque nouvelle indication ajoute une
+tête spécialisée sur le socle commun, sans le reconstruire.
+
+```mermaid
+flowchart LR
+    A[Image] --> B[Contrôle qualité<br/>flou, résolution]
+    B --> C[Modalité<br/>fond d'œil, dermato]
+    C --> D[RETFound figé<br/>ViT-L/16]
+    D --> E[Tête multi-label<br/>par indication]
+    E --> F[AUROC · F1<br/>gap train − validation]
+    E --> G[Grad-CAM<br/>zones décisives]
+```
 
 ## Résultats
 
+Backbone `RETFound_mae_natureCFP` figé, tête linéaire multi-label (30 epochs),
+images 224×224, Colab GPU T4.
+
 | Date | Données | Classes | Split | AUROC macro |
 |---|---|---|---|---|
-| 2026-11-02 | RFMiD | 28 | train officiel (1 920) / val officielle (640) | **0,855** |
-| 2026-11-02 | ODIR-5K, étiquettes patient | 8 (N/D/G/C/A/H/M/O) | par patient, 85/15 (5 439 / 953 images) | **0,806** |
+| 2026-11-02 | RFMiD | 28 | train / val officiels (1 920 / 640) | **0,855** |
+| 2026-11-02 | ODIR-5K, étiquettes patient | 8 | par patient, 85/15 (5 439 / 953) | **0,806** |
 | à venir | ODIR-5K, étiquettes par œil (défaut actuel) | 8 | même split | — |
 
-Backbone RETFound (`RETFound_mae_natureCFP`) figé, tête linéaire multi-label
-(30 epochs), images 224×224 normalisées ImageNet. Lancé sur Colab GPU T4 via
-`notebooks/colab_baseline_retfound.ipynb`, sorties brutes (AUROC par classe)
-dans `results/`.
-
-Lecture :
+- **Très bien reconnues** (AUROC > 0,93 sur RFMiD) : rétinopathie diabétique,
+  DMLA, myopie, occlusions veineuses. Les classes très rares en validation
+  ont une AUROC instable. Détail par classe : [`results/`](results/).
+- **ODIR** : le diagnostic patient recopié sur les deux yeux étiquetait faux
+  20,8 % des images ; le loader utilise désormais l'étiquette de l'œil
+  photographié ([explication](docs/GUIDE.md#odir-5k)).
 - Sonde sur backbone figé, pas le fine-tuning complet des chiffres publiés
-  RETFound : attendre quelques points de moins.
-- RFMiD : les classes très rares en validation (TV, ST, RP...) ont une AUROC
-  instable, peu interprétable.
-- ODIR, étiquettes patient : le diagnostic patient N..O recopié sur les deux
-  yeux étiquette faux 20,8 % des images (un œil sain de patient diabétique
-  devient "D" ; 45 % des "O" sont faux), ce qui plafonnait surtout N, D et O.
-  Le loader utilise désormais par défaut l'étiquette de l'œil photographié
-  (mots-clés diagnostiques, validée : elle redonne 100 % des diagnostics
-  patient). Les deux chiffres ne portent pas sur les mêmes étiquettes de
-  validation : `--odir-labels patient` reproduit l'ancien protocole.
+  par RETFound : attendre quelques points de moins.
 
-## Pourquoi le fond d'œil en premier
+## Démarrage rapide
 
-Double usage : le pipeline construit ici (contrôle qualité, prétraitement,
-classification, localisation) sert directement la piste différenciante
-« dépistage TSA depuis la rétine » sans reconstruire le socle deux fois.
-RFMiD et ODIR sont publics et immédiatement exploitables ; ISIC (dermatologie)
-reste une piste parallèle pour une seconde modalité.
+**Sans installation** : bouton *Open in Colab* ci-dessus, `GPU T4`, token
+HuggingFace dans les Secrets Colab (`HF_TOKEN`), `Tout exécuter`.
 
-## Principe : socle commun + têtes spécialisées
+**En local** (poids RETFound et données : voir le [guide](docs/GUIDE.md#poids-retfound)) :
 
-Pas un modèle unique censé tout reconnaître. Un socle modulaire :
-
-```
-1. Contrôle qualité (flou, cadrage, doublons)
-2. Identification du type d'image / de la modalité
-3. Prétraitement adapté à la modalité
-4. Classification (tête spécialisée par indication)
-5. Localisation / segmentation des zones suspectes
-6. Cartes d'explicabilité (Grad-CAM)
-7. Score de confiance
+```bash
+pip install -r requirements-dev.txt
+python run_baseline.py --dataset rfmid --data-root <chemin RFMiD> \
+    --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth --epochs 30
+pytest tests/                   # unitaires + bout-en-bout sur images synthétiques
 ```
 
-Chaque nouvelle indication ajoute une tête sur le socle existant, sans le
-reconstruire.
+## État du socle
 
-## Données phase 1
+| Étape | État |
+|---|---|
+| 1. Contrôle qualité (flou, résolution) | ✅ Testé (seuil de flou à calibrer) |
+| 2. Identification de la modalité | 🟡 Architecture en place, pas encore entraînée |
+| 3. Prétraitement fond d'œil | ✅ Normalisation ImageNet, 224×224 |
+| 4. Classification multi-label | ✅ RFMiD et ODIR, AUROC mesurée |
+| 5. Localisation des zones suspectes | ⬜ J60 |
+| 6. Explicabilité (Grad-CAM) | 🟡 Prêt, à lancer sur les vraies prédictions |
+| 7. Score de confiance calibré | ⬜ J60 |
+
+## Données
 
 | Base | Usage |
 |---|---|
-| RFMiD | Classification multi-pathologies (fond d'œil) |
-| ODIR | Classification multi-pathologies (fond d'œil), volume complémentaire |
-| ISIC | Dermatologie — seconde modalité (phase 2) |
+| RFMiD | Fond d'œil, 28 pathologies (phase 1) |
+| ODIR-5K | Fond d'œil, 8 classes, volume complémentaire (phase 1) |
+| ISIC | Dermatologie, seconde modalité (phase 2) |
+| AI-Hub | Dépistage TSA depuis la rétine (phase 2/3, accès à négocier) |
 
-Voir `docs/USE_CASES.md` pour l'arbitrage complet entre les trois premiers
-cas d'usage envisagés.
+Arbitrage des cas d'usage : [docs/USE_CASES.md](docs/USE_CASES.md).
 
 ## Structure
 
 ```
-run_baseline.py         point d'entrée unique : contrôle qualité -> RETFound -> tête -> AUROC
-configs/                hyperparamètres de référence (non lus par les scripts)
-scripts/                téléchargement des poids, Grad-CAM, générateur synthétique
+run_baseline.py         point d'entrée : contrôle qualité -> RETFound -> tête -> AUROC
 src/pipeline/           contrôle qualité, identification de modalité
 src/data/               loaders RFMiD et ODIR (structure Kaggle réelle)
-src/models/             backbone RETFound, têtes de classification
+src/models/             backbone RETFound, tête de classification
 src/explainability/     Grad-CAM adapté aux ViT
-src/eval/               métriques (AUROC, etc.)
-notebooks/              notebook Google Colab (GPU gratuit)
-results/                sorties brutes des runs réels
-docs/                   roadmap et arbitrage des cas d'usage
+src/eval/               métriques multi-label (AUROC, F1)
+scripts/                poids RETFound, Grad-CAM, données, générateur synthétique
+notebooks/              notebook Google Colab
+tests/                  tests unitaires, bout-en-bout synthétique, données réelles
+results/                sorties des runs réels
+configs/                hyperparamètres de référence (non lus par les scripts)
+docs/                   guide, carte du modèle, roadmap, cas d'usage
 ```
 
-## Démarrage
+## Documentation
 
-```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-bash scripts/setup_retfound.sh   # clone le code officiel RETFound (voir THIRD_PARTY_NOTICES.md)
+| Document | Contenu |
+|---|---|
+| [GUIDE.md](docs/GUIDE.md) | Installation, poids, données, exécution, Grad-CAM, tests |
+| [MODEL_CARD.md](docs/MODEL_CARD.md) | Usage prévu, données, métriques, limites |
+| [ROADMAP.md](docs/ROADMAP.md) | Jalons J30 / J60 / J90 |
+| [USE_CASES.md](docs/USE_CASES.md) | Arbitrage entre fond d'œil, dermatologie et TSA |
+| [CHANGELOG.md](CHANGELOG.md) | Historique des versions |
 
-# Poids RETFound (dépôt HuggingFace gated -- nécessite un compte + token,
-# et d'accepter les conditions sur la page du modèle choisi) :
-huggingface-cli login --token VOTRE_TOKEN
-python scripts/download_retfound_checkpoint.py \
-    --repo-id YukunZhou/RETFound_mae_natureCFP \
-    --out third_party/retfound/checkpoints
+## Licences et attributions
 
-# RFMiD et ODIR depuis Kaggle, sans compte (pip install kagglehub) :
-python -c "import kagglehub; print(kagglehub.dataset_download('andrewmvd/retinal-disease-classification'))"
-python -c "import kagglehub; print(kagglehub.dataset_download('andrewmvd/ocular-disease-recognition-odir5k'))"
+⚠️ **RETFound est sous licence CC BY-NC 4.0** : recherche et usage non
+commercial uniquement, pas dans un produit commercial sans licence des
+auteurs. Détails et options : [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Pour citer ce travail : [CITATION.cff](CITATION.cff).
 
-python run_baseline.py --dataset rfmid --data-root <chemin RFMiD affiché> \
-    --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth --epochs 30
-```
-
-Les chemins affichés par `kagglehub` ont directement la structure attendue
-par les loaders. Une erreur 401/403 sur les poids RETFound vient du token
-ou des conditions non acceptées sur la page du modèle. Sans GPU local,
-passer par le notebook Colab (voir ci-dessous).
-
-## Lancer sur GPU gratuit (Google Colab)
-
-[![Ouvrir dans Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sumarc183-design/visual-health-platform/blob/main/notebooks/colab_baseline_retfound.ipynb)
-
-`notebooks/colab_baseline_retfound.ipynb` récupère les poids RETFound
-(token HuggingFace dans les Secrets Colab, nommé `HF_TOKEN`), télécharge
-RFMiD ou ODIR depuis Kaggle et lance `run_baseline.py` avec le backbone sur
-GPU (`--device cuda`, choisi automatiquement si disponible). Sélectionner
-`GPU T4` dans le type d'exécution avant de lancer.
-
-Il produit ensuite une planche Grad-CAM (`scripts/gradcam_examples.py`, à
-partir de la tête sauvegardée par `run_baseline.py --save-head`) : pour les
-classes les mieux reconnues, les vrais positifs de validation les plus sûrs,
-côte à côte avec la zone qui a le plus pesé dans la prédiction. À relire
-pour vérifier que le modèle regarde des structures plausibles (lésions,
-disque optique, macula) et pas un artefact (bords, fond noir, texte).
-
-## Licence RETFound — important
-
-RETFound est en **CC BY-NC 4.0 (NonCommercial)**, pas MIT. Utilisable
-librement pour la phase recherche/reproduction, mais **pas dans un produit
-commercial** sans licence séparée des auteurs. Voir `THIRD_PARTY_NOTICES.md`
-pour le détail et les options avant un lancement commercial.
-
-## État du code
-
-`src/models/retfound_backbone.py`, `src/models/pos_embed.py` et
-`src/explainability/gradcam.py` sont adaptés du dépôt officiel RETFound
-(architecture ViT-Large/16, chargement de checkpoint avec interpolation des
-position embeddings). Le vrai checkpoint `RETFound_mae_natureCFP` se
-charge (2 clés absentes, `fc_norm` créée à neuf comme dans le fine-tuning
-officiel ; 106 clés du décodeur MAE ignorées). Testés en CI avec un
-checkpoint synthétique : forward pass (303M paramètres, conforme au
-ViT-L/16 attendu), chargement de checkpoint avec clés `model`/`teacher`,
-interpolation pos_embed pour un changement de résolution (224→256), tête de
-classification multi-label, et Grad-CAM adapté aux ViT (`reshape_transform`
-pour replier les tokens en grille, et entrée rendue dérivable : sans elle,
-Grad-CAM échoue sur un backbone gelé). Le contrôle qualité
-(`src/pipeline/quality_control.py`) est également testé (image nette,
-floue, sous-résolue).
-
-RFMiD et ODIR ont été téléchargés et le pipeline validé de bout en bout sur
-les vraies images (`tests/test_real_datasets.py`, à poids aléatoires pour la
-CI) : voir "Tester sur les vraies données" ci-dessous. Avec le vrai
-checkpoint RETFound (CC BY-NC 4.0), premières AUROC obtenues sur RFMiD et
-ODIR (voir "Résultats" en haut de ce fichier).
-
-## Tester sans données réelles (smoke test)
-
-`scripts/generate_synthetic_fundus_dataset.py` génère des images de fond
-d'œil synthétiques (bruit + vignettage, pas de vraie physiologie) au format
-RFMiD/ODIR, pour faire tourner tout le pipeline en attendant le
-téléchargement réel :
-
-```bash
-pip install -r requirements-dev.txt
-pytest tests/ -v                 # tests unitaires + bout-en-bout (quelques minutes sur CPU)
-pytest tests/ -m "not slow"      # unitaires seulement, rapide
-```
-
-`tests/test_pipeline_smoke.py::test_full_pipeline_end_to_end` fait tourner
-génération -> contrôle qualité -> RETFound -> classification -> Grad-CAM en
-une passe. Gardé pour la CI, qui n'a pas les données réelles (~10 Go).
-
-## Tester sur les vraies données
-
-Une fois RFMiD/ODIR téléchargés et organisés (`scripts/download_rfmid_odir.py`,
-voir "Démarrage") dans `data/raw/{rfmid,odir}/` :
-
-```bash
-pytest tests/test_real_datasets.py -v
-```
-
-`src/data/rfmid_dataset.py` et `src/data/odir_dataset.py` lisent la structure
-Kaggle réelle (pas le format `C0..C27` générique du générateur synthétique) :
-
-- **RFMiD** : CSV à 45 colonnes de pathologies + `Disease_Risk` (label binaire
-  à part) ; le sous-ensemble de 28 classes du config est dérivé du train set
-  (>= 5 exemples positifs), jamais recalculé sur val/test pour éviter la fuite.
-- **ODIR** : chaque ligne de `full_df.csv` est l'image d'un œil, mais les
-  colonnes `N/D/G/C/A/H/M/O` sont le diagnostic patient (les deux yeux). Le
-  loader reconstruit par défaut l'étiquette de l'œil photographié depuis ses
-  mots-clés diagnostiques (`label_level="eye"`, voir
-  `src/data/odir_dataset.py`) ; `label_level="patient"` garde l'ancien
-  comportement. Split par patient dans les deux cas ; `Testing Images/` n'a pas de label (jeu de
-  test caché du challenge Kaggle d'origine) donc le split train/val est fait
-  par tirage aléatoire fixe sur `Training Images/`.
-
-`tests/test_real_datasets.py` fait tourner tout le pipeline sur ces vraies
-images (16 échantillons RFMiD + 16 ODIR), le script Grad-CAM sur la
-validation RFMiD, et vérifie que les étiquettes ODIR par œil redonnent les
-diagnostics patient. Poids aléatoires (le checkpoint RETFound n'est pas
-versionné) : validation de plomberie, pas de prédictions interprétables ;
-les vrais chiffres sont dans "Résultats". Sauté automatiquement si
-`data/raw/` est absent.
-
-## CI
-
-`.github/workflows/ci.yml` lance la suite de tests à chaque push/PR.
-
-## Roadmap
-
-Voir `docs/ROADMAP.md`.
+Projet de recherche, pas un dispositif médical.

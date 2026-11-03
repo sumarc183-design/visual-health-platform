@@ -9,6 +9,7 @@ du bruit avec un léger vignettage circulaire pour ressembler grossièrement
 à un fond d'œil, pas de la vraie physiologie. Ne sert qu'à valider la
 plomberie du pipeline.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -18,7 +19,9 @@ import os
 import numpy as np
 from PIL import Image
 
-RFMID_CLASSES = [f"C{i}" for i in range(28)]  # noms génériques -- remplacer par la vraie taxonomie RFMiD au téléchargement réel
+RFMID_CLASSES = [
+    f"C{i}" for i in range(28)
+]  # noms génériques -- remplacer par la vraie taxonomie RFMiD au téléchargement réel
 ODIR_CLASSES = ["N", "D", "G", "C", "A", "H", "M", "O"]
 
 

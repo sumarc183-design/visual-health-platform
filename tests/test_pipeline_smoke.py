@@ -2,6 +2,7 @@
 contrôle qualité -> RETFound -> classification multi-label -> Grad-CAM) de
 bout en bout. Marqué "slow" : exclure avec `pytest -m "not slow"`.
 """
+
 import csv
 import sys
 from pathlib import Path
@@ -51,7 +52,7 @@ def test_full_pipeline_end_to_end(tmp_path):
         labels.append(torch.tensor([int(v) for v in row[1:]], dtype=torch.float32))
     X, y = torch.cat(embeddings), torch.stack(labels)
 
-    loader = torch.utils.data.DataLoader(list(zip(X, y)), batch_size=8)
+    loader = torch.utils.data.DataLoader(list(zip(X, y, strict=True)), batch_size=8)
     head = MultiLabelHead(embedding_dim=1024, num_classes=len(class_names))
     head = train_head(head, loader, loader, epochs=2, lr=1e-3)
 
@@ -72,7 +73,9 @@ def test_full_pipeline_end_to_end(tmp_path):
     target_layer = backbone.backbone.blocks[-1].norm1
     sample_image = Image.open(data_dir / "images" / f"{rows[0][0]}.png").convert("RGB")
     raw_image = np.array(sample_image)
-    input_tensor = torch.from_numpy(raw_image.astype(np.float32) / 255.0).permute(2, 0, 1).unsqueeze(0).requires_grad_(True)
+    input_tensor = (
+        torch.from_numpy(raw_image.astype(np.float32) / 255.0).permute(2, 0, 1).unsqueeze(0).requires_grad_(True)
+    )
 
     cam_image = generate_gradcam(wrapper, target_layer, raw_image, input_tensor, target_class=0, patch_grid_size=14)
     assert cam_image.shape == (224, 224, 3)

@@ -1,21 +1,22 @@
-"""Loads the RETFound ViT-Large/16 backbone and its pretrained checkpoint.
+"""Charge le backbone RETFound ViT-Large/16 et son checkpoint préentraîné.
 
-Architecture and checkpoint-loading logic adapted from rmaphoh/RETFound_MAE
-(main_finetune.py + models_vit.py). See THIRD_PARTY_NOTICES.md: RETFound is
-CC BY-NC 4.0 -- research/internal use only until a commercial license (or an
-alternative backbone) is in place.
+Architecture et logique de chargement adaptées de rmaphoh/RETFound_MAE
+(main_finetune.py + models_vit.py). Voir THIRD_PARTY_NOTICES.md : RETFound est
+sous licence CC BY-NC 4.0 -- usage recherche/interne uniquement tant qu'une
+licence commerciale (ou un autre backbone) n'est pas en place.
 
-Requires `timm` (already in requirements.txt).
+Nécessite `timm` (dans requirements.txt).
 """
+
 from __future__ import annotations
 
 import pickle
 from functools import partial
 from pathlib import Path
 
+import timm.models.vision_transformer
 import torch
 import torch.nn as nn
-import timm.models.vision_transformer
 
 from .pos_embed import interpolate_pos_embed
 
@@ -27,8 +28,8 @@ IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
 
 
 class RETFoundViT(timm.models.vision_transformer.VisionTransformer):
-    """ViT with global average pooling instead of the CLS token, matching
-    RETFound's fine-tuning setup."""
+    """ViT avec moyenne globale des tokens au lieu du token CLS, comme dans le
+    fine-tuning de RETFound."""
 
     def __init__(self, global_pool: bool = True, **kwargs):
         super().__init__(**kwargs)
@@ -56,9 +57,16 @@ class RETFoundViT(timm.models.vision_transformer.VisionTransformer):
 
 def build_retfound_vit_large(img_size: int = 224, global_pool: bool = True) -> RETFoundViT:
     return RETFoundViT(
-        img_size=img_size, patch_size=16, embed_dim=1024, depth=24, num_heads=16,
-        mlp_ratio=4, qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6),
-        global_pool=global_pool, num_classes=0,
+        img_size=img_size,
+        patch_size=16,
+        embed_dim=1024,
+        depth=24,
+        num_heads=16,
+        mlp_ratio=4,
+        qkv_bias=True,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6),
+        global_pool=global_pool,
+        num_classes=0,
     )
 
 
@@ -111,7 +119,7 @@ def load_pretrained_backbone(checkpoint_path: str | Path, img_size: int = 224, g
 
 
 class RETFoundBackbone(nn.Module):
-    """Thin wrapper exposing a frozen RETFound encoder as a feature extractor."""
+    """Enveloppe fine qui expose l'encodeur RETFound figé comme extracteur d'embeddings."""
 
     def __init__(self, checkpoint_path: str | Path, img_size: int = 224, embedding_dim: int = 1024):
         super().__init__()

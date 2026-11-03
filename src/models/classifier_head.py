@@ -1,4 +1,5 @@
 """Tête de classification multi-label branchée sur les features RETFound gelées."""
+
 from __future__ import annotations
 
 import torch

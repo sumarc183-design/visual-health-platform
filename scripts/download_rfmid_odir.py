@@ -7,6 +7,7 @@ comptes créés, ce script structure ensuite les données téléchargées.
 RFMiD : https://riadd.grand-challenge.org/  (ou Kaggle "RFMiD")
 ODIR  : https://odir2019.grandchallenge.org/  (ou Kaggle "ocular-disease-recognition-odir5k")
 """
+
 import argparse
 import shutil
 from pathlib import Path
@@ -39,14 +40,12 @@ def main() -> None:
     if args.rfmid_download:
         organize_dataset(Path(args.rfmid_download), out, "rfmid")
     else:
-        print("--rfmid-download non fourni : télécharger RFMiD manuellement d'abord "
-              "(voir docstring de ce script)")
+        print("--rfmid-download non fourni : télécharger RFMiD manuellement d'abord (voir docstring de ce script)")
 
     if args.odir_download:
         organize_dataset(Path(args.odir_download), out, "odir")
     else:
-        print("--odir-download non fourni : télécharger ODIR manuellement d'abord "
-              "(voir docstring de ce script)")
+        print("--odir-download non fourni : télécharger ODIR manuellement d'abord (voir docstring de ce script)")
 
 
 if __name__ == "__main__":

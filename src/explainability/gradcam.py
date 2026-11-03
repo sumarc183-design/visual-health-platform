@@ -7,6 +7,7 @@ sort une séquence de tokens (1 CLS + N patches). Il faut donc un
 en grille 2D avant de calculer la CAM -- sinon la carte produite est un
 artefact sans rapport avec l'image (piège classique documenté par la lib
 pytorch_grad_cam elle-même pour les ViT)."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -63,9 +64,7 @@ def generate_gradcam(
     Pour RETFound/un ViT : passer `patch_grid_size` (ex. 14 pour du 224x224
     en patches 16x16) et `target_layer` = la LayerNorm/dernier bloc du ViT.
     """
-    reshape_transform = (
-        (lambda t: vit_reshape_transform(t, patch_grid_size)) if patch_grid_size is not None else None
-    )
+    reshape_transform = (lambda t: vit_reshape_transform(t, patch_grid_size)) if patch_grid_size is not None else None
     cam = GradCAM(model=model, target_layers=[target_layer], reshape_transform=reshape_transform)
     targets = None if target_class is None else [ClassifierOutputTarget(target_class)]
     # Backbone gelé (requires_grad=False partout) : sans entrée dérivable,

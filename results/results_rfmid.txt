@@ -5,36 +5,6 @@ RETFound loaded -- missing: 2 keys, unexpected: 106 keys
 Backbone sur : cuda
 Extraction des embeddings (train)...
 Extraction des embeddings (val)...
-epoch 1/30 — train loss: 0.1565
-epoch 2/30 — train loss: 0.0822
-epoch 3/30 — train loss: 0.1109
-epoch 4/30 — train loss: 0.1257
-epoch 5/30 — train loss: 0.0847
-epoch 6/30 — train loss: 0.0945
-epoch 7/30 — train loss: 0.1054
-epoch 8/30 — train loss: 0.1052
-epoch 9/30 — train loss: 0.1290
-epoch 10/30 — train loss: 0.0908
-epoch 11/30 — train loss: 0.1058
-epoch 12/30 — train loss: 0.0813
-epoch 13/30 — train loss: 0.0852
-epoch 14/30 — train loss: 0.0740
-epoch 15/30 — train loss: 0.0822
-epoch 16/30 — train loss: 0.0730
-epoch 17/30 — train loss: 0.0799
-epoch 18/30 — train loss: 0.0636
-epoch 19/30 — train loss: 0.0858
-epoch 20/30 — train loss: 0.0738
-epoch 21/30 — train loss: 0.0580
-epoch 22/30 — train loss: 0.0824
-epoch 23/30 — train loss: 0.0909
-epoch 24/30 — train loss: 0.0892
-epoch 25/30 — train loss: 0.0864
-epoch 26/30 — train loss: 0.0677
-epoch 27/30 — train loss: 0.0642
-epoch 28/30 — train loss: 0.0772
-epoch 29/30 — train loss: 0.0664
-epoch 30/30 — train loss: 0.0725
 ============================================================
 Dataset          : RFMID (RÉEL)
 Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth

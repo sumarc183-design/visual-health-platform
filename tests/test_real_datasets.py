@@ -9,6 +9,7 @@ Sauté si data/raw/{rfmid,odir}/ est absent (jeux de données non versionnés,
 ~10 Go -- cf. scripts/download_rfmid_odir.py) : la CI n'a pas ces données et
 continue de tourner sur le smoke test synthétique.
 """
+
 import sys
 from pathlib import Path
 
@@ -47,7 +48,7 @@ def test_real_dataset_end_to_end(dataset_cls, root, expected_classes):
     assert len(dataset.class_names) == expected_classes
 
     n_samples = min(16, len(dataset))
-    images, labels = zip(*(dataset[i] for i in range(n_samples)))
+    images, labels = zip(*(dataset[i] for i in range(n_samples)), strict=True)
 
     for image_t in images:
         raw_image = (image_t.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
@@ -66,7 +67,7 @@ def test_real_dataset_end_to_end(dataset_cls, root, expected_classes):
     X = torch.cat(embeddings)
     y = torch.stack(labels)
 
-    loader = torch.utils.data.DataLoader(list(zip(X, y)), batch_size=8)
+    loader = torch.utils.data.DataLoader(list(zip(X, y, strict=True)), batch_size=8)
     head = MultiLabelHead(embedding_dim=1024, num_classes=expected_classes)
     head = train_head(head, loader, loader, epochs=2, lr=1e-3)
 
@@ -106,18 +107,40 @@ def test_gradcam_examples_script_on_real_rfmid(tmp_path):
     torch.save({"model": build_retfound_vit_large(img_size=224, global_pool=True).state_dict()}, ckpt_path)
     class_names = RFMiDDataset(RFMID_ROOT, split="train").class_names
     head_path = tmp_path / "head.pt"
-    torch.save({
-        "state_dict": MultiLabelHead(embedding_dim=1024, num_classes=len(class_names)).state_dict(),
-        "class_names": list(class_names), "dataset": "rfmid", "image_size": 224,
-        "auroc_per_class": {c: 0.5 for c in class_names},
-    }, head_path)
+    torch.save(
+        {
+            "state_dict": MultiLabelHead(embedding_dim=1024, num_classes=len(class_names)).state_dict(),
+            "class_names": list(class_names),
+            "dataset": "rfmid",
+            "image_size": 224,
+            "auroc_per_class": {c: 0.5 for c in class_names},
+        },
+        head_path,
+    )
 
     out = tmp_path / "gradcam.png"
-    argv_backup, sys.argv = sys.argv, [
-        "gradcam_examples", "--dataset", "rfmid", "--data-root", str(RFMID_ROOT),
-        "--checkpoint", str(ckpt_path), "--head", str(head_path),
-        "--classes", "MYA", "--per-class", "2", "--out", str(out), "--device", "cpu",
-    ]
+    argv_backup, sys.argv = (
+        sys.argv,
+        [
+            "gradcam_examples",
+            "--dataset",
+            "rfmid",
+            "--data-root",
+            str(RFMID_ROOT),
+            "--checkpoint",
+            str(ckpt_path),
+            "--head",
+            str(head_path),
+            "--classes",
+            "MYA",
+            "--per-class",
+            "2",
+            "--out",
+            str(out),
+            "--device",
+            "cpu",
+        ],
+    )
     try:
         gradcam_main()
     finally:
@@ -137,7 +160,9 @@ def test_odir_eye_labels_reproduce_patient_labels():
 
     patients = pd.read_csv(ODIR_ROOT / "full_df.csv").drop_duplicates("ID")
     for _, row in patients.iterrows():
-        classes = keywords_to_classes(row["Left-Diagnostic Keywords"]) | keywords_to_classes(row["Right-Diagnostic Keywords"])
+        classes = keywords_to_classes(row["Left-Diagnostic Keywords"]) | keywords_to_classes(
+            row["Right-Diagnostic Keywords"]
+        )
         if len(classes) > 1:
             classes.discard("N")
         assert classes == {c for c in CLASS_NAMES if row[c] == 1}, row["ID"]

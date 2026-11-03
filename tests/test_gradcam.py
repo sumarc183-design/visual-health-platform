@@ -1,4 +1,5 @@
 """Vérifie Grad-CAM adapté aux ViT (reshape_transform, API ClassifierOutputTarget)."""
+
 import numpy as np
 import torch
 
@@ -49,6 +50,7 @@ def test_retfound_classifier_is_differentiable_and_gradcam_runs():
     assert x.grad is not None and x.grad.abs().sum() > 0
 
     image = (image_t.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
-    cam_image = generate_gradcam(model, model.gradcam_target_layer, image, image_t[None],
-                                 target_class=3, patch_grid_size=14)
+    cam_image = generate_gradcam(
+        model, model.gradcam_target_layer, image, image_t[None], target_class=3, patch_grid_size=14
+    )
     assert cam_image.shape == (224, 224, 3)
