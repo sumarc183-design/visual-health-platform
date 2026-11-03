@@ -35,9 +35,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
-from PIL import Image
 from sklearn.model_selection import GroupShuffleSplit
 from torch.utils.data import Dataset
+
+from .fundus_preprocess import load_fundus_image
 
 CLASS_NAMES = ["N", "D", "G", "C", "A", "H", "M", "O"]
 PATIENT_ID_COLUMN = "ID"
@@ -103,6 +104,7 @@ class ODIRDataset(Dataset):
         val_fraction: float = VAL_FRACTION,
         seed: int = SPLIT_SEED,
         label_level: str = "eye",
+        preprocess: str = "none",
     ):
         if split not in ("train", "val"):
             raise ValueError(f"split doit être train/val, reçu {split!r}")
@@ -111,6 +113,7 @@ class ODIRDataset(Dataset):
         self.label_level = label_level
         self.root = Path(root)
         self.image_size = image_size
+        self.preprocess = preprocess
         self.class_names = CLASS_NAMES
 
         df = pd.read_csv(self.root / "full_df.csv")
@@ -132,8 +135,6 @@ class ODIRDataset(Dataset):
 
     def __getitem__(self, idx: int):
         row = self.df.iloc[idx]
-        image = Image.open(self.images_dir / row["filename"]).convert("RGB")
-        image = np.array(image.resize((self.image_size, self.image_size))).astype(np.float32) / 255.0
-        image = torch.from_numpy(image).permute(2, 0, 1)
+        image = load_fundus_image(self.images_dir / row["filename"], self.image_size, self.preprocess)
         labels = torch.tensor(row[self.class_names].to_numpy(dtype=np.float32))
         return image, labels

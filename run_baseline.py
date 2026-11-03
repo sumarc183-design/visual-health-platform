@@ -41,6 +41,7 @@ from torch.utils.data import DataLoader
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from scripts.generate_synthetic_fundus_dataset import generate_dataset
+from src.data.fundus_preprocess import PREPROCESS_CHOICES
 from src.data.odir_dataset import ODIRDataset
 from src.data.rfmid_dataset import RFMiDDataset
 from src.eval.metrics import evaluate_multilabel
@@ -138,6 +139,13 @@ def main() -> None:
         "étiquetées -- voir src/data/odir_dataset.py).",
     )
     parser.add_argument(
+        "--preprocess",
+        choices=PREPROCESS_CHOICES,
+        default="none",
+        help="none = redimensionnement direct (comportement d'origine, déforme selon l'appareil) ; "
+        "crop-mask = recadrage sur la rétine + masque circulaire commun (voir src/data/fundus_preprocess.py).",
+    )
+    parser.add_argument(
         "--eval-split",
         choices=["val", "test"],
         default="val",
@@ -179,15 +187,16 @@ def main() -> None:
             train_dataset = SyntheticFundusDataset(data_dir, image_size=args.image_size)
             val_dataset = train_dataset  # un seul jeu synthétique : plomberie uniquement, annoncé plus bas
         elif args.dataset == "rfmid":
-            train_dataset = RFMiDDataset(args.data_root, split="train", image_size=args.image_size)
-            val_dataset = RFMiDDataset(args.data_root, split=args.eval_split, image_size=args.image_size)
+            train_dataset = RFMiDDataset(
+                args.data_root, split="train", image_size=args.image_size, preprocess=args.preprocess
+            )
+            val_dataset = RFMiDDataset(
+                args.data_root, split=args.eval_split, image_size=args.image_size, preprocess=args.preprocess
+            )
         else:
-            train_dataset = ODIRDataset(
-                args.data_root, split="train", image_size=args.image_size, label_level=args.odir_labels
-            )
-            val_dataset = ODIRDataset(
-                args.data_root, split="val", image_size=args.image_size, label_level=args.odir_labels
-            )
+            odir_kwargs = dict(image_size=args.image_size, label_level=args.odir_labels, preprocess=args.preprocess)
+            train_dataset = ODIRDataset(args.data_root, split="train", **odir_kwargs)
+            val_dataset = ODIRDataset(args.data_root, split="val", **odir_kwargs)
 
         class_names = train_dataset.class_names
         print(f"Classes ({len(class_names)}) : {class_names}")
@@ -225,6 +234,7 @@ def main() -> None:
                     "class_names": list(class_names),
                     "dataset": args.dataset,
                     "image_size": args.image_size,
+                    "preprocess": args.preprocess,
                     "odir_labels": args.odir_labels if args.dataset == "odir" else None,
                     "auroc_per_class": results["auroc_per_class"],
                 },
@@ -240,6 +250,7 @@ def main() -> None:
     checkpoint_desc = "ALÉATOIRE (pas de poids RETFound officiels)" if is_random_checkpoint else args.checkpoint
     print(f"Checkpoint       : {checkpoint_desc}")
     print(f"Évaluation       : {args.eval_split}")
+    print(f"Prétraitement    : {args.preprocess}")
     n_auroc = len(results["auroc_per_class"])
     if n_auroc < len(class_names):
         print(
@@ -267,6 +278,7 @@ def main() -> None:
                     "synthetic": is_synthetic,
                     "checkpoint": None if is_random_checkpoint else str(args.checkpoint),
                     "eval_split": args.eval_split,
+                    "preprocess": args.preprocess,
                     "seed": args.seed,
                     "epochs": args.epochs,
                     "val": results,

@@ -17,6 +17,9 @@ Premier jalon : socle fond d'œil de bout en bout avec les vrais poids RETFound.
   (`scripts/gradcam_examples.py`, planches pas encore produites), sauvegarde
   de la tête (`--save-head`).
 - `--eval-split test` : évaluation sur le jeu de test officiel RFMiD.
+- Prétraitement commun `--preprocess crop-mask` : recadrage sur la rétine et
+  masque identique pour toutes les images, contre le raccourci d'acquisition
+  (format d'image lié à la maladie dans ODIR).
 - Test d'occlusion (`scripts/occlusion_examples.py`, cellule Colab 5 bis) :
   contrôle des cartes Grad-CAM sur les mêmes images, avec mesure de
   l'effet du fond.

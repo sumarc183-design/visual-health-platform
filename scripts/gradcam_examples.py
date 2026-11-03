@@ -63,14 +63,19 @@ def top_true_positives(
 
 
 def load_val_dataset(dataset_name: str, data_root: Path, head_ckpt: dict):
-    """Validation du jeu de la tête, avec les étiquettes sur lesquelles elle a
-    été entraînée, et ses étiquettes en tableau (images, classes)."""
+    """Validation du jeu de la tête, avec les étiquettes et le prétraitement
+    avec lesquels elle a été entraînée, et ses étiquettes en tableau (images, classes)."""
     class_names, image_size = head_ckpt["class_names"], head_ckpt["image_size"]
+    preprocess = head_ckpt.get("preprocess", "none")  # têtes sauvegardées avant l'option : redimensionnement direct
     if dataset_name == "rfmid":
-        dataset = RFMiDDataset(data_root, split="val", image_size=image_size)
+        dataset = RFMiDDataset(data_root, split="val", image_size=image_size, preprocess=preprocess)
     else:
         dataset = ODIRDataset(
-            data_root, split="val", image_size=image_size, label_level=head_ckpt.get("odir_labels") or "patient"
+            data_root,
+            split="val",
+            image_size=image_size,
+            label_level=head_ckpt.get("odir_labels") or "patient",
+            preprocess=preprocess,
         )
     if list(dataset.class_names) != class_names:
         raise SystemExit("Les classes du dataset ne correspondent pas à celles de la tête sauvegardée.")

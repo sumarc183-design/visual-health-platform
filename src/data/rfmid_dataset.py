@@ -13,11 +13,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import torch
-from PIL import Image
 from torch.utils.data import Dataset
+
+from .fundus_preprocess import load_fundus_image
 
 MIN_CLASS_POSITIVES = 5  # seuil qui donne les 28 classes de configs/config.yaml
 
@@ -55,12 +55,14 @@ class RFMiDDataset(Dataset):
         split: str = "train",
         image_size: int = 224,
         min_class_positives: int = MIN_CLASS_POSITIVES,
+        preprocess: str = "none",
     ):
         if split not in _SPLIT_DIRS:
             raise ValueError(f"split doit être train/val/test, reçu {split!r}")
         self.root = Path(root)
         self.split = split
         self.image_size = image_size
+        self.preprocess = preprocess
         self.class_names = select_classes(self.root, min_class_positives)
         self.df = pd.read_csv(_labels_csv_path(self.root, split))
         self.images_dir = _images_dir(self.root, split)
@@ -70,8 +72,6 @@ class RFMiDDataset(Dataset):
 
     def __getitem__(self, idx: int):
         row = self.df.iloc[idx]
-        image = Image.open(self.images_dir / f"{int(row['ID'])}.png").convert("RGB")
-        image = np.array(image.resize((self.image_size, self.image_size))).astype(np.float32) / 255.0
-        image = torch.from_numpy(image).permute(2, 0, 1)
-        labels = torch.tensor(row[self.class_names].to_numpy(dtype=np.float32))
+        image = load_fundus_image(self.images_dir / f"{int(row['ID'])}.png", self.image_size, self.preprocess)
+        labels = torch.tensor(row[self.class_names].to_numpy(dtype="float32"))
         return image, labels

@@ -97,6 +97,30 @@ test officiel, à lancer une seule fois, réglages figés sur la validation
 sous le nom `HF_TOKEN`, puis `Tout exécuter`. Le notebook récupère les poids,
 télécharge RFMiD ou ODIR, lance la baseline puis la planche Grad-CAM.
 
+### Prétraitement commun (`crop-mask`)
+
+Par défaut (`--preprocess none`), chaque image est redimensionnée
+directement en 224×224 : une photo rectangulaire devient un ovale plus ou
+moins aplati selon l'appareil. Or ODIR mélange 87 formats d'image et
+certains sont très liés à une maladie (60 % des images 3456×3456 sont des
+glaucomes, contre 4,9 % en moyenne) : le modèle peut reconnaître l'appareil
+plutôt que la maladie, ce que le test d'occlusion a montré sur la DMLA.
+
+`--preprocess crop-mask` (`src/data/fundus_preprocess.py`) rend la géométrie
+identique pour toutes les images :
+
+1. recadrage sur le champ rétinien (seuils sur les marges noires et les
+   bandes blanches de remplissage, plus long bloc continu de rétine) ;
+2. carré par ajout de noir, sans déformer ;
+3. masque commun : disque (97 % du demi-côté, efface liseré et encoche)
+   coupé en haut et en bas à 89 % du demi-côté. 19 % des images ODIR sont
+   tronquées en haut et en bas par l'appareil ; à 0,89, 90 % d'entre elles
+   ont exactement la même forme, pour environ 5 % de rétine perdue sur les
+   images complètes.
+
+Le prétraitement est enregistré dans la tête (`--save-head`) : Grad-CAM et
+l'occlusion rechargent les images de la même façon.
+
 ## Explicabilité (Grad-CAM)
 
 ```bash

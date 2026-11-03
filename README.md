@@ -66,8 +66,11 @@ classe par classe :
 Grad-CAM est donc trompeur sur ce modèle (tokens « artefacts » des ViT MAE)
 et l'occlusion sert d'explication. Le score DMLA d'ODIR (AUROC 0,869) repose
 au moins en partie sur l'acquisition (forme des marges, caméra), pas sur la
-maladie. Correctif prévu : recadrage et masque circulaire identiques pour
-toutes les images, puis nouvelle mesure. Méthode : [GUIDE](docs/GUIDE.md#contrôle-par-occlusion).
+maladie : ODIR mélange 87 formats d'image, dont certains très liés à une
+maladie (60 % des 3456×3456 sont des glaucomes). Correctif prêt,
+`--preprocess crop-mask` (recadrage sur la rétine + masque commun), à
+mesurer. Méthode : [GUIDE](docs/GUIDE.md#contrôle-par-occlusion),
+[prétraitement](docs/GUIDE.md#prétraitement-commun-crop-mask).
 
 ## Démarrage rapide
 
