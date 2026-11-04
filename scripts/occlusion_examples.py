@@ -7,7 +7,7 @@ chaque image : l'image, puis la carte des zones dont l'occlusion fait le
 plus chuter le logit de la classe (rouge = zone utile à la prédiction).
 
 Légende de chaque case :
-    fond Δ    : variation du logit quand tout le hors-champ (marges noires
+    fond gris : variation du logit quand tout le hors-champ (marges noires
                 ou blanches) est remplacé par du gris. Proche de 0 = le fond
                 ne compte pas ; fortement négatif = raccourci sur le fond.
     hors champ: part de l'effet d'occlusion qui tombe hors de la rétine /
@@ -123,7 +123,7 @@ def main() -> None:
             scaled = positive / positive.max() if positive.max() > 0 else positive
             overlay = show_cam_on_image(image.astype(np.float32) / 255.0, scaled.astype(np.float32), use_rgb=True)
             area = bg["part_hors_champ"]
-            text = f"{class_name} p={prob:.2f}  fond Δ={delta:+.1f}  hors champ {percent(share)}/{area:.0%}"
+            text = f"{class_name} p={prob:.2f}  fond gris {delta:+.1f}  hors champ {percent(share)}/{area:.0%}"
             tiles.append(caption(np.concatenate([image, overlay], axis=1), text))
         while len(tiles) < args.per_class:  # moins de positifs que demandé : case vide
             tiles.append(np.full_like(tiles[0], 255))
@@ -131,7 +131,7 @@ def main() -> None:
         mine = [r for r in records if r["classe"] == class_name]
         print(
             f"{class_name} : logit {np.mean([r['logit'] for r in mine]):+.1f}, "
-            f"fond gris Δ {np.mean([r['logit_fond_gris'] - r['logit'] for r in mine]):+.1f}, "
+            f"fond gris {np.mean([r['logit_fond_gris'] - r['logit'] for r in mine]):+.1f}, "
             f"effet hors champ {percent(mean_share([r['part_effet_hors_champ'] for r in mine]))} "
             f"pour {np.mean([r['part_hors_champ'] for r in mine]):.0%} de l'image"
         )

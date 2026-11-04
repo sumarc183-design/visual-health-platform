@@ -1,0 +1,110 @@
+[
+  {
+    "classe": "MYA",
+    "index": 79,
+    "p": 0.99985671043396,
+    "logit": 8.850441932678223,
+    "logit_fond_gris": 8.814292907714844,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.20247360980525336
+  },
+  {
+    "classe": "MYA",
+    "index": 80,
+    "p": 0.9998266100883484,
+    "logit": 8.659671783447266,
+    "logit_fond_gris": 7.816207408905029,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.24154903914439535
+  },
+  {
+    "classe": "MYA",
+    "index": 66,
+    "p": 0.9994800686836243,
+    "logit": 7.561336994171143,
+    "logit_fond_gris": 6.044722080230713,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.2905254925169524
+  },
+  {
+    "classe": "RS",
+    "index": 42,
+    "p": 0.7621468305587769,
+    "logit": 1.1644837856292725,
+    "logit_fond_gris": 3.881836414337158,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.0
+  },
+  {
+    "classe": "RS",
+    "index": 74,
+    "p": 0.6596325635910034,
+    "logit": 0.6616562604904175,
+    "logit_fond_gris": 1.3547195196151733,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.0121057831734694
+  },
+  {
+    "classe": "RS",
+    "index": 38,
+    "p": 0.5364307165145874,
+    "logit": 0.1459798961877823,
+    "logit_fond_gris": 0.8229307532310486,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.01778861333504508
+  },
+  {
+    "classe": "ARMD",
+    "index": 93,
+    "p": 0.9689180850982666,
+    "logit": 3.439551830291748,
+    "logit_fond_gris": 6.344571590423584,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.07609309186932016
+  },
+  {
+    "classe": "ARMD",
+    "index": 94,
+    "p": 0.9579288959503174,
+    "logit": 3.12540864944458,
+    "logit_fond_gris": 5.064051628112793,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.0
+  },
+  {
+    "classe": "ARMD",
+    "index": 86,
+    "p": 0.9551408886909485,
+    "logit": 3.0583317279815674,
+    "logit_fond_gris": 3.36151123046875,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.09745934957540074
+  },
+  {
+    "classe": "LS",
+    "index": 3,
+    "p": 0.9803932309150696,
+    "logit": 3.9120774269104004,
+    "logit_fond_gris": 1.2977033853530884,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.15837797077051596
+  },
+  {
+    "classe": "LS",
+    "index": 124,
+    "p": 0.9599040150642395,
+    "logit": 3.1755571365356445,
+    "logit_fond_gris": 4.973948001861572,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.2782567066992679
+  },
+  {
+    "classe": "LS",
+    "index": 6,
+    "p": 0.9394228458404541,
+    "logit": 2.7413485050201416,
+    "logit_fond_gris": -0.04656780883669853,
+    "part_hors_champ": 0.2802136540412903,
+    "part_effet_hors_champ": 0.048260595600499556
+  }
+]

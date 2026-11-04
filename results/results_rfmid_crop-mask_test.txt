@@ -1,0 +1,75 @@
+Classes (28) : ['DR', 'ARMD', 'MH', 'DN', 'MYA', 'BRVO', 'TSLN', 'ERM', 'LS', 'MS', 'CSR', 'ODC', 'CRVO', 'TV', 'AH', 'ODP', 'ODE', 'ST', 'AION', 'PT', 'RT', 'RS', 'CRS', 'EDN', 'RPEC', 'MHL', 'RP', 'PTCR']
+Train : 1920 images | Test : 640 images
+Contrôle qualité (échantillon de 50) : 0 signalée(s), aucune retirée
+Embeddings (train) : 1920 en cache, 0 à extraire
+Embeddings (test) : 0 en cache, 640 à extraire
+RETFound loaded -- missing: 2 keys, unexpected: 106 keys
+Backbone sur : cuda
+epoch 1/30 — train loss: 0.1434
+epoch 2/30 — train loss: 0.1092
+epoch 3/30 — train loss: 0.0998
+epoch 4/30 — train loss: 0.0930
+epoch 5/30 — train loss: 0.0886
+epoch 6/30 — train loss: 0.0850
+epoch 7/30 — train loss: 0.0822
+epoch 8/30 — train loss: 0.0795
+epoch 9/30 — train loss: 0.0777
+epoch 10/30 — train loss: 0.0756
+epoch 11/30 — train loss: 0.0738
+epoch 12/30 — train loss: 0.0723
+epoch 13/30 — train loss: 0.0702
+epoch 14/30 — train loss: 0.0689
+epoch 15/30 — train loss: 0.0692
+epoch 16/30 — train loss: 0.0667
+epoch 17/30 — train loss: 0.0654
+epoch 18/30 — train loss: 0.0648
+epoch 19/30 — train loss: 0.0640
+epoch 20/30 — train loss: 0.0628
+epoch 21/30 — train loss: 0.0620
+epoch 22/30 — train loss: 0.0613
+epoch 23/30 — train loss: 0.0606
+epoch 24/30 — train loss: 0.0602
+epoch 25/30 — train loss: 0.0590
+epoch 26/30 — train loss: 0.0580
+epoch 27/30 — train loss: 0.0575
+epoch 28/30 — train loss: 0.0573
+epoch 29/30 — train loss: 0.0569
+epoch 30/30 — train loss: 0.0557
+Prédictions : results/pred_rfmid_crop-mask_test.npz
+============================================================
+Dataset          : RFMID (RÉEL)
+Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
+Évaluation       : test
+Prétraitement    : crop-mask
+AUROC macro sur 27/28 classes (les autres n'ont aucun positif en test)
+AUROC macro      : 0.8462 [IC 95 % 0.813-0.886]  (train 0.9825, gap +0.1362)
+F1 macro (0,5)   : 0.2580  (train 0.5279, gap +0.2699)
+                    DR : 0.9478  [0.930-0.963]  (n+ = 124)
+                  ARMD : 0.9555  [0.888-0.993]  (n+ = 31)
+                    MH : 0.9728  [0.958-0.984]  (n+ = 104)
+                    DN : 0.7851  [0.719-0.841]  (n+ = 46)
+                   MYA : 0.9863  [0.966-0.998]  (n+ = 32)
+                  BRVO : 0.9106  [0.831-0.975]  (n+ = 23)
+                  TSLN : 0.9428  [0.922-0.961]  (n+ = 53)
+                   ERM : 0.6901  [0.494-0.875]  (n+ = 5)  ⚠ moins de 10 positifs : IC peu fiable
+                    LS : 0.8678  [0.702-0.987]  (n+ = 15)
+                    MS : 0.8296  [0.711-0.960]  (n+ = 7)  ⚠ moins de 10 positifs : IC peu fiable
+                   CSR : 0.9479  [0.913-0.980]  (n+ = 13)
+                   ODC : 0.7613  [0.703-0.814]  (n+ = 91)
+                  CRVO : 0.9785  [0.953-0.999]  (n+ = 9)  ⚠ moins de 10 positifs : IC peu fiable
+                    TV : 0.6442  [0.272-0.995]  (n+ = 2)  ⚠ moins de 10 positifs : IC peu fiable
+                    AH : 0.8923  [0.638-1.000]  (n+ = 5)  ⚠ moins de 10 positifs : IC peu fiable
+                   ODP : 0.8785  [0.802-0.945]  (n+ = 24)
+                   ODE : 0.9374  [0.855-0.998]  (n+ = 17)
+                    ST : 0.5274  [0.219-0.836]  (n+ = 2)  ⚠ moins de 10 positifs : IC peu fiable
+                  AION : 0.7638  [0.331-0.955]  (n+ = 4)  ⚠ moins de 10 positifs : IC peu fiable
+                    PT : 0.7583  [0.540-0.972]  (n+ = 4)  ⚠ moins de 10 positifs : IC peu fiable
+                    RT : 0.9317  [0.845-1.000]  (n+ = 5)  ⚠ moins de 10 positifs : IC peu fiable
+                    RS : 0.9514  [0.918-0.977]  (n+ = 14)
+                   CRS : 0.8967  [0.764-0.984]  (n+ = 11)
+                   EDN : 0.8821  [0.789-1.000]  (n+ = 4)  ⚠ moins de 10 positifs : IC peu fiable
+                  RPEC : 0.7355  [0.499-0.989]  (n+ = 4)  ⚠ moins de 10 positifs : IC peu fiable
+                   MHL : 0.4736  [0.383-0.601]  (n+ = 3)  ⚠ moins de 10 positifs : IC peu fiable
+                    RP : 1.0000  [1.000-1.000]  (n+ = 2)  ⚠ moins de 10 positifs : IC peu fiable
+============================================================
+Résultats JSON : results_rfmid_crop-mask_test.json

@@ -158,9 +158,10 @@ def main() -> None:
     parser.add_argument(
         "--preprocess",
         choices=PREPROCESS_CHOICES,
-        default="none",
-        help="none = redimensionnement direct (comportement d'origine, déforme selon l'appareil) ; "
-        "crop-mask = recadrage sur la rétine + masque circulaire commun (voir src/data/fundus_preprocess.py).",
+        default="crop-mask",
+        help="crop-mask (défaut) = recadrage sur la rétine + masque commun, contre le raccourci "
+        "d'acquisition (voir src/data/fundus_preprocess.py) ; none = redimensionnement direct "
+        "(comportement d'origine, déforme selon l'appareil).",
     )
     parser.add_argument(
         "--eval-split",

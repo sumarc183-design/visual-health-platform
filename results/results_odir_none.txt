@@ -1,0 +1,54 @@
+Classes (8) : ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
+Train : 4474 images | Val : 953 images
+Contrôle qualité (échantillon de 50) : 0 signalée(s), aucune retirée
+Embeddings (train) : 4474 en cache, 0 à extraire
+Embeddings (val) : 953 en cache, 0 à extraire
+epoch 1/30 — train loss: 0.3005
+epoch 2/30 — train loss: 0.2666
+epoch 3/30 — train loss: 0.2546
+epoch 4/30 — train loss: 0.2468
+epoch 5/30 — train loss: 0.2426
+epoch 6/30 — train loss: 0.2384
+epoch 7/30 — train loss: 0.2358
+epoch 8/30 — train loss: 0.2323
+epoch 9/30 — train loss: 0.2304
+epoch 10/30 — train loss: 0.2286
+epoch 11/30 — train loss: 0.2252
+epoch 12/30 — train loss: 0.2236
+epoch 13/30 — train loss: 0.2233
+epoch 14/30 — train loss: 0.2221
+epoch 15/30 — train loss: 0.2193
+epoch 16/30 — train loss: 0.2176
+epoch 17/30 — train loss: 0.2172
+epoch 18/30 — train loss: 0.2148
+epoch 19/30 — train loss: 0.2148
+epoch 20/30 — train loss: 0.2132
+epoch 21/30 — train loss: 0.2123
+epoch 22/30 — train loss: 0.2114
+epoch 23/30 — train loss: 0.2109
+epoch 24/30 — train loss: 0.2101
+epoch 25/30 — train loss: 0.2091
+epoch 26/30 — train loss: 0.2093
+epoch 27/30 — train loss: 0.2065
+epoch 28/30 — train loss: 0.2086
+epoch 29/30 — train loss: 0.2063
+epoch 30/30 — train loss: 0.2070
+Prédictions : results/pred_odir_none_val.npz
+Tête sauvegardée : heads/odir_none_head.pt
+============================================================
+Dataset          : ODIR (RÉEL, étiquettes par œil)
+Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
+Évaluation       : val
+Prétraitement    : none
+AUROC macro      : 0.8404 [IC 95 % 0.820-0.860]  (train 0.9102, gap +0.0698)
+F1 macro (0,5)   : 0.4556  (train 0.5690, gap +0.1134)
+                     N : 0.7706  [0.737-0.803]  (n+ = 442)
+                     D : 0.7376  [0.696-0.782]  (n+ = 227)
+                     G : 0.8891  [0.830-0.934]  (n+ = 58)
+                     C : 0.9896  [0.977-0.998]  (n+ = 42)
+                     A : 0.8571  [0.771-0.932]  (n+ = 45)
+                     H : 0.7630  [0.649-0.854]  (n+ = 34)
+                     M : 0.9904  [0.974-0.999]  (n+ = 29)
+                     O : 0.7257  [0.680-0.771]  (n+ = 153)
+============================================================
+Résultats JSON : results_odir_none.json

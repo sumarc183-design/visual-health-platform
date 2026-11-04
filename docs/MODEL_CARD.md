@@ -42,7 +42,8 @@ AUROC macro et par classe (référence du domaine, indépendante du seuil)
 avec IC à 95 % par bootstrap sur les patients, F1 macro au seuil 0,5 (peu
 parlant pour les classes rares, en attendant des seuils par classe), gap
 train − validation. Choix des variantes sur la validation par différence
-appariée ; le test n'est lu qu'une fois. Résultats à jour :
+appariée ; le test n'est lu qu'une fois. Test final (`crop-mask`) : AUROC
+macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
 [README](../README.md#résultats).
 
 ## Limites connues
@@ -60,12 +61,13 @@ appariée ; le test n'est lu qu'une fois. Résultats à jour :
   (artefacts des ViT MAE). L'explication de référence est l'occlusion
   (`scripts/occlusion_examples.py`), qui ne montre elle aussi que *où*, pas
   *pourquoi*.
-- **Raccourci d'acquisition sur la DMLA d'ODIR** : 89 à 97 % de l'effet
-  d'occlusion tombe hors de la rétine et remplacer le fond fait chuter la
-  prédiction ; l'AUROC DMLA d'ODIR (0,869) surestime la reconnaissance de la
-  maladie. Le glaucome d'ODIR s'appuie en partie sur les bords. Sensibilité
-  générale au fond (remplacé en gris) sur les autres classes, à confirmer
-  avec un prétraitement commun (recadrage + masque circulaire).
+- **Raccourci d'acquisition (corrigé)** : sans prétraitement commun, 92 %
+  de l'effet d'occlusion de la DMLA d'ODIR tombait hors de la rétine (format
+  d'image lié à l'appareil). Le prétraitement `crop-mask`, par défaut, le
+  ramène à 5 % et améliore l'AUROC. Le glaucome d'ODIR s'appuie encore en
+  partie sur les bords (32 % de l'effet).
+- **Surapprentissage de la tête** sur RFMiD : AUROC train 0,98 contre 0,85
+  en test.
 
 ## Considérations éthiques
 

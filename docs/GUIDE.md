@@ -140,14 +140,14 @@ final sur le test.
 
 ### Prétraitement commun (`crop-mask`)
 
-Par défaut (`--preprocess none`), chaque image est redimensionnée
+Avec `--preprocess none` (comportement d'origine), chaque image est redimensionnée
 directement en 224×224 : une photo rectangulaire devient un ovale plus ou
 moins aplati selon l'appareil. Or ODIR mélange 87 formats d'image et
 certains sont très liés à une maladie (60 % des images 3456×3456 sont des
 glaucomes, contre 4,9 % en moyenne) : le modèle peut reconnaître l'appareil
 plutôt que la maladie, ce que le test d'occlusion a montré sur la DMLA.
 
-`--preprocess crop-mask` (`src/data/fundus_preprocess.py`) rend la géométrie
+`--preprocess crop-mask` (`src/data/fundus_preprocess.py`, **défaut**) rend la géométrie
 identique pour toutes les images :
 
 1. recadrage sur le champ rétinien (seuils sur les marges noires et les

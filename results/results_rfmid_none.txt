@@ -1,0 +1,76 @@
+Classes (28) : ['DR', 'ARMD', 'MH', 'DN', 'MYA', 'BRVO', 'TSLN', 'ERM', 'LS', 'MS', 'CSR', 'ODC', 'CRVO', 'TV', 'AH', 'ODP', 'ODE', 'ST', 'AION', 'PT', 'RT', 'RS', 'CRS', 'EDN', 'RPEC', 'MHL', 'RP', 'PTCR']
+Train : 1920 images | Val : 640 images
+Contrôle qualité (échantillon de 50) : 0 signalée(s), aucune retirée
+Embeddings (train) : 0 en cache, 1920 à extraire
+RETFound loaded -- missing: 2 keys, unexpected: 106 keys
+Backbone sur : cuda
+Embeddings (val) : 0 en cache, 640 à extraire
+epoch 1/30 — train loss: 0.1463
+epoch 2/30 — train loss: 0.1158
+epoch 3/30 — train loss: 0.1073
+epoch 4/30 — train loss: 0.1009
+epoch 5/30 — train loss: 0.0964
+epoch 6/30 — train loss: 0.0930
+epoch 7/30 — train loss: 0.0901
+epoch 8/30 — train loss: 0.0875
+epoch 9/30 — train loss: 0.0857
+epoch 10/30 — train loss: 0.0837
+epoch 11/30 — train loss: 0.0819
+epoch 12/30 — train loss: 0.0804
+epoch 13/30 — train loss: 0.0782
+epoch 14/30 — train loss: 0.0769
+epoch 15/30 — train loss: 0.0774
+epoch 16/30 — train loss: 0.0750
+epoch 17/30 — train loss: 0.0735
+epoch 18/30 — train loss: 0.0731
+epoch 19/30 — train loss: 0.0723
+epoch 20/30 — train loss: 0.0710
+epoch 21/30 — train loss: 0.0701
+epoch 22/30 — train loss: 0.0696
+epoch 23/30 — train loss: 0.0690
+epoch 24/30 — train loss: 0.0684
+epoch 25/30 — train loss: 0.0672
+epoch 26/30 — train loss: 0.0663
+epoch 27/30 — train loss: 0.0658
+epoch 28/30 — train loss: 0.0653
+epoch 29/30 — train loss: 0.0650
+epoch 30/30 — train loss: 0.0639
+Prédictions : results/pred_rfmid_none_val.npz
+Tête sauvegardée : heads/rfmid_none_head.pt
+============================================================
+Dataset          : RFMID (RÉEL)
+Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
+Évaluation       : val
+Prétraitement    : none
+AUROC macro      : 0.8579 [IC 95 % 0.831-0.886]  (train 0.9738, gap +0.1159)
+F1 macro (0,5)   : 0.2091  (train 0.4158, gap +0.2068)
+                    DR : 0.9371  [0.913-0.958]  (n+ = 132)
+                  ARMD : 0.9777  [0.962-0.990]  (n+ = 38)
+                    MH : 0.9643  [0.949-0.977]  (n+ = 102)
+                    DN : 0.7428  [0.663-0.818]  (n+ = 46)
+                   MYA : 0.9942  [0.989-0.998]  (n+ = 34)
+                  BRVO : 0.9328  [0.872-0.977]  (n+ = 23)
+                  TSLN : 0.9435  [0.922-0.961]  (n+ = 65)
+                   ERM : 0.6527  [0.345-0.935]  (n+ = 7)  ⚠ moins de 10 positifs : IC peu fiable
+                    LS : 0.9770  [0.951-0.994]  (n+ = 17)
+                    MS : 0.7556  [0.624-0.881]  (n+ = 5)  ⚠ moins de 10 positifs : IC peu fiable
+                   CSR : 0.8592  [0.667-0.981]  (n+ = 11)
+                   ODC : 0.7236  [0.659-0.782]  (n+ = 72)
+                  CRVO : 0.9771  [0.950-0.998]  (n+ = 8)  ⚠ moins de 10 positifs : IC peu fiable
+                    TV : 0.4028  [0.330-0.474]  (n+ = 2)  ⚠ moins de 10 positifs : IC peu fiable
+                    AH : 0.8306  [0.575-1.000]  (n+ = 4)  ⚠ moins de 10 positifs : IC peu fiable
+                   ODP : 0.7784  [0.687-0.862]  (n+ = 26)
+                   ODE : 0.9139  [0.838-0.974]  (n+ = 21)
+                    ST : 0.5122  [0.264-0.740]  (n+ = 4)  ⚠ moins de 10 positifs : IC peu fiable
+                  AION : 0.9836  [0.960-0.998]  (n+ = 5)  ⚠ moins de 10 positifs : IC peu fiable
+                    PT : 0.9804  [0.961-0.995]  (n+ = 2)  ⚠ moins de 10 positifs : IC peu fiable
+                    RT : 0.9869  [0.965-1.000]  (n+ = 6)  ⚠ moins de 10 positifs : IC peu fiable
+                    RS : 0.9906  [0.980-0.998]  (n+ = 14)
+                   CRS : 0.8034  [0.655-0.937]  (n+ = 11)
+                   EDN : 0.9657  [0.932-0.987]  (n+ = 5)  ⚠ moins de 10 positifs : IC peu fiable
+                  RPEC : 0.7553  [0.530-0.905]  (n+ = 6)  ⚠ moins de 10 positifs : IC peu fiable
+                   MHL : 0.7488  [0.307-0.997]  (n+ = 3)  ⚠ moins de 10 positifs : IC peu fiable
+                    RP : 1.0000  [1.000-1.000]  (n+ = 2)  ⚠ moins de 10 positifs : IC peu fiable
+                  PTCR : 0.9311  [0.909-0.950]  (n+ = 1)  ⚠ moins de 10 positifs : IC peu fiable
+============================================================
+Résultats JSON : results_rfmid_none.json

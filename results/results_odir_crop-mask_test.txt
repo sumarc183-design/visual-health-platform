@@ -1,0 +1,55 @@
+Classes (8) : ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
+Train : 4474 images | Test : 965 images
+Contrôle qualité (échantillon de 50) : 0 signalée(s), aucune retirée
+Embeddings (train) : 4474 en cache, 0 à extraire
+Embeddings (test) : 0 en cache, 965 à extraire
+RETFound loaded -- missing: 2 keys, unexpected: 106 keys
+Backbone sur : cuda
+epoch 1/30 — train loss: 0.2908
+epoch 2/30 — train loss: 0.2551
+epoch 3/30 — train loss: 0.2440
+epoch 4/30 — train loss: 0.2367
+epoch 5/30 — train loss: 0.2326
+epoch 6/30 — train loss: 0.2290
+epoch 7/30 — train loss: 0.2258
+epoch 8/30 — train loss: 0.2222
+epoch 9/30 — train loss: 0.2211
+epoch 10/30 — train loss: 0.2191
+epoch 11/30 — train loss: 0.2160
+epoch 12/30 — train loss: 0.2143
+epoch 13/30 — train loss: 0.2142
+epoch 14/30 — train loss: 0.2127
+epoch 15/30 — train loss: 0.2103
+epoch 16/30 — train loss: 0.2087
+epoch 17/30 — train loss: 0.2077
+epoch 18/30 — train loss: 0.2062
+epoch 19/30 — train loss: 0.2056
+epoch 20/30 — train loss: 0.2046
+epoch 21/30 — train loss: 0.2036
+epoch 22/30 — train loss: 0.2031
+epoch 23/30 — train loss: 0.2020
+epoch 24/30 — train loss: 0.2012
+epoch 25/30 — train loss: 0.2004
+epoch 26/30 — train loss: 0.2003
+epoch 27/30 — train loss: 0.1979
+epoch 28/30 — train loss: 0.1995
+epoch 29/30 — train loss: 0.1980
+epoch 30/30 — train loss: 0.1980
+Prédictions : results/pred_odir_crop-mask_test.npz
+============================================================
+Dataset          : ODIR (RÉEL, étiquettes par œil)
+Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
+Évaluation       : test
+Prétraitement    : crop-mask
+AUROC macro      : 0.8483 [IC 95 % 0.816-0.873]  (train 0.9186, gap +0.0703)
+F1 macro (0,5)   : 0.4756  (train 0.5970, gap +0.1215)
+                     N : 0.7880  [0.756-0.817]  (n+ = 430)
+                     D : 0.7822  [0.743-0.819]  (n+ = 266)
+                     G : 0.9180  [0.876-0.953]  (n+ = 34)
+                     C : 0.9691  [0.949-0.987]  (n+ = 46)
+                     A : 0.8749  [0.816-0.928]  (n+ = 46)
+                     H : 0.7393  [0.492-0.915]  (n+ = 17)
+                     M : 0.9985  [0.996-1.000]  (n+ = 37)
+                     O : 0.7160  [0.667-0.760]  (n+ = 140)
+============================================================
+Résultats JSON : results_odir_crop-mask_test.json

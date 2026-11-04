@@ -1,0 +1,76 @@
+Classes (28) : ['DR', 'ARMD', 'MH', 'DN', 'MYA', 'BRVO', 'TSLN', 'ERM', 'LS', 'MS', 'CSR', 'ODC', 'CRVO', 'TV', 'AH', 'ODP', 'ODE', 'ST', 'AION', 'PT', 'RT', 'RS', 'CRS', 'EDN', 'RPEC', 'MHL', 'RP', 'PTCR']
+Train : 1920 images | Val : 640 images
+Contrôle qualité (échantillon de 50) : 0 signalée(s), aucune retirée
+Embeddings (train) : 0 en cache, 1920 à extraire
+RETFound loaded -- missing: 2 keys, unexpected: 106 keys
+Backbone sur : cuda
+Embeddings (val) : 0 en cache, 640 à extraire
+epoch 1/30 — train loss: 0.1434
+epoch 2/30 — train loss: 0.1092
+epoch 3/30 — train loss: 0.0998
+epoch 4/30 — train loss: 0.0930
+epoch 5/30 — train loss: 0.0886
+epoch 6/30 — train loss: 0.0850
+epoch 7/30 — train loss: 0.0822
+epoch 8/30 — train loss: 0.0795
+epoch 9/30 — train loss: 0.0777
+epoch 10/30 — train loss: 0.0756
+epoch 11/30 — train loss: 0.0738
+epoch 12/30 — train loss: 0.0723
+epoch 13/30 — train loss: 0.0702
+epoch 14/30 — train loss: 0.0689
+epoch 15/30 — train loss: 0.0692
+epoch 16/30 — train loss: 0.0667
+epoch 17/30 — train loss: 0.0654
+epoch 18/30 — train loss: 0.0648
+epoch 19/30 — train loss: 0.0640
+epoch 20/30 — train loss: 0.0628
+epoch 21/30 — train loss: 0.0620
+epoch 22/30 — train loss: 0.0613
+epoch 23/30 — train loss: 0.0606
+epoch 24/30 — train loss: 0.0602
+epoch 25/30 — train loss: 0.0590
+epoch 26/30 — train loss: 0.0580
+epoch 27/30 — train loss: 0.0575
+epoch 28/30 — train loss: 0.0573
+epoch 29/30 — train loss: 0.0569
+epoch 30/30 — train loss: 0.0557
+Prédictions : results/pred_rfmid_crop-mask_val.npz
+Tête sauvegardée : heads/rfmid_crop-mask_head.pt
+============================================================
+Dataset          : RFMID (RÉEL)
+Checkpoint       : third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth
+Évaluation       : val
+Prétraitement    : crop-mask
+AUROC macro      : 0.8639 [IC 95 % 0.840-0.891]  (train 0.9825, gap +0.1185)
+F1 macro (0,5)   : 0.2487  (train 0.5279, gap +0.2792)
+                    DR : 0.9429  [0.920-0.962]  (n+ = 132)
+                  ARMD : 0.9778  [0.963-0.990]  (n+ = 38)
+                    MH : 0.9634  [0.948-0.977]  (n+ = 102)
+                    DN : 0.7451  [0.663-0.820]  (n+ = 46)
+                   MYA : 0.9930  [0.986-0.997]  (n+ = 34)
+                  BRVO : 0.9674  [0.940-0.988]  (n+ = 23)
+                  TSLN : 0.9487  [0.928-0.965]  (n+ = 65)
+                   ERM : 0.7274  [0.477-0.950]  (n+ = 7)  ⚠ moins de 10 positifs : IC peu fiable
+                    LS : 0.9676  [0.932-0.997]  (n+ = 17)
+                    MS : 0.8164  [0.681-0.948]  (n+ = 5)  ⚠ moins de 10 positifs : IC peu fiable
+                   CSR : 0.9209  [0.779-0.994]  (n+ = 11)
+                   ODC : 0.7369  [0.673-0.794]  (n+ = 72)
+                  CRVO : 0.9858  [0.965-1.000]  (n+ = 8)  ⚠ moins de 10 positifs : IC peu fiable
+                    TV : 0.5204  [0.394-0.648]  (n+ = 2)  ⚠ moins de 10 positifs : IC peu fiable
+                    AH : 0.7885  [0.546-1.000]  (n+ = 4)  ⚠ moins de 10 positifs : IC peu fiable
+                   ODP : 0.7699  [0.676-0.857]  (n+ = 26)
+                   ODE : 0.9220  [0.846-0.979]  (n+ = 21)
+                    ST : 0.4933  [0.331-0.661]  (n+ = 4)  ⚠ moins de 10 positifs : IC peu fiable
+                  AION : 0.9843  [0.954-1.000]  (n+ = 5)  ⚠ moins de 10 positifs : IC peu fiable
+                    PT : 0.9726  [0.953-0.989]  (n+ = 2)  ⚠ moins de 10 positifs : IC peu fiable
+                    RT : 0.9811  [0.952-1.000]  (n+ = 6)  ⚠ moins de 10 positifs : IC peu fiable
+                    RS : 0.9892  [0.974-0.999]  (n+ = 14)
+                   CRS : 0.8399  [0.714-0.947]  (n+ = 11)
+                   EDN : 0.9729  [0.956-0.987]  (n+ = 5)  ⚠ moins de 10 positifs : IC peu fiable
+                  RPEC : 0.7529  [0.620-0.875]  (n+ = 6)  ⚠ moins de 10 positifs : IC peu fiable
+                   MHL : 0.7268  [0.299-0.999]  (n+ = 3)  ⚠ moins de 10 positifs : IC peu fiable
+                    RP : 0.9976  [0.992-1.000]  (n+ = 2)  ⚠ moins de 10 positifs : IC peu fiable
+                  PTCR : 0.7856  [0.755-0.820]  (n+ = 1)  ⚠ moins de 10 positifs : IC peu fiable
+============================================================
+Résultats JSON : results_rfmid_crop-mask.json

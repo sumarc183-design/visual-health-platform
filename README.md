@@ -23,61 +23,87 @@ flowchart LR
 
 ## Résultats
 
-Backbone `RETFound_mae_natureCFP` figé, tête linéaire multi-label (30 epochs),
-images 224×224, Colab GPU T4.
+Backbone `RETFound_mae_natureCFP` figé, tête linéaire multi-label (30 epochs,
+graine 42), images 224×224, prétraitement `crop-mask` (recadrage sur la
+rétine + masque commun), GPU T4 (Colab ou Kaggle). Entre crochets : IC à
+95 % par bootstrap sur les patients.
 
-| Date | Données | Classes | Split | AUROC macro |
-|---|---|---|---|---|
-| 2026-11-03 | RFMiD | 28 | train / val officiels (1 920 / 640) | **0,858** |
-| 2026-11-03 | RFMiD | 27 (PTCR absent du test) | train / **test** officiels (1 920 / 640) | **0,832** |
-| 2026-11-02 | ODIR-5K, étiquettes patient | 8 | par patient, 85/15 (5 439 / 953) | **0,806** |
-| 2026-11-03 | ODIR-5K, étiquettes par œil (défaut actuel) | 8 | même split | **0,845** |
+| Date | Données | Classes | Split | Validation | **Test** |
+|---|---|---|---|---|---|
+| 2026-11-04 | RFMiD | 28 (27 en test, PTCR absent) | officiels (1 920 / 640 / 640) | 0,864 [0,840-0,891] | **0,846** [0,813-0,886] |
+| 2026-11-04 | ODIR-5K, étiquettes par œil | 8 | par patient 70/15/15 (4 474 / 953 / 965) | 0,861 [0,841-0,880] | **0,848** [0,816-0,873] |
 
-- **Très bien reconnues** (AUROC > 0,93 sur RFMiD) : rétinopathie diabétique,
-  DMLA, myopie, occlusions veineuses. Les classes très rares en validation
-  ont une AUROC instable.
-- **Test RFMiD** : 0,832, à 0,02 de la validation (0,855 sur les mêmes 27
-  classes, même tête) : le chiffre de validation n'était pas optimiste. Gap train − test
-  +0,14 et F1 macro 0,24 au seuil 0,5 : seuils par classe et calibration
-  au programme de J60. Détail par classe : [`results/`](results/).
-- **ODIR** : le diagnostic patient recopié sur les deux yeux étiquetait faux
-  20,8 % des images ; le loader utilise désormais l'étiquette de l'œil
-  photographié ([explication](docs/GUIDE.md#odir-5k)). Gain : 0,806 → 0,845, toutes
-  les classes progressent, surtout O (0,647 → 0,747), la plus mal étiquetée
-  avant. Étiquettes changées en entraînement et en évaluation, même split.
+Le test n'a été lu qu'une fois, après le choix du prétraitement sur la
+validation. Ses chiffres restent dans l'IC de la validation : les choix faits
+sur la validation ne l'ont pas rendue optimiste.
+
+**Choix du prétraitement**, par différence d'AUROC appariée sur les mêmes
+images de validation (`scripts/compare_predictions.py`,
+[RFMiD](results/compare_rfmid_val.json), [ODIR](results/compare_odir_val.json)) :
+
+| | `none` (redimensionnement direct) | `crop-mask` | Différence [IC 95 %] |
+|---|---|---|---|
+| RFMiD | 0,858 | 0,864 | +0,006 [−0,005 ; +0,021], non significative |
+| ODIR | 0,840 | 0,861 | **+0,020 [+0,011 ; +0,030]** |
+| ODIR, DMLA | 0,857 | 0,900 | **+0,043 [+0,001 ; +0,092]** |
+
+`crop-mask` ne coûte rien sur RFMiD et gagne sur toutes les classes d'ODIR
+(significativement pour Normal, Diabète, Glaucome et DMLA), tout en
+supprimant le raccourci d'acquisition (voir [Explicabilité](#explicabilité)).
+
+- **Très bien reconnues** (AUROC test > 0,94) : rétinopathie diabétique,
+  DMLA, trous maculaires, myopie (RFMiD) ;
+  cataracte et myopie (ODIR). Les classes à moins de 10 positifs ont un IC
+  trop large pour conclure (signalées dans [`results/`](results/)).
+- **Surapprentissage de la tête** sur RFMiD : AUROC train 0,98 contre 0,85 en
+  test, F1 macro 0,26 au seuil 0,5. Régularisation, seuils par classe et
+  calibration au programme.
 - Sonde sur backbone figé, pas le fine-tuning complet des chiffres publiés
   par RETFound : attendre quelques points de moins.
-- **Incertitude** : sur la validation ODIR, l'IC à 95 % d'une AUROC par
-  classe va de ±0,03 (N, 442 positifs) à ±0,09 (H, 34 positifs). Les écarts
-  entre variantes se jugent donc par différence appariée sur les mêmes images
-  (`scripts/compare_predictions.py`), pas en comparant deux chiffres.
-- **Split ODIR** : les chiffres ci-dessus utilisent le split d'origine 85/15
-  sans test. Les prochains runs passent à 70/15/15 par patient (même
-  validation, test tiré dans l'ancien train) : nouvelle référence à mesurer,
-  avec moins d'images d'entraînement.
+
+<details>
+<summary>Historique (prétraitement <code>none</code>, 2 et 3 novembre)</summary>
+
+| Date | Données | Split | AUROC macro |
+|---|---|---|---|
+| 2026-11-03 | RFMiD, validation | officiel | 0,858 |
+| 2026-11-03 | RFMiD, test (27 classes) | officiel | 0,832 |
+| 2026-11-02 | ODIR, étiquettes patient | par patient 85/15 | 0,806 |
+| 2026-11-03 | ODIR, étiquettes par œil | par patient 85/15 | 0,845 |
+
+ODIR : le diagnostic patient recopié sur les deux yeux étiquetait faux
+20,8 % des images ; le loader utilise l'étiquette de l'œil photographié
+([explication](docs/GUIDE.md#odir-5k)), d'où 0,806 → 0,845. Le passage au
+split 70/15/15 (moins d'images d'entraînement) rend ces chiffres non
+comparables aux résultats actuels.
+</details>
 
 ## Explicabilité
 
-Les cartes Grad-CAM ([RFMiD](results/gradcam_rfmid.png), [ODIR](results/gradcam_odir.png))
-s'allument surtout sur le fond noir et les bords. Le test d'occlusion
-([RFMiD](results/occlusion_rfmid.png), [ODIR](results/occlusion_odir.png)),
-qui cache des zones de l'image et mesure la chute de la prédiction, tranche
-classe par classe :
+Grad-CAM s'allume surtout sur le fond noir et les bords : il est trompeur
+sur ce modèle (tokens « artefacts » des ViT MAE). L'explication de référence
+est le **test d'occlusion**, qui cache des zones de l'image et mesure la
+chute de la prédiction ([RFMiD](results/occlusion_rfmid_crop-mask.png),
+[ODIR](results/occlusion_odir_crop-mask.png)).
 
-| Classe | Ce que le modèle utilise |
-|---|---|
-| Myopie (MYA, M), DMLA sur RFMiD (ARMD), RS | ✅ la rétine : lésions, pôle postérieur |
-| Cataracte (C) | ✅ le voile de toute l'image (aucune zone isolée ne compte) |
-| Glaucome (G, ODIR) | 🟡 en partie le disque optique, en partie les bords |
-| DMLA sur ODIR (A) | ❌ **raccourci** : 89 à 97 % de l'effet hors de la rétine (pour 38 à 57 % de la surface), les lésions maculaires ne comptent pas |
+Avec le redimensionnement direct ([avant](results/occlusion_odir.png)), la
+DMLA d'ODIR prenait un **raccourci** : 92 % de l'effet d'occlusion tombait
+hors de la rétine. ODIR mélange 87 formats d'image, dont certains très liés
+à une maladie (60 % des 3456×3456 sont des glaucomes) : la forme de l'ovale
+trahissait l'appareil. `crop-mask` donne la même géométrie à toutes les
+images, et l'effet revient sur la rétine :
 
-Grad-CAM est donc trompeur sur ce modèle (tokens « artefacts » des ViT MAE)
-et l'occlusion sert d'explication. Le score DMLA d'ODIR (AUROC 0,869) repose
-au moins en partie sur l'acquisition (forme des marges, caméra), pas sur la
-maladie : ODIR mélange 87 formats d'image, dont certains très liés à une
-maladie (60 % des 3456×3456 sont des glaucomes). Correctif prêt,
-`--preprocess crop-mask` (recadrage sur la rétine + masque commun), à
-mesurer. Méthode : [GUIDE](docs/GUIDE.md#contrôle-par-occlusion),
+| Classe | Effet hors rétine, `none` → `crop-mask` | Ce que le modèle utilise |
+|---|---|---|
+| DMLA (A, ODIR) | 92 % → **5 %** | ✅ les lésions maculaires |
+| DMLA (ARMD, RFMiD), RS | 34-39 % → 1-6 % | ✅ macula, lésions |
+| Myopie (MYA, M) | 15-37 % → 13-25 % | ✅ atrophie péripapillaire, effet diffus |
+| Glaucome (G, ODIR) | 39 % → 32 % | 🟡 surtout le disque optique, en partie les bords |
+| Cataracte (C) | — | ✅ le voile de toute l'image (aucune zone isolée ne compte) |
+
+Hors rétine, toutes les images sont désormais noires et identiques : ce qui
+reste d'effet sur les bords ne peut plus trahir l'appareil. Méthode :
+[GUIDE](docs/GUIDE.md#contrôle-par-occlusion),
 [prétraitement](docs/GUIDE.md#prétraitement-commun-crop-mask).
 
 ## Démarrage rapide

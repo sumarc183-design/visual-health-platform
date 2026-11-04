@@ -3,7 +3,7 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions
 selon [SemVer](https://semver.org/lang/fr/).
 
-## [0.1.0] — 2026-11-03
+## [0.1.0] — 2026-11-04
 
 Premier jalon : socle fond d'œil de bout en bout avec les vrais poids RETFound.
 
@@ -34,13 +34,24 @@ Premier jalon : socle fond d'œil de bout en bout avec les vrais poids RETFound.
   contrôle des cartes Grad-CAM sur les mêmes images, avec mesure de
   l'effet du fond.
 - Notebook Google Colab (poids via `HF_TOKEN`, données via kagglehub).
-- Résultats : AUROC macro 0,858 sur RFMiD (validation), 0,832 sur son test
-  officiel ; 0,845 sur ODIR avec étiquettes par œil (0,806 avec étiquettes
-  patient).
+- Résultats finaux (`crop-mask`, test lu une seule fois) : AUROC macro
+  **0,846** sur le test RFMiD (validation 0,864) et **0,848** sur le test
+  ODIR (validation 0,861). Premiers résultats avec `none` : RFMiD 0,858
+  (validation) et 0,832 (test) ; ODIR 0,845 avec étiquettes par œil, 0,806
+  avec étiquettes patient (split 85/15).
+- Notebook utilisable sur Kaggle comme sur Colab (secrets, cache local, zip
+  des sorties).
 - CI (lint ruff puis tests), `pyproject.toml`, `pre-commit`, carte du modèle,
   guide d'utilisation, test du classifieur de modalité.
 
+### Modifié
+- `--preprocess crop-mask` devient le défaut : sur la validation, il fait
+  +0,020 d'AUROC sur ODIR (IC [+0,011 ; +0,030]), sans coût sur RFMiD, et
+  ramène l'effet d'occlusion de la DMLA d'ODIR sur la rétine (92 % → 5 %
+  hors champ). `--preprocess none` reproduit les premiers chiffres.
+
 ### Corrigé
+- Planche d'occlusion : le « Δ » s'affichait en carré (absent de la police).
 - La loss affichée à chaque epoch est la moyenne de l'epoch, plus celle du
   dernier batch.
 - Occlusion avec `crop-mask` : champ rétinien = masque commun exact, plus un
