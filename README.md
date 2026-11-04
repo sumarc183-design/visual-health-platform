@@ -277,17 +277,32 @@ python run_baseline.py --dataset rfmid --data-root <chemin RFMiD> \
 pytest tests/                   # unitaires + bout-en-bout sur images synthétiques
 ```
 
+**Prédire sur une image nouvelle** (tête sauvegardée par `--save-head`,
+seuils par maladie choisis sur la validation) :
+
+```bash
+python predict.py mon_fond_d_oeil.jpg --head heads/odir_crop-mask_head.pt \
+    --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth \
+    --thresholds results/decision_odir.json --policy f1   # ou sensitivity (dépistage)
+```
+
+Contrôle qualité sur le fichier d'origine, même prétraitement que
+l'entraînement, probabilité et décision par maladie (aucune décision pour
+les maladies en preuve insuffisante). Outil de recherche : pas un
+diagnostic.
+
 ## État du socle
 
 | Étape | État |
 |---|---|
 | 1. Contrôle qualité (flou, résolution) | 🟡 Testé, signale sans filtrer (seuil de flou à calibrer) |
 | 2. Identification de la modalité | 🟡 Architecture en place, pas encore entraînée |
-| 3. Prétraitement fond d'œil | ✅ Normalisation ImageNet, 224×224 |
+| 3. Prétraitement fond d'œil | ✅ `crop-mask` (recadrage + masque commun), normalisation ImageNet, 224×224 |
 | 4. Classification multi-label | ✅ RFMiD et ODIR, AUROC mesurée |
 | 5. Localisation des zones suspectes | ⬜ J60 |
 | 6. Explicabilité | 🟡 Grad-CAM peu fiable sur ce ViT (chaleur sur le fond) ; l'occlusion le remplace. Voir [Explicabilité](#explicabilité) |
-| 7. Score de confiance calibré | ⬜ J60 |
+| 7. Score de confiance calibré | 🟡 Probabilités déjà bien calibrées (ECE ≈ 0,02-0,03) et seuils par maladie ; à valider cliniquement (jalon J60). Voir [Décisions et calibration](#décisions-et-calibration) |
+| 8. Prédiction sur image nouvelle | 🟡 `predict.py`, testé avec des poids aléatoires ; pas encore lancé avec les vrais poids |
 
 ## Données
 

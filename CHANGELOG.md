@@ -41,6 +41,11 @@ et test), étiquettes identiques.
   appareil retrouvé à partir des embeddings, AUROC à appareil égal
   (`stratification_gap` dans `src/eval/metrics.py`), transfert entre RFMiD
   et ODIR pour la rétinopathie diabétique, la DMLA et la myopie.
+- `predict.py` et `src/pipeline/inference.py` : prédiction sur une image
+  nouvelle avec la même chaîne que l'entraînement (contrôle qualité,
+  prétraitement de la tête, RETFound, tête), décision par maladie avec les
+  seuils de la validation, refus d'une tête incompatible (checkpoint ou
+  version du prétraitement), option `--reject-unusable`.
 - `src/eval/decision.py`, `scripts/decision_metrics.py` et
   `results/decision_{rfmid,odir}.json` : seuils par maladie choisis sur la
   validation (F1 maximal ou sensibilité ≥ 0,90), sensibilité, spécificité,

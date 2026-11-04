@@ -186,6 +186,36 @@ identique pour toutes les images :
 Le prétraitement est enregistré dans la tête (`--save-head`) : Grad-CAM et
 l'occlusion rechargent les images de la même façon.
 
+## Prédire sur une image nouvelle
+
+```bash
+python predict.py image1.jpg image2.png --head heads/odir_crop-mask_head.pt \
+    --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth \
+    --thresholds results/decision_odir.json --policy f1 --out predictions.json
+```
+
+Même chaîne que l'entraînement (`src/pipeline/inference.py`, testé pour
+redonner exactement les probabilités de `run_baseline.py`) : contrôle
+qualité sur le fichier d'origine, prétraitement et taille d'image lus dans
+la tête, RETFound figé, tête, puis décision par maladie.
+
+- `--thresholds` : seuils choisis sur la validation par
+  `scripts/decision_metrics.py`. `--policy f1` : compromis entre maladies
+  ratées et fausses alertes ; `--policy sensitivity` : dépistage
+  (sensibilité ≥ 0,90 visée), beaucoup plus de fausses alertes. Sans
+  fichier de seuils : probabilités seules. Les seuils publiés valent pour
+  les têtes du run publié (crop-mask, 30 epochs, graine 42).
+- Maladies en preuve insuffisante (moins de 10 cas) : probabilité sans
+  décision.
+- `--reject-unusable` : pas de prédiction si le contrôle qualité échoue
+  (par défaut, il est signalé et le résultat est donné).
+- Refus si la tête a été entraînée avec un autre checkpoint ou une autre
+  version du prétraitement (têtes récentes ; les anciennes sont acceptées
+  avec un avertissement).
+
+Outil de recherche, non validé cliniquement : les décisions ne sont pas un
+diagnostic.
+
 ## Explicabilité (Grad-CAM)
 
 ```bash

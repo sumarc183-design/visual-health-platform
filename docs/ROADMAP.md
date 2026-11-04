@@ -4,8 +4,8 @@
 
 > Atteint au sens « première baseline » (4 nov.). Pas encore un socle
 > opérationnel : contrôle qualité non calibré, routage de modalité non
-> entraîné, pas de commande de prédiction sur une image nouvelle (audit du
-> 4 novembre).
+> entraîné (audit du 4 novembre). Commande de prédiction sur image nouvelle
+> (`predict.py`) livrée le 4 novembre, pas encore lancée avec les vrais poids.
 
 - [x] Contrôle qualité (flou, résolution) implémenté : sonde sur un échantillon, sans filtrage ; sur le fichier d'origine depuis le 4 nov. ; seuil de flou encore à calibrer
 - [x] Backbone RETFound intégré (embeddings figés)
@@ -18,7 +18,7 @@
 ## J60 — Localisation
 - [ ] Localisation/segmentation des zones suspectes (ex. disque optique)
 - [ ] Seconde indication amorcée (dermatologie via ISIC)
-- [ ] Score de confiance calibré
+- [ ] Score de confiance calibré (avancé le 4 nov. : probabilités déjà bien calibrées, ECE ≈ 0,02-0,03, seuils par maladie choisis sur la validation ; reste la validation clinique du compromis)
 
 ## J90 — Modularité démontrée
 - [ ] Socle modulaire validé sur 2 modalités (rétine + dermato)
