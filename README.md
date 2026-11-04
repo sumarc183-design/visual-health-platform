@@ -197,6 +197,36 @@ partie des écarts. Les chiffres obtenus dans une même base surestiment donc
 la performance attendue ailleurs, surtout pour la rétinopathie diabétique :
 une validation externe reste nécessaire avant toute conclusion clinique.
 
+**4. Remèdes testés : seul l'entraînement sur les deux bases aide.**
+Comparés sur la validation, maladies communes
+([`scripts/domain_remedies.py`](scripts/domain_remedies.py),
+[résultats](results/domain_remedies.json)) :
+
+| Remède | Appareil lisible (RFMiD / ODIR) | AUROC macro dans la base | Effet |
+|---|---|---|---|
+| Aucun | 1,00 / 0,91 | 0,864 / 0,861 | référence |
+| Normaliser les embeddings par base | 1,00 / 0,91 | 0,859 / 0,863 (centrage) ; 0,823 / 0,853 (z-score) | transfert pas meilleur, myopie dégradée |
+| Effacer l'appareil (LEACE) | **0,33 / 0,04** (hasard) | 0,848 / 0,832 | appareil illisible, mais la tâche se dégrade et le transfert reste mauvais |
+| **Une tête entraînée sur les deux bases** | 1,00 / 0,91 | — | aussi bon que la tête de chaque base, sur les deux |
+
+L'effacement montre que, dans ces données, l'information d'appareil est
+mêlée à de l'information utile : l'enlever coûte plus qu'il ne rapporte,
+et le classifieur ne s'en sert déjà pas de façon mesurable (contrôle 2).
+Le remède retenu est la **tête multi-source**. Lu une fois sur le test,
+contre la tête de chaque base (différence appariée) :
+
+| Test | Rétinopathie diabétique | DMLA | Myopie | Macro |
+|---|---|---|---|---|
+| RFMiD | 0,925 (−0,022 [−0,041 ; −0,004]) | 0,971 (+0,014) | 0,988 (+0,001) | −0,002 [−0,012 ; +0,010] |
+| ODIR | 0,788 (+0,005) | 0,890 (+0,019) | 0,999 (+0,001) | +0,008 [−0,001 ; +0,018] |
+
+Un seul modèle couvre donc les deux bases sans perte moyenne, au prix d'une
+petite baisse significative de la rétinopathie diabétique sur RFMiD, que les
+définitions différentes des deux bases expliquent probablement. Cela ne
+prouve pas la généralisation à une **troisième** source : pour cela, il faut
+une base externe (par exemple de rétinopathie diabétique), évaluée sans
+avoir servi à l'entraînement.
+
 ## Démarrage rapide
 
 **Sans installation** : bouton *Open in Colab* ci-dessus, `GPU T4`, token

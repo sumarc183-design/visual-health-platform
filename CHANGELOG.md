@@ -41,6 +41,10 @@ et test), étiquettes identiques.
   appareil retrouvé à partir des embeddings, AUROC à appareil égal
   (`stratification_gap` dans `src/eval/metrics.py`), transfert entre RFMiD
   et ODIR pour la rétinopathie diabétique, la DMLA et la myopie.
+- `scripts/domain_remedies.py` et `results/domain_remedies.json` : remèdes
+  comparés sur la validation (normalisation par base, effacement linéaire
+  de l'appareil LEACE, tête multi-source) ; tête multi-source retenue et
+  lue une fois sur le test.
 - `scripts/sweep_head.py` et `results/sweep_head_{rfmid,odir}.json` :
   archive du balayage des réglages de la tête (train et validation
   seulement).

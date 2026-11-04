@@ -67,7 +67,11 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   peu de puissance sur ODIR. Entre bases, la performance baisse nettement
   pour la rétinopathie diabétique (0,947 → 0,820 sur RFMiD, 0,783 → 0,637
   sur ODIR) et pour la DMLA évaluée sur ODIR (0,871 → 0,785) : pas de
-  validation externe, voir [README](../README.md#robustesse).
+  validation externe, voir [README](../README.md#robustesse). Effacer
+  l'appareil des embeddings (LEACE) ou les normaliser par base n'y remédie
+  pas ; une tête entraînée sur les deux bases fait aussi bien que la tête
+  de chaque base, sur les deux (macro −0,002 et +0,008 en test), sauf la
+  rétinopathie diabétique de RFMiD (−0,022, significatif).
 - **Contrôle qualité** : seuil de flou pas encore calibré sur des images
   annotées utilisables/inutilisables ; il signale sur un échantillon et ne
   retire rien, ce n'est pas encore une barrière.
