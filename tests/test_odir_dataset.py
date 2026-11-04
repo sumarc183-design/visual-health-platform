@@ -102,3 +102,21 @@ def test_image_keys_and_groups(synthetic_odir_root):
     dataset = ODIRDataset(synthetic_odir_root, split="val")
     assert dataset.image_keys == list(dataset.df["filename"])
     assert dataset.groups == [str(i) for i in dataset.df["ID"]]
+
+
+def test_missing_keywords_are_an_error_not_class_o():
+    """Sans annotation, l'œil ne doit pas devenir « autre maladie »."""
+    for empty in ("", " ", float("nan"), " , "):
+        with pytest.raises(ValueError):
+            keywords_to_classes(empty)
+    assert keywords_to_classes("Cataract") == {"C"}  # casse normalisée
+    assert keywords_to_classes("drusen") == {"O"}  # vraie pathologie non listée -> O
+
+
+def test_filename_without_laterality_is_rejected(synthetic_odir_root):
+    csv = synthetic_odir_root / "full_df.csv"
+    df = pd.read_csv(csv)
+    df.loc[0, "filename"] = "0.jpg"
+    df.to_csv(csv, index=False)
+    with pytest.raises(ValueError, match="latéralité"):
+        ODIRDataset(synthetic_odir_root, split="train", image_size=32)

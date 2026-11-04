@@ -3,6 +3,44 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions
 selon [SemVer](https://semver.org/lang/fr/).
 
+## [Non publié]
+
+Corrections issues de l'audit du 4 novembre 2026. Résultats publiés
+inchangés : prédictions identiques à 5·10⁻⁷ près (RFMiD et ODIR, validation
+et test), étiquettes identiques.
+
+### Corrigé
+- Contrôle qualité : la résolution était mesurée après redimensionnement en
+  224×224 (jamais trop petite) et le flou en convention BGR alors que les
+  images sont en RGB. Il lit maintenant le fichier d'origine et mesure le
+  flou sur la rétine à échelle fixe, sans le bord du disque.
+- Cache d'embeddings : recherche des images manquantes quadratique en nombre
+  d'images ; un checkpoint ou un prétraitement modifié sous le même nom
+  réutilisait silencieusement des embeddings périmés (empreinte ajoutée).
+- Chargement des poids : le repli sans `weights_only` (pickle) était
+  automatique pour n'importe quel fichier. Il essaie d'abord en autorisant
+  seulement `argparse.Namespace`, puis n'accepte le chargement complet que
+  pour un fichier du dossier officiel ou avec `--trust-checkpoint`.
+- Notebook : une erreur de `run_baseline.py` passait inaperçue (`| tee`
+  renvoie le code de `tee`) ; chaque étape vérifie maintenant sa sortie.
+- ODIR : une cellule de mots-clés vide devenait la classe O ; elle lève
+  maintenant une erreur. Casse des mots-clés normalisée ; un nom de fichier
+  sans `_left`/`_right` est refusé au lieu d'être pris pour l'œil droit.
+
+### Modifié
+- `--epochs` vaut 30 par défaut (réglage des résultats publiés, au lieu de 5).
+- `--head-batch-size` (défaut 16) rend explicite la taille des mini-batchs
+  de la tête ; `--batch-size` ne règle que l'extraction.
+- JSON de résultats : métriques sous `eval` (`val` gardé pour
+  compatibilité) et `manifest` (commit, empreinte du checkpoint, version du
+  prétraitement, réglages, versions). Mêmes informations dans la tête
+  sauvegardée.
+
+### Ajouté
+- `scripts/sweep_head.py` et `results/sweep_head_{rfmid,odir}.json` :
+  archive du balayage des réglages de la tête (train et validation
+  seulement).
+
 ## [0.1.0] — 2026-11-04
 
 Premier jalon : socle fond d'œil de bout en bout avec les vrais poids RETFound.

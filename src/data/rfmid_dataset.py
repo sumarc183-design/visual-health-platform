@@ -80,8 +80,12 @@ class RFMiDDataset(Dataset):
     def __len__(self) -> int:
         return len(self.df)
 
+    def image_path(self, idx: int) -> Path:
+        """Fichier d'origine (contrôle qualité sur l'image non redimensionnée)."""
+        return self.images_dir / f"{int(self.df.iloc[idx]['ID'])}.png"
+
     def __getitem__(self, idx: int):
         row = self.df.iloc[idx]
-        image = load_fundus_image(self.images_dir / f"{int(row['ID'])}.png", self.image_size, self.preprocess)
+        image = load_fundus_image(self.image_path(idx), self.image_size, self.preprocess)
         labels = torch.tensor(row[self.class_names].to_numpy(dtype="float32"))
         return image, labels

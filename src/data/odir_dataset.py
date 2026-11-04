@@ -82,8 +82,18 @@ def _keyword_class(keyword: str) -> str | None:
 def keywords_to_classes(keywords: str) -> set[str]:
     """Mots-clés diagnostiques d'un œil ("moderate non proliferative
     retinopathy，lens dust") -> classes ODIR ({"D"}). N n'est gardé que si
-    aucune pathologie n'est présente, comme dans les colonnes patient."""
-    classes = {_keyword_class(k.strip()) for k in str(keywords).replace("，", ",").split(",")} - {None}
+    aucune pathologie n'est présente, comme dans les colonnes patient.
+
+    Tout mot-clé diagnostique non reconnu va dans O (« autres maladies et
+    anomalies » dans ODIR : drusen, occlusions veineuses, membrane
+    épirétinienne...). Une cellule vide ou manquante est en revanche une
+    erreur : sans annotation, l'œil ne doit pas devenir « autre »."""
+    text = "" if pd.isna(keywords) else str(keywords)
+    parts = [k.strip().lower() for k in text.replace("，", ",").split(",")]
+    parts = [k for k in parts if k]
+    if not parts:
+        raise ValueError(f"mots-clés diagnostiques absents ({keywords!r})")
+    classes = {_keyword_class(k) for k in parts} - {None}
     if len(classes) > 1:
         classes.discard("N")
     return classes
@@ -94,6 +104,13 @@ def eye_level_labels(df: pd.DataFrame) -> pd.DataFrame:
     ligne, d'après `filename` (<id>_left.jpg / <id>_right.jpg)."""
     df = df.copy()
     is_left = df["filename"].str.contains("_left")
+    is_right = df["filename"].str.contains("_right")
+    ambiguous = df.loc[is_left == is_right, "filename"]
+    if len(ambiguous):
+        raise ValueError(
+            f"{len(ambiguous)} nom(s) de fichier sans latéralité claire (_left ou _right), "
+            f"ex. {list(ambiguous[:3])}"
+        )
     keywords = df["Left-Diagnostic Keywords"].where(is_left, df["Right-Diagnostic Keywords"])
     eye_classes = keywords.map(keywords_to_classes)
     for class_name in CLASS_NAMES:
@@ -168,8 +185,12 @@ class ODIRDataset(Dataset):
     def __len__(self) -> int:
         return len(self.df)
 
+    def image_path(self, idx: int) -> Path:
+        """Fichier d'origine (contrôle qualité sur l'image non redimensionnée)."""
+        return self.images_dir / self.df.iloc[idx]["filename"]
+
     def __getitem__(self, idx: int):
         row = self.df.iloc[idx]
-        image = load_fundus_image(self.images_dir / row["filename"], self.image_size, self.preprocess)
+        image = load_fundus_image(self.image_path(idx), self.image_size, self.preprocess)
         labels = torch.tensor(row[self.class_names].to_numpy(dtype=np.float32))
         return image, labels

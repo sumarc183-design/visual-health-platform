@@ -2,10 +2,11 @@
 
 import numpy as np
 import pandas as pd
+import pytest
 import torch
 
 from run_baseline import dataset_embeddings
-from src.models.embedding_cache import EmbeddingCache, cache_file_name
+from src.models.embedding_cache import CacheMismatchError, EmbeddingCache, cache_file_name
 
 
 class TinyDataset(torch.utils.data.Dataset):
@@ -82,3 +83,36 @@ def test_dataset_embeddings_does_not_load_backbone_when_all_cached(tmp_path):
 
     X, _ = dataset_embeddings(TinyDataset(3), "train", must_not_load, EmbeddingCache(cache.path), kwargs)
     assert X.shape == (3, 3)
+
+
+META = {"checkpoint_sha256": "abc", "preprocess": "crop-mask", "preprocess_version": 1, "image_size": 224}
+
+
+def test_cache_refuses_embeddings_from_another_configuration(tmp_path):
+    cache = EmbeddingCache(tmp_path / "c.npz", meta=META)
+    cache.add(["a"], np.ones((1, 2)))
+    cache.save()
+    assert EmbeddingCache(tmp_path / "c.npz", meta=META).missing(["a"]) == []
+    for changed in ({"checkpoint_sha256": "autre"}, {"preprocess_version": 2}, {"image_size": 256}):
+        with pytest.raises(CacheMismatchError):
+            EmbeddingCache(tmp_path / "c.npz", meta={**META, **changed})
+
+
+def test_legacy_cache_is_adopted_then_protected(tmp_path):
+    """Un cache sans empreinte (ancien format) reste utilisable ; l'empreinte
+    est alors enregistrée, et un changement ultérieur est détecté."""
+    legacy = EmbeddingCache(tmp_path / "c.npz")
+    legacy.add(["a"], np.ones((1, 2)))
+    legacy.save()
+    assert EmbeddingCache(tmp_path / "c.npz", meta=META).missing(["a"]) == []
+    with pytest.raises(CacheMismatchError):
+        EmbeddingCache(tmp_path / "c.npz", meta={**META, "preprocess_version": 2})
+
+
+def test_unknown_checkpoint_fingerprint_is_not_checked(tmp_path):
+    """Checkpoint absent de la machine (tête seule, sur CPU) : None n'est pas comparé."""
+    cache = EmbeddingCache(tmp_path / "c.npz", meta=META)
+    cache.add(["a"], np.ones((1, 2)))
+    cache.save()
+    reloaded = EmbeddingCache(tmp_path / "c.npz", meta={**META, "checkpoint_sha256": None})
+    assert reloaded.meta["checkpoint_sha256"] == "abc"

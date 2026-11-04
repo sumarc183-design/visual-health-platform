@@ -24,6 +24,10 @@ import torch
 from PIL import Image
 
 PREPROCESS_CHOICES = ("none", "crop-mask")
+# À incrémenter à chaque modification qui change les pixels produits par
+# load_fundus_image : l'empreinte du cache d'embeddings l'inclut, et les
+# embeddings calculés avec l'ancienne version sont alors refusés.
+PREPROCESS_VERSION = 1
 
 DARK = 20  # /255 : en dessous sur tous les canaux = marge noire
 BRIGHT = 235  # /255 : au-dessus sur tous les canaux = bande blanche de remplissage

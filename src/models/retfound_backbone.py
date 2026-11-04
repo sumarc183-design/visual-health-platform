@@ -10,6 +10,8 @@ Nécessite `timm` (dans requirements.txt).
 
 from __future__ import annotations
 
+import argparse
+import os
 import pickle
 from functools import partial
 from pathlib import Path
@@ -27,6 +29,43 @@ IMAGENET_MEAN = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
 IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
 
 ALLOWED_MISSING_KEYS = {"fc_norm.weight", "fc_norm.bias"}
+
+# Dossier où scripts/download_retfound_checkpoint.py range les poids officiels
+# (Hugging Face, dépôt RETFound). Seul un fichier de ce dossier peut, par
+# défaut, être chargé sans la protection weights_only.
+TRUSTED_CHECKPOINT_DIR = Path(__file__).resolve().parents[2] / "third_party" / "retfound" / "checkpoints"
+
+
+def load_checkpoint_file(checkpoint_path: Path, trust_checkpoint: bool | None = None):
+    """torch.load protégé. 1) weights_only=True ; 2) idem en autorisant
+    argparse.Namespace, objet inoffensif que les checkpoints MAE embarquent
+    dans "args" (torch >= 2.4) ; 3) en dernier recours, chargement complet
+    (pickle : peut exécuter du code), seulement pour un fichier de confiance :
+    `trust_checkpoint=True`, ou par défaut un fichier du dossier officiel
+    TRUSTED_CHECKPOINT_DIR."""
+    try:
+        return torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+    except pickle.UnpicklingError as error:
+        first_error = error
+    if hasattr(torch.serialization, "safe_globals"):
+        try:
+            with torch.serialization.safe_globals([argparse.Namespace]):
+                return torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+        except pickle.UnpicklingError:
+            pass
+    if trust_checkpoint is None:
+        # Dossier qui contient le fichier (pas la cible d'un lien symbolique :
+        # le téléchargement Hugging Face peut lier le fichier à son cache).
+        trust_checkpoint = Path(os.path.abspath(checkpoint_path)).parent.resolve() == TRUSTED_CHECKPOINT_DIR.resolve()
+    if not trust_checkpoint:
+        raise RuntimeError(
+            f"{checkpoint_path} contient des objets que torch.load(weights_only=True) refuse "
+            f"({first_error}). Le charger complètement peut exécuter du code : le faire seulement pour "
+            "un fichier de confiance, avec trust_checkpoint=True (--trust-checkpoint), ou en le plaçant "
+            f"dans {TRUSTED_CHECKPOINT_DIR} via scripts/download_retfound_checkpoint.py."
+        )
+    print(f"⚠ Checkpoint chargé sans weights_only (fichier de confiance) : {checkpoint_path}")
+    return torch.load(checkpoint_path, map_location="cpu", weights_only=False)
 
 
 class RETFoundViT(timm.models.vision_transformer.VisionTransformer):
@@ -81,7 +120,9 @@ def _extract_state_dict(checkpoint) -> dict:
     return checkpoint
 
 
-def load_pretrained_backbone(checkpoint_path: str | Path, img_size: int = 224, global_pool: bool = True) -> RETFoundViT:
+def load_pretrained_backbone(
+    checkpoint_path: str | Path, img_size: int = 224, global_pool: bool = True, trust_checkpoint: bool | None = None
+) -> RETFoundViT:
     checkpoint_path = Path(checkpoint_path)
     if not checkpoint_path.exists():
         raise FileNotFoundError(
@@ -90,13 +131,7 @@ def load_pretrained_backbone(checkpoint_path: str | Path, img_size: int = 224, g
         )
     model = build_retfound_vit_large(img_size=img_size, global_pool=global_pool)
 
-    try:
-        checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
-    except pickle.UnpicklingError:
-        # Les checkpoints MAE embarquent parfois des objets non-tenseurs (ex.
-        # argparse.Namespace dans "args"), refusés par weights_only=True --
-        # défaut de torch>=2.6. Repli acceptable : fichier officiel RETFound.
-        checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+    checkpoint = load_checkpoint_file(checkpoint_path, trust_checkpoint)
     checkpoint_model = _extract_state_dict(checkpoint)
     checkpoint_model = {k.replace("backbone.", ""): v for k, v in checkpoint_model.items()}
 
@@ -133,10 +168,18 @@ def load_pretrained_backbone(checkpoint_path: str | Path, img_size: int = 224, g
 class RETFoundBackbone(nn.Module):
     """Enveloppe fine qui expose l'encodeur RETFound figé comme extracteur d'embeddings."""
 
-    def __init__(self, checkpoint_path: str | Path, img_size: int = 224, embedding_dim: int = 1024):
+    def __init__(
+        self,
+        checkpoint_path: str | Path,
+        img_size: int = 224,
+        embedding_dim: int = 1024,
+        trust_checkpoint: bool | None = None,
+    ):
         super().__init__()
         self.embedding_dim = embedding_dim
-        self.backbone = load_pretrained_backbone(checkpoint_path, img_size=img_size, global_pool=True)
+        self.backbone = load_pretrained_backbone(
+            checkpoint_path, img_size=img_size, global_pool=True, trust_checkpoint=trust_checkpoint
+        )
 
     @torch.no_grad()
     def forward(self, x: torch.Tensor) -> torch.Tensor:

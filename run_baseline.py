@@ -30,6 +30,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import platform
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -41,14 +43,14 @@ from torch.utils.data import DataLoader, Subset
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from scripts.generate_synthetic_fundus_dataset import generate_dataset
-from src.data.fundus_preprocess import PREPROCESS_CHOICES
+from src.data.fundus_preprocess import PREPROCESS_CHOICES, PREPROCESS_VERSION
 from src.data.odir_dataset import TEST_FRACTION, ODIRDataset
 from src.data.rfmid_dataset import RFMiDDataset
 from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel
 from src.models.classifier_head import MultiLabelHead, train_head
-from src.models.embedding_cache import EmbeddingCache, cache_file_name
+from src.models.embedding_cache import EmbeddingCache, cache_file_name, file_fingerprint
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone, build_retfound_vit_large
-from src.pipeline.quality_control import check_quality
+from src.pipeline.quality_control import check_fundus_file, check_quality
 
 
 def build_random_checkpoint(path: Path) -> None:
@@ -86,16 +88,22 @@ class SyntheticFundusDataset(torch.utils.data.Dataset):
         return image, labels
 
 
-def run_quality_control(dataset, n_samples: int = 50) -> None:
+def run_quality_control(dataset, n_samples: int = 50, blur_threshold: float = 1.0) -> None:
     """Sonde sur un échantillon, sans filtrer : le seuil de flou n'est pas
-    encore calibré sur de vraies images, retirer des images fausserait le jeu."""
+    encore calibré sur de vraies images, retirer des images fausserait le jeu.
+    Données réelles : contrôle sur le fichier d'origine (résolution avant
+    redimensionnement, flou sur la rétine à échelle fixe). Synthétique : sur
+    l'image chargée."""
     n_check = min(n_samples, len(dataset))
     n_flagged = 0
     for i in range(n_check):
-        image_t, _ = dataset[i]
-        raw = (image_t.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
-        if not check_quality(raw, blur_threshold=1.0).is_usable:
-            n_flagged += 1
+        if hasattr(dataset, "image_path"):
+            report = check_fundus_file(dataset.image_path(i), blur_threshold=blur_threshold)
+        else:
+            image_t, _ = dataset[i]
+            raw = (image_t.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
+            report = check_quality(raw, blur_threshold=blur_threshold)
+        n_flagged += not report.is_usable
     print(f"Contrôle qualité (échantillon de {n_check}) : {n_flagged} signalée(s), aucune retirée")
 
 
@@ -120,13 +128,29 @@ def dataset_embeddings(dataset, label: str, get_backbone, cache: EmbeddingCache 
         print(f"Extraction des embeddings ({label})...")
         return collect_embeddings(get_backbone(), dataset, **embed_kwargs)
     keys = dataset.image_keys
-    todo = [i for i, key in enumerate(keys) if key in set(cache.missing(keys))]
+    missing = set(cache.missing(keys))  # calculé une fois : sinon quadratique en nombre d'images
+    todo = [i for i, key in enumerate(keys) if key in missing]
     print(f"Embeddings ({label}) : {len(keys) - len(todo)} en cache, {len(todo)} à extraire")
     if todo:
         X_new, _ = collect_embeddings(get_backbone(), Subset(dataset, todo), **embed_kwargs)
         cache.add([keys[i] for i in todo], X_new)
         cache.save()
     return cache.get(keys), dataset.df[dataset.class_names].to_numpy(dtype=np.float32)
+
+
+def git_commit() -> str | None:
+    """Commit du code exécuté (+ « -dirty » si des fichiers suivis sont modifiés)."""
+    repo = Path(__file__).resolve().parent
+    try:
+        commit = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+        ).stdout.strip()
+        dirty = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=no"], cwd=repo, capture_output=True, text=True
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return commit + ("-dirty" if dirty else "")
 
 
 def main() -> None:
@@ -139,13 +163,25 @@ def main() -> None:
         "--checkpoint", type=Path, default=None, help="Checkpoint RETFound officiel. Omis = poids aléatoires."
     )
     parser.add_argument("--image-size", type=int, default=224)
-    parser.add_argument("--epochs", type=int, default=5)
+    parser.add_argument("--epochs", type=int, default=30, help="Epochs de la tête (30 = réglage des résultats publiés)")
+    parser.add_argument(
+        "--head-batch-size",
+        type=int,
+        default=16,
+        help="Taille des mini-batchs de la tête (16 = résultats publiés). --batch-size ne règle que l'extraction.",
+    )
+    parser.add_argument(
+        "--trust-checkpoint",
+        action="store_true",
+        help="Autorise le chargement complet (pickle) d'un checkpoint hors de third_party/retfound/checkpoints/, "
+        "si torch.load(weights_only=True) le refuse. Seulement pour un fichier de confiance.",
+    )
     parser.add_argument(
         "--device",
         default="cuda" if torch.cuda.is_available() else "cpu",
         help="cuda (GPU Colab/Kaggle) ou cpu. Par défaut : cuda si disponible.",
     )
-    parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument("--batch-size", type=int, default=16, help="Taille des batchs d'extraction des embeddings")
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument(
         "--odir-labels",
@@ -258,15 +294,33 @@ def main() -> None:
         def get_backbone() -> RETFoundBackbone:
             if not backbone_holder:
                 backbone_holder.append(
-                    RETFoundBackbone(checkpoint_path, img_size=args.image_size, embedding_dim=1024).to(args.device)
+                    RETFoundBackbone(
+                        checkpoint_path,
+                        img_size=args.image_size,
+                        embedding_dim=1024,
+                        trust_checkpoint=True if args.trust_checkpoint else None,
+                    ).to(args.device)
                 )
                 print(f"Backbone sur : {args.device}")
             return backbone_holder[0]
 
+        checkpoint_fingerprint = None
+        if not is_random_checkpoint:
+            if args.checkpoint.exists():
+                checkpoint_fingerprint = file_fingerprint(args.checkpoint)
+            else:  # possible si tous les embeddings sont en cache (tête seule, sur CPU)
+                print(f"⚠ Checkpoint absent ({args.checkpoint}) : son empreinte ne peut pas être vérifiée.")
         cache = None
         if args.embeddings_cache is not None and not (is_synthetic or is_random_checkpoint):
+            cache_name = cache_file_name(args.dataset, args.preprocess, args.image_size, args.checkpoint)
             cache = EmbeddingCache(
-                args.embeddings_cache / cache_file_name(args.dataset, args.preprocess, args.image_size, args.checkpoint)
+                args.embeddings_cache / cache_name,
+                meta={
+                    "checkpoint_sha256": checkpoint_fingerprint,
+                    "preprocess": args.preprocess,
+                    "preprocess_version": PREPROCESS_VERSION,
+                    "image_size": args.image_size,
+                },
             )
         embed_kwargs = dict(batch_size=args.batch_size, device=args.device, num_workers=args.num_workers)
         X_train, y_train = dataset_embeddings(train_dataset, "train", get_backbone, cache, embed_kwargs)
@@ -274,7 +328,9 @@ def main() -> None:
 
         torch.manual_seed(args.seed)  # initialisation de la tête et ordre des mini-batchs
         train_loader = DataLoader(
-            list(zip(torch.from_numpy(X_train), torch.from_numpy(y_train), strict=True)), batch_size=16, shuffle=True
+            list(zip(torch.from_numpy(X_train), torch.from_numpy(y_train), strict=True)),
+            batch_size=args.head_batch_size,
+            shuffle=True,
         )
         head = MultiLabelHead(embedding_dim=1024, num_classes=len(class_names))
         head = train_head(head, train_loader, epochs=args.epochs, lr=1e-3, device=args.device)
@@ -312,6 +368,11 @@ def main() -> None:
                     "odir_labels": args.odir_labels if args.dataset == "odir" else None,
                     "odir_test_fraction": args.odir_test_fraction if args.dataset == "odir" else None,
                     "auroc_per_class": results["auroc_per_class"],
+                    "preprocess_version": PREPROCESS_VERSION,
+                    "checkpoint_sha256": checkpoint_fingerprint,
+                    "head_training": {"lr": 1e-3, "epochs": args.epochs, "batch_size": args.head_batch_size},
+                    "seed": args.seed,
+                    "git_commit": git_commit(),
                 },
                 args.save_head,
             )
@@ -363,8 +424,30 @@ def main() -> None:
                     "preprocess": args.preprocess,
                     "seed": args.seed,
                     "epochs": args.epochs,
+                    # Métriques du jeu évalué (eval_split). "val" est gardé pour la
+                    # compatibilité avec les JSON déjà publiés : il contient le test
+                    # quand eval_split vaut "test". Préférer "eval".
+                    "eval": results,
                     "val": results,
                     "train": {k: v for k, v in train_results.items() if k in ("auroc_macro", "f1_macro")},
+                    "manifest": {
+                        "git_commit": git_commit(),
+                        "checkpoint_sha256": checkpoint_fingerprint,
+                        "preprocess_version": PREPROCESS_VERSION,
+                        "image_size": args.image_size,
+                        "head": {
+                            "optimizer": "Adam",
+                            "lr": 1e-3,
+                            "epochs": args.epochs,
+                            "batch_size": args.head_batch_size,
+                            "seed": args.seed,
+                        },
+                        "n_train": int(len(y_train)),
+                        "n_eval": int(len(y_val)),
+                        "python": platform.python_version(),
+                        "torch": torch.__version__,
+                        "numpy": np.__version__,
+                    },
                 },
                 indent=2,
                 ensure_ascii=False,

@@ -105,13 +105,37 @@ Options utiles :
   checkpoint. Le cache (un `.npz` par combinaison, indexé par image) évite de
   refaire ~10 min de GPU à chaque run ; si tout est en cache, le backbone
   n'est même pas chargé et le run tourne sur CPU en quelques secondes.
+  Chaque cache enregistre une empreinte de sa configuration (contenu du
+  checkpoint, prétraitement et sa version `PREPROCESS_VERSION`, taille
+  d'image) et refuse d'être réutilisé avec une autre : supprimer le fichier
+  pour recalculer. Un ancien cache sans empreinte est adopté une fois, avec
+  un avertissement ; si le checkpoint est absent de la machine (tête seule
+  sur CPU), son empreinte n'est pas vérifiée.
+- `--epochs` (défaut 30) et `--head-batch-size` (défaut 16) : réglages de la
+  tête des résultats publiés. `--batch-size` ne règle que l'extraction des
+  embeddings.
+- `--trust-checkpoint` : les poids sont chargés avec
+  `torch.load(weights_only=True)`. Si le fichier contient d'autres objets, le
+  chargement complet (pickle, qui peut exécuter du code) n'est accepté que
+  pour un fichier de `third_party/retfound/checkpoints/` (téléchargé par
+  `scripts/download_retfound_checkpoint.py`) ou avec cette option.
 - `--predictions <fichier.npz>` : probabilités image par image du jeu évalué,
   avec les étiquettes et les patients. De quoi calculer IC, comparaisons,
   seuils par classe ou calibration sans relancer le GPU.
 - `--bootstrap N` (défaut 1000) : IC à 95 % par bootstrap **sur les
-  patients** (les deux yeux d'un patient sont corrélés ; les tirer image par
-  image rétrécirait les intervalles). Classes à moins de 10 positifs
+  patients** pour ODIR (les deux yeux d'un patient sont corrélés ; les tirer
+  image par image rétrécirait les intervalles) ; **par image** pour RFMiD,
+  qui ne fournit pas d'identifiant patient. Classes à moins de 10 positifs
   signalées : leur IC est peu fiable.
+- `--results-json` : métriques du jeu évalué sous `eval` (`val` est gardé
+  pour compatibilité, même contenu, y compris quand `--eval-split test`), et
+  un `manifest` : commit du code, empreinte du checkpoint, version du
+  prétraitement, réglages de la tête, tailles des jeux, versions de Python,
+  torch et NumPy.
+- Contrôle qualité : sonde sur 50 images, sans rien retirer. Sur données
+  réelles, il lit le fichier d'origine : résolution avant redimensionnement,
+  flou sur la rétine recadrée à 512 px, sans le bord du disque. Seuil de flou
+  pas encore calibré.
 
 ### Comparer deux variantes
 

@@ -8,23 +8,73 @@ quelques secondes, sur CPU, et le backbone n'est même pas chargé.
 
 Indexé par image (`dataset.image_keys`), pas par split : changer de split ou
 d'étiquettes réutilise les embeddings déjà calculés.
+
+Le nom du fichier ne suffit pas à garantir que les embeddings sont à jour :
+un checkpoint remplacé sous le même nom, ou un prétraitement modifié, les
+rendrait périmés sans erreur. Le cache enregistre donc une empreinte de sa
+configuration (`meta` : empreinte du contenu du checkpoint, prétraitement et
+sa version, taille d'image) et refuse de servir des embeddings calculés avec
+une autre. Un ancien cache sans empreinte est adopté une fois, avec un
+avertissement.
 """
 
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 from pathlib import Path
 
 import numpy as np
 
 
+class CacheMismatchError(RuntimeError):
+    """Le cache a été calculé avec une autre configuration que celle demandée."""
+
+
+def file_fingerprint(path: str | Path, chunk_size: int = 1 << 24) -> str:
+    """Empreinte SHA-256 (16 premiers caractères) du contenu d'un fichier."""
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        while chunk := f.read(chunk_size):
+            digest.update(chunk)
+    return digest.hexdigest()[:16]
+
+
 class EmbeddingCache:
-    def __init__(self, path: str | Path):
+    def __init__(self, path: str | Path, meta: dict | None = None):
         self.path = Path(path)
+        self.meta = meta
         self.embeddings: dict[str, np.ndarray] = {}
-        if self.path.exists():
-            with np.load(self.path) as data:
-                self.embeddings = dict(zip(data["keys"].tolist(), data["X"], strict=True))
+        if not self.path.exists():
+            return
+        with np.load(self.path) as data:
+            self.embeddings = dict(zip(data["keys"].tolist(), data["X"], strict=True))
+            stored = json.loads(str(data["meta"])) if "meta" in data.files else None
+        if meta is None:
+            self.meta = stored
+            return
+        if stored is None:
+            print(
+                f"⚠ Cache sans empreinte ({self.path.name}) : supposé calculé avec la configuration actuelle "
+                f"{meta}. Le supprimer en cas de doute."
+            )
+            stored = {}
+        # Une valeur demandée à None (ex. checkpoint absent de la machine) n'est pas vérifiée.
+        conflicts = {
+            k: (stored[k], v) for k, v in meta.items() if v is not None and stored.get(k) is not None and stored[k] != v
+        }
+        if conflicts:
+            raise CacheMismatchError(
+                f"Cache {self.path} calculé avec une autre configuration ({conflicts} : en cache, demandé). "
+                "Supprimer ce fichier (ou changer de dossier de cache) pour recalculer les embeddings."
+            )
+        unchecked = [k for k, v in meta.items() if v is None and stored.get(k) is not None]
+        if unchecked:
+            print(f"⚠ Cache {self.path.name} : {unchecked} non vérifié(s) (valeur inconnue sur cette machine).")
+        self.meta = {**stored, **{k: v for k, v in meta.items() if v is not None or k not in stored}}
+        if self.meta != stored:
+            self.save()  # enregistre l'empreinte complétée : les prochains changements seront détectés
 
     def missing(self, keys: list[str]) -> list[str]:
         return [k for k in keys if k not in self.embeddings]
@@ -41,7 +91,8 @@ class EmbeddingCache:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.path.with_name(self.path.name + ".tmp.npz")
         keys = list(self.embeddings)
-        np.savez(tmp, keys=np.array(keys), X=np.stack([self.embeddings[k] for k in keys]))
+        extra = {} if self.meta is None else {"meta": np.array(json.dumps(self.meta, sort_keys=True))}
+        np.savez(tmp, keys=np.array(keys), X=np.stack([self.embeddings[k] for k in keys]), **extra)
         os.replace(tmp, self.path)
 
 

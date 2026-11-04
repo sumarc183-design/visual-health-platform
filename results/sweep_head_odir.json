@@ -1,0 +1,1327 @@
+{
+ "dataset": "odir",
+ "split_read": [
+  "train",
+  "val"
+ ],
+ "n_configurations": 24,
+ "n_measures": 144,
+ "baseline": {
+  "mode": "adamw",
+  "strength": 0.0,
+  "pos_weight": false,
+  "standardize": false,
+  "epochs": 30,
+  "auroc_val": 0.8607970249751035,
+  "auroc_train": 0.9185934431440881
+ },
+ "best": {
+  "mode": "adamw",
+  "strength": 0.1,
+  "pos_weight": true,
+  "standardize": true,
+  "epochs": 10,
+  "auroc_val": 0.8679517351850632,
+  "auroc_train": 0.9250115796115914
+ },
+ "best_gain": 0.007154710209959725,
+ "note": "Meilleur score = maximum de mesures bruitées, biaisé vers le haut ; à confirmer par une différence appariée avant toute adoption.",
+ "rows": [
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8394051981601955,
+   "auroc_train": 0.8776960835675587
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8536972771481605,
+   "auroc_train": 0.8951246451177566
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.856503912063852,
+   "auroc_train": 0.9040978441847098
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.857973409595923,
+   "auroc_train": 0.9109284155992601
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8607970249751035,
+   "auroc_train": 0.9185934431440881
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8622785952040171,
+   "auroc_train": 0.9276173889364416
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 5,
+   "auroc_val": 0.8431071213363217,
+   "auroc_train": 0.898248198675621
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 10,
+   "auroc_val": 0.8630808051252905,
+   "auroc_train": 0.9165835727519249
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 15,
+   "auroc_val": 0.8559479400528953,
+   "auroc_train": 0.9274054110526089
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 20,
+   "auroc_val": 0.8474774149060718,
+   "auroc_train": 0.9335119945103962
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 30,
+   "auroc_val": 0.8532236386380568,
+   "auroc_train": 0.943220419779312
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 50,
+   "auroc_val": 0.8516899430782758,
+   "auroc_train": 0.9547017113452478
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8396607300816241,
+   "auroc_train": 0.8800670167779846
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.852782019169424,
+   "auroc_train": 0.8974985851081185
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8557529620893816,
+   "auroc_train": 0.9067031492928973
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8571289729606111,
+   "auroc_train": 0.9132665671760103
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8604434027085266,
+   "auroc_train": 0.9210415364044842
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8620599398477642,
+   "auroc_train": 0.9300652583661877
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 5,
+   "auroc_val": 0.8496987558321007,
+   "auroc_train": 0.9100502836073654
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 10,
+   "auroc_val": 0.8674998724086724,
+   "auroc_train": 0.9282707630660905
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 15,
+   "auroc_val": 0.8586291193196282,
+   "auroc_train": 0.9348290976228921
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 20,
+   "auroc_val": 0.8499837553196237,
+   "auroc_train": 0.9424772097881386
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 30,
+   "auroc_val": 0.854110936831917,
+   "auroc_train": 0.947513281199927
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.0,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 50,
+   "auroc_val": 0.8511740238537374,
+   "auroc_train": 0.9586082148122277
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8393973029420898,
+   "auroc_train": 0.8776834880737088
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8536789248014814,
+   "auroc_train": 0.8951020841062395
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8565044629378575,
+   "auroc_train": 0.9040625699719764
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8579393991971137,
+   "auroc_train": 0.9108864586465399
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8607675703174381,
+   "auroc_train": 0.9185328272919051
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8622387175359105,
+   "auroc_train": 0.9275131118190034
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 5,
+   "auroc_val": 0.8431024092132458,
+   "auroc_train": 0.8982269411876037
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 10,
+   "auroc_val": 0.8630875524264551,
+   "auroc_train": 0.9165395471742139
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 15,
+   "auroc_val": 0.8559304450897778,
+   "auroc_train": 0.927361283576261
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 20,
+   "auroc_val": 0.8474425166642714,
+   "auroc_train": 0.9334493353198772
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 30,
+   "auroc_val": 0.8531985549939579,
+   "auroc_train": 0.9431517091626207
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 50,
+   "auroc_val": 0.8516954108097499,
+   "auroc_train": 0.9546101152708357
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8396558111020491,
+   "auroc_train": 0.8800519061793485
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8527543563715219,
+   "auroc_train": 0.8974770799564853
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8557528730137425,
+   "auroc_train": 0.9066687806099791
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8570902047740772,
+   "auroc_train": 0.9132188842964659
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8604139075662178,
+   "auroc_train": 0.920979608441671
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8620007331584343,
+   "auroc_train": 0.9299539634844987
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 5,
+   "auroc_val": 0.8497012960419604,
+   "auroc_train": 0.9100289718163848
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 10,
+   "auroc_val": 0.8675093708595691,
+   "auroc_train": 0.9282363060883777
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 15,
+   "auroc_val": 0.8586217698869317,
+   "auroc_train": 0.9347872457798796
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 20,
+   "auroc_val": 0.8500059967635409,
+   "auroc_train": 0.9424134181497609
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 30,
+   "auroc_val": 0.8541194957236004,
+   "auroc_train": 0.9474395982109092
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 50,
+   "auroc_val": 0.8512182731199841,
+   "auroc_train": 0.9585179192008296
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.839287144319841,
+   "auroc_train": 0.8775566991225261
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8535876624453937,
+   "auroc_train": 0.8948985853489183
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8563863427628811,
+   "auroc_train": 0.9037600632787472
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8577469928313054,
+   "auroc_train": 0.9104917784604992
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8604558176300927,
+   "auroc_train": 0.9179576840108872
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.86201592990956,
+   "auroc_train": 0.9265612575940346
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 5,
+   "auroc_val": 0.8430509450886232,
+   "auroc_train": 0.898063065115156
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 10,
+   "auroc_val": 0.8631382278092813,
+   "auroc_train": 0.9161533689629979
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 15,
+   "auroc_val": 0.8557438254391532,
+   "auroc_train": 0.9269884602813113
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 20,
+   "auroc_val": 0.8472441688826868,
+   "auroc_train": 0.9328665891106388
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 30,
+   "auroc_val": 0.8531563998591466,
+   "auroc_train": 0.9425460739776301
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 50,
+   "auroc_val": 0.8520526115878282,
+   "auroc_train": 0.953727781730636
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8395552902984795,
+   "auroc_train": 0.8799258132634238
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8525737127295152,
+   "auroc_train": 0.8972851738671197
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8555866171227827,
+   "auroc_train": 0.9063644322511386
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8567890816532107,
+   "auroc_train": 0.9128060645989015
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8602125378353755,
+   "auroc_train": 0.9203922477595295
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8618121446826283,
+   "auroc_train": 0.9289768254673674
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 5,
+   "auroc_val": 0.8496530263010627,
+   "auroc_train": 0.9098663539206977
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 10,
+   "auroc_val": 0.8675277485759634,
+   "auroc_train": 0.9279411449655125
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 15,
+   "auroc_val": 0.8586999015832768,
+   "auroc_train": 0.9344100685609855
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 20,
+   "auroc_val": 0.850000362187951,
+   "auroc_train": 0.9419154213621067
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 30,
+   "auroc_val": 0.8540709579525894,
+   "auroc_train": 0.9468066672283358
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.01,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 50,
+   "auroc_val": 0.8515664117607757,
+   "auroc_train": 0.9577042970297411
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.838008578511267,
+   "auroc_train": 0.8763062606002783
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8521689775599224,
+   "auroc_train": 0.8929094261613866
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8544143210453038,
+   "auroc_train": 0.9006796421973629
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8551344648540893,
+   "auroc_train": 0.9064039617743711
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8573686139241077,
+   "auroc_train": 0.9117900563897519
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8586556869952009,
+   "auroc_train": 0.9164829564823177
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 5,
+   "auroc_val": 0.8421606045154197,
+   "auroc_train": 0.896319164798759
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 10,
+   "auroc_val": 0.8632839630469251,
+   "auroc_train": 0.9122466102758016
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 15,
+   "auroc_val": 0.853133775876669,
+   "auroc_train": 0.9227369342713082
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 20,
+   "auroc_val": 0.8456821182796095,
+   "auroc_train": 0.9271395326319654
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 30,
+   "auroc_val": 0.8514115735455758,
+   "auroc_train": 0.9360465371646272
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": false,
+   "standardize": true,
+   "epochs": 50,
+   "auroc_val": 0.8527929989892875,
+   "auroc_train": 0.9445335623254307
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8385158398508882,
+   "auroc_train": 0.8786611448095991
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8511926560269595,
+   "auroc_train": 0.8952221198052798
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8536939042091372,
+   "auroc_train": 0.9031536192160871
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8541481455976967,
+   "auroc_train": 0.9085796006095963
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8565986134805494,
+   "auroc_train": 0.9141415463500249
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8580344661672021,
+   "auroc_train": 0.9188393736880829
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 5,
+   "auroc_val": 0.8489324641078883,
+   "auroc_train": 0.908273058116972
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 10,
+   "auroc_val": 0.8679517351850632,
+   "auroc_train": 0.9250115796115914
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 15,
+   "auroc_val": 0.8586809313035726,
+   "auroc_train": 0.9307109879066461
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 20,
+   "auroc_val": 0.8499215059745104,
+   "auroc_train": 0.9367447662663145
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 30,
+   "auroc_val": 0.8530758686138828,
+   "auroc_train": 0.9402142551906281
+  },
+  {
+   "mode": "adamw",
+   "strength": 0.1,
+   "pos_weight": true,
+   "standardize": true,
+   "epochs": 50,
+   "auroc_val": 0.8536365535518344,
+   "auroc_train": 0.948904519047481
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8392433699198301,
+   "auroc_train": 0.87758258859565
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8535726179021575,
+   "auroc_train": 0.894937036809069
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8563604148838425,
+   "auroc_train": 0.9037892576455853
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8576446051871799,
+   "auroc_train": 0.9105279117010827
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.860404997281761,
+   "auroc_train": 0.9179685835515261
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8619961659693418,
+   "auroc_train": 0.9265766819885245
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8396368581358994,
+   "auroc_train": 0.8800198650814803
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8527043253587294,
+   "auroc_train": 0.897424119338921
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8556971748147952,
+   "auroc_train": 0.9065807296696746
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8569924455624499,
+   "auroc_train": 0.9130916495117074
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8603231604321331,
+   "auroc_train": 0.9207921773134153
+  },
+  {
+   "mode": "l2",
+   "strength": 1e-05,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8619332332778298,
+   "auroc_train": 0.9296071648953135
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8379983946021068,
+   "auroc_train": 0.876578773077783
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8520674235170913,
+   "auroc_train": 0.893240502579757
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8542847810742519,
+   "auroc_train": 0.9010395246594408
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8551062872144025,
+   "auroc_train": 0.9067815851019478
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8572194248663694,
+   "auroc_train": 0.9121995700643801
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8583628956294487,
+   "auroc_train": 0.9175179999873471
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8393676756971671,
+   "auroc_train": 0.8796331423088901
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8521369403664165,
+   "auroc_train": 0.896738203539315
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.854988155038069,
+   "auroc_train": 0.905453761787945
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.855989061344657,
+   "auroc_train": 0.911530873432402
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8591469371760241,
+   "auroc_train": 0.9183954695641751
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8605697530426808,
+   "auroc_train": 0.9254988658307465
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8353855190291011,
+   "auroc_train": 0.8743071283863582
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8486493156115646,
+   "auroc_train": 0.8894662795599414
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8499974503301779,
+   "auroc_train": 0.8951910542460246
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8494410945373716,
+   "auroc_train": 0.8991687678434779
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8506339140460498,
+   "auroc_train": 0.9016878542705475
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8509990488754262,
+   "auroc_train": 0.9033425741993606
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8386112843155088,
+   "auroc_train": 0.8787389051912186
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8512448562685291,
+   "auroc_train": 0.8951540278658486
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8532866800313648,
+   "auroc_train": 0.9028812603533047
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.853854643639724,
+   "auroc_train": 0.908062548796594
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.856061940459512,
+   "auroc_train": 0.913189149846114
+  },
+  {
+   "mode": "l2",
+   "strength": 0.0003,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8569228907745364,
+   "auroc_train": 0.9173782452537913
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8270861746467413,
+   "auroc_train": 0.8659704244470579
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8379923978300821,
+   "auroc_train": 0.8777883237731767
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8370406865238906,
+   "auroc_train": 0.8798300416533228
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.8337701187785462,
+   "auroc_train": 0.8806754025021584
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8341605711261596,
+   "auroc_train": 0.8800497939279466
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": false,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8339863543290851,
+   "auroc_train": 0.8794630161096703
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 5,
+   "auroc_val": 0.8357323561730972,
+   "auroc_train": 0.8755309906556615
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 10,
+   "auroc_val": 0.8474228074474551,
+   "auroc_train": 0.8896383703286751
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 15,
+   "auroc_val": 0.8474811549352637,
+   "auroc_train": 0.8945510509389263
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 20,
+   "auroc_val": 0.846315347224297,
+   "auroc_train": 0.8974443638392298
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 30,
+   "auroc_val": 0.8474368843216817,
+   "auroc_train": 0.8992407509228735
+  },
+  {
+   "mode": "l2",
+   "strength": 0.001,
+   "pos_weight": true,
+   "standardize": false,
+   "epochs": 50,
+   "auroc_val": 0.8473726966732784,
+   "auroc_train": 0.8996519232192153
+  }
+ ]
+}

@@ -73,3 +73,27 @@ def test_classifier_head_on_backbone_features(tmp_path):
     features = backbone(torch.randn(2, 3, 224, 224))
     logits = head(features)
     assert logits.shape == (2, 28)
+
+
+class NotATensor:
+    """Objet arbitraire : torch.load(weights_only=True) le refuse."""
+
+
+def test_untrusted_checkpoint_with_arbitrary_objects_is_refused(tmp_path):
+    """Hors du dossier officiel, pas de chargement complet (pickle) sans
+    accord explicite : il pourrait exécuter du code."""
+    from src.models.retfound_backbone import load_checkpoint_file
+
+    path = tmp_path / "suspect.pth"
+    torch.save({"model": {"w": torch.zeros(1)}, "extra": NotATensor()}, path)
+    with pytest.raises(RuntimeError, match="weights_only"):
+        load_checkpoint_file(path)
+    assert "model" in load_checkpoint_file(path, trust_checkpoint=True)
+
+
+def test_plain_checkpoint_loads_safely_anywhere(tmp_path):
+    from src.models.retfound_backbone import load_checkpoint_file
+
+    path = tmp_path / "weights.pth"
+    torch.save({"model": {"w": torch.ones(2)}}, path)
+    assert torch.equal(load_checkpoint_file(path)["model"]["w"], torch.ones(2))
