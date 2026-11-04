@@ -52,9 +52,16 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
 - **Classes rares** : plusieurs pathologies RFMiD n'ont que quelques
   positifs en validation ou en test ; leur AUROC est instable (RP : 1,0 avec
   2 positifs en test, preuve insuffisante).
-- **AUROC ≠ décisions** : F1 macro au seuil 0,5 de 0,26 (RFMiD) et 0,48
-  (ODIR). Seuils par classe, sensibilité/spécificité et calibration pas
-  encore évalués : le modèle ne fournit pas de décision de dépistage.
+- **AUROC ≠ décisions** : au seuil 0,5, la plupart des malades sont ratés
+  (sensibilité moyenne 0,37 sur RFMiD, 0,44 sur ODIR). Avec des seuils par
+  maladie choisis sur la validation pour une sensibilité de 0,90, le test
+  donne 0,82 (RFMiD) et 0,90 (ODIR), mais beaucoup de fausses alertes (VPP
+  0,29 et 0,35). Probabilités bien calibrées (ECE ≈ 0,02-0,03). Plusieurs
+  maladies restent inutilisables en dépistage (hypertension, drusen,
+  « autres », anomalies papillaires) ; 14 classes RFMiD sur 28 ont trop peu
+  de cas pour fixer un seuil. Le compromis par maladie reste à valider avec
+  un ophtalmologue : le modèle ne fournit pas encore de décision de
+  dépistage validée.
 - **Statut du test ODIR** : hold-out constitué après les premières
   explorations, disjoint du train actuel par patient, mais tiré du train des
   runs antérieurs. Pas de validation externe.

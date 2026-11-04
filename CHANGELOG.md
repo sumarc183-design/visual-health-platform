@@ -41,6 +41,12 @@ et test), étiquettes identiques.
   appareil retrouvé à partir des embeddings, AUROC à appareil égal
   (`stratification_gap` dans `src/eval/metrics.py`), transfert entre RFMiD
   et ODIR pour la rétinopathie diabétique, la DMLA et la myopie.
+- `src/eval/decision.py`, `scripts/decision_metrics.py` et
+  `results/decision_{rfmid,odir}.json` : seuils par maladie choisis sur la
+  validation (F1 maximal ou sensibilité ≥ 0,90), sensibilité, spécificité,
+  VPP, VPN, faux positifs et négatifs au test, précision moyenne, Brier,
+  ECE, courbes de fiabilité et température ; maladies à moins de 10
+  positifs marquées « preuve insuffisante ».
 - `scripts/domain_remedies.py` et `results/domain_remedies.json` : remèdes
   comparés sur la validation (normalisation par base, effacement linéaire
   de l'appareil LEACE, tête multi-source) ; tête multi-source retenue et

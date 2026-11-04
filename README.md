@@ -65,9 +65,9 @@ réduisant nettement le raccourci d'acquisition sur les exemples examinés
   pas une performance parfaite.
 - **AUROC ≠ décisions** : l'AUROC mesure le classement, indépendamment du
   seuil. Au seuil 0,5, le F1 macro n'est que de 0,26 sur RFMiD (0,48 sur
-  ODIR) : les maladies rares dépassent rarement 0,5. Seuils par classe
-  choisis sur la validation, sensibilité/spécificité et calibration au
-  programme.
+  ODIR) : les maladies rares dépassent rarement 0,5. Seuils par maladie,
+  sensibilité/spécificité et calibration : voir
+  [Décisions et calibration](#décisions-et-calibration).
 - **Écart train/test de la tête** sur RFMiD (AUROC 0,98 contre 0,85) : un
   balayage d'une cinquantaine de réglages (régularisation, pondération des
   classes, standardisation, durée ;
@@ -133,6 +133,42 @@ plusieurs réglages d'occlusion et la relecture d'un ophtalmologue. Contrôles
 sur toute la population : voir [Robustesse](#robustesse). Méthode :
 [GUIDE](docs/GUIDE.md#contrôle-par-occlusion),
 [prétraitement](docs/GUIDE.md#prétraitement-commun-crop-mask).
+
+## Décisions et calibration
+
+L'AUROC mesure le classement ; un outil de dépistage décide oui/non. Seuils
+par maladie **choisis sur la validation**, appliqués une fois au test
+([`scripts/decision_metrics.py`](scripts/decision_metrics.py),
+[RFMiD](results/decision_rfmid.json), [ODIR](results/decision_odir.json)).
+Moyennes sur les maladies à au moins 10 positifs en validation et en test
+(RFMiD : 14 sur 28, les 14 autres sont en **preuve insuffisante** ; ODIR :
+8 sur 8) :
+
+| Test | Seuil | Sensibilité | Spécificité | VPP | F1 |
+|---|---|---|---|---|---|
+| RFMiD | 0,5 fixe | 0,37 | 0,99 | 0,78 | 0,44 |
+| RFMiD | F1 maximal (val) | 0,52 | 0,97 | 0,57 | 0,50 |
+| RFMiD | dépistage : sensibilité ≥ 0,90 (val) | 0,82 | 0,76 | 0,29 | 0,37 |
+| ODIR | 0,5 fixe | 0,44 | 0,94 | 0,61 | 0,48 |
+| ODIR | F1 maximal (val) | 0,62 | 0,87 | 0,50 | 0,53 |
+| ODIR | dépistage : sensibilité ≥ 0,90 (val) | 0,90 | 0,60 | 0,35 | 0,44 |
+
+- Le seuil de 0,5 rate la majorité des malades : les seuils par maladie
+  sont indispensables.
+- En dépistage, la sensibilité visée sur la validation se retrouve sur le
+  test d'ODIR (0,90) mais pas tout à fait sur RFMiD (0,82), et le prix est
+  élevé en fausses alertes. Maladies utilisables en dépistage (sensibilité
+  et spécificité ≥ 0,85 au test) : myopie (ODIR ; RFMiD juste en dessous,
+  0,84 et 0,99), trou maculaire, rétinopathie diabétique et DMLA (RFMiD) ;
+  la cataracte d'ODIR a une spécificité de 0,98 mais une sensibilité de
+  0,70. Inutilisables en l'état : hypertension
+  (ODIR, AP 0,08), drusen (DN), « autres » (O), excavation et pâleur
+  papillaires (ODC, ODP), avec des centaines de fausses alertes.
+- **Calibration** : les probabilités sont déjà bien calibrées (ECE 0,023
+  sur RFMiD, 0,027 sur ODIR ; température ajustée sur la validation 1,09 et
+  1,04, sans gain) : pas de calibrateur à ajouter.
+- Le compromis sensibilité/fausses alertes de chaque maladie est une
+  décision médicale : à fixer avec un ophtalmologue, sur la validation.
 
 ## Robustesse
 
