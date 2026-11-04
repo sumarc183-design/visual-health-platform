@@ -60,9 +60,14 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   runs antérieurs. Pas de validation externe.
 - **Sonde sur backbone figé** : en dessous des chiffres publiés par RETFound,
   obtenus après fine-tuning complet.
-- **Population et appareils** : jeux de données publics de quelques centres ;
-  aucune évaluation sur d'autres rétinographes, populations ou qualités
-  d'image.
+- **Population et appareils** : jeux de données publics de quelques centres.
+  L'appareil reste lisible dans les embeddings même avec `crop-mask`
+  (exactitude équilibrée 1,00 sur RFMiD, 0,91 sur ODIR) ; aucun usage
+  mesurable par le classifieur (AUROC à appareil égal), mais ce contrôle a
+  peu de puissance sur ODIR. Entre bases, la performance baisse nettement
+  pour la rétinopathie diabétique (0,947 → 0,820 sur RFMiD, 0,783 → 0,637
+  sur ODIR) et pour la DMLA évaluée sur ODIR (0,871 → 0,785) : pas de
+  validation externe, voir [README](../README.md#robustesse).
 - **Contrôle qualité** : seuil de flou pas encore calibré sur des images
   annotées utilisables/inutilisables ; il signale sur un échantillon et ne
   retire rien, ce n'est pas encore une barrière.

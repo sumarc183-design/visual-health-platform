@@ -37,6 +37,10 @@ et test), étiquettes identiques.
   sauvegardée.
 
 ### Ajouté
+- `scripts/robustness_checks.py` et `results/robustness_checks.json` :
+  appareil retrouvé à partir des embeddings, AUROC à appareil égal
+  (`stratification_gap` dans `src/eval/metrics.py`), transfert entre RFMiD
+  et ODIR pour la rétinopathie diabétique, la DMLA et la myopie.
 - `scripts/sweep_head.py` et `results/sweep_head_{rfmid,odir}.json` :
   archive du balayage des réglages de la tête (train et validation
   seulement).

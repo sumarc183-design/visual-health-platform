@@ -129,9 +129,73 @@ Elles illustrent ; elles ne prouvent ni que le raccourci a disparu sur toute
 la population (l'appareil peut aussi laisser des différences de couleur, de
 netteté ou d'éclairage dans la rétine), ni que les zones utilisées sont les
 lésions. À confirmer sur des cas tirés au hasard, erreurs comprises, avec
-plusieurs réglages d'occlusion et la relecture d'un ophtalmologue. Méthode :
+plusieurs réglages d'occlusion et la relecture d'un ophtalmologue. Contrôles
+sur toute la population : voir [Robustesse](#robustesse). Méthode :
 [GUIDE](docs/GUIDE.md#contrôle-par-occlusion),
 [prétraitement](docs/GUIDE.md#prétraitement-commun-crop-mask).
+
+## Robustesse
+
+Trois contrôles sur CPU, à partir des embeddings et des prédictions
+sauvegardés, sans aucun réglage choisi
+([`scripts/robustness_checks.py`](scripts/robustness_checks.py),
+[résultats](results/robustness_checks.json)). L'appareil photo est repéré
+par le format d'image d'origine.
+
+**1. L'appareil reste lisible dans les embeddings, même avec `crop-mask`.**
+Une régression logistique retrouve l'appareil à partir des embeddings
+(exactitude équilibrée sur la validation) :
+
+| | Appareils | Hasard | `none` | `crop-mask` |
+|---|---|---|---|---|
+| RFMiD | 3 | 0,33 | 1,00 | 1,00 |
+| ODIR | 24 | 0,04 | 0,96 | 0,91 |
+
+`crop-mask` supprime la signature géométrique, pas la signature de
+l'appareil : elle passe par la rétine elle-même (couleur, netteté,
+éclairage). Le prétraitement ne garantit donc pas, à lui seul, un modèle
+indépendant de l'appareil.
+
+**2. Le classifieur ne s'aide pas de façon mesurable de l'appareil.** AUROC
+globale contre AUROC à appareil égal (paires malade/sain du même appareil,
+`stratification_gap` dans [`metrics.py`](src/eval/metrics.py)). Un écart
+positif signifierait qu'une partie du classement vient des différences de
+prévalence entre appareils.
+
+| Prédictions | Écart moyen | Classes à écart significatif (> 0) |
+|---|---|---|
+| ODIR validation, `none` | +0,033 | N (+0,044), O (+0,072) |
+| ODIR validation, `crop-mask` | +0,015 | O (+0,057) |
+| ODIR test, `crop-mask` | +0,000 | aucune |
+| RFMiD test, `crop-mask` | +0,017 | DR (+0,009) et des classes à 3-14 positifs |
+
+Pour la DMLA d'ODIR, l'AUROC à appareil égal passe de 0,831 (`none`) à
+0,862 (`crop-mask`) en validation, et vaut 0,851 en test (AUROC globale
+0,875, écart non significatif). **Limite** : sur ODIR, les maladies sont
+concentrées sur certains appareils et les formats sont nombreux, si bien
+que seules 4 à 21 % des paires malade/sain sont comparables à appareil
+égal : ce contrôle a peu de puissance, il ne détecterait qu'un effet
+marqué.
+
+**3. Hors de leur base, les résultats tiennent pour la myopie, en partie
+pour la DMLA, mal pour la rétinopathie diabétique.** Tête entraînée sur une
+base, évaluée sur le test de l'autre (autres patients, appareils et
+annotateurs), comparée à la même tête entraînée dans la base cible :
+
+| Évalué sur | Maladie | Entraîné sur la même base | Entraîné sur l'autre base |
+|---|---|---|---|
+| RFMiD test | Rétinopathie diabétique | 0,947 | **0,820** |
+| RFMiD test | DMLA | 0,957 | 0,947 |
+| RFMiD test | Myopie | 0,986 | 0,977 |
+| ODIR test | Rétinopathie diabétique | 0,783 | **0,637** |
+| ODIR test | DMLA | 0,871 | **0,785** |
+| ODIR test | Myopie | 0,998 | 0,996 |
+
+Les définitions ne sont pas identiques d'une base à l'autre (stades de
+rétinopathie, myopie « pathologique » dans ODIR), ce qui explique une
+partie des écarts. Les chiffres obtenus dans une même base surestiment donc
+la performance attendue ailleurs, surtout pour la rétinopathie diabétique :
+une validation externe reste nécessaire avant toute conclusion clinique.
 
 ## Démarrage rapide
 

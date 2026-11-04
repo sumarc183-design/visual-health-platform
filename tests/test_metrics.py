@@ -51,3 +51,24 @@ def test_paired_diff_is_zero_for_identical_runs_and_detects_a_better_one():
     better = paired_bootstrap_diff(y, noisy, good, CLASSES, groups, n_boot=200)
     assert better["macro"]["diff"] > 0 and better["macro"]["ci"][0] > 0
     assert all(better[name]["ci"][0] > 0 for name in CLASSES)
+
+
+def test_stratified_auroc_detects_a_strata_shortcut():
+    """Prévalence liée à la strate (l'« appareil ») et score qui ne regarde
+    que la strate : AUROC globale élevée, mais 0,5 à strate égale. Un score
+    qui regarde la maladie garde son AUROC à strate égale."""
+    from src.eval.metrics import stratification_gap, stratified_auroc
+
+    rng = np.random.default_rng(0)
+    strata = np.repeat([0, 1], 500)
+    y = (rng.random(1000) < np.where(strata == 1, 0.6, 0.1)).astype(float)
+    shortcut = strata + rng.normal(0, 0.01, 1000)  # ne connaît que l'appareil
+    honest = y + rng.normal(0, 0.5, 1000)  # regarde la maladie
+    assert _auroc(y, shortcut) > 0.75 and abs(stratified_auroc(y, shortcut, strata) - 0.5) < 0.06
+    assert abs(_auroc(y, honest) - stratified_auroc(y, honest, strata)) < 0.03
+
+    groups = [str(i) for i in range(1000)]
+    gap = stratification_gap(y[:, None], shortcut[:, None], ["a"], strata, groups, n_boot=100)["a"]
+    assert gap["gap_ci"][0] > 0.15 and gap["comparable_pairs"] < 1
+    gap = stratification_gap(y[:, None], honest[:, None], ["a"], strata, groups, n_boot=100)["a"]
+    assert gap["gap_ci"][0] < 0 < gap["gap_ci"][1]

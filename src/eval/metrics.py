@@ -105,3 +105,65 @@ def paired_bootstrap_diff(
         "ci": [float(np.percentile(macro, 2.5)), float(np.percentile(macro, 97.5))],
     }
     return result
+
+
+def _mann_whitney_pairs(y: np.ndarray, p: np.ndarray, strata: np.ndarray) -> tuple[float, float]:
+    """Paires (positif, négatif) bien ordonnées et nombre de paires, en ne
+    comparant que des images de la même strate."""
+    ordered, pairs = 0.0, 0.0
+    for stratum in np.unique(strata):
+        mask = strata == stratum
+        n_pos = y[mask].sum()
+        n_neg = mask.sum() - n_pos
+        if n_pos == 0 or n_neg == 0:
+            continue
+        ranks = rankdata(p[mask])
+        ordered += ranks[y[mask] == 1].sum() - n_pos * (n_pos + 1) / 2
+        pairs += n_pos * n_neg
+    return ordered, pairs
+
+
+def stratified_auroc(y: np.ndarray, p: np.ndarray, strata) -> float:
+    """AUROC « à strate égale » : probabilité qu'un positif soit classé
+    au-dessus d'un négatif **de la même strate** (ex. même appareil photo).
+    Comparée à l'AUROC globale, elle mesure ce que le modèle gagne en
+    exploitant les différences de prévalence entre strates : un modèle qui
+    reconnaît l'appareil plutôt que la maladie perd à strate égale."""
+    ordered, pairs = _mann_whitney_pairs(np.asarray(y), np.asarray(p), np.asarray(strata))
+    return float(ordered / pairs) if pairs else float("nan")
+
+
+def stratification_gap(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    class_names: list[str],
+    strata,
+    groups: list[str],
+    n_boot: int = 1000,
+    seed: int = 0,
+) -> dict:
+    """Par classe : AUROC globale, AUROC à strate égale, écart (globale −
+    strate égale) avec son IC à 95 % par bootstrap sur les groupes, et part
+    des paires positif/négatif comparables à strate égale."""
+    strata = np.asarray(strata)
+    result = {}
+    for c, name in enumerate(class_names):
+        y, p = y_true[:, c], y_prob[:, c]
+        if len(np.unique(y)) < 2:
+            continue
+        pooled, within = _auroc(y, p), stratified_auroc(y, p, strata)
+        draws = [
+            _auroc(y[idx], p[idx]) - stratified_auroc(y[idx], p[idx], strata[idx])
+            for idx in _group_resamples(groups, n_boot, seed)
+        ]
+        low, high = np.nanpercentile(draws, [2.5, 97.5])
+        n_pos = y.sum()
+        result[name] = {
+            "auroc": pooled,
+            "auroc_within_strata": within,
+            "gap": pooled - within,
+            "gap_ci": [float(low), float(high)],
+            "comparable_pairs": float(_mann_whitney_pairs(y, p, strata)[1] / (n_pos * (len(y) - n_pos))),
+            "positives": int(n_pos),
+        }
+    return result
