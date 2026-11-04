@@ -1,6 +1,7 @@
 """Vérifie la prédiction sur image nouvelle (src/pipeline/inference.py, predict.py)
 avec un checkpoint RETFound à poids aléatoires."""
 
+import gc
 import json
 import sys
 
@@ -13,10 +14,13 @@ from run_baseline import build_random_checkpoint, collect_embeddings
 from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image
 from src.models.classifier_head import MultiLabelHead
 from src.models.embedding_cache import file_fingerprint
-from src.models.retfound_backbone import RETFoundBackbone
 from src.pipeline.inference import Predictor, load_thresholds
 
 CLASSES = ["DR", "MYA", "RARE"]
+
+# Bout en bout avec un ViT-L (~1,2 Go) : étape « lente » de la CI, dans un
+# processus séparé de la suite rapide.
+pytestmark = pytest.mark.slow
 
 
 @pytest.fixture(scope="module")
@@ -64,7 +68,7 @@ def setup(tmp_path_factory):
         )
     )
     predictor = Predictor(head_path, checkpoint, thresholds_path, policy="f1")
-    return dict(
+    yield dict(
         root=root,
         checkpoint=checkpoint,
         head=head,
@@ -74,6 +78,8 @@ def setup(tmp_path_factory):
         thresholds=thresholds_path,
         predictor=predictor,
     )
+    del predictor  # libère le ViT-L avant les modules suivants
+    gc.collect()
 
 
 def test_prediction_matches_the_training_pipeline(setup):
@@ -87,8 +93,9 @@ def test_prediction_matches_the_training_pipeline(setup):
         def __getitem__(self, idx):
             return load_fundus_image(setup["image"], 224, "crop-mask"), torch.zeros(len(CLASSES))
 
-    backbone = RETFoundBackbone(setup["checkpoint"], img_size=224, embedding_dim=1024)
-    X, _ = collect_embeddings(backbone, OneImage())
+    # Même backbone (un seul ViT-L en mémoire : le runner de CI a ~7 Go), mais
+    # chemin d'entraînement : collect_embeddings normalise et extrait comme run_baseline.py.
+    X, _ = collect_embeddings(setup["predictor"].backbone, OneImage())
     with torch.no_grad():
         expected = torch.sigmoid(setup["head"](torch.from_numpy(X)))[0]
     assert torch.allclose(setup["predictor"].probabilities(setup["image"]), expected, atol=1e-5)
@@ -120,6 +127,8 @@ def test_inconsistent_artifacts_are_refused(setup, tmp_path):
 def test_cli_rejects_unusable_images_on_request(setup, monkeypatch, capsys):
     import predict
 
+    # Le prédicteur déjà chargé : la CLI n'en recharge pas un second (mémoire de la CI).
+    monkeypatch.setattr(predict, "Predictor", lambda *args, **kwargs: setup["predictor"])
     out = setup["root"] / "predictions.json"
     monkeypatch.setattr(
         sys,

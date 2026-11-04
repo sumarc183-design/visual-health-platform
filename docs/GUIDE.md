@@ -264,6 +264,13 @@ masque. Deux mesures par image :
   de l'image hors rétine (b). a nettement au-dessus de b : le modèle
   s'appuie sur le fond plus que sa surface ne l'explique.
 
+Ces planches portent sur 3 images par classe choisies parmi les mieux
+prédites. Pour un contrôle sur la population :
+`scripts/occlusion_population.py` tire des malades et des sains au hasard
+(graine fixe), passe les mêmes images dans plusieurs têtes et donne la
+différence appariée ; `notebooks/kaggle_gpu_checks.ipynb` le lance sur ODIR
+(`none` contre `crop-mask`, ~45 min sur T4).
+
 Si l'occlusion tombe sur les lésions alors que Grad-CAM tombe sur le fond,
 c'est Grad-CAM qui se trompe sur ce modèle, pas le modèle.
 
