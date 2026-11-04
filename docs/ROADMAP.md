@@ -5,7 +5,7 @@
 > Atteint au sens « première baseline » (4 nov.). Pas encore un socle
 > opérationnel : contrôle qualité non calibré, routage de modalité non
 > entraîné (audit du 4 novembre). Commande de prédiction sur image nouvelle
-> (`predict.py`) livrée le 4 novembre, pas encore lancée avec les vrais poids.
+> (`predict.py`) livrée et vérifiée avec les vrais poids le 4 novembre.
 
 - [x] Contrôle qualité (flou, résolution) implémenté : sonde sur un échantillon, sans filtrage ; sur le fichier d'origine depuis le 4 nov. ; seuil de flou encore à calibrer
 - [x] Backbone RETFound intégré (embeddings figés)

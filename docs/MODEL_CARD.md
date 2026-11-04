@@ -90,7 +90,10 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   commun, 92 % de l'effet d'occlusion de la DMLA d'ODIR tombait hors de la
   rétine (format d'image lié à l'appareil). Avec `crop-mask`, par défaut, la
   part tombe à 5 % sur les exemples examinés (3 par classe, choisis parmi
-  les mieux prédits) et l'AUROC s'améliore. Cela ne prouve pas l'absence de
+  les mieux prédits) et l'AUROC s'améliore. Sur un échantillon tiré au
+  hasard (15 malades par classe), la baisse est confirmée : 77 % → 12 %,
+  différence appariée −65 % [−75 ; −50] ; sans prétraitement, le glaucome,
+  l'hypertension et la myopie s'appuyaient aussi sur le fond. Cela ne prouve pas l'absence de
   biais d'appareil dans la population : des différences de couleur ou de
   netteté peuvent subsister dans la rétine. Le glaucome d'ODIR s'appuie
   encore en partie sur les bords (32 % de l'effet).

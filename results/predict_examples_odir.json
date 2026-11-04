@@ -1,0 +1,158 @@
+[
+  {
+    "image": "/kaggle/input/datasets/andrewmvd/ocular-disease-recognition-odir5k/ODIR-5K/ODIR-5K/Training Images/3401_left.jpg",
+    "quality": {
+      "usable": true,
+      "blur_score": 6.791231352024089,
+      "reasons": []
+    },
+    "findings": {
+      "N": {
+        "probability": 0.9554159045219421,
+        "threshold": 0.34668734669685364,
+        "decision": "positif"
+      },
+      "D": {
+        "probability": 0.1029815524816513,
+        "threshold": 0.3758107125759125,
+        "decision": "négatif"
+      },
+      "G": {
+        "probability": 0.006448368541896343,
+        "threshold": 0.29377108812332153,
+        "decision": "négatif"
+      },
+      "C": {
+        "probability": 5.735359536629403e-06,
+        "threshold": 0.07193344831466675,
+        "decision": "négatif"
+      },
+      "A": {
+        "probability": 0.008595203049480915,
+        "threshold": 0.2829676866531372,
+        "decision": "négatif"
+      },
+      "H": {
+        "probability": 0.004790619947016239,
+        "threshold": 0.135141983628273,
+        "decision": "négatif"
+      },
+      "M": {
+        "probability": 5.676449745806167e-06,
+        "threshold": 0.5462263822555542,
+        "decision": "négatif"
+      },
+      "O": {
+        "probability": 0.09222710132598877,
+        "threshold": 0.18872147798538208,
+        "decision": "négatif"
+      }
+    },
+    "warnings": [],
+    "disclaimer": "Outil de recherche, non validé cliniquement : ces décisions ne sont pas un diagnostic."
+  },
+  {
+    "image": "/kaggle/input/datasets/andrewmvd/ocular-disease-recognition-odir5k/ODIR-5K/ODIR-5K/Training Images/2705_right.jpg",
+    "quality": {
+      "usable": true,
+      "blur_score": 34.26638883576269,
+      "reasons": []
+    },
+    "findings": {
+      "N": {
+        "probability": 0.7027023434638977,
+        "threshold": 0.34668734669685364,
+        "decision": "positif"
+      },
+      "D": {
+        "probability": 0.16862376034259796,
+        "threshold": 0.3758107125759125,
+        "decision": "négatif"
+      },
+      "G": {
+        "probability": 0.000945534382481128,
+        "threshold": 0.29377108812332153,
+        "decision": "négatif"
+      },
+      "C": {
+        "probability": 2.1449453413424635e-07,
+        "threshold": 0.07193344831466675,
+        "decision": "négatif"
+      },
+      "A": {
+        "probability": 0.09840284287929535,
+        "threshold": 0.2829676866531372,
+        "decision": "négatif"
+      },
+      "H": {
+        "probability": 0.019095368683338165,
+        "threshold": 0.135141983628273,
+        "decision": "négatif"
+      },
+      "M": {
+        "probability": 5.795731340185739e-05,
+        "threshold": 0.5462263822555542,
+        "decision": "négatif"
+      },
+      "O": {
+        "probability": 0.05194079875946045,
+        "threshold": 0.18872147798538208,
+        "decision": "négatif"
+      }
+    },
+    "warnings": [],
+    "disclaimer": "Outil de recherche, non validé cliniquement : ces décisions ne sont pas un diagnostic."
+  },
+  {
+    "image": "/kaggle/input/datasets/andrewmvd/ocular-disease-recognition-odir5k/ODIR-5K/ODIR-5K/Training Images/2431_right.jpg",
+    "quality": {
+      "usable": true,
+      "blur_score": 33.963799213850386,
+      "reasons": []
+    },
+    "findings": {
+      "N": {
+        "probability": 0.808630108833313,
+        "threshold": 0.34668734669685364,
+        "decision": "positif"
+      },
+      "D": {
+        "probability": 0.19877006113529205,
+        "threshold": 0.3758107125759125,
+        "decision": "négatif"
+      },
+      "G": {
+        "probability": 0.0032058325596153736,
+        "threshold": 0.29377108812332153,
+        "decision": "négatif"
+      },
+      "C": {
+        "probability": 2.7042466172133572e-05,
+        "threshold": 0.07193344831466675,
+        "decision": "négatif"
+      },
+      "A": {
+        "probability": 0.016902603209018707,
+        "threshold": 0.2829676866531372,
+        "decision": "négatif"
+      },
+      "H": {
+        "probability": 0.06748112291097641,
+        "threshold": 0.135141983628273,
+        "decision": "négatif"
+      },
+      "M": {
+        "probability": 6.794853106839582e-05,
+        "threshold": 0.5462263822555542,
+        "decision": "négatif"
+      },
+      "O": {
+        "probability": 0.0639396607875824,
+        "threshold": 0.18872147798538208,
+        "decision": "négatif"
+      }
+    },
+    "warnings": [],
+    "disclaimer": "Outil de recherche, non validé cliniquement : ces décisions ne sont pas un diagnostic."
+  }
+]

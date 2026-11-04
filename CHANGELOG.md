@@ -41,6 +41,12 @@ et test), étiquettes identiques.
   appareil retrouvé à partir des embeddings, AUROC à appareil égal
   (`stratification_gap` dans `src/eval/metrics.py`), transfert entre RFMiD
   et ODIR pour la rétinopathie diabétique, la DMLA et la myopie.
+- `results/occlusion_population_odir.json` : occlusion sur échantillon tiré
+  au hasard (ODIR, Kaggle T4) ; DMLA hors rétine 77 % → 12 % (apparié −65 %
+  [−75 ; −50]). `results/predict_check_odir.json` : `predict.py` avec les
+  vrais poids redonne les probabilités de l'entraînement (écart ≤ 10⁻⁶).
+  `results/results_odir_{none,crop-mask}.json` régénérés avec manifeste
+  (mêmes AUROC).
 - `scripts/occlusion_population.py` : occlusion sur un échantillon tiré au
   hasard (malades et sains, erreurs comprises), mêmes images pour plusieurs
   têtes, différence appariée ; `notebooks/kaggle_gpu_checks.ipynb` l'enchaîne

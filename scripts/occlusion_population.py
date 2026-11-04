@@ -101,6 +101,11 @@ def main() -> None:
     parser.add_argument("--stride", type=int, default=16)
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument(
+        "--fp16",
+        action="store_true",
+        help="Demi-précision sur GPU (~2-3x plus rapide sur T4, chiffres légèrement approchés)",
+    )
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
 
@@ -114,7 +119,14 @@ def main() -> None:
     samples = {c: sample_indices(labels, class_names.index(c), args.positives, args.negatives, rng) for c in classes}
 
     vit_cache: dict[int, torch.nn.Module] = {}
-    report = {"dataset": args.dataset, "seed": args.seed, "patch": args.patch, "stride": args.stride, "heads": {}}
+    report = {
+        "dataset": args.dataset,
+        "seed": args.seed,
+        "patch": args.patch,
+        "stride": args.stride,
+        "fp16": args.fp16,
+        "heads": {},
+    }
     for path, head_ckpt in zip(args.heads, head_ckpts, strict=True):
         preprocess, image_size = head_ckpt.get("preprocess", "none"), head_ckpt["image_size"]
         dataset, _ = load_val_dataset(args.dataset, args.data_root, head_ckpt)
@@ -126,13 +138,16 @@ def main() -> None:
         known_mask = torch.from_numpy(common_mask(image_size)) if preprocess == "crop-mask" else None
 
         records = []
+        use_fp16 = args.fp16 and args.device.startswith("cuda")
         for class_name in classes:
             class_idx = class_names.index(class_name)
+            print(f"[{preprocess}] {class_name} : {len(samples[class_name])} images...", flush=True)
             for idx, label in samples[class_name]:
                 image_t, _ = dataset[idx]
-                heat, _ = occlusion_map(model, image_t, class_idx, args.patch, args.stride, args.batch_size)
-                mask = known_mask if known_mask is not None else fundus_mask(image_t)
-                bg = background_test(model, image_t, class_idx, mask)
+                with torch.autocast("cuda", dtype=torch.float16, enabled=use_fp16):
+                    heat, _ = occlusion_map(model, image_t, class_idx, args.patch, args.stride, args.batch_size)
+                    mask = known_mask if known_mask is not None else fundus_mask(image_t)
+                    bg = background_test(model, image_t, class_idx, mask)
                 share = outside_share(heat, mask.numpy())
                 records.append(
                     {
@@ -192,10 +207,11 @@ def main() -> None:
                 "gray_background_delta": paired_median_diff(pick(first, "delta"), pick(last, "delta")),
             }
         p = report["paired"]["toutes"]["effect_outside"]
-        print(
-            f"Apparié (malades, {list(report['heads'])[-1]} − {list(report['heads'])[0]}) : effet hors champ "
-            f"{p['median_diff']:+.0%} [{p['ci'][0]:+.0%} ; {p['ci'][1]:+.0%}]"
-        )
+        label = f"Apparié (malades, {list(report['heads'])[-1]} − {list(report['heads'])[0]}) : effet hors champ"
+        if p is None:
+            print(f"{label} non calculé (moins de 5 malades mesurés par les deux têtes)")
+        else:
+            print(f"{label} {p['median_diff']:+.0%} [{p['ci'][0]:+.0%} ; {p['ci'][1]:+.0%}]")
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
     print(f"Résultats : {args.out}")

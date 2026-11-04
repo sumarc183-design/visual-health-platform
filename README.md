@@ -130,7 +130,36 @@ la population (l'appareil peut aussi laisser des différences de couleur, de
 netteté ou d'éclairage dans la rétine), ni que les zones utilisées sont les
 lésions. À confirmer sur des cas tirés au hasard, erreurs comprises, avec
 plusieurs réglages d'occlusion et la relecture d'un ophtalmologue. Contrôles
-sur toute la population : voir [Robustesse](#robustesse). Méthode :
+sur toute la population : voir [Robustesse](#robustesse).
+
+**Occlusion sur un échantillon tiré au hasard** (ODIR, validation : 15 malades
+et 15 sains par classe, erreurs comprises, mêmes images pour les deux têtes ;
+[`scripts/occlusion_population.py`](scripts/occlusion_population.py),
+[résultats](results/occlusion_population_odir.json)). Médiane sur les malades :
+
+| Classe | Effet hors rétine `none` → `crop-mask` | Différence appariée [IC 95 %] | Fond gris (logit) `none` → `crop-mask` |
+|---|---|---|---|
+| DMLA (A) | 77 % → **12 %** | **−65 % [−75 ; −50]** | −5,8 → +0,4 |
+| Glaucome (G) | 81 % → 48 % | −15 % [−36 ; −13] | −5,8 → −2,5 |
+| Hypertension (H) | 61 % → 26 % | −29 % [−48 ; −22] | −6,2 → −2,9 |
+| Myopie (M) | 37 % → 12 % | −25 % [−40 ; −16] | −5,3 → +1,6 |
+| Toutes classes | 48 % → 20 % | −16 % [−24 ; −13] | −3,5 → −0,2 |
+
+- Sans prétraitement commun, le raccourci par le fond était **réel sur la
+  population**, et pas seulement pour la DMLA : glaucome, hypertension et
+  myopie aussi.
+- Avec `crop-mask`, la DMLA s'appuie sur la rétine (12 % hors champ pour 28 %
+  de surface, fond gris sans effet).
+- L'effet hors champ qui reste avec `crop-mask` (glaucome, rétinopathie
+  diabétique, « autres ») ne peut pas être un raccourci d'appareil : ce fond
+  est noir et **identique pour toutes les images**, il ne porte aucune
+  information. C'est la réaction du modèle à la perturbation elle-même (un
+  carré gris posé sur du noir) : pour ces classes, les cartes d'occlusion
+  sont à lire avec prudence. La signature d'appareil qui subsiste dans la
+  rétine (contrôle 1 de [Robustesse](#robustesse)) n'est pas mesurée par
+  l'occlusion.
+
+Méthode :
 [GUIDE](docs/GUIDE.md#contrôle-par-occlusion),
 [prétraitement](docs/GUIDE.md#prétraitement-commun-crop-mask).
 
@@ -302,7 +331,7 @@ diagnostic.
 | 5. Localisation des zones suspectes | ⬜ J60 |
 | 6. Explicabilité | 🟡 Grad-CAM peu fiable sur ce ViT (chaleur sur le fond) ; l'occlusion le remplace. Voir [Explicabilité](#explicabilité) |
 | 7. Score de confiance calibré | 🟡 Probabilités déjà bien calibrées (ECE ≈ 0,02-0,03) et seuils par maladie ; à valider cliniquement (jalon J60). Voir [Décisions et calibration](#décisions-et-calibration) |
-| 8. Prédiction sur image nouvelle | 🟡 `predict.py`, testé avec des poids aléatoires ; pas encore lancé avec les vrais poids |
+| 8. Prédiction sur image nouvelle | ✅ `predict.py` ; avec les vrais poids, mêmes probabilités que l'entraînement (écart ≤ 10⁻⁶ sur 20 images, [contrôle](results/predict_check_odir.json)) |
 
 ## Données
 
