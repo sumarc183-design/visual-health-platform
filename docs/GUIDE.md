@@ -227,7 +227,7 @@ la probabilité est saturée). Gris = moyenne ImageNet, pas noir : du noir sur
 le fond noir ne changerait rien et masquerait un raccourci sur la forme du
 masque. Deux mesures par image :
 
-- `fond Δ` : variation du logit quand tout le hors-champ (marges noires ou
+- `fond gris` (`fond Δ` sur les anciennes planches) : variation du logit quand tout le hors-champ (marges noires ou
   blanches) est remplacé par du gris. Proche de 0 : le fond ne compte pas.
   Fortement négatif : raccourci.
 - `hors champ a/b` : part de l'effet d'occlusion hors rétine (a) contre part

@@ -26,16 +26,21 @@ flowchart LR
 Backbone `RETFound_mae_natureCFP` figé, tête linéaire multi-label (30 epochs,
 graine 42), images 224×224, prétraitement `crop-mask` (recadrage sur la
 rétine + masque commun), GPU T4 (Colab ou Kaggle). Entre crochets : IC à
-95 % par bootstrap sur les patients.
+95 % par bootstrap, sur les patients pour ODIR, sur les images pour RFMiD
+(qui ne fournit pas d'identifiant patient).
 
 | Date | Données | Classes | Split | Validation | **Test** |
 |---|---|---|---|---|---|
 | 2026-11-04 | RFMiD | 28 (27 en test, PTCR absent) | officiels (1 920 / 640 / 640) | 0,864 [0,840-0,891] | **0,846** [0,813-0,886] |
 | 2026-11-04 | ODIR-5K, étiquettes par œil | 8 | par patient 70/15/15 (4 474 / 953 / 965) | 0,861 [0,841-0,880] | **0,848** [0,816-0,873] |
 
-Le test n'a été lu qu'une fois, après le choix du prétraitement sur la
-validation. Ses chiffres restent dans l'IC de la validation : les choix faits
-sur la validation ne l'ont pas rendue optimiste.
+Le test n'a été lu qu'une fois par jeu, après le choix du prétraitement sur
+la validation. Ses chiffres sont compatibles avec l'IC de la validation : rien
+n'indique un optimisme marqué de la validation, sans que cela le prouve.
+Le test ODIR est un hold-out constitué le 3 novembre, **après** les premières
+explorations : il est disjoint du train actuel (par patient), mais ses images
+faisaient partie du train des runs antérieurs (split 85/15). Une confirmation
+indépendante demandera des données externes.
 
 **Choix du prétraitement**, par différence d'AUROC appariée sur les mêmes
 images de validation (`scripts/compare_predictions.py`,
@@ -49,15 +54,28 @@ images de validation (`scripts/compare_predictions.py`,
 
 `crop-mask` ne coûte rien sur RFMiD et gagne sur toutes les classes d'ODIR
 (significativement pour Normal, Diabète, Glaucome et DMLA), tout en
-supprimant le raccourci d'acquisition (voir [Explicabilité](#explicabilité)).
+réduisant nettement le raccourci d'acquisition sur les exemples examinés
+(voir [Explicabilité](#explicabilité)).
 
 - **Très bien reconnues** (AUROC test > 0,94) : rétinopathie diabétique,
   DMLA, trous maculaires, myopie (RFMiD) ;
   cataracte et myopie (ODIR). Les classes à moins de 10 positifs ont un IC
-  trop large pour conclure (signalées dans [`results/`](results/)).
-- **Surapprentissage de la tête** sur RFMiD : AUROC train 0,98 contre 0,85 en
-  test, F1 macro 0,26 au seuil 0,5. Régularisation, seuils par classe et
-  calibration au programme.
+  trop large pour conclure (signalées dans [`results/`](results/)) : par
+  exemple RP, AUROC test 1,0 avec 2 positifs, est une preuve insuffisante,
+  pas une performance parfaite.
+- **AUROC ≠ décisions** : l'AUROC mesure le classement, indépendamment du
+  seuil. Au seuil 0,5, le F1 macro n'est que de 0,26 sur RFMiD (0,48 sur
+  ODIR) : les maladies rares dépassent rarement 0,5. Seuils par classe
+  choisis sur la validation, sensibilité/spécificité et calibration au
+  programme.
+- **Écart train/test de la tête** sur RFMiD (AUROC 0,98 contre 0,85) : un
+  balayage d'une cinquantaine de réglages (régularisation, pondération des
+  classes, standardisation, durée ;
+  [script](scripts/sweep_head.py), [RFMiD](results/sweep_head_rfmid.json),
+  [ODIR](results/sweep_head_odir.json)) n'apporte pas de gain démontré sur la
+  validation : meilleurs écarts +0,003 (RFMiD) et +0,007 (ODIR), maxima de
+  144 mesures, donc biaisés vers le haut. L'origine de la limite (features
+  figées, classes très rares) reste une hypothèse.
 - Sonde sur backbone figé, pas le fine-tuning complet des chiffres publiés
   par RETFound : attendre quelques points de moins.
 
@@ -91,18 +109,27 @@ DMLA d'ODIR prenait un **raccourci** : 92 % de l'effet d'occlusion tombait
 hors de la rétine. ODIR mélange 87 formats d'image, dont certains très liés
 à une maladie (60 % des 3456×3456 sont des glaucomes) : la forme de l'ovale
 trahissait l'appareil. `crop-mask` donne la même géométrie à toutes les
-images, et l'effet revient sur la rétine :
+images, et, sur les exemples examinés, l'effet revient sur la rétine :
 
-| Classe | Effet hors rétine, `none` → `crop-mask` | Ce que le modèle utilise |
+| Classe | Effet hors rétine, `none` → `crop-mask` | Zones qui comptent (exemples examinés) |
 |---|---|---|
-| DMLA (A, ODIR) | 92 % → **5 %** | ✅ les lésions maculaires |
-| DMLA (ARMD, RFMiD), RS | 34-39 % → 1-6 % | ✅ macula, lésions |
+| DMLA (A, ODIR) | 92 % → **5 %** | ✅ la région maculaire |
+| DMLA (ARMD, RFMiD), RS | 34-39 % → 1-6 % | ✅ macula, lésions visibles |
 | Myopie (MYA, M) | 15-37 % → 13-25 % | ✅ atrophie péripapillaire, effet diffus |
 | Glaucome (G, ODIR) | 39 % → 32 % | 🟡 surtout le disque optique, en partie les bords |
 | Cataracte (C) | — | ✅ le voile de toute l'image (aucune zone isolée ne compte) |
 
-Hors rétine, toutes les images sont désormais noires et identiques : ce qui
-reste d'effet sur les bords ne peut plus trahir l'appareil. Méthode :
+Hors rétine, toutes les images sont désormais noires et de même forme : ce
+qui reste d'effet sur les bords ne peut plus trahir l'appareil par la
+géométrie.
+
+**Portée de ces mesures** : 3 images par classe, choisies parmi les positifs
+les mieux prédits, avec un seul réglage d'occlusion (carré gris de 32 px).
+Elles illustrent ; elles ne prouvent ni que le raccourci a disparu sur toute
+la population (l'appareil peut aussi laisser des différences de couleur, de
+netteté ou d'éclairage dans la rétine), ni que les zones utilisées sont les
+lésions. À confirmer sur des cas tirés au hasard, erreurs comprises, avec
+plusieurs réglages d'occlusion et la relecture d'un ophtalmologue. Méthode :
 [GUIDE](docs/GUIDE.md#contrôle-par-occlusion),
 [prétraitement](docs/GUIDE.md#prétraitement-commun-crop-mask).
 
