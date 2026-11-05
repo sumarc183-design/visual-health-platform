@@ -66,7 +66,11 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   explorations, disjoint du train actuel par patient, mais tiré du train des
   runs antérieurs. Pas de validation externe.
 - **Sonde sur backbone figé** : en dessous des chiffres publiés par RETFound,
-  obtenus après fine-tuning complet.
+  obtenus après fine-tuning complet. Un fine-tuning partiel (4 derniers
+  blocs) gagne +0,026 en test RFMiD (0,873) ; sur APTOS, son gain global
+  (0,974 contre 0,827) disparaît à format égal (−0,012, non significatif) :
+  pas de preuve d'une meilleure reconnaissance externe. Le modèle servi par
+  `predict.py` reste la tête linéaire.
 - **Population et appareils** : jeux de données publics de quelques centres.
   L'appareil reste lisible dans les embeddings même avec `crop-mask`
   (exactitude équilibrée 1,00 sur RFMiD, 0,91 sur ODIR) ; aucun usage

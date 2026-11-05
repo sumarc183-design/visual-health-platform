@@ -6,9 +6,12 @@ linéaire figée (CPU, à partir des prédictions sauvegardées).
    images ; la configuration du fine-tuning était fixée à l'avance).
 2. Test RFMiD (lu une fois par chaque modèle) : même comparaison.
 3. APTOS (rétinopathie diabétique, toute forme) : AUROC globale et à
-   appareil égal (format d'origine), pour le fine-tuning et pour la tête
-   linéaire RFMiD (recalculée à partir des embeddings en cache), sur les
-   mêmes 3 662 images.
+   format égal (format d'image d'origine, indicateur indirect de
+   l'acquisition), pour le fine-tuning et pour la tête linéaire RFMiD
+   (recalculée à partir des embeddings en cache), sur les mêmes 3 662
+   images ; différences appariées fine-tuning − tête linéaire (globale et à
+   format égal) et AUROC par format. Bootstrap par groupes indépendants
+   (doublons et quasi-doublons d'APTOS regroupés).
 
 Exemple :
     python scripts/finetune_analysis.py --finetune-dir results/finetune --rfmid-root data/raw/rfmid \\
@@ -29,7 +32,15 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.robustness_checks import embeddings, head_scores, load  # noqa: E402
-from src.eval.metrics import evaluate_multilabel, paired_bootstrap_diff, stratification_gap  # noqa: E402
+from src.eval.duplicates import independent_groups  # noqa: E402
+from src.eval.metrics import (  # noqa: E402
+    _auroc,
+    _group_resamples,
+    evaluate_multilabel,
+    paired_bootstrap_diff,
+    stratification_gap,
+    stratified_auroc,
+)
 from src.models.embedding_cache import EmbeddingCache  # noqa: E402
 
 
@@ -56,6 +67,25 @@ def compare(linear_path: Path, finetune_path: Path) -> dict:
     }
 
 
+def paired_aptos_diff(y, p_linear, p_finetune, formats, groups, n_boot=1000, seed=0) -> dict:
+    """Différences fine-tuning − tête linéaire, globale et à format égal,
+    avec IC à 95 % par bootstrap apparié sur les groupes."""
+    out = {}
+    for name, metric in (
+        ("global", lambda i: _auroc(y[i], p_finetune[i]) - _auroc(y[i], p_linear[i])),
+        (
+            "within_format",
+            lambda i: (
+                stratified_auroc(y[i], p_finetune[i], formats[i]) - stratified_auroc(y[i], p_linear[i], formats[i])
+            ),
+        ),
+    ):
+        draws = [metric(idx) for idx in _group_resamples(groups, n_boot, seed)]
+        low, high = np.nanpercentile(draws, [2.5, 97.5])
+        out[name] = {"diff": float(metric(np.arange(len(y)))), "ci": [float(low), float(high)]}
+    return out
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--finetune-dir", type=Path, required=True)
@@ -80,16 +110,33 @@ def main() -> None:
         y = (ft["grade"] >= 1).astype(np.float32)
         keys, formats = list(ft["keys"]), ft["formats"]
         ds = load("rfmid", args.rfmid_root, "train")
+        X_aptos = EmbeddingCache(args.embeddings / "aptos_crop-mask_224_RETFound_mae_natureCFP.npz").get(keys)
+        groups, _ = independent_groups(X_aptos, keys)
         with contextlib.redirect_stdout(io.StringIO()):
             linear = head_scores(
                 embeddings(args.embeddings, "rfmid", "crop-mask", ds.image_keys),
                 ds.df[["DR"]].to_numpy(np.float32),
-                EmbeddingCache(args.embeddings / "aptos_crop-mask_224_RETFound_mae_natureCFP.npz").get(keys),
+                X_aptos,
             )[:, 0]
+        finetune = ft["prob_dr"]
         report["aptos"] = {
-            name: stratification_gap(y[:, None], p[:, None], ["any_dr"], formats, keys, n_boot=1000)["any_dr"]
-            for name, p in (("tête linéaire RFMiD", linear), ("fine-tuning partiel", ft["prob_dr"]))
+            name: stratification_gap(y[:, None], p[:, None], ["any_dr"], formats, groups, n_boot=1000)["any_dr"]
+            for name, p in (("tête linéaire RFMiD", linear), ("fine-tuning partiel", finetune))
         }
+        report["aptos_finetune_minus_linear"] = paired_aptos_diff(y, linear, finetune, formats, groups)
+        by_format = {}
+        for f in np.unique(formats):
+            m = formats == f
+            pos = int(y[m].sum())
+            if pos and pos < m.sum():
+                by_format[str(f)] = {
+                    "images": int(m.sum()),
+                    "positives": pos,
+                    "comparable_pairs": pos * int(m.sum() - pos),
+                    "auroc_linear": _auroc(y[m], linear[m]),
+                    "auroc_finetune": _auroc(y[m], finetune[m]),
+                }
+        report["aptos_by_format"] = by_format
 
     for split in ("validation", "test"):
         if split in report:
@@ -102,8 +149,17 @@ def main() -> None:
             )
     for name, g in report.get("aptos", {}).items():
         print(
-            f"APTOS {name:20s} : AUROC globale {g['auroc']:.3f} | à appareil égal {g['auroc_within_strata']:.3f} "
-            f"| écart {g['gap']:+.3f} [{g['gap_ci'][0]:+.3f} ; {g['gap_ci'][1]:+.3f}]"
+            f"APTOS {name:20s} : AUROC globale {g['auroc']:.3f} | à format égal {g['auroc_within_strata']:.3f} "
+            f"| écart {g['gap']:+.3f} [{g['gap_ci'][0]:+.3f} ; {g['gap_ci'][1]:+.3f}] "
+            f"| paires comparables {g['comparable_pairs']:.0%}"
+        )
+    for kind, d in report.get("aptos_finetune_minus_linear", {}).items():
+        print(f"APTOS fine-tuning − linéaire ({kind}) : {d['diff']:+.3f} [{d['ci'][0]:+.3f} ; {d['ci'][1]:+.3f}]")
+    formats_sorted = sorted(report.get("aptos_by_format", {}).items(), key=lambda kv: -kv[1]["comparable_pairs"])
+    for f, c in formats_sorted[:5]:
+        print(
+            f"  {f:>11s} : {c['images']} images, {c['positives']} malades | "
+            f"linéaire {c['auroc_linear']:.3f} | fine-tuning {c['auroc_finetune']:.3f}"
         )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))

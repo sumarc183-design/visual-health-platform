@@ -242,8 +242,11 @@ python scripts/finetune_analysis.py --finetune-dir results/finetune --rfmid-root
     --embeddings embeddings --out results/finetune_analysis.json
 ```
 
-Différence appariée avec la tête linéaire figée (validation, test) et AUROC
-d'APTOS globale et à appareil égal pour les deux modèles.
+Différence appariée avec la tête linéaire figée (validation, test) ; sur
+APTOS, AUROC globale et à format égal pour les deux modèles, leurs
+différences appariées et l'AUROC par format (bootstrap par groupes de
+doublons). Les poids (`finetune_rfmid.pt`, plusieurs centaines de Mo) restent
+sur Colab : seules les prédictions et `finetune_rfmid.json` sont versionnées.
 
 ## Prédire sur une image nouvelle
 

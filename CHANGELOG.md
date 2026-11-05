@@ -10,8 +10,12 @@ selon [SemVer](https://semver.org/lang/fr/).
   blocs et tête entraînables, partie figée sans gradient, augmentations
   avec masque commun réappliqué), `scripts/finetune_retfound.py`
   (configuration fixée à l'avance), `scripts/finetune_analysis.py`
-  (comparaison appariée avec la tête linéaire, APTOS à appareil égal),
-  `notebooks/colab_finetune_retfound.ipynb`. 4 tests.
+  (comparaison appariée avec la tête linéaire, APTOS à format égal),
+  `notebooks/colab_finetune_retfound.ipynb`. 4 tests. Résultats du 5 nov. :
+  test RFMiD 0,873 (+0,026 [+0,014 ; +0,041] sur la tête linéaire) ; APTOS
+  0,974 globale (+0,148) mais −0,012 [−0,026 ; +0,002] à format égal.
+  `finetune_analysis.py` : bootstrap par groupes de doublons d'APTOS,
+  différences appariées globale et à format égal, AUROC par format.
 - Seconde validation externe, EyePACS : `src/data/eyepacs_dataset.py`
   (images extraites seulement, bootstrap par patient),
   `notebooks/colab_external_eyepacs.ipynb` (2 500 patients tirés au

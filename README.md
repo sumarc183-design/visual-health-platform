@@ -57,6 +57,29 @@ images de validation (`scripts/compare_predictions.py`,
 réduisant nettement le raccourci d'acquisition sur les exemples examinés
 (voir [Explicabilité](#explicabilité)).
 
+**Fine-tuning partiel** (5 novembre ; 4 derniers blocs du ViT + tête,
+augmentations de couleur et de géométrie, configuration fixée à l'avance ;
+[script](scripts/finetune_retfound.py), [analyse](scripts/finetune_analysis.py),
+[résultats](results/finetune_analysis.json)). Différences appariées avec la
+tête linéaire, sur les mêmes images :
+
+| | Tête linéaire | Fine-tuning partiel | Différence [IC 95 %] |
+|---|---|---|---|
+| RFMiD, validation | 0,864 | 0,893 | **+0,029 [+0,011 ; +0,047]** |
+| RFMiD, test (lu une fois) | 0,846 | 0,873 | **+0,026 [+0,014 ; +0,041]** |
+| APTOS, AUROC globale (RD) | 0,827 | 0,974 | +0,148 [+0,135 ; +0,160] |
+| APTOS, à format égal (RD) | 0,941 | 0,929 | −0,012 [−0,026 ; +0,002] |
+
+Le gain sur RFMiD est net. Sur APTOS (jamais vu à l'entraînement), le gain
+global vient **entièrement** des comparaisons entre formats d'image : à
+format égal, aucun gain. Dans APTOS, le format est fortement lié au
+diagnostic : le fine-tuning a supprimé le décalage de scores entre formats
+(écart globale − format égal : −0,114 → +0,046), mais ces données ne
+permettent pas de dire s'il reconnaît mieux la maladie ou s'il s'appuie sur
+des indices liés à l'acquisition. À confirmer sur EyePACS. Bootstrap par
+groupes de doublons ; à format égal, 5 % seulement des paires malade/sain
+sont comparables.
+
 - **Très bien reconnues** (AUROC test > 0,94) : rétinopathie diabétique,
   DMLA, trous maculaires, myopie (RFMiD) ;
   cataracte et myopie (ODIR). Les classes à moins de 10 positifs ont un IC
@@ -77,7 +100,8 @@ réduisant nettement le raccourci d'acquisition sur les exemples examinés
   144 mesures, donc biaisés vers le haut. L'origine de la limite (features
   figées, classes très rares) reste une hypothèse.
 - Sonde sur backbone figé, pas le fine-tuning complet des chiffres publiés
-  par RETFound : attendre quelques points de moins.
+  par RETFound : attendre quelques points de moins. Le fine-tuning partiel
+  (voir plus haut) gagne +0,026 en test.
 
 <details>
 <summary>Historique (prétraitement <code>none</code>, 2 et 3 novembre)</summary>
