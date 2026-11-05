@@ -3,7 +3,16 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions
 selon [SemVer](https://semver.org/lang/fr/).
 
-## [Non publié]
+## [1.0.0] — 2026-11-05
+
+Première version taguée. Socle fond d'œil complet et évalué : corrections
+issues de l'audit du 4 novembre 2026, contrôles de robustesse, métriques de
+décision, prédiction sur image nouvelle, seuil de flou calibré, validation
+externe sur APTOS 2019.
+
+### Licence
+- Dépôt sous **CC BY-NC 4.0** (`LICENSE`), cohérente avec RETFound, dont
+  deux fichiers sont adaptés.
 
 Corrections issues de l'audit du 4 novembre 2026. Résultats publiés
 inchangés : prédictions identiques à 5·10⁻⁷ près (RFMiD et ODIR, validation
@@ -103,7 +112,7 @@ et test), étiquettes identiques.
 
 ## [0.1.0] — 2026-11-04
 
-Premier jalon : socle fond d'œil de bout en bout avec les vrais poids RETFound.
+Jamais taguée : intégrée dans la 1.0.0. Premier jalon : socle fond d'œil de bout en bout avec les vrais poids RETFound.
 
 ### Ajouté
 - `run_baseline.py`, point d'entrée unique : contrôle qualité, embeddings

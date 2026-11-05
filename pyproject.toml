@@ -1,10 +1,11 @@
 [project]
 name = "visual-health-platform"
-version = "0.1.0"
+version = "1.0.0"
 description = "Socle modulaire d'analyse d'images médicales : RETFound sur fond d'œil (RFMiD, ODIR), contrôle qualité, classification multi-label, Grad-CAM."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "Marc Su" }]
+license = { text = "CC-BY-NC-4.0" }
 
 [tool.ruff]
 line-length = 120

@@ -468,6 +468,12 @@ docs/                   guide, carte du modèle, roadmap, cas d'usage
 
 ## Licences et attributions
 
+**Ce dépôt est sous licence [CC BY-NC 4.0](LICENSE)** (Attribution - Pas
+d'Utilisation Commerciale) : réutilisation libre en citant la source, sans
+usage commercial. C'est la licence de RETFound, dont deux fichiers du dépôt
+sont adaptés : une licence plus permissive pour l'ensemble serait
+incohérente.
+
 ⚠️ **RETFound est sous licence CC BY-NC 4.0** : recherche et usage non
 commercial uniquement, pas dans un produit commercial sans licence des
 auteurs. Détails et options : [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
