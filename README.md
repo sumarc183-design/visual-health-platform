@@ -305,8 +305,9 @@ d'origine ([`scripts/external_validation.py`](scripts/external_validation.py),
 | RFMiD + ODIR | — | **0,738** [0,722 ; 0,753] | 0,784 | 0,79 (spécificité 0,42) |
 
 - Les chiffres obtenus dans une base **surestiment nettement** la
-  performance ailleurs : −0,12 pour la tête RFMiD ; la tête ODIR est au
-  niveau du hasard sur APTOS.
+  performance globale ailleurs : −0,12 pour la tête RFMiD ; la tête ODIR
+  est au niveau du hasard sur APTOS. Pour la tête RFMiD, cette baisse vient
+  surtout de l'appareil (contrôle 7) : à appareil égal, elle reste à 0,942.
 - **Les seuils ne se transposent pas** : le seuil réglé pour 90 % de
   sensibilité sur la validation RFMiD n'en donne que 51 % sur APTOS. Un
   déploiement demanderait de recalibrer les seuils sur des images du site.
@@ -352,6 +353,39 @@ d'acquisition.** APTOS coupé en deux moitiés stratifiées : la moitié
 - Pistes restantes pour la généralisation : sources d'entraînement plus
   variées, normalisation des couleurs et augmentation de données,
   fine-tuning partiel de RETFound.
+
+**7. À appareil égal : la maladie se reconnaît, c'est l'échelle des scores
+qui dépend de l'appareil.** L'appareil d'APTOS est repéré par le format
+d'image d'origine ([`notebooks/colab_aptos_formats.ipynb`](notebooks/colab_aptos_formats.ipynb),
+[`scripts/aptos_device_check.py`](scripts/aptos_device_check.py),
+[résultats](results/aptos_device_check.json)).
+
+- **Dans APTOS, l'appareil donne presque le diagnostic** : sur 17 formats,
+  presque tous ont 0-7 % ou 95-100 % de malades (lien format/diagnostic
+  0,336). Seules 4 % des paires malade/sain sont comparables à appareil
+  égal : les estimations ci-dessous reposent surtout sur le seul format
+  mélangé (2588×1958, 57 % de malades).
+
+| Tête (moitié « rapport » d'APTOS) | AUROC globale | AUROC à appareil égal | Écart [IC 95 %] |
+|---|---|---|---|
+| RFMiD, jamais vu APTOS | 0,830 | **0,942** | −0,112 [−0,135 ; −0,088] |
+| RFMiD + 50 images du site | 0,981 | 0,934 | +0,048 [+0,030 ; +0,067] |
+| RFMiD + 200 images du site | 0,989 | 0,945 | +0,044 [+0,029 ; +0,061] |
+| Entraînée sur la moitié « site » | 0,995 | 0,964 | +0,032 [+0,019 ; +0,047] |
+
+- Les têtes entraînées avec des images APTOS **profitent du lien
+  appareil/diagnostic** (écart positif) : leur AUROC globale de 0,98-0,99
+  est gonflée ; à appareil égal, elles ne font pas mieux que la tête RFMiD.
+- La tête RFMiD **reconnaît la maladie aussi bien qu'à domicile** (0,942 à
+  appareil égal, contre 0,947 sur le test RFMiD), mais **ses scores se
+  décalent d'un appareil à l'autre**, au point que des yeux sains de
+  certains appareils passent devant des malades d'autres appareils. La
+  baisse de l'AUROC globale (0,830) vient de ce décalage, pas d'une perte
+  de reconnaissance.
+- Conséquence : le remède le plus prometteur n'est pas de réentraîner sur
+  le site, mais de **recalibrer les scores par appareil ou par site**, ce
+  qui demande des images du site, et peu ou pas d'étiquettes. À tester sur
+  une base où malades et sains partagent les mêmes appareils.
 
 ## Démarrage rapide
 

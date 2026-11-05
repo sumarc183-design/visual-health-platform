@@ -37,6 +37,13 @@ et test), étiquettes identiques.
   sauvegardée.
 
 ### Ajouté
+- `scripts/aptos_device_check.py`, `notebooks/colab_aptos_formats.ipynb`
+  et `results/aptos_device_check.json` : contrôle à appareil égal sur
+  APTOS (format d'image d'origine). Dans APTOS, l'appareil donne presque
+  le diagnostic (lien 0,336) ; les têtes entraînées avec des images APTOS
+  s'en servent (AUROC 0,98-0,99 globale, 0,934-0,964 à appareil égal) ; la
+  tête RFMiD reconnaît la maladie à appareil égal (0,942) mais ses scores
+  se décalent selon l'appareil (globale 0,830).
 - `scripts/site_adaptation.py` et `results/site_adaptation_aptos.json` :
   adaptation à un nouveau site sur APTOS coupé en deux (site / rapport).
   Sans étiquette (centrage, CORAL) : pas de gain ; seuil recalibré avec 50

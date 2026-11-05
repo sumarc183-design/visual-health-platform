@@ -1,0 +1,101 @@
+{
+ "images": 3662,
+ "formats": 17,
+ "adjusted_mutual_information_format_dr": 0.33558805714912837,
+ "prevalence_by_format": {
+  "1050x1050": {
+   "prevalence": 0.07494866847991943,
+   "images": 974
+  },
+  "2416x1736": {
+   "prevalence": 0.9514106512069702,
+   "images": 638
+  },
+  "2588x1958": {
+   "prevalence": 0.5666041374206543,
+   "images": 533
+  },
+  "3216x2136": {
+   "prevalence": 0.995121955871582,
+   "images": 410
+  },
+  "2048x1536": {
+   "prevalence": 0.0,
+   "images": 351
+  },
+  "819x614": {
+   "prevalence": 0.02787456475198269,
+   "images": 287
+  },
+  "3388x2588": {
+   "prevalence": 1.0,
+   "images": 141
+  },
+  "1504x1000": {
+   "prevalence": 1.0,
+   "images": 92
+  },
+  "1844x1226": {
+   "prevalence": 1.0,
+   "images": 61
+  },
+  "4288x2848": {
+   "prevalence": 1.0,
+   "images": 52
+  },
+  "640x480": {
+   "prevalence": 1.0,
+   "images": 42
+  },
+  "2896x1944": {
+   "prevalence": 1.0,
+   "images": 34
+  }
+ },
+ "heads": {
+  "tête RFMiD (jamais vu APTOS)": {
+   "auroc": 0.8301268281971971,
+   "auroc_within_strata": 0.941859509790497,
+   "gap": -0.11173268159329997,
+   "gap_ci": [
+    -0.13479902624212003,
+    -0.08755776717244793
+   ],
+   "comparable_pairs": 0.04357481765761637,
+   "positives": 928
+  },
+  "tête RFMiD + 50 images du site": {
+   "auroc": 0.9814316263795013,
+   "auroc_within_strata": 0.9335615500479255,
+   "gap": 0.047870076331575806,
+   "gap_ci": [
+    0.030190180443376992,
+    0.06743682537541762
+   ],
+   "comparable_pairs": 0.04357481765761637,
+   "positives": 928
+  },
+  "tête RFMiD + 200 images du site": {
+   "auroc": 0.9886978748997595,
+   "auroc_within_strata": 0.9446802683828563,
+   "gap": 0.04401760651690312,
+   "gap_ci": [
+    0.028828007404612603,
+    0.0612452774593251
+   ],
+   "comparable_pairs": 0.04357481765761637,
+   "positives": 928
+  },
+  "tête entraînée sur la moitié site": {
+   "auroc": 0.995286306182457,
+   "auroc_within_strata": 0.9635218403395864,
+   "gap": 0.031764465842870515,
+   "gap_ci": [
+    0.01884556124152378,
+    0.04722370526885677
+   ],
+   "comparable_pairs": 0.04357481765761637,
+   "positives": 928
+  }
+ }
+}
