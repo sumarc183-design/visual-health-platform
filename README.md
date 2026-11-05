@@ -76,7 +76,9 @@ format égal, aucun gain. Dans APTOS, le format est fortement lié au
 diagnostic : le fine-tuning a supprimé le décalage de scores entre formats
 (écart globale − format égal : −0,114 → +0,046), mais ces données ne
 permettent pas de dire s'il reconnaît mieux la maladie ou s'il s'appuie sur
-des indices liés à l'acquisition. À confirmer sur EyePACS. Bootstrap par
+des indices liés à l'acquisition. Pour trancher, il faudrait appliquer ce
+modèle à EyePACS (non fait : poids à recalculer) ; la tête linéaire y tombe
+à 0,661 ([contrôle 5](#robustesse)). Bootstrap par
 groupes de doublons ; à format égal, 5 % seulement des paires malade/sain
 sont comparables.
 
@@ -335,7 +337,31 @@ d'origine ([`scripts/external_validation.py`](scripts/external_validation.py),
   performance globale ailleurs : −0,12 pour la tête RFMiD ; la tête ODIR
   est au niveau du hasard sur APTOS. Pour la tête RFMiD, la baisse est
   compatible avec un effet de format d'acquisition (contrôle 7) : à format
-  égal, elle est de 0,919, à confirmer.
+  égal, elle est de 0,919. **EyePACS ne le confirme pas** (ci-dessous) : à
+  format égal, 0,680.
+- **Seconde base externe, EyePACS : la baisse est bien plus forte.**
+  2 500 patients tirés au hasard (5 000 images, 26 % de rétinopathie, aucun
+  doublon), programme de dépistage américain où le format d'image est peu
+  lié au diagnostic (20 à 38 % de malades dans les formats fréquents)
+  ([résultats](results/external_eyepacs.json)) :
+
+  | Tête entraînée sur | **EyePACS, toute rétinopathie** | À format égal | À adresser (stade ≥ 2) | Sensibilité au seuil « dépistage » (visée 0,90) |
+  |---|---|---|---|---|
+  | RFMiD | **0,661** [0,639 ; 0,683] | 0,680 | 0,690 | 0,02 (spécificité 1,00) |
+  | ODIR | **0,684** [0,665 ; 0,706] | 0,699 | 0,705 | 0,80 (spécificité 0,44) |
+  | RFMiD + ODIR | **0,675** [0,653 ; 0,698] | 0,698 | 0,697 | 0,48 (spécificité 0,77) |
+
+  Le format n'explique presque rien (écart de −0,015 à −0,023), et le
+  résultat d'APTOS ne se transpose pas. Les trois têtes se valent (IC qui se
+  recouvrent). Les stades légers pèsent lourd : tête RFMiD 0,568 pour le
+  stade 1 contre le stade 0, 0,836 pour le stade 4 ; EyePACS compte plus de
+  stades légers qu'APTOS, ce qui rend les deux AUROC peu comparables.
+  **Une tête entraînée dans EyePACS plafonne à 0,785** [0,767 ; 0,803]
+  (5 plis, par patient), contre 0,995 dans APTOS : avec ces embeddings et une
+  tête linéaire, la tâche est difficile sur cette base, même sans changement
+  de base. La cause (qualité d'image, annotation, limite des embeddings
+  figés) n'est pas établie. Le 0,995 d'APTOS est, lui, gonflé par le lien
+  format/diagnostic.
 - **Les seuils ne se transposent pas** : le seuil réglé pour 90 % de
   sensibilité sur la validation RFMiD n'en donne que 51 % sur APTOS. Un
   déploiement demanderait de recalibrer les seuils sur des images du site.
@@ -412,9 +438,8 @@ moitié « rapport » d'APTOS, doublons d'images regroupés ([`notebooks/colab_a
   scores d'un format à l'autre. Cela ne prouve ni que la reconnaissance
   externe vaut celle de RFMiD (les paires comparées ne sont pas les mêmes,
   ni la population), ni que le format est seul en cause.
-- Piste : recalibrer les scores par appareil ou par site, à tester sur une
-  base où malades et sains partagent les mêmes appareils (contrôle 8,
-  EyePACS en préparation).
+- Piste du recalibrage par format : peu de marge sur EyePACS, où l'écart à
+  format égal n'est que de −0,019 (contrôle 5). Il n'y a pas été testé.
 
 **8. Recalibrage par appareil, sans étiquette : pas de gain démontré.**
 Testé sur le transfert entre RFMiD et ODIR, dont les appareils

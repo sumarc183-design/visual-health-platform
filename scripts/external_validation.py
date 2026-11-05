@@ -13,8 +13,10 @@ externe. Rien n'y est réglé : c'est une mesure, lue une fois.
 Sur la base externe : AUROC pour toute rétinopathie (stade >= 1) et pour la
 rétinopathie à adresser (stade >= 2), IC à 95 % par bootstrap (par patient
 quand la base le donne, sinon par image) ; sensibilité et spécificité aux
-seuils hérités ; part détectée par stade. En référence, la même tête
-évaluée sur le test de sa propre base.
+seuils hérités ; part détectée par stade ; AUROC de chaque stade contre le
+stade 0. En référence, la même tête évaluée sur le test de sa propre base.
+Si `<base>_labels.csv` donne le format d'image d'origine (width, height) :
+AUROC à format égal et écart avec l'AUROC globale.
 
 Diagnostic (pas une mesure de généralisation) : une tête entraînée **dans**
 la base externe par validation croisée à 5 plis (groupés par patient). Une
@@ -52,7 +54,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
-from sklearn.metrics import adjusted_mutual_info_score
+from sklearn.metrics import adjusted_mutual_info_score, roc_auc_score
 from sklearn.model_selection import StratifiedGroupKFold
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -66,7 +68,7 @@ from src.eval.duplicates import (  # noqa: E402
     independent_groups,
     merge_groups,
 )
-from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel  # noqa: E402
+from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel, stratification_gap  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache  # noqa: E402
 
 DR_COLUMN = {"rfmid": "DR", "odir": "D"}
@@ -145,6 +147,9 @@ def main() -> None:
     # par patient), sinon l'image ; fusionnées avec les doublons d'images
     # (embeddings identiques ou quasi identiques), qui ne doivent pas être
     # séparés par les plis ni tirés séparément par le bootstrap.
+    formats = None
+    if {"width", "height"} <= set(labels.columns):
+        formats = (labels["width"].astype(str) + "x" + labels["height"].astype(str)).to_numpy()
     base_groups = list(labels["group"].astype(str)) if "group" in labels else list(labels["key"])
     ext_groups, near_pairs = independent_groups(X_ext, base_groups)
 
@@ -178,7 +183,16 @@ def main() -> None:
             "external_any_dr": auroc_with_ci(any_dr, p_ext, ext_groups, "any_dr"),
             "external_referable_dr": auroc_with_ci(referable, p_ext, ext_groups, "referable_dr"),
             "source_val_auroc": auroc_with_ci(val["y"][:, 0], p_val, val["groups"], "dr"),
+            "auroc_grade_vs_0": {
+                int(g): float(roc_auc_score(grade[np.isin(grade, [0, g])] == g, p_ext[np.isin(grade, [0, g])]))
+                for g in np.unique(grade)
+                if g > 0
+            },
         }
+        if formats is not None:
+            entry["format_check"] = stratification_gap(
+                any_dr[:, None], p_ext[:, None], ["any_dr"], formats, ext_groups, n_boot=1000
+            )["any_dr"]
         if own_test is not None:
             p_test = quiet_scores(train["X"], train["y"], own_test["X"])
             entry["own_test_auroc"] = auroc_with_ci(own_test["y"][:, 0], p_test, own_test["groups"], "dr")
@@ -206,6 +220,14 @@ def main() -> None:
             print(
                 f"    seuil {policy:11s} (val d'origine) : sensibilité {m['sensitivity']:.2f}, "
                 f"spécificité {m['specificity']:.2f} | détectées par stade {by_grade}"
+            )
+        stages = " ".join(f"{g}:{v:.3f}" for g, v in entry["auroc_grade_vs_0"].items())
+        print(f"    AUROC de chaque stade contre le stade 0 : {stages}")
+        if "format_check" in entry:
+            g = entry["format_check"]
+            print(
+                f"    à format égal {g['auroc_within_strata']:.3f} | écart {g['gap']:+.3f} "
+                f"[{g['gap_ci'][0]:+.3f} ; {g['gap_ci'][1]:+.3f}] | paires comparables {g['comparable_pairs']:.0%}"
             )
     report["cluster_structure"] = {
         name: cluster_structure(

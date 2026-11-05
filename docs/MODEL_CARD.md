@@ -69,7 +69,8 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   obtenus après fine-tuning complet. Un fine-tuning partiel (4 derniers
   blocs) gagne +0,026 en test RFMiD (0,873) ; sur APTOS, son gain global
   (0,974 contre 0,827) disparaît à format égal (−0,012, non significatif) :
-  pas de preuve d'une meilleure reconnaissance externe. Le modèle servi par
+  pas de preuve d'une meilleure reconnaissance externe, et pas de mesure sur
+  EyePACS (poids à recalculer). Le modèle servi par
   `predict.py` reste la tête linéaire.
 - **Population et appareils** : jeux de données publics de quelques centres.
   L'appareil reste lisible dans les embeddings même avec `crop-mask`
@@ -99,6 +100,14 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   avec un décalage de scores selon l'acquisition, à confirmer ; il ne
   prouve pas que la reconnaissance externe vaut celle de RFMiD. 6,8 %
   d'APTOS sont des doublons d'images, regroupés dans ces analyses.
+- **Validation externe (EyePACS, 2 500 patients) : généralisation très
+  faible.** AUROC 0,661 [0,639 ; 0,683] avec la tête RFMiD, 0,684 avec la
+  tête ODIR, 0,675 avec la multi-source ; 0,680 à format égal pour la tête
+  RFMiD, donc le 0,919 d'APTOS ne se transpose pas. Sensibilité 0,02 au seuil
+  « dépistage » de la tête RFMiD (visée 0,90). Une tête entraînée dans
+  EyePACS atteint 0,785 : la tâche y est difficile même sans changement de
+  base, cause non établie. Ce modèle ne doit pas servir à dépister la
+  rétinopathie diabétique, y compris avec les seuils fournis.
 - **Contrôle qualité** : seuil de flou calibré le 5 nov. (4,16 ; détecte
   79 à 90 % des images franchement floutées, signale ~2 % d'ODIR). Il ne
   détecte pas les images « mauvaise qualité » annotées dans ODIR (AUROC

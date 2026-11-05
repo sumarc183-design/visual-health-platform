@@ -23,6 +23,12 @@ selon [SemVer](https://semver.org/lang/fr/).
   format d'image ; `external_validation.py --external aptos|eyepacs`, plis
   du diagnostic groupés par patient. 2 tests.
 
+- Résultats EyePACS (5 nov., 2 500 patients) : tête RFMiD 0,661
+  [0,639 ; 0,683], ODIR 0,684, multi-source 0,675 ; à format égal 0,680 pour
+  RFMiD ; tête entraînée dans EyePACS 0,785. `external_validation.py` ajoute
+  l'AUROC à format égal et l'AUROC de chaque stade contre le stade 0.
+- Notebook EyePACS : téléchargement et extraction vérifiés, erreurs visibles.
+
 ### Corrigé (second audit, 5 novembre 2026)
 - **Doublons d'images dans APTOS** : 122 groupes d'embeddings identiques
   (249 images, 6,8 %), dont 67 à cheval entre les moitiés « site » et
