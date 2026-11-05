@@ -209,8 +209,15 @@ python scripts/external_validation.py --rfmid-root data/raw/rfmid --odir-root da
     --embeddings embeddings --out results/external_aptos.json
 ```
 
+**EyePACS** (seconde base externe, où les mêmes appareils photographient
+malades et sains) : `notebooks/colab_external_eyepacs.ipynb` (titre Colab :
+« Visual Health — embeddings EyePACS (validation externe) »), 2 500
+patients tirés au hasard (~5 000 images), puis
+`external_validation.py --external eyepacs --out results/external_eyepacs.json`
+(bootstrap et plis groupés par patient).
+
 Têtes « rétinopathie diabétique » entraînées sur RFMiD, sur ODIR et sur les
-deux ; seuils choisis sur la validation de la base d'origine ; sur APTOS,
+deux ; seuils choisis sur la validation de la base d'origine ; sur la base externe,
 AUROC (toute rétinopathie, stade ≥ 1, et rétinopathie à adresser, stade
 ≥ 2), sensibilité et spécificité aux seuils hérités, part détectée par
 stade. Rien n'est réglé sur APTOS.

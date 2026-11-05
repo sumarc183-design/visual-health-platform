@@ -40,7 +40,16 @@ jobs:
       - name: Test bout-en-bout (données synthétiques)
         # Un processus par fichier : chaque test charge un ViT-L (~1,2 Go) et la
         # mémoire du runner (~7 Go) saturait quand ils s'enchaînaient.
+        # En cas d'échec, les lignes FAILED/ERROR deviennent des annotations
+        # (lisibles sur la page du run). Code 5 = aucun test sélectionné : normal.
         run: |
           for f in $(grep -l "pytest.mark.slow" tests/test_*.py); do
-            pytest "$f" -v -m "slow" || exit 1
+            set +e
+            pytest "$f" -v -m "slow" -rfE --tb=short 2>&1 | tee slow.log
+            status=${PIPESTATUS[0]}
+            set -e
+            if [ "$status" -ne 0 ] && [ "$status" -ne 5 ]; then
+              grep -E "^(FAILED|ERROR)|^E  " slow.log | tail -15 | while IFS= read -r line; do echo "::error title=$f::$line"; done
+              exit 1
+            fi
           done

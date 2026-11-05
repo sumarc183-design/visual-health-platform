@@ -1,22 +1,23 @@
 {
- "diagnostic_in_aptos_5fold": {
+ "diagnostic_in_external_5fold": {
   "any_dr": {
-   "auroc": 0.995251179560158,
+   "auroc": 0.9952456602777243,
    "ci": [
-    0.9936074733238367,
-    0.9967477042281058
+    0.993599303701361,
+    0.9967020512823054
    ]
   },
   "referable_dr": {
-   "auroc": 0.9664817692028229,
+   "auroc": 0.9666635747358333,
    "ci": [
-    0.9618012734763528,
-    0.9709806749920842
+    0.9616243282782102,
+    0.9713346836709648
    ]
   }
  },
- "aptos_images": 3662,
- "aptos_grades": {
+ "external": "aptos",
+ "external_images": 3662,
+ "external_grades": {
   "0": 1805,
   "1": 370,
   "2": 999,
@@ -26,14 +27,14 @@
  "target_sensitivity": 0.9,
  "heads": {
   "rfmid": {
-   "aptos_any_dr": {
+   "external_any_dr": {
     "auroc": 0.8265340248845053,
     "ci": [
      0.8139532780005357,
      0.8390877316144196
     ]
    },
-   "aptos_referable_dr": {
+   "external_referable_dr": {
     "auroc": 0.8160321251613603,
     "ci": [
      0.8017111657225455,
@@ -56,7 +57,7 @@
    },
    "threshold_f1": {
     "threshold": 0.5702483057975769,
-    "aptos_any_dr": {
+    "external_any_dr": {
      "threshold": 0.5702483057975769,
      "tp": 561,
      "fp": 14,
@@ -78,7 +79,7 @@
    },
    "threshold_sensitivity": {
     "threshold": 0.3000771999359131,
-    "aptos_any_dr": {
+    "external_any_dr": {
      "threshold": 0.3000771999359131,
      "tp": 939,
      "fp": 75,
@@ -100,14 +101,14 @@
    }
   },
   "odir": {
-   "aptos_any_dr": {
+   "external_any_dr": {
     "auroc": 0.5262622375170986,
     "ci": [
      0.5066704964952677,
      0.5452395890828837
     ]
    },
-   "aptos_referable_dr": {
+   "external_referable_dr": {
     "auroc": 0.6023297698830476,
     "ci": [
      0.5825563779663229,
@@ -130,7 +131,7 @@
    },
    "threshold_f1": {
     "threshold": 0.3741280138492584,
-    "aptos_any_dr": {
+    "external_any_dr": {
      "threshold": 0.3741280138492584,
      "tp": 616,
      "fp": 523,
@@ -152,7 +153,7 @@
    },
    "threshold_sensitivity": {
     "threshold": 0.11111162602901459,
-    "aptos_any_dr": {
+    "external_any_dr": {
      "threshold": 0.11111162602901459,
      "tp": 1409,
      "fp": 1356,
@@ -174,14 +175,14 @@
    }
   },
   "rfmid+odir": {
-   "aptos_any_dr": {
+   "external_any_dr": {
     "auroc": 0.7379256746576925,
     "ci": [
      0.7218513601611347,
      0.7533872786800677
     ]
    },
-   "aptos_referable_dr": {
+   "external_referable_dr": {
     "auroc": 0.7840989727059806,
     "ci": [
      0.7685245172001224,
@@ -197,7 +198,7 @@
    },
    "threshold_f1": {
     "threshold": 0.33946436643600464,
-    "aptos_any_dr": {
+    "external_any_dr": {
      "threshold": 0.33946436643600464,
      "tp": 844,
      "fp": 78,
@@ -219,7 +220,7 @@
    },
    "threshold_sensitivity": {
     "threshold": 0.09881015866994858,
-    "aptos_any_dr": {
+    "external_any_dr": {
      "threshold": 0.09881015866994858,
      "tp": 1465,
      "fp": 1044,

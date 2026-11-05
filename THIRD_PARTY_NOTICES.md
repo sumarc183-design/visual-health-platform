@@ -33,3 +33,8 @@ que les checkpoints officiels se chargent sans renommage.
   acceptation du règlement de la compétition. Ni les images ni les
   embeddings ni les étiquettes ne sont versionnés ; seules des métriques
   agrégées le sont (`results/external_aptos.json`).
+- **EyePACS** (compétition Kaggle « Diabetic Retinopathy Detection », 2015,
+  California Healthcare Foundation / EyePACS) : même usage, seconde
+  validation externe ; échantillon de patients extrait dans un notebook
+  Colab après acceptation du règlement. Rien n'est versionné hors des
+  métriques agrégées.

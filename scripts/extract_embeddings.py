@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Extrait les embeddings RETFound d'un jeu externe (APTOS) dans le cache.
+"""Extrait les embeddings RETFound d'un jeu externe (APTOS, EyePACS) dans le cache.
 
 Même extraction que run_baseline.py (`dataset_embeddings` : normalisation
 ImageNet, RETFound figé) et même cache avec empreinte
 (`<dataset>_<prétraitement>_<taille>_<checkpoint>.npz`). Écrit aussi
-`aptos_labels.csv` (clé, stade) à côté du cache : l'évaluation
+`<dataset>_labels.csv` à côté du cache (clé, stade, patient, format
+d'image d'origine, indicateur de l'appareil) : l'évaluation
 (scripts/external_validation.py) se fait ensuite sur CPU, sans les images.
 
 Exemple (GPU, ~10 min sur T4 pour les 3 662 images APTOS) :
@@ -20,17 +21,20 @@ import argparse
 import sys
 from pathlib import Path
 
+import pandas as pd
 import torch
+from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from run_baseline import dataset_embeddings  # noqa: E402
 from src.data.aptos_dataset import APTOSDataset  # noqa: E402
+from src.data.eyepacs_dataset import EyePACSDataset  # noqa: E402
 from src.data.fundus_preprocess import PREPROCESS_CHOICES, PREPROCESS_VERSION  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, cache_file_name, file_fingerprint  # noqa: E402
 from src.models.retfound_backbone import RETFoundBackbone  # noqa: E402
 
-DATASETS = {"aptos": APTOSDataset}
+DATASETS = {"aptos": APTOSDataset, "eyepacs": EyePACSDataset}
 
 
 def main() -> None:
@@ -73,7 +77,21 @@ def main() -> None:
 
     embed_kwargs = dict(batch_size=args.batch_size, device=args.device, num_workers=args.num_workers)
     X, _ = dataset_embeddings(dataset, args.dataset, get_backbone, cache, embed_kwargs)
-    labels = dataset.df[["id_code", "diagnosis"]].assign(key=dataset.image_keys)
+    sizes = []
+    for i in range(len(dataset)):
+        with Image.open(dataset.image_path(i)) as image:  # en-tête seulement
+            sizes.append((image.width, image.height))
+    labels = pd.DataFrame(
+        {
+            "key": dataset.image_keys,
+            "diagnosis": dataset.df["diagnosis"].to_numpy(),
+            "group": dataset.groups,
+            "width": [w for w, _ in sizes],
+            "height": [h for _, h in sizes],
+        }
+    )
+    if "id_code" in dataset.df:
+        labels.insert(0, "id_code", dataset.df["id_code"].to_numpy())
     labels.to_csv(args.out_dir / f"{args.dataset}_labels.csv", index=False)
     print(f"{len(X)} embeddings -> {cache.path}")
     counts = labels["diagnosis"].value_counts().sort_index().to_dict()

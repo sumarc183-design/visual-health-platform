@@ -12,6 +12,19 @@ selon [SemVer](https://semver.org/lang/fr/).
   (configuration fixée à l'avance), `scripts/finetune_analysis.py`
   (comparaison appariée avec la tête linéaire, APTOS à appareil égal),
   `notebooks/colab_finetune_retfound.ipynb`. 4 tests.
+- Seconde validation externe, EyePACS : `src/data/eyepacs_dataset.py`
+  (images extraites seulement, bootstrap par patient),
+  `notebooks/colab_external_eyepacs.ipynb` (2 500 patients tirés au
+  hasard). `extract_embeddings.py` accepte EyePACS et enregistre patient et
+  format d'image ; `external_validation.py --external aptos|eyepacs`, plis
+  du diagnostic groupés par patient. 2 tests.
+
+### Modifié
+- `results/external_aptos.json` régénéré avec les champs génériques
+  (`external_*`) ; chiffres identiques (diagnostic « à adresser » 0,966 ->
+  0,967, plis désormais groupés).
+- CI : un échec des tests lents s'affiche en annotation (nom du test et
+  erreur) ; un fichier sans test lent sélectionné n'est plus une erreur.
 
 ## [1.0.0] — 2026-11-05
 
