@@ -16,6 +16,12 @@ bootstrap sur les images ; sensibilité et spécificité aux seuils hérités ;
 part détectée par stade. En référence, la même tête évaluée sur le test de
 sa propre base.
 
+Diagnostic (pas une mesure de généralisation) : une tête entraînée **dans**
+APTOS par validation croisée à 5 plis. Une AUROC élevée montre que les
+embeddings APTOS portent bien l'information de rétinopathie : un échec du
+transfert vient alors du changement de base, pas d'un problème de
+préparation des images.
+
 Prérequis : embeddings APTOS (scripts/extract_embeddings.py, sur GPU) et
 `aptos_labels.csv` dans le dossier des embeddings.
 
@@ -35,6 +41,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import StratifiedKFold
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -103,7 +110,14 @@ def main() -> None:
     any_dr, referable = (grade >= 1).astype(float), (grade >= 2).astype(float)
     aptos_groups = list(labels["key"])
 
+    in_domain = np.zeros(len(grade))
+    for train_idx, test_idx in StratifiedKFold(5, shuffle=True, random_state=0).split(X_aptos, grade):
+        in_domain[test_idx] = quiet_scores(X_aptos[train_idx], any_dr[train_idx, None], X_aptos[test_idx])
     report = {
+        "diagnostic_in_aptos_5fold": {
+            "any_dr": auroc_with_ci(any_dr, in_domain, aptos_groups, "any_dr"),
+            "referable_dr": auroc_with_ci(referable, in_domain, aptos_groups, "referable_dr"),
+        },
         "aptos_images": int(len(labels)),
         "aptos_grades": {int(g): int((grade == g).sum()) for g in range(5)},
         "target_sensitivity": args.target_sensitivity,
@@ -146,6 +160,11 @@ def main() -> None:
                 f"    seuil {policy:11s} (val d'origine) : sensibilité {m['sensitivity']:.2f}, "
                 f"spécificité {m['specificity']:.2f} | détectées par stade {by_grade}"
             )
+    diag = report["diagnostic_in_aptos_5fold"]
+    print(
+        f"Diagnostic, tête entraînée dans APTOS (5 plis) : toute RD {diag['any_dr']['auroc']:.3f}, "
+        f"à adresser {diag['referable_dr']['auroc']:.3f}"
+    )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
     print(f"Résultats : {args.out}")

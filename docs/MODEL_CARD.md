@@ -79,6 +79,14 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   pas ; une tête entraînée sur les deux bases fait aussi bien que la tête
   de chaque base, sur les deux (macro −0,002 et +0,008 en test), sauf la
   rétinopathie diabétique de RFMiD (−0,022, significatif).
+- **Validation externe (APTOS 2019) : généralisation faible pour la
+  rétinopathie diabétique.** AUROC 0,827 avec la tête RFMiD (0,947 sur son
+  propre test), 0,526 avec la tête ODIR, 0,738 avec la tête multi-source.
+  Les seuils réglés sur la validation ne se transposent pas (sensibilité
+  0,51 au lieu de 0,90). Les embeddings APTOS portent pourtant
+  l'information (0,995 avec une tête entraînée dans APTOS) : c'est le
+  changement de base qui échoue. Toute utilisation sur un nouveau site
+  demande une évaluation et un recalibrage locaux.
 - **Contrôle qualité** : seuil de flou calibré le 5 nov. (4,16 ; détecte
   79 à 90 % des images franchement floutées, signale ~2 % d'ODIR). Il ne
   détecte pas les images « mauvaise qualité » annotées dans ODIR (AUROC

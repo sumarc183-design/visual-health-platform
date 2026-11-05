@@ -288,9 +288,39 @@ contre la tête de chaque base (différence appariée) :
 Un seul modèle couvre donc les deux bases sans perte moyenne, au prix d'une
 petite baisse significative de la rétinopathie diabétique sur RFMiD, que les
 définitions différentes des deux bases expliquent probablement. Cela ne
-prouve pas la généralisation à une **troisième** source : pour cela, il faut
-une base externe (par exemple de rétinopathie diabétique), évaluée sans
-avoir servi à l'entraînement.
+prouve pas la généralisation à une **troisième** source : voir le contrôle 5.
+
+**5. Validation externe : la rétinopathie diabétique se généralise mal.**
+APTOS 2019 (3 662 images, Aravind Eye Hospital : autres patients,
+appareils et annotateurs), jamais utilisée pour le développement ; rien
+n'est réglé dessus, les seuils viennent de la validation de la base
+d'origine ([`scripts/external_validation.py`](scripts/external_validation.py),
+[résultats](results/external_aptos.json), voir le
+[GUIDE](docs/GUIDE.md#validation-externe-aptos-2019)) :
+
+| Tête entraînée sur | Test de sa base | **APTOS, toute rétinopathie** | APTOS, à adresser (stade ≥ 2) | Sensibilité au seuil « dépistage » (visée 0,90) |
+|---|---|---|---|---|
+| RFMiD | 0,947 | **0,827** [0,814 ; 0,839] | 0,816 | 0,51 (spécificité 0,96) |
+| ODIR | 0,787 | **0,526** [0,507 ; 0,545] | 0,602 | 0,76 (spécificité 0,25) |
+| RFMiD + ODIR | — | **0,738** [0,722 ; 0,753] | 0,784 | 0,79 (spécificité 0,42) |
+
+- Les chiffres obtenus dans une base **surestiment nettement** la
+  performance ailleurs : −0,12 pour la tête RFMiD ; la tête ODIR est au
+  niveau du hasard sur APTOS.
+- **Les seuils ne se transposent pas** : le seuil réglé pour 90 % de
+  sensibilité sur la validation RFMiD n'en donne que 51 % sur APTOS. Un
+  déploiement demanderait de recalibrer les seuils sur des images du site.
+- La tête multi-source (contrôle 4) fait **moins bien** que la tête RFMiD
+  seule sur APTOS : ajouter ODIR, dont les étiquettes de rétinopathie se
+  transposent mal, dégrade la généralisation. Le choix « multi-source »
+  valait pour couvrir RFMiD et ODIR, pas pour une base nouvelle.
+- Diagnostic : une tête entraînée **dans** APTOS (validation croisée)
+  atteint 0,995. Les embeddings APTOS portent donc bien l'information :
+  l'échec vient du changement de base (images, appareils, définition des
+  stades), pas de la préparation des images.
+- Pistes, à évaluer de la même façon sur une base externe : entraîner sur
+  plus de sources variées, normaliser les couleurs ou augmenter les données,
+  fine-tuning partiel de RETFound, recalibrage des seuils par site.
 
 ## Démarrage rapide
 

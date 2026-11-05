@@ -37,6 +37,11 @@ et test), étiquettes identiques.
   sauvegardée.
 
 ### Ajouté
+- `results/external_aptos.json` : validation externe de la rétinopathie
+  diabétique sur APTOS (3 662 images). AUROC 0,827 (tête RFMiD, 0,947 sur
+  son test), 0,526 (ODIR), 0,738 (multi-source) ; seuils non
+  transposables (sensibilité 0,51 au lieu de 0,90) ; diagnostic : 0,995
+  avec une tête entraînée dans APTOS.
 - Validation externe sur APTOS 2019 (rétinopathie diabétique) :
   `src/data/aptos_dataset.py`, `scripts/extract_embeddings.py` (GPU),
   `scripts/external_validation.py` (CPU, seuils hérités de la validation
