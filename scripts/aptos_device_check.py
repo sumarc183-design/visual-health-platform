@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+"""APTOS : le diagnostic est-il lié à l'appareil ? Les têtes tiennent-elles
+à appareil égal ? (CPU)
+
+Les embeddings d'APTOS se regroupent presque parfaitement selon le
+diagnostic (scripts/external_validation.py), signe possible d'un biais
+d'acquisition. L'appareil photo est repéré par le format d'image d'origine
+(`aptos_formats.csv`, notebooks/colab_aptos_formats.ipynb).
+
+1. Prévalence de la rétinopathie par format, et lien format/diagnostic.
+2. AUROC globale contre AUROC à format égal (`stratification_gap`) sur la
+   moitié « rapport » d'APTOS (même découpage que site_adaptation.py) :
+   - tête RFMiD (n'a jamais vu APTOS) ;
+   - tête réentraînée avec N images étiquetées de la moitié « site » ;
+   - tête entraînée sur toute la moitié « site ».
+Un écart positif = une partie du classement vient des différences de
+prévalence entre appareils.
+
+Exemple :
+    python scripts/aptos_device_check.py --rfmid-root data/raw/rfmid --embeddings embeddings \\
+        --formats embeddings/aptos_formats.csv --out results/aptos_device_check.json
+"""
+
+from __future__ import annotations
+
+import argparse
+import contextlib
+import io
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from sklearn.metrics import adjusted_mutual_info_score
+from sklearn.model_selection import train_test_split
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.robustness_checks import embeddings, head_scores, load  # noqa: E402
+from src.eval.metrics import stratification_gap  # noqa: E402
+from src.models.embedding_cache import EmbeddingCache  # noqa: E402
+
+MIN_FORMAT_IMAGES = 30
+
+
+def quiet_scores(X_train, y_train, X_eval) -> np.ndarray:
+    with contextlib.redirect_stdout(io.StringIO()):
+        return head_scores(X_train.astype(np.float32), y_train.astype(np.float32), X_eval.astype(np.float32))[:, 0]
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--rfmid-root", type=Path, required=True)
+    parser.add_argument("--embeddings", type=Path, required=True)
+    parser.add_argument("--formats", type=Path, required=True)
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--out", type=Path, required=True)
+    args = parser.parse_args()
+
+    labels = pd.read_csv(args.embeddings / "aptos_labels.csv").merge(pd.read_csv(args.formats), on="id_code")
+    labels["format"] = labels["width"].astype(str) + "x" + labels["height"].astype(str)
+    X = EmbeddingCache(args.embeddings / "aptos_crop-mask_224_RETFound_mae_natureCFP.npz").get(list(labels["key"]))
+    grade = labels["diagnosis"].to_numpy()
+    y = (grade >= 1).astype(np.float32)
+    formats = labels["format"].to_numpy()
+
+    by_format = labels.assign(dr=y).groupby("format")["dr"].agg(["mean", "size"]).sort_values("size", ascending=False)
+    frequent = by_format[by_format["size"] >= MIN_FORMAT_IMAGES]
+    report = {
+        "images": int(len(labels)),
+        "formats": int(len(by_format)),
+        "adjusted_mutual_information_format_dr": float(adjusted_mutual_info_score(y.astype(int), formats)),
+        "prevalence_by_format": {
+            f: {"prevalence": float(r["mean"]), "images": int(r["size"])} for f, r in frequent.iterrows()
+        },
+        "heads": {},
+    }
+
+    ds = load("rfmid", args.rfmid_root, "train")
+    X_src = embeddings(args.embeddings, "rfmid", "crop-mask", ds.image_keys)
+    y_src = ds.df[["DR"]].to_numpy(np.float32)
+    site, rep = train_test_split(np.arange(len(grade)), test_size=0.5, stratify=grade, random_state=args.seed)
+    rng = np.random.default_rng(args.seed)
+    heads = {"tête RFMiD (jamais vu APTOS)": quiet_scores(X_src, y_src, X[rep])}
+    for n in (50, 200):
+        pick = site[rng.choice(len(site), n, replace=False)]
+        heads[f"tête RFMiD + {n} images du site"] = quiet_scores(
+            np.vstack([X_src, X[pick]]), np.vstack([y_src, y[pick, None]]), X[rep]
+        )
+    heads["tête entraînée sur la moitié site"] = quiet_scores(X[site], y[site, None], X[rep])
+
+    groups = list(labels["key"].to_numpy()[rep])
+    for name, p in heads.items():
+        gap = stratification_gap(y[rep, None], p[:, None], ["any_dr"], formats[rep], groups, n_boot=1000)["any_dr"]
+        report["heads"][name] = gap
+
+    print(
+        f"{report['images']} images, {report['formats']} formats ; lien format/diagnostic (info mutuelle) "
+        f"{report['adjusted_mutual_information_format_dr']:.3f}"
+    )
+    print("Prévalence de la rétinopathie par format (>= 30 images) :")
+    for f, r in report["prevalence_by_format"].items():
+        print(f"  {f:>11s} : {r['prevalence']:.0%} sur {r['images']} images")
+    for name, g in report["heads"].items():
+        print(
+            f"{name:36s} AUROC globale {g['auroc']:.3f} | à format égal {g['auroc_within_strata']:.3f} | "
+            f"écart {g['gap']:+.3f} [{g['gap_ci'][0]:+.3f} ; {g['gap_ci'][1]:+.3f}] | "
+            f"paires comparables {g['comparable_pairs']:.0%}"
+        )
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    print(f"Résultats : {args.out}")
+
+
+if __name__ == "__main__":
+    main()
