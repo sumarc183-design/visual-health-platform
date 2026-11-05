@@ -385,7 +385,31 @@ d'image d'origine ([`notebooks/colab_aptos_formats.ipynb`](notebooks/colab_aptos
 - Conséquence : le remède le plus prometteur n'est pas de réentraîner sur
   le site, mais de **recalibrer les scores par appareil ou par site**, ce
   qui demande des images du site, et peu ou pas d'étiquettes. À tester sur
-  une base où malades et sains partagent les mêmes appareils.
+  une base où malades et sains partagent les mêmes appareils (contrôle 8).
+
+**8. Recalibrage par appareil, sans étiquette : pas de gain démontré.**
+Testé sur le transfert entre RFMiD et ODIR, dont les appareils
+photographient malades et sains : scores ou embeddings recentrés appareil
+par appareil, avec les images train et validation de la base cible sans
+leurs étiquettes ; choix sur la validation, mesure sur le test
+([`scripts/device_recalibration.py`](scripts/device_recalibration.py),
+[résultats](results/device_recalibration.json)).
+
+| Transfert (test) | AUROC macro sans recalibrage | Avec la méthode choisie sur la validation | Différence appariée |
+|---|---|---|---|
+| ODIR → RFMiD | 0,915 | 0,915 (aucune retenue) | — |
+| RFMiD → ODIR | 0,806 | 0,809 (centrage des scores) | +0,003 [−0,017 ; +0,022] |
+
+- Entre RFMiD et ODIR, l'AUROC globale est déjà proche de l'AUROC à
+  appareil égal : l'échec du transfert ne vient pas d'un décalage de scores
+  par appareil. La rétinopathie diabétique d'ODIR n'est reconnue qu'à 0,60
+  même à appareil égal : c'est la définition des étiquettes, ou la
+  représentation, qui transfère mal.
+- Le gain vu sur la validation RFMiD → ODIR (+0,037) ne se confirme pas sur
+  le test.
+- Sur APTOS, où le décalage par appareil existe (contrôle 7), ce remède ne
+  peut pas être évalué : malades et sains n'y partagent presque aucun
+  appareil. Il reste une hypothèse, à tester sur une base comme Messidor-2.
 
 ## Démarrage rapide
 

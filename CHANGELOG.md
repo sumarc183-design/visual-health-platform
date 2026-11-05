@@ -46,6 +46,12 @@ et test), étiquettes identiques.
   sauvegardée.
 
 ### Ajouté
+- `scripts/device_recalibration.py` et `results/device_recalibration.json` :
+  recalibrage des scores (ou embeddings) par appareil, sans étiquette, sur
+  le transfert RFMiD <-> ODIR. Pas de gain démontré (RFMiD -> ODIR : +0,003
+  [-0,017 ; +0,022] au test ; le gain de validation ne se confirme pas) :
+  entre ces bases, le transfert n'échoue pas à cause d'un décalage par
+  appareil.
 - `scripts/aptos_device_check.py`, `notebooks/colab_aptos_formats.ipynb`
   et `results/aptos_device_check.json` : contrôle à appareil égal sur
   APTOS (format d'image d'origine). Dans APTOS, l'appareil donne presque
