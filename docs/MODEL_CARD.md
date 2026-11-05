@@ -86,7 +86,11 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   0,51 au lieu de 0,90). Les embeddings APTOS portent pourtant
   l'information (0,995 avec une tête entraînée dans APTOS) : c'est le
   changement de base qui échoue. Toute utilisation sur un nouveau site
-  demande une évaluation et un recalibrage locaux.
+  demande une évaluation et un recalibrage locaux. Réentraîner la tête
+  avec quelques dizaines d'images du site donne 0,98 sur APTOS, mais ce
+  chiffre est suspect : APTOS présente un fort biais d'acquisition
+  (malades et sains forment des groupes presque purs dans les
+  embeddings).
 - **Contrôle qualité** : seuil de flou calibré le 5 nov. (4,16 ; détecte
   79 à 90 % des images franchement floutées, signale ~2 % d'ODIR). Il ne
   détecte pas les images « mauvaise qualité » annotées dans ODIR (AUROC

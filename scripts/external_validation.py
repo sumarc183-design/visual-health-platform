@@ -22,6 +22,14 @@ embeddings APTOS portent bien l'information de rétinopathie : un échec du
 transfert vient alors du changement de base, pas d'un problème de
 préparation des images.
 
+Structure des embeddings (sans étiquette) : regroupement en 8 groupes
+(k-moyennes) de chaque base, puis lien entre groupes et diagnostic (info
+mutuelle ajustée) et part des images dans un groupe « pur » (moins de 10 %
+ou plus de 90 % de malades). Un lien fort indique que la variation
+dominante des images suit le diagnostic, signe possible d'un biais
+d'acquisition (malades et sains photographiés dans des conditions
+différentes) : une tête entraînée sur cette base pourrait s'en servir.
+
 Prérequis : embeddings APTOS (scripts/extract_embeddings.py, sur GPU) et
 `aptos_labels.csv` dans le dossier des embeddings.
 
@@ -41,6 +49,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.metrics import adjusted_mutual_info_score
 from sklearn.model_selection import StratifiedKFold
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -80,6 +90,18 @@ def auroc_with_ci(y: np.ndarray, p: np.ndarray, groups: list[str], name: str) ->
     metrics = evaluate_multilabel(y[:, None], p[:, None], [name])
     ci = bootstrap_auroc_ci(y[:, None], p[:, None], [name], groups, n_boot=1000)
     return {"auroc": metrics["auroc_per_class"][name], "ci": ci["auroc_per_class_ci"][name]}
+
+
+def cluster_structure(X: np.ndarray, y: np.ndarray, k: int = 8) -> dict:
+    clusters = KMeans(k, n_init=10, random_state=0).fit_predict(X)
+    prevalence = pd.Series(y).groupby(clusters).mean()
+    sizes = pd.Series(clusters).value_counts()
+    pure = sum(sizes[c] for c in prevalence.index if prevalence[c] < 0.1 or prevalence[c] > 0.9)
+    return {
+        "adjusted_mutual_information": float(adjusted_mutual_info_score(y, clusters)),
+        "share_in_pure_clusters": float(pure / len(y)),
+        "prevalence_by_cluster": [float(v) for v in prevalence.values],
+    }
 
 
 def main() -> None:
@@ -160,6 +182,19 @@ def main() -> None:
                 f"    seuil {policy:11s} (val d'origine) : sensibilité {m['sensitivity']:.2f}, "
                 f"spécificité {m['specificity']:.2f} | détectées par stade {by_grade}"
             )
+    report["cluster_structure"] = {
+        name: cluster_structure(
+            np.vstack([data[name, s]["X"] for s in ("train", "val", "test")]),
+            np.concatenate([data[name, s]["y"][:, 0] for s in ("train", "val", "test")]).astype(int),
+        )
+        for name in roots
+    }
+    report["cluster_structure"]["aptos"] = cluster_structure(X_aptos, any_dr.astype(int))
+    for name, c in report["cluster_structure"].items():
+        print(
+            f"Structure {name:6s} : info mutuelle groupes/diagnostic {c['adjusted_mutual_information']:.3f}, "
+            f"images en groupe pur {c['share_in_pure_clusters']:.0%}"
+        )
     diag = report["diagnostic_in_aptos_5fold"]
     print(
         f"Diagnostic, tête entraînée dans APTOS (5 plis) : toute RD {diag['any_dr']['auroc']:.3f}, "

@@ -315,12 +315,43 @@ d'origine ([`scripts/external_validation.py`](scripts/external_validation.py),
   transposent mal, dégrade la généralisation. Le choix « multi-source »
   valait pour couvrir RFMiD et ODIR, pas pour une base nouvelle.
 - Diagnostic : une tête entraînée **dans** APTOS (validation croisée)
-  atteint 0,995. Les embeddings APTOS portent donc bien l'information :
-  l'échec vient du changement de base (images, appareils, définition des
-  stades), pas de la préparation des images.
-- Pistes, à évaluer de la même façon sur une base externe : entraîner sur
-  plus de sources variées, normaliser les couleurs ou augmenter les données,
-  fine-tuning partiel de RETFound, recalibrage des seuils par site.
+  atteint 0,995 : les embeddings APTOS séparent bien les classes, donc la
+  préparation des images n'est pas en cause et l'échec vient du changement
+  de base. Mais ce 0,995 est probablement **gonflé** (ci-dessous).
+- **APTOS a un biais d'acquisition** : regroupées sans étiquette, ses images
+  forment des groupes presque purs (85 % des images dans un groupe à moins
+  de 10 % ou plus de 90 % de malades ; lien groupes/diagnostic 0,367),
+  contre 31 % et 0,059 pour RFMiD, 0 % et 0,015 pour ODIR. Malades et sains
+  semblent photographiés dans des conditions différentes. Une tête
+  **entraînée** sur APTOS peut s'en servir ; la tête RFMiD, qui ne l'a
+  jamais vue, non : la mesure externe ci-dessus reste valable.
+
+**6. Adaptation à un nouveau site : à confirmer sur une base sans biais
+d'acquisition.** APTOS coupé en deux moitiés stratifiées : la moitié
+« site » sert à adapter, la moitié « rapport » à mesurer
+([`scripts/site_adaptation.py`](scripts/site_adaptation.py),
+[résultats](results/site_adaptation_aptos.json)) :
+
+| Adaptation (tête RFMiD) | AUROC (rapport) | Sensibilité | Spécificité |
+|---|---|---|---|
+| Aucune (seuil de la validation RFMiD) | 0,830 | 0,50 | 0,95 |
+| Sans étiquette : centrage par domaine | 0,773 | — | — |
+| Sans étiquette : CORAL | 0,833 | — | — |
+| Seuil recalibré avec 50 images étiquetées du site | 0,830 | 0,91 | 0,39 |
+| Tête réentraînée avec 50 images étiquetées du site | 0,981 | 0,85 | 0,97 |
+| Tête réentraînée avec 400 images étiquetées du site | 0,990 | 0,90 | 0,98 |
+
+- Sans étiquette, rien n'aide. Recalibrer le seuil retrouve la sensibilité
+  visée, mais avec 60 % de fausses alertes.
+- Réentraîner la tête avec quelques dizaines d'images du site fait bondir
+  l'AUROC, **mais sur APTOS ce gain est suspect** : la tête peut apprendre
+  le biais d'acquisition de la base plutôt que la maladie. On ne peut pas en
+  conclure que « 50 images suffisent » ; il faut refaire l'expérience sur
+  une base sans ce biais, ou à appareil égal (métadonnées d'appareil
+  d'APTOS à récupérer).
+- Pistes restantes pour la généralisation : sources d'entraînement plus
+  variées, normalisation des couleurs et augmentation de données,
+  fine-tuning partiel de RETFound.
 
 ## Démarrage rapide
 

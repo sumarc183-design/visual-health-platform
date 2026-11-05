@@ -37,6 +37,12 @@ et test), étiquettes identiques.
   sauvegardée.
 
 ### Ajouté
+- `scripts/site_adaptation.py` et `results/site_adaptation_aptos.json` :
+  adaptation à un nouveau site sur APTOS coupé en deux (site / rapport).
+  Sans étiquette (centrage, CORAL) : pas de gain ; seuil recalibré avec 50
+  images : sensibilité 0,91 mais spécificité 0,39 ; tête réentraînée avec
+  50 images : AUROC 0,981, gain suspect à cause du biais d'acquisition
+  d'APTOS (analyse de structure ajoutée à `external_validation.py`).
 - `results/external_aptos.json` : validation externe de la rétinopathie
   diabétique sur APTOS (3 662 images). AUROC 0,827 (tête RFMiD, 0,947 sur
   son test), 0,526 (ODIR), 0,738 (multi-source) ; seuils non
