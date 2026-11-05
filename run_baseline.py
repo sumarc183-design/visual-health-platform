@@ -88,21 +88,21 @@ class SyntheticFundusDataset(torch.utils.data.Dataset):
         return image, labels
 
 
-def run_quality_control(dataset, n_samples: int = 50, blur_threshold: float = 1.0) -> None:
-    """Sonde sur un échantillon, sans filtrer : le seuil de flou n'est pas
-    encore calibré sur de vraies images, retirer des images fausserait le jeu.
-    Données réelles : contrôle sur le fichier d'origine (résolution avant
-    redimensionnement, flou sur la rétine à échelle fixe). Synthétique : sur
-    l'image chargée."""
+def run_quality_control(dataset, n_samples: int = 50, synthetic_blur_threshold: float = 1.0) -> None:
+    """Sonde sur un échantillon, sans filtrer : retirer des images changerait
+    le jeu d'évaluation. Données réelles : contrôle sur le fichier d'origine
+    (résolution avant redimensionnement, flou sur la rétine à échelle fixe,
+    seuil calibré DEFAULT_BLUR_THRESHOLD). Synthétique : sur l'image chargée,
+    seuil propre aux images générées."""
     n_check = min(n_samples, len(dataset))
     n_flagged = 0
     for i in range(n_check):
         if hasattr(dataset, "image_path"):
-            report = check_fundus_file(dataset.image_path(i), blur_threshold=blur_threshold)
+            report = check_fundus_file(dataset.image_path(i))  # seuil de flou calibré par défaut
         else:
             image_t, _ = dataset[i]
             raw = (image_t.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
-            report = check_quality(raw, blur_threshold=blur_threshold)
+            report = check_quality(raw, blur_threshold=synthetic_blur_threshold)
         n_flagged += not report.is_usable
     print(f"Contrôle qualité (échantillon de {n_check}) : {n_flagged} signalée(s), aucune retirée")
 

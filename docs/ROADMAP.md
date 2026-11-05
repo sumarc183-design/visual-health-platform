@@ -3,11 +3,12 @@
 ## J30 — Socle
 
 > Atteint au sens « première baseline » (4 nov.). Pas encore un socle
-> opérationnel : contrôle qualité non calibré, routage de modalité non
-> entraîné (audit du 4 novembre). Commande de prédiction sur image nouvelle
+> opérationnel : contrôle qualité limité au flou et à la résolution (seuil
+> de flou calibré le 5 nov.), routage de modalité non entraîné (audit du
+> 4 novembre). Commande de prédiction sur image nouvelle
 > (`predict.py`) livrée et vérifiée avec les vrais poids le 4 novembre.
 
-- [x] Contrôle qualité (flou, résolution) implémenté : sonde sur un échantillon, sans filtrage ; sur le fichier d'origine depuis le 4 nov. ; seuil de flou encore à calibrer
+- [x] Contrôle qualité (flou, résolution) implémenté : sonde sur un échantillon, sans filtrage ; sur le fichier d'origine depuis le 4 nov. ; seuil de flou calibré le 5 nov. (4,16 : flou franc détecté à 79-90 %, ~2 % d'ODIR signalé ; ne détecte pas les autres défauts de qualité)
 - [x] Backbone RETFound intégré (embeddings figés)
 - [x] Premier classifieur fond d'œil sur RFMiD/ODIR, première AUROC (2026-11-03, tête figée : RFMiD 0,858 en validation et 0,832 sur le test officiel ; ODIR 0,845 en étiquettes par œil, 0,806 en étiquettes patient)
 - [x] Explicabilité sur les vraies prédictions (2026-11-03) : Grad-CAM peu fiable sur ce ViT, remplacé par l'occlusion ; raccourci d'acquisition détecté sur la DMLA d'ODIR

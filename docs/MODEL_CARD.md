@@ -79,9 +79,14 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   pas ; une tête entraînée sur les deux bases fait aussi bien que la tête
   de chaque base, sur les deux (macro −0,002 et +0,008 en test), sauf la
   rétinopathie diabétique de RFMiD (−0,022, significatif).
-- **Contrôle qualité** : seuil de flou pas encore calibré sur des images
-  annotées utilisables/inutilisables ; il signale sur un échantillon et ne
-  retire rien, ce n'est pas encore une barrière.
+- **Contrôle qualité** : seuil de flou calibré le 5 nov. (4,16 ; détecte
+  79 à 90 % des images franchement floutées, signale ~2 % d'ODIR). Il ne
+  détecte pas les images « mauvaise qualité » annotées dans ODIR (AUROC
+  0,51 sur 21 images) : leur défaut n'est pas le flou. Le modèle n'est pas
+  moins bon sur les images les moins nettes de RFMiD et ODIR. Il signale
+  et ne retire rien par défaut (`predict.py --reject-unusable` pour
+  refuser) : ce n'est pas un contrôle de qualité complet (exposition,
+  champ, artefacts non mesurés).
 - **Grad-CAM est trompeur sur ce modèle** : il s'allume sur le fond noir
   (artefacts des ViT MAE). L'explication de référence est l'occlusion
   (`scripts/occlusion_examples.py`), qui ne montre elle aussi que *où*, pas

@@ -10,8 +10,13 @@ sur l'image d'origine, pas sur l'entrée du modèle :
   variance du Laplacien dépend de la taille de l'image, et le bord net du
   disque rétinien la gonflerait sur une image pourtant floue.
 
-Le seuil de flou n'est pas encore calibré sur des images annotées
-utilisables / inutilisables : le contrôle signale, il ne retire rien.
+Seuil de flou calibré le 5 novembre 2026 (scripts/calibrate_quality.py,
+results/quality_calibration.json) : 2e percentile du score sur les images
+d'entraînement ODIR jugées acceptables. Il détecte le flou franc (79 à 90 %
+des images floutées à σ ≥ 4 px), signale ~2 % d'ODIR et 0,1 % de RFMiD, et
+aucune image nette d'origine. Il ne détecte pas les images « low image
+quality » d'ODIR (AUROC 0,51) : leur défaut n'est pas le flou (surtout un
+manque de luminosité). Le contrôle signale, il ne retire rien par défaut.
 """
 
 from __future__ import annotations
@@ -28,6 +33,7 @@ from src.data.fundus_preprocess import MASK_RADIUS, common_mask, crop_mask
 MIN_RESOLUTION = 224  # entrée de RETFound
 BLUR_ANALYSIS_SIZE = 512  # échelle fixe du calcul de flou
 BLUR_MASK_MARGIN = 0.9  # rayon du masque de flou / rayon du masque commun : écarte le bord du disque
+DEFAULT_BLUR_THRESHOLD = 4.16  # calibré : voir l'en-tête et results/quality_calibration.json
 
 
 @dataclass
@@ -71,7 +77,7 @@ def retina_blur_mask(size: int = BLUR_ANALYSIS_SIZE) -> np.ndarray:
     return common_mask(size) & inner
 
 
-def check_fundus_file(path: str | Path, blur_threshold: float = 100.0) -> QualityReport:
+def check_fundus_file(path: str | Path, blur_threshold: float = DEFAULT_BLUR_THRESHOLD) -> QualityReport:
     """Contrôle d'un fichier de fond d'œil d'origine : résolution d'origine,
     flou mesuré sur la rétine recadrée à BLUR_ANALYSIS_SIZE."""
     image = Image.open(path).convert("RGB")

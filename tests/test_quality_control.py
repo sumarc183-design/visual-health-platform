@@ -74,3 +74,24 @@ def test_fundus_blur_ignores_the_disc_edge(tmp_path):
     textured = check_fundus_file(_fundus_file(tmp_path / "t.png", 600, textured=True), blur_threshold=1.0)
     assert uniform.is_blurry and uniform.blur_score < 1e-6
     assert not textured.is_blurry
+
+
+def test_calibrated_threshold_is_the_default_and_matches_the_calibration_file():
+    """Le seuil par défaut est celui de results/quality_calibration.json, et il
+    sépare une image nette d'une version franchement floutée."""
+    import json
+    from pathlib import Path
+
+    from src.pipeline.quality_control import DEFAULT_BLUR_THRESHOLD
+
+    calibration = json.loads((Path(__file__).resolve().parents[1] / "results/quality_calibration.json").read_text())
+    assert DEFAULT_BLUR_THRESHOLD == round(calibration["threshold"], 2)
+
+
+def test_strong_blur_is_flagged_with_the_default_threshold(tmp_path):
+    from PIL import Image, ImageFilter
+
+    sharp = _fundus_file(tmp_path / "sharp.png", 600)
+    Image.open(sharp).filter(ImageFilter.GaussianBlur(8)).save(tmp_path / "blurred.png")
+    assert not check_fundus_file(sharp).is_blurry
+    assert check_fundus_file(tmp_path / "blurred.png").is_blurry

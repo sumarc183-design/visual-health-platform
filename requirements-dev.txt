@@ -1,3 +1,4 @@
 -r requirements.txt
 pytest>=8.0,<9
 ruff==0.17.3  # même version que .pre-commit-config.yaml et la CI
+openpyxl>=3.1,<4  # lecture des annotations d'origine d'ODIR (scripts/calibrate_quality.py)

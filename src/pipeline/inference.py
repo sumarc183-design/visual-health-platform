@@ -22,7 +22,7 @@ from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image
 from src.models.classifier_head import MultiLabelHead
 from src.models.embedding_cache import file_fingerprint
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone
-from src.pipeline.quality_control import check_fundus_file
+from src.pipeline.quality_control import DEFAULT_BLUR_THRESHOLD, check_fundus_file
 
 THRESHOLD_POLICIES = ("f1", "sensitivity")
 DISCLAIMER = "Outil de recherche, non validé cliniquement : ces décisions ne sont pas un diagnostic."
@@ -73,7 +73,7 @@ class Predictor:
         policy: str = "f1",
         device: str = "cpu",
         trust_checkpoint: bool | None = None,
-        blur_threshold: float = 1.0,
+        blur_threshold: float = DEFAULT_BLUR_THRESHOLD,
     ):
         head_ckpt = torch.load(head_path, map_location="cpu", weights_only=True)
         self.class_names = list(head_ckpt["class_names"])

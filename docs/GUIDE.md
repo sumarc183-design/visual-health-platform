@@ -135,7 +135,10 @@ Options utiles :
 - Contrôle qualité : sonde sur 50 images, sans rien retirer. Sur données
   réelles, il lit le fichier d'origine : résolution avant redimensionnement,
   flou sur la rétine recadrée à 512 px, sans le bord du disque. Seuil de flou
-  pas encore calibré.
+  calibré (`DEFAULT_BLUR_THRESHOLD` = 4,16, `scripts/calibrate_quality.py`,
+  `results/quality_calibration.json`) : 2e percentile des images
+  d'entraînement ODIR acceptables. Il détecte le flou franc, pas les autres
+  défauts de qualité (exposition, artefacts).
 
 ### Comparer deux variantes
 

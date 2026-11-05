@@ -37,6 +37,14 @@ et test), étiquettes identiques.
   sauvegardée.
 
 ### Ajouté
+- `scripts/calibrate_quality.py` et `results/quality_calibration.json` :
+  seuil de flou calibré à 4,16 (2e percentile des images d'entraînement
+  ODIR acceptables), désormais par défaut (`DEFAULT_BLUR_THRESHOLD`) dans
+  `run_baseline.py` et `predict.py`. Détecte 79 à 90 % du flou franc simulé,
+  signale 1,9 % d'ODIR et 0,1 % de RFMiD ; ne détecte pas les 21 images
+  « low image quality » d'ODIR (AUROC 0,51), dont le défaut n'est pas le
+  flou ; perte du modèle indépendante de la netteté. `openpyxl` en
+  dépendance de développement (annotations d'origine d'ODIR).
 - `scripts/robustness_checks.py` et `results/robustness_checks.json` :
   appareil retrouvé à partir des embeddings, AUROC à appareil égal
   (`stratification_gap` dans `src/eval/metrics.py`), transfert entre RFMiD

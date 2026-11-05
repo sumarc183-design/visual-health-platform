@@ -1,0 +1,59 @@
+{
+ "threshold": 4.1590811508987375,
+ "percentile_of_acceptable_train": 2.0,
+ "acceptable_train_images": 4395,
+ "odir_flagged_share": 0.018571428571428572,
+ "rfmid_flagged_share": 0.000625,
+ "real_quality_labels": {
+  "low image quality": {
+   "images": 21,
+   "detected_share": 0.047619047619047616,
+   "median_score": 11.029305639538876,
+   "auroc_low_score": 0.5140660075464489
+  },
+  "lens dust": {
+   "images": 405,
+   "detected_share": 0.0345679012345679,
+   "median_score": 11.026807498339792,
+   "auroc_low_score": 0.6507990527803517
+  }
+ },
+ "median_score_acceptable": 16.20467381203385,
+ "synthetic_blur_detected_share": {
+  "0": 0.0,
+  "2": 0.06666666666666667,
+  "3": 0.45,
+  "4": 0.7916666666666666,
+  "6": 0.9,
+  "8": 0.9
+ },
+ "model_loss": {
+  "odir": {
+   "images": 1918,
+   "loss_by_quintile_least_to_most_sharp": [
+    0.24348048865795135,
+    0.23417572677135468,
+    0.22799022495746613,
+    0.2277320921421051,
+    0.23682086169719696
+   ],
+   "flagged": 21,
+   "loss_flagged_minus_others": 0.031134411692619324,
+   "loss_flagged_minus_others_ci": [
+    -0.07493571490049362,
+    0.15139180347323414
+   ]
+  },
+  "rfmid": {
+   "images": 1280,
+   "loss_by_quintile_least_to_most_sharp": [
+    0.08804690092802048,
+    0.09605975449085236,
+    0.09476372599601746,
+    0.08722153306007385,
+    0.051585450768470764
+   ],
+   "flagged": 0
+  }
+ }
+}
