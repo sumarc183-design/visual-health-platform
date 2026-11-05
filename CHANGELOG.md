@@ -37,6 +37,10 @@ et test), étiquettes identiques.
   sauvegardée.
 
 ### Ajouté
+- Validation externe sur APTOS 2019 (rétinopathie diabétique) :
+  `src/data/aptos_dataset.py`, `scripts/extract_embeddings.py` (GPU),
+  `scripts/external_validation.py` (CPU, seuils hérités de la validation
+  d'origine) et `notebooks/kaggle_external_aptos.ipynb`.
 - `scripts/calibrate_quality.py` et `results/quality_calibration.json` :
   seuil de flou calibré à 4,16 (2e percentile des images d'entraînement
   ODIR acceptables), désormais par défaut (`DEFAULT_BLUR_THRESHOLD`) dans

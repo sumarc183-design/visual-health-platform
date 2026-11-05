@@ -189,6 +189,32 @@ identique pour toutes les images :
 Le prétraitement est enregistré dans la tête (`--save-head`) : Grad-CAM et
 l'occlusion rechargent les images de la même façon.
 
+## Validation externe (APTOS 2019)
+
+Pour savoir si la détection de la rétinopathie diabétique tient sur une
+base jamais vue (autres patients, appareils et annotateurs que RFMiD et
+ODIR) :
+
+1. **GPU** : `notebooks/kaggle_external_aptos.ipynb` (titre Kaggle :
+   « Visual Health — embeddings APTOS (validation externe) »), avec la
+   compétition `aptos2019-blindness-detection` en input (règlement à
+   accepter une fois). Il calcule les embeddings `crop-mask` des 3 662
+   images annotées (`scripts/extract_embeddings.py`, même extraction que
+   `run_baseline.py`) ; ~10 min sur T4.
+2. **CPU, en local** : placer `aptos_crop-mask_224_RETFound_mae_natureCFP.npz`
+   et `aptos_labels.csv` dans `embeddings/`, puis
+
+```bash
+python scripts/external_validation.py --rfmid-root data/raw/rfmid --odir-root data/raw/odir \
+    --embeddings embeddings --out results/external_aptos.json
+```
+
+Têtes « rétinopathie diabétique » entraînées sur RFMiD, sur ODIR et sur les
+deux ; seuils choisis sur la validation de la base d'origine ; sur APTOS,
+AUROC (toute rétinopathie, stade ≥ 1, et rétinopathie à adresser, stade
+≥ 2), sensibilité et spécificité aux seuils hérités, part détectée par
+stade. Rien n'est réglé sur APTOS.
+
 ## Prédire sur une image nouvelle
 
 ```bash
