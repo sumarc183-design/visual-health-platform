@@ -69,3 +69,37 @@ def test_learning_rate_schedule():
     assert cosine_with_warmup(100, 100, 10) == pytest.approx(0.0, abs=1e-9)
     with pytest.raises(ValueError):
         PartialFinetune(tiny_vit(), num_classes=2, trainable_blocks=5)
+
+
+def test_saved_finetune_reloads_to_identical_predictions():
+    """Aller-retour : le delta sauvegardé, appliqué au même backbone de base,
+    redonne exactement les mêmes probabilités ; un artefact incompatible est refusé."""
+    from src.models.finetune import load_finetuned_state
+
+    torch.manual_seed(0)
+    base_state = tiny_vit().state_dict()
+    trained = PartialFinetune(tiny_vit(), num_classes=3, trainable_blocks=2)
+    trained.vit.load_state_dict(base_state)
+    optimizer = torch.optim.SGD([p for p in trained.parameters() if p.requires_grad], lr=0.5)
+    trained.train()
+    nn.BCEWithLogitsLoss()(trained(torch.rand(4, 3, 32, 32)), torch.ones(4, 3)).backward()
+    optimizer.step()
+    trainable = [n for n, p in trained.named_parameters() if p.requires_grad]
+    state = trained.state_dict()
+    artifact = {
+        "state_dict": {n: state[n].clone() for n in trainable},
+        "trainable_blocks": 2,
+        "class_names": ["a", "b", "c"],
+    }
+
+    fresh_vit = tiny_vit()
+    fresh_vit.load_state_dict(base_state)
+    reloaded = load_finetuned_state(PartialFinetune(fresh_vit, num_classes=3, trainable_blocks=2), artifact)
+    images = torch.rand(3, 3, 32, 32)
+    assert torch.equal(trained.eval()(images), reloaded.eval()(images))
+
+    with pytest.raises(ValueError, match="blocs"):
+        load_finetuned_state(PartialFinetune(tiny_vit(), num_classes=3, trainable_blocks=1), artifact)
+    broken = {**artifact, "state_dict": {k: v for k, v in artifact["state_dict"].items() if not k.startswith("head.")}}
+    with pytest.raises(ValueError, match="incompatibles"):
+        load_finetuned_state(PartialFinetune(tiny_vit(), num_classes=3, trainable_blocks=2), broken)

@@ -13,13 +13,14 @@ reçoivent une probabilité mais aucune décision.
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import torch
 
 from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image
-from src.models.classifier_head import MultiLabelHead
+from src.models.classifier_head import MultiLabelHead, head_probe, probes_match
 from src.models.embedding_cache import file_fingerprint
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone
 from src.pipeline.quality_control import DEFAULT_BLUR_THRESHOLD, check_fundus_file
@@ -34,10 +35,12 @@ class Prediction:
     quality: dict
     findings: dict  # maladie -> {"probability", "threshold", "decision"}
     warnings: list[str] = field(default_factory=list)
+    rejected: bool = False
 
     def to_dict(self) -> dict:
         return {
             "image": self.image,
+            "rejected": self.rejected,
             "quality": self.quality,
             "findings": self.findings,
             "warnings": self.warnings,
@@ -45,9 +48,20 @@ class Prediction:
         }
 
 
-def load_thresholds(path: str | Path, class_names: list[str], policy: str) -> dict:
+def load_thresholds(
+    path: str | Path,
+    class_names: list[str],
+    policy: str,
+    head_signature: list[float] | None = None,
+    allow_unverified: bool = False,
+) -> tuple[dict, bool]:
     """Seuils par maladie d'un fichier results/decision_<dataset>.json. None =
-    pas de décision (preuve insuffisante, ou aucun positif en validation)."""
+    pas de décision (preuve insuffisante, ou aucun positif en validation).
+
+    Le fichier doit porter la sonde de la tête qui a produit ses prédictions
+    (`head_probe`) : une autre tête, même de mêmes classes, est refusée.
+    Fichier sans sonde (historique) : refusé, sauf `allow_unverified`.
+    Renvoie (seuils, compatibilité vérifiée)."""
     if policy not in THRESHOLD_POLICIES:
         raise ValueError(f"politique de seuil {policy!r} inconnue, choisir parmi {THRESHOLD_POLICIES}")
     report = json.loads(Path(path).read_text())
@@ -57,11 +71,27 @@ def load_thresholds(path: str | Path, class_names: list[str], policy: str) -> di
             f"Les seuils ({path}) ne portent pas sur les mêmes classes que la tête : "
             f"{list(classes)[:4]}... contre {list(class_names)[:4]}..."
         )
+    stored = report.get("head_probe")
+    if stored is None or head_signature is None:
+        if not allow_unverified:
+            raise ValueError(
+                f"Les seuils ({path}) ne sont pas liés à une tête (pas de « head_probe ») : compatibilité "
+                "invérifiable. Regénérer les seuils avec scripts/decision_metrics.py --head, ou accepter "
+                "explicitement (--allow-unverified-thresholds)."
+            )
+        verified = False
+    elif not probes_match(stored, head_signature):
+        raise ValueError(f"Les seuils ({path}) ont été calculés pour une autre tête que celle chargée.")
+    else:
+        verified = True
     thresholds = {}
     for name, entry in classes.items():
         decided = entry.get(f"threshold_{policy}")
-        thresholds[name] = None if entry["insufficient_evidence"] or decided is None else decided["threshold"]
-    return thresholds
+        value = None if entry["insufficient_evidence"] or decided is None else decided["threshold"]
+        if value is not None and not (math.isfinite(value) and 0.0 <= value <= 1.0):
+            raise ValueError(f"Seuil invalide pour {name} : {value} (attendu entre 0 et 1)")
+        thresholds[name] = value
+    return thresholds, verified
 
 
 class Predictor:
@@ -74,6 +104,7 @@ class Predictor:
         device: str = "cpu",
         trust_checkpoint: bool | None = None,
         blur_threshold: float = DEFAULT_BLUR_THRESHOLD,
+        allow_unverified_thresholds: bool = False,
     ):
         head_ckpt = torch.load(head_path, map_location="cpu", weights_only=True)
         self.class_names = list(head_ckpt["class_names"])
@@ -97,12 +128,18 @@ class Predictor:
         elif expected_checkpoint != file_fingerprint(checkpoint_path):
             raise ValueError("Le checkpoint RETFound n'est pas celui avec lequel la tête a été entraînée.")
 
-        self.thresholds = (
-            load_thresholds(thresholds_path, self.class_names, policy)
-            if thresholds_path is not None
-            else dict.fromkeys(self.class_names)
-        )
-        if thresholds_path is None:
+        if thresholds_path is not None:
+            self.thresholds, verified = load_thresholds(
+                thresholds_path,
+                self.class_names,
+                policy,
+                head_signature=head_probe(head_ckpt["state_dict"]),
+                allow_unverified=allow_unverified_thresholds,
+            )
+            if not verified:
+                self.warnings.append("Seuils non liés à cette tête (fichier historique) : compatibilité non vérifiée.")
+        else:
+            self.thresholds = dict.fromkeys(self.class_names)
             self.warnings.append("Aucun fichier de seuils : probabilités seules, sans décision.")
 
         self.backbone = RETFoundBackbone(
@@ -118,10 +155,15 @@ class Predictor:
         image = (image - IMAGENET_MEAN.to(self.device)) / IMAGENET_STD.to(self.device)
         return torch.sigmoid(self.head(self.backbone(image)))[0].cpu()
 
-    def predict(self, image_path: str | Path) -> Prediction:
+    def predict(self, image_path: str | Path, reject_unusable: bool = False) -> Prediction:
+        """Contrôle qualité d'abord ; avec `reject_unusable`, une image qui
+        échoue n'est pas passée dans le modèle (`rejected`, aucune décision)."""
         report = check_fundus_file(image_path, blur_threshold=self.blur_threshold)
+        quality = {"usable": report.is_usable, "blur_score": report.blur_score, "reasons": report.reasons}
         warnings = list(self.warnings)
         if not report.is_usable:
+            if reject_unusable:
+                return Prediction(image=str(image_path), quality=quality, findings={}, warnings=warnings, rejected=True)
             reasons = " ; ".join(report.reasons)
             warnings.append(f"Contrôle qualité : {reasons}. Résultat à interpréter avec prudence.")
         probabilities = self.probabilities(image_path)
@@ -135,7 +177,7 @@ class Predictor:
             }
         return Prediction(
             image=str(image_path),
-            quality={"usable": report.is_usable, "blur_score": report.blur_score, "reasons": report.reasons},
+            quality=quality,
             findings=findings,
             warnings=warnings,
         )

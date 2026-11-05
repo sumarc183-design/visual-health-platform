@@ -132,17 +132,20 @@ lésions. À confirmer sur des cas tirés au hasard, erreurs comprises, avec
 plusieurs réglages d'occlusion et la relecture d'un ophtalmologue. Contrôles
 sur toute la population : voir [Robustesse](#robustesse).
 
-**Occlusion sur un échantillon tiré au hasard** (ODIR, validation : 15 malades
-et 15 sains par classe, erreurs comprises, mêmes images pour les deux têtes ;
+**Occlusion sur un échantillon aléatoire stratifié** (ODIR, validation : 15
+malades et 15 sains tirés au hasard par classe, erreurs comprises, mêmes
+images pour les deux têtes ; IC de la différence appariée par bootstrap sur
+les patients, les deux yeux et une image comptée dans plusieurs classes
+étant tirés ensemble ;
 [`scripts/occlusion_population.py`](scripts/occlusion_population.py),
 [résultats](results/occlusion_population_odir.json)). Médiane sur les malades :
 
 | Classe | Effet hors rétine `none` → `crop-mask` | Différence appariée [IC 95 %] | Fond gris (logit) `none` → `crop-mask` |
 |---|---|---|---|
-| DMLA (A) | 77 % → **12 %** | **−65 % [−75 ; −50]** | −5,8 → +0,4 |
-| Glaucome (G) | 81 % → 48 % | −15 % [−36 ; −13] | −5,8 → −2,5 |
+| DMLA (A) | 77 % → **12 %** | **−65 % [−77 ; −45]** | −5,8 → +0,4 |
+| Glaucome (G) | 81 % → 48 % | −15 % [−37 ; −13] | −5,8 → −2,5 |
 | Hypertension (H) | 61 % → 26 % | −29 % [−48 ; −22] | −6,2 → −2,9 |
-| Myopie (M) | 37 % → 12 % | −25 % [−40 ; −16] | −5,3 → +1,6 |
+| Myopie (M) | 37 % → 12 % | −25 % [−46 ; −17] | −5,3 → +1,6 |
 | Toutes classes | 48 % → 20 % | −16 % [−24 ; −13] | −3,5 → −0,2 |
 
 - Sans prétraitement commun, le raccourci par le fond était **réel sur la
@@ -306,8 +309,9 @@ d'origine ([`scripts/external_validation.py`](scripts/external_validation.py),
 
 - Les chiffres obtenus dans une base **surestiment nettement** la
   performance globale ailleurs : −0,12 pour la tête RFMiD ; la tête ODIR
-  est au niveau du hasard sur APTOS. Pour la tête RFMiD, cette baisse vient
-  surtout de l'appareil (contrôle 7) : à appareil égal, elle reste à 0,942.
+  est au niveau du hasard sur APTOS. Pour la tête RFMiD, la baisse est
+  compatible avec un effet de format d'acquisition (contrôle 7) : à format
+  égal, elle est de 0,919, à confirmer.
 - **Les seuils ne se transposent pas** : le seuil réglé pour 90 % de
   sensibilité sur la validation RFMiD n'en donne que 51 % sur APTOS. Un
   déploiement demanderait de recalibrer les seuils sur des images du site.
@@ -327,65 +331,66 @@ d'origine ([`scripts/external_validation.py`](scripts/external_validation.py),
   **entraînée** sur APTOS peut s'en servir ; la tête RFMiD, qui ne l'a
   jamais vue, non : la mesure externe ci-dessus reste valable.
 
-**6. Adaptation à un nouveau site : à confirmer sur une base sans biais
-d'acquisition.** APTOS coupé en deux moitiés stratifiées : la moitié
-« site » sert à adapter, la moitié « rapport » à mesurer
+**6. Adaptation à un nouveau site : le gain apparent vient surtout du biais
+d'APTOS.** APTOS coupé en deux moitiés stratifiées et **groupées** (les
+doublons d'images restent du même côté) : la moitié « site » sert à
+adapter, la moitié « rapport » à mesurer ; le seuil few-shot est choisi
+hors échantillon (validation croisée interne sur les N images)
 ([`scripts/site_adaptation.py`](scripts/site_adaptation.py),
 [résultats](results/site_adaptation_aptos.json)) :
 
 | Adaptation (tête RFMiD) | AUROC (rapport) | Sensibilité | Spécificité |
 |---|---|---|---|
-| Aucune (seuil de la validation RFMiD) | 0,830 | 0,50 | 0,95 |
-| Sans étiquette : centrage par domaine | 0,773 | — | — |
-| Sans étiquette : CORAL | 0,833 | — | — |
-| Seuil recalibré avec 50 images étiquetées du site | 0,830 | 0,91 | 0,39 |
-| Tête réentraînée avec 50 images étiquetées du site | 0,981 | 0,85 | 0,97 |
-| Tête réentraînée avec 400 images étiquetées du site | 0,990 | 0,90 | 0,98 |
+| Aucune (seuil de la validation RFMiD) | 0,821 | 0,49 | 0,96 |
+| Sans étiquette : centrage par domaine | 0,765 | — | — |
+| Sans étiquette : CORAL | 0,819 | — | — |
+| Seuil recalibré avec 50 images étiquetées du site | 0,821 | 0,87 | 0,46 |
+| Tête réentraînée avec 50 images étiquetées du site | 0,977 | 0,78 | 0,98 |
+| Tête réentraînée avec 400 images étiquetées du site | 0,987 | 0,92 | 0,97 |
 
-- Sans étiquette, rien n'aide. Recalibrer le seuil retrouve la sensibilité
-  visée, mais avec 60 % de fausses alertes.
+- Sans étiquette, rien n'aide. Recalibrer le seuil approche la sensibilité
+  visée, mais avec plus de 50 % de fausses alertes.
 - Réentraîner la tête avec quelques dizaines d'images du site fait bondir
-  l'AUROC, **mais sur APTOS ce gain est suspect** : la tête peut apprendre
-  le biais d'acquisition de la base plutôt que la maladie. On ne peut pas en
-  conclure que « 50 images suffisent » ; il faut refaire l'expérience sur
-  une base sans ce biais, ou à appareil égal (métadonnées d'appareil
-  d'APTOS à récupérer).
-- Pistes restantes pour la généralisation : sources d'entraînement plus
-  variées, normalisation des couleurs et augmentation de données,
-  fine-tuning partiel de RETFound.
+  l'AUROC globale, **mais ce gain vient surtout du lien format/diagnostic
+  d'APTOS** : à format égal, ces têtes ne font pas mieux que la tête RFMiD
+  (contrôle 7). On ne peut pas en conclure que « 50 images suffisent ».
+- Les écarts-types sur dix tirages ne couvrent que la variabilité du
+  tirage des N images, pas celle de la moitié « rapport ».
 
-**7. À appareil égal : la maladie se reconnaît, c'est l'échelle des scores
-qui dépend de l'appareil.** L'appareil d'APTOS est repéré par le format
-d'image d'origine ([`notebooks/colab_aptos_formats.ipynb`](notebooks/colab_aptos_formats.ipynb),
+**7. À format égal, la tête RFMiD classe mieux : résultat compatible avec un
+effet de format d'acquisition, à confirmer.** La strate est le **format
+d'image d'origine**, indicateur indirect des conditions d'acquisition, pas
+un identifiant d'appareil validé ; une différence entre AUROC globale et à
+format égal montre une dépendance aux strates sans en identifier la cause
+(appareil, sévérité, sélection, population). Analyse exploratoire, sur la
+moitié « rapport » d'APTOS, doublons d'images regroupés ([`notebooks/colab_aptos_formats.ipynb`](notebooks/colab_aptos_formats.ipynb),
 [`scripts/aptos_device_check.py`](scripts/aptos_device_check.py),
 [résultats](results/aptos_device_check.json)).
 
-- **Dans APTOS, l'appareil donne presque le diagnostic** : sur 17 formats,
+- **Dans APTOS, le format donne presque le diagnostic** : sur 17 formats,
   presque tous ont 0-7 % ou 95-100 % de malades (lien format/diagnostic
-  0,336). Seules 4 % des paires malade/sain sont comparables à appareil
-  égal : les estimations ci-dessous reposent surtout sur le seul format
-  mélangé (2588×1958, 57 % de malades).
+  0,336). Seules 4 % des paires malade/sain sont comparables à format égal,
+  réparties sur trois formats : 1050×1050 (41 % des paires, AUROC de la
+  tête RFMiD 0,912), 2588×1958 (40 %, 0,974) et 2416×1736 (17 %, 0,836).
 
-| Tête (moitié « rapport » d'APTOS) | AUROC globale | AUROC à appareil égal | Écart [IC 95 %] |
+| Tête (moitié « rapport » d'APTOS) | AUROC globale | AUROC à format égal | Écart [IC 95 %] |
 |---|---|---|---|
-| RFMiD, jamais vu APTOS | 0,830 | **0,942** | −0,112 [−0,135 ; −0,088] |
-| RFMiD + 50 images du site | 0,981 | 0,934 | +0,048 [+0,030 ; +0,067] |
-| RFMiD + 200 images du site | 0,989 | 0,945 | +0,044 [+0,029 ; +0,061] |
-| Entraînée sur la moitié « site » | 0,995 | 0,964 | +0,032 [+0,019 ; +0,047] |
+| RFMiD, jamais vu APTOS | 0,821 | **0,919** | −0,098 [−0,126 ; −0,068] |
+| RFMiD + 50 images du site | 0,979 | 0,906 | +0,073 [+0,051 ; +0,100] |
+| RFMiD + 200 images du site | 0,984 | 0,912 | +0,072 [+0,051 ; +0,098] |
+| Entraînée sur la moitié « site » | 0,994 | 0,951 | +0,043 [+0,028 ; +0,062] |
 
 - Les têtes entraînées avec des images APTOS **profitent du lien
-  appareil/diagnostic** (écart positif) : leur AUROC globale de 0,98-0,99
-  est gonflée ; à appareil égal, elles ne font pas mieux que la tête RFMiD.
-- La tête RFMiD **reconnaît la maladie aussi bien qu'à domicile** (0,942 à
-  appareil égal, contre 0,947 sur le test RFMiD), mais **ses scores se
-  décalent d'un appareil à l'autre**, au point que des yeux sains de
-  certains appareils passent devant des malades d'autres appareils. La
-  baisse de l'AUROC globale (0,830) vient de ce décalage, pas d'une perte
-  de reconnaissance.
-- Conséquence : le remède le plus prometteur n'est pas de réentraîner sur
-  le site, mais de **recalibrer les scores par appareil ou par site**, ce
-  qui demande des images du site, et peu ou pas d'étiquettes. À tester sur
-  une base où malades et sains partagent les mêmes appareils (contrôle 8).
+  format/diagnostic** (écart positif) : leur AUROC globale de 0,98-0,99
+  est gonflée ; à format égal, elles ne font pas mieux que la tête RFMiD.
+- La tête RFMiD classe mieux à format égal (0,919) que globalement (0,821) :
+  une partie de la baisse globale est compatible avec un décalage de ses
+  scores d'un format à l'autre. Cela ne prouve ni que la reconnaissance
+  externe vaut celle de RFMiD (les paires comparées ne sont pas les mêmes,
+  ni la population), ni que le format est seul en cause.
+- Piste : recalibrer les scores par appareil ou par site, à tester sur une
+  base où malades et sains partagent les mêmes appareils (contrôle 8,
+  EyePACS en préparation).
 
 **8. Recalibrage par appareil, sans étiquette : pas de gain démontré.**
 Testé sur le transfert entre RFMiD et ODIR, dont les appareils

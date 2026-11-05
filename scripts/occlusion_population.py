@@ -76,15 +76,57 @@ def summarize(records: list[dict]) -> dict:
     }
 
 
-def paired_median_diff(a: list, b: list, n_boot: int = 2000, seed: int = 0) -> dict | None:
-    """Médiane de (b − a) sur les images où les deux mesures existent, IC 95 % par bootstrap."""
-    pairs = np.array([(x, y) for x, y in zip(a, b, strict=True) if x is not None and y is not None])
-    if len(pairs) < 5:
+def measure(record: dict, key: str):
+    if key == "effect_outside":
+        return record["part_effet_hors_champ"]
+    return record["logit_fond_gris"] - record["logit"]
+
+
+def paired_median_diff(
+    first: list[dict], last: list[dict], key: str, patients: list[str], cls: str, n_boot: int = 2000, seed: int = 0
+) -> dict | None:
+    """Médiane de (dernière tête − première) sur les malades mesurés par les
+    deux têtes (appariés par classe et image), IC 95 % par bootstrap **sur
+    les patients** : les deux yeux d'un patient, et une même image comptée
+    dans plusieurs classes, sont tirés ensemble (second audit)."""
+    second = {(r["classe"], r["index"]): r for r in last}
+    rows = []
+    for r in first:
+        if r["label"] != 1 or (cls != "toutes" and r["classe"] != cls):
+            continue
+        other = second.get((r["classe"], r["index"]))
+        a, b = measure(r, key), measure(other, key) if other else None
+        if a is not None and b is not None:
+            rows.append((patients[r["index"]], b - a))
+    if len(rows) < 5:
         return None
-    diff = pairs[:, 1] - pairs[:, 0]
+    by_patient: dict[str, list[float]] = {}
+    for patient, d in rows:
+        by_patient.setdefault(patient, []).append(d)
+    units = list(by_patient.values())
     rng = np.random.default_rng(seed)
-    draws = [np.median(rng.choice(diff, len(diff))) for _ in range(n_boot)]
-    return {"median_diff": float(np.median(diff)), "ci": [float(x) for x in np.percentile(draws, [2.5, 97.5])]}
+    draws = []
+    for _ in range(n_boot):
+        picked = rng.integers(0, len(units), len(units))
+        draws.append(np.median([d for i in picked for d in units[i]]))
+    diffs = [d for _, d in rows]
+    return {
+        "median_diff": float(np.median(diffs)),
+        "ci": [float(x) for x in np.percentile(draws, [2.5, 97.5])],
+        "measurements": len(rows),
+        "patients": len(units),
+    }
+
+
+def paired_summary(heads: dict, classes: list[str], patients: list[str]) -> dict:
+    first, last = list(heads.values())[0]["records"], list(heads.values())[-1]["records"]
+    return {
+        cls: {
+            key: paired_median_diff(first, last, key, patients, cls)
+            for key in ("effect_outside", "gray_background_delta")
+        }
+        for cls in [*classes, "toutes"]
+    }
 
 
 def main() -> None:
@@ -189,23 +231,9 @@ def main() -> None:
                 )
 
     if len(args.heads) >= 2:
-        first, last = list(report["heads"].values())[0], list(report["heads"].values())[-1]
-        report["paired"] = {}
-        for class_name in [*classes, "toutes"]:
-
-            def pick(head, key, cls=class_name):
-                return [
-                    (r[key] if key == "part_effet_hors_champ" else r["logit_fond_gris"] - r["logit"])
-                    for r in head["records"]
-                    if r["label"] == 1 and (cls == "toutes" or r["classe"] == cls)
-                ]
-
-            report["paired"][class_name] = {
-                "effect_outside": paired_median_diff(
-                    pick(first, "part_effet_hors_champ"), pick(last, "part_effet_hors_champ")
-                ),
-                "gray_background_delta": paired_median_diff(pick(first, "delta"), pick(last, "delta")),
-            }
+        dataset, _ = load_val_dataset(args.dataset, args.data_root, head_ckpts[0])
+        report["paired"] = paired_summary(report["heads"], classes, list(dataset.groups))
+        report["paired_bootstrap_unit"] = "patient"
         p = report["paired"]["toutes"]["effect_outside"]
         label = f"Apparié (malades, {list(report['heads'])[-1]} − {list(report['heads'])[0]}) : effet hors champ"
         if p is None:

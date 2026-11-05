@@ -266,8 +266,16 @@ la tête, RETFound figé, tête, puis décision par maladie.
   les têtes du run publié (crop-mask, 30 epochs, graine 42).
 - Maladies en preuve insuffisante (moins de 10 cas) : probabilité sans
   décision.
-- `--reject-unusable` : pas de prédiction si le contrôle qualité échoue
-  (par défaut, il est signalé et le résultat est donné).
+- `--reject-unusable` : une image qui échoue au contrôle qualité n'est pas
+  passée dans le modèle (par défaut, l'échec est signalé et le résultat
+  donné).
+- Les seuils sont **liés à la tête** : `scripts/decision_metrics.py --head
+  <tête> --embeddings embeddings` enregistre une sonde de la tête, après
+  avoir vérifié qu'elle redonne les prédictions de validation ;
+  `predict.py` refuse ensuite les seuils d'une autre tête, même de mêmes
+  classes, et tout seuil hors de [0, 1]. Un ancien fichier sans sonde
+  n'est accepté qu'avec `--allow-unverified-thresholds`, signalé comme non
+  vérifié.
 - Refus si la tête a été entraînée avec un autre checkpoint ou une autre
   version du prétraitement (têtes récentes ; les anciennes sont acceptées
   avec un avertissement).

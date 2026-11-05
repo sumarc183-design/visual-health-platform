@@ -59,6 +59,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.robustness_checks import embeddings, head_scores, load  # noqa: E402
 from src.eval.decision import choose_threshold, decision_metrics  # noqa: E402
+from src.eval.duplicates import (  # noqa: E402
+    NEAR_DUPLICATE_COSINE,
+    duplicate_report,
+    exact_duplicate_groups,
+    independent_groups,
+    merge_groups,
+)
 from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache  # noqa: E402
 
@@ -134,8 +141,12 @@ def main() -> None:
     X_ext = cache.get(list(labels["key"]))
     grade = labels["diagnosis"].to_numpy()
     any_dr, referable = (grade >= 1).astype(float), (grade >= 2).astype(float)
-    # Patient quand la base le donne (EyePACS : deux yeux par patient), sinon l'image
-    ext_groups = list(labels["group"].astype(str)) if "group" in labels else list(labels["key"])
+    # Unités indépendantes : patient quand la base le donne (EyePACS : deux yeux
+    # par patient), sinon l'image ; fusionnées avec les doublons d'images
+    # (embeddings identiques ou quasi identiques), qui ne doivent pas être
+    # séparés par les plis ni tirés séparément par le bootstrap.
+    base_groups = list(labels["group"].astype(str)) if "group" in labels else list(labels["key"])
+    ext_groups, near_pairs = independent_groups(X_ext, base_groups)
 
     in_domain = np.zeros(len(grade))
     # Plis groupés par patient : les deux yeux d'un patient restent du même côté
@@ -148,6 +159,12 @@ def main() -> None:
             "referable_dr": auroc_with_ci(referable, in_domain, ext_groups, "referable_dr"),
         },
         "external": ext,
+        "duplicates": {
+            **duplicate_report(merge_groups(len(grade), exact_duplicate_groups(X_ext)), grade),
+            "near_duplicate_pairs": near_pairs,
+            "near_duplicate_cosine": NEAR_DUPLICATE_COSINE,
+            "independent_groups": len(set(ext_groups)),
+        },
         "external_images": int(len(labels)),
         "external_grades": {int(g): int((grade == g).sum()) for g in range(5)},
         "target_sensitivity": args.target_sensitivity,

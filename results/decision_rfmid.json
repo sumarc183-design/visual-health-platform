@@ -4,6 +4,8 @@
   "DR": {
    "positives_val": 132,
    "positives_test": 124,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.07405727356672287,
    "brier_test_calibrated": 0.07475198805332184,
@@ -51,6 +53,8 @@
   "ARMD": {
    "positives_val": 38,
    "positives_test": 31,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.023168733343482018,
    "brier_test_calibrated": 0.023039933294057846,
@@ -98,6 +102,8 @@
   "MH": {
    "positives_val": 102,
    "positives_test": 104,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.05296752601861954,
    "brier_test_calibrated": 0.053167618811130524,
@@ -145,6 +151,8 @@
   "DN": {
    "positives_val": 46,
    "positives_test": 46,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.06282183527946472,
    "brier_test_calibrated": 0.06214454770088196,
@@ -192,6 +200,8 @@
   "MYA": {
    "positives_val": 34,
    "positives_test": 32,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.012416467070579529,
    "brier_test_calibrated": 0.012521150521934032,
@@ -239,6 +249,8 @@
   "BRVO": {
    "positives_val": 23,
    "positives_test": 23,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.020516708493232727,
    "brier_test_calibrated": 0.020462311804294586,
@@ -286,6 +298,8 @@
   "TSLN": {
    "positives_val": 65,
    "positives_test": 53,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.0552205927670002,
    "brier_test_calibrated": 0.05434354022145271,
@@ -333,6 +347,8 @@
   "ERM": {
    "positives_val": 7,
    "positives_test": 5,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.007853507995605469,
    "brier_test_calibrated": 0.007878495380282402,
@@ -380,6 +396,8 @@
   "LS": {
    "positives_val": 17,
    "positives_test": 15,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.01207975298166275,
    "brier_test_calibrated": 0.012333517894148827,
@@ -427,6 +445,8 @@
   "MS": {
    "positives_val": 5,
    "positives_test": 7,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.009852103888988495,
    "brier_test_calibrated": 0.009860413148999214,
@@ -474,6 +494,8 @@
   "CSR": {
    "positives_val": 11,
    "positives_test": 13,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.018578294664621353,
    "brier_test_calibrated": 0.01827322319149971,
@@ -521,6 +543,8 @@
   "ODC": {
    "positives_val": 72,
    "positives_test": 91,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.10056750476360321,
    "brier_test_calibrated": 0.10096926987171173,
@@ -568,6 +592,8 @@
   "CRVO": {
    "positives_val": 8,
    "positives_test": 9,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.00974416546523571,
    "brier_test_calibrated": 0.009589085355401039,
@@ -615,6 +641,8 @@
   "TV": {
    "positives_val": 2,
    "positives_test": 2,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.003101314650848508,
    "brier_test_calibrated": 0.0030933148227632046,
@@ -662,6 +690,8 @@
   "AH": {
    "positives_val": 4,
    "positives_test": 5,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.0039672041311860085,
    "brier_test_calibrated": 0.00390333728864789,
@@ -709,6 +739,8 @@
   "ODP": {
    "positives_val": 26,
    "positives_test": 24,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.03166458010673523,
    "brier_test_calibrated": 0.03132936358451843,
@@ -756,6 +788,8 @@
   "ODE": {
    "positives_val": 21,
    "positives_test": 17,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.011144918389618397,
    "brier_test_calibrated": 0.011289511807262897,
@@ -803,6 +837,8 @@
   "ST": {
    "positives_val": 4,
    "positives_test": 2,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.0031342818401753902,
    "brier_test_calibrated": 0.003144507762044668,
@@ -850,6 +886,8 @@
   "AION": {
    "positives_val": 5,
    "positives_test": 4,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.006226695142686367,
    "brier_test_calibrated": 0.006221132818609476,
@@ -897,6 +935,8 @@
   "PT": {
    "positives_val": 2,
    "positives_test": 4,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.006470937281847,
    "brier_test_calibrated": 0.006549164652824402,
@@ -944,6 +984,8 @@
   "RT": {
    "positives_val": 6,
    "positives_test": 5,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.007076744921505451,
    "brier_test_calibrated": 0.00697674136608839,
@@ -991,6 +1033,8 @@
   "RS": {
    "positives_val": 14,
    "positives_test": 14,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.0193292535841465,
    "brier_test_calibrated": 0.019150469452142715,
@@ -1038,6 +1082,8 @@
   "CRS": {
    "positives_val": 11,
    "positives_test": 11,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.014225075952708721,
    "brier_test_calibrated": 0.014169612899422646,
@@ -1085,6 +1131,8 @@
   "EDN": {
    "positives_val": 5,
    "positives_test": 4,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.0053510768339037895,
    "brier_test_calibrated": 0.005404493771493435,
@@ -1132,6 +1180,8 @@
   "RPEC": {
    "positives_val": 6,
    "positives_test": 4,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.010390947572886944,
    "brier_test_calibrated": 0.011454583145678043,
@@ -1179,6 +1229,8 @@
   "MHL": {
    "positives_val": 3,
    "positives_test": 3,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.00562392920255661,
    "brier_test_calibrated": 0.005786598660051823,
@@ -1226,6 +1278,8 @@
   "RP": {
    "positives_val": 2,
    "positives_test": 2,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 0.0021591007243841887,
    "brier_test_calibrated": 0.0020829043351113796,
@@ -1273,6 +1327,8 @@
   "PTCR": {
    "positives_val": 1,
    "positives_test": 0,
+   "enough_val_for_threshold": false,
+   "enough_test_for_evaluation": false,
    "insufficient_evidence": true,
    "brier_test": 1.8417380488244817e-05,
    "brier_test_calibrated": 3.30965340253897e-05,
@@ -1318,6 +1374,38 @@
   }
  },
  "dataset": "rfmid",
+ "head_file": "rfmid_crop-mask_head.pt",
+ "head_probe": [
+  -4.17831361865511,
+  3.154112876049971,
+  -1.3449676814254112,
+  0.4063928861855096,
+  -4.122794529395728,
+  -0.24869012119423295,
+  2.5025491481346465,
+  6.447266804048693,
+  -1.0488303770579284,
+  -0.7977748273146714,
+  2.1193669812826306,
+  0.3992211806939925,
+  -4.298330199251478,
+  0.8603011342420159,
+  1.2710539173320352,
+  0.3384932952428785,
+  -0.9538191654329982,
+  2.3808067896703577,
+  4.320012150961078,
+  -2.317908555335164,
+  2.047157474289607,
+  2.3894466313721257,
+  3.8072696496897054,
+  -10.318312259466277,
+  -2.128166380904243,
+  0.8995781082677441,
+  3.8013980860683865,
+  4.295384547165236
+ ],
+ "head_check_max_abs_diff_val": 3.368849114115946e-07,
  "target_sensitivity": 0.9,
  "summary": {
   "classes_evaluable": 14,

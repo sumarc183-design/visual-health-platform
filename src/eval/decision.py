@@ -144,6 +144,10 @@ def per_class_report(
         entry = {
             "positives_val": int(yv.sum()),
             "positives_test": int(yt.sum()),
+            # Deux questions distinctes (second audit) : assez de cas en validation pour
+            # fixer un seuil, et assez de cas au test pour évaluer ce seuil.
+            "enough_val_for_threshold": bool(yv.sum() >= MIN_POSITIVES_FOR_THRESHOLD),
+            "enough_test_for_evaluation": bool(yt.sum() >= MIN_POSITIVES_FOR_THRESHOLD),
             "insufficient_evidence": bool(min(yv.sum(), yt.sum()) < MIN_POSITIVES_FOR_THRESHOLD),
             "brier_test": brier_score(yt, pt),
             "brier_test_calibrated": brier_score(yt, p_test_cal[:, c]),

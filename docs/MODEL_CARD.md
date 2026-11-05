@@ -88,13 +88,13 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   changement de base qui échoue. Toute utilisation sur un nouveau site
   demande une évaluation et un recalibrage locaux. Réentraîner la tête
   avec quelques dizaines d'images du site donne 0,98 sur APTOS, mais ce
-  chiffre est gonflé : dans APTOS, l'appareil donne presque le diagnostic
-  (formats d'image à 0-7 % ou 95-100 % de malades), et ces têtes s'en
-  servent (AUROC à appareil égal 0,934-0,964). La tête RFMiD, elle,
-  reconnaît la maladie à appareil égal (0,942, contre 0,947 sur RFMiD) :
-  c'est l'échelle de ses scores qui dépend de l'appareil, d'où la baisse
-  globale. Un recalibrage des scores par appareil ou par site est la piste
-  à évaluer.
+  chiffre est gonflé : dans APTOS, le format d'image d'origine (indicateur
+  indirect de l'acquisition) donne presque le diagnostic, et ces têtes
+  s'en servent (AUROC à format égal 0,906-0,951). La tête RFMiD classe
+  mieux à format égal (0,919) que globalement (0,821) : résultat compatible
+  avec un décalage de scores selon l'acquisition, à confirmer ; il ne
+  prouve pas que la reconnaissance externe vaut celle de RFMiD. 6,8 %
+  d'APTOS sont des doublons d'images, regroupés dans ces analyses.
 - **Contrôle qualité** : seuil de flou calibré le 5 nov. (4,16 ; détecte
   79 à 90 % des images franchement floutées, signale ~2 % d'ODIR). Il ne
   détecte pas les images « mauvaise qualité » annotées dans ODIR (AUROC

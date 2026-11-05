@@ -7,7 +7,8 @@ ne se transposent pas. Question pratique : que faut-il au nouveau site pour
 que le modèle y fonctionne ?
 
 Protocole : APTOS est coupé en deux moitiés stratifiées par stade (graine
-fixe). La moitié **site** joue les images dont dispose l'hôpital (sans ou
+fixe), **groupées** : les doublons d'images (embeddings identiques ou quasi
+identiques, 6,8 % d'APTOS) restent du même côté. La moitié **site** joue les images dont dispose l'hôpital (sans ou
 avec quelques étiquettes) : tout réglage s'y fait. La moitié **rapport**
 n'est lue que pour mesurer.
 
@@ -17,7 +18,8 @@ Pistes (tête source : RFMiD, classe DR, réglages de la baseline) :
    à partir des images de la moitié site seulement.
 2. Avec N images étiquetées du site : seuil recalibré pour une sensibilité
    de 0,90 (la tête ne change pas).
-3. Avec N images étiquetées du site : tête réentraînée sur source + N.
+3. Avec N images étiquetées du site : tête réentraînée sur source + N ;
+   seuil choisi hors échantillon (validation croisée interne sur les N).
 Pour 2 et 3, N parmi 25 à 400, tirages répétés (moyenne et écart-type).
 
 Exemple :
@@ -37,12 +39,18 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.robustness_checks import embeddings, head_scores, load  # noqa: E402
 from src.eval.decision import choose_threshold, decision_metrics  # noqa: E402
+from src.eval.duplicates import (  # noqa: E402
+    duplicate_report,
+    exact_duplicate_groups,
+    independent_groups,
+    merge_groups,
+)
 from src.models.embedding_cache import EmbeddingCache  # noqa: E402
 
 SHOTS = (25, 50, 100, 200, 400)
@@ -66,6 +74,34 @@ def coral(source: np.ndarray, target: np.ndarray, eps: float = 1.0) -> np.ndarra
     cov_s = np.cov(source, rowvar=False) + eps * np.eye(d)
     cov_t = np.cov(target, rowvar=False) + eps * np.eye(d)
     return (source - source.mean(0)) @ sqrtm(cov_s, inverse=True) @ sqrtm(cov_t) + target.mean(0)
+
+
+def split_site_report(X: np.ndarray, grade: np.ndarray, seed: int):
+    """Moitiés « site » et « rapport » stratifiées par stade et groupées : les
+    doublons d'images (embeddings identiques ou quasi identiques) restent du
+    même côté (second audit, 5 novembre 2026)."""
+    groups, near_pairs = independent_groups(X, [str(i) for i in range(len(X))])
+    splitter = StratifiedGroupKFold(n_splits=2, shuffle=True, random_state=seed)
+    site, report = next(splitter.split(X, grade, groups=groups))
+    report_info = duplicate_report(merge_groups(len(X), exact_duplicate_groups(X)), grade)
+    report_info.update(near_duplicate_pairs=near_pairs, independent_groups=len(set(groups)))
+    shared = set(np.array(groups)[site]) & set(np.array(groups)[report])
+    assert not shared, f"{len(shared)} groupes de doublons partagés entre site et rapport"
+    return site, report, report_info
+
+
+def out_of_fold_scores(X_src, y_src, X_few, y_few, folds: int = 5) -> np.ndarray:
+    """Scores des N images du site, chacune prédite par une tête entraînée sur
+    la source et les autres images du site (validation croisée interne)."""
+    k = int(min(folds, y_few.sum(), len(y_few) - y_few.sum()))
+    if k < 2:  # trop peu de malades ou de sains pour séparer : repli sur la tête source seule
+        return quiet_scores(X_src, y_src, X_few)
+    scores = np.zeros(len(y_few))
+    for train_idx, test_idx in StratifiedKFold(k, shuffle=True, random_state=0).split(X_few, y_few):
+        X_mix = np.vstack([X_src, X_few[train_idx]])
+        y_mix = np.vstack([y_src, y_few[train_idx, None]])
+        scores[test_idx] = quiet_scores(X_mix, y_mix, X_few[test_idx])
+    return scores
 
 
 def summary(values: list[float]) -> dict:
@@ -92,7 +128,7 @@ def main() -> None:
     X_apt = EmbeddingCache(args.embeddings / "aptos_crop-mask_224_RETFound_mae_natureCFP.npz").get(list(labels["key"]))
     grade = labels["diagnosis"].to_numpy()
     y_apt = (grade >= 1).astype(np.float32)
-    site, report = train_test_split(np.arange(len(grade)), test_size=0.5, stratify=grade, random_state=args.seed)
+    site, report, dup = split_site_report(X_apt, grade, args.seed)
     X_site, y_site, X_rep, y_rep = X_apt[site], y_apt[site], X_apt[report], y_apt[report]
 
     def evaluate(p_rep, threshold=None) -> dict:
@@ -102,7 +138,15 @@ def main() -> None:
             out.update(sensitivity=m["sensitivity"], specificity=m["specificity"])
         return out
 
-    result = {"site_images": len(site), "report_images": len(report), "unsupervised": {}, "few_shot": {}}
+    result = {
+        "site_images": len(site),
+        "report_images": len(report),
+        "split": "par groupes indépendants (doublons d'images regroupés), stratifié par stade",
+        "duplicates": dup,
+        "few_shot_threshold": "choisi hors échantillon (validation croisée interne sur les N images)",
+        "unsupervised": {},
+        "few_shot": {},
+    }
 
     # 0. Référence : tête source telle quelle, seuil de la validation RFMiD
     p_val = quiet_scores(X_src, y_src, X_src_val)
@@ -133,10 +177,13 @@ def main() -> None:
                 pick = rng.choice(len(site), size=n, replace=False)
             threshold = choose_threshold(y_site[pick], p_site_source[pick], "sensitivity", args.target_sensitivity)
             recal.append(evaluate(p_rep, threshold))
+            # Seuil hors échantillon : scores des N images prédits par des têtes
+            # qui ne les ont pas vues (validation croisée interne), pas par la
+            # tête finale, entraînée sur elles.
+            oof = out_of_fold_scores(X_src, y_src, X_site[pick], y_site[pick])
+            threshold_mix = choose_threshold(y_site[pick], oof, "sensitivity", args.target_sensitivity)
             X_mix = np.vstack([X_src, X_site[pick]])
             y_mix = np.vstack([y_src, y_site[pick, None]])
-            p_mix_site = quiet_scores(X_mix, y_mix, X_site[pick])
-            threshold_mix = choose_threshold(y_site[pick], p_mix_site, "sensitivity", args.target_sensitivity)
             retrain.append(evaluate(quiet_scores(X_mix, y_mix, X_rep), threshold_mix))
         result["few_shot"][str(n)] = {
             "threshold_recalibrated": {k: summary([r[k] for r in recal]) for k in recal[0]},

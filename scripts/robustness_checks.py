@@ -43,6 +43,7 @@ from torch.utils.data import DataLoader
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from src.data.fundus_preprocess import PREPROCESS_VERSION  # noqa: E402
 from src.data.odir_dataset import ODIRDataset  # noqa: E402
 from src.data.rfmid_dataset import RFMiDDataset  # noqa: E402
 from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel, stratification_gap  # noqa: E402
@@ -70,7 +71,16 @@ def image_formats(dataset) -> list[str]:
 
 
 def embeddings(cache_dir: Path, name: str, preprocess: str, keys: list[str]) -> np.ndarray:
-    return EmbeddingCache(cache_dir / f"{name}_{preprocess}_224_{CHECKPOINT_STEM}.npz").get(keys)
+    """Embeddings en cache, avec la même vérification de configuration que le
+    pipeline principal (prétraitement, sa version, taille d'image ; checkpoint
+    non vérifiable ici, faute du fichier sur la machine)."""
+    meta = {
+        "checkpoint_sha256": None,
+        "preprocess": preprocess,
+        "preprocess_version": PREPROCESS_VERSION,
+        "image_size": 224,
+    }
+    return EmbeddingCache(cache_dir / f"{name}_{preprocess}_224_{CHECKPOINT_STEM}.npz", meta=meta).get(keys)
 
 
 def device_probe(name: str, root: Path, cache_dir: Path) -> dict:

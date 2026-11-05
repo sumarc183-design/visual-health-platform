@@ -54,48 +54,146 @@
  },
  "heads": {
   "tête RFMiD (jamais vu APTOS)": {
-   "auroc": 0.8301268281971971,
-   "auroc_within_strata": 0.941859509790497,
-   "gap": -0.11173268159329997,
+   "auroc": 0.8214345381296063,
+   "auroc_within_strata": 0.919349035454319,
+   "gap": -0.09791449732471269,
    "gap_ci": [
-    -0.13479902624212003,
-    -0.08755776717244793
+    -0.12569806436256947,
+    -0.06849447703859161
    ],
-   "comparable_pairs": 0.04357481765761637,
+   "comparable_pairs": 0.04311657501813877,
    "positives": 928
   },
   "tête RFMiD + 50 images du site": {
-   "auroc": 0.9814316263795013,
-   "auroc_within_strata": 0.9335615500479255,
-   "gap": 0.047870076331575806,
+   "auroc": 0.9787275174705007,
+   "auroc_within_strata": 0.9055105034457944,
+   "gap": 0.07321701402470626,
    "gap_ci": [
-    0.030190180443376992,
-    0.06743682537541762
+    0.05149445773243717,
+    0.09951767864577031
    ],
-   "comparable_pairs": 0.04357481765761637,
+   "comparable_pairs": 0.04311657501813877,
    "positives": 928
   },
   "tête RFMiD + 200 images du site": {
-   "auroc": 0.9886978748997595,
-   "auroc_within_strata": 0.9446802683828563,
-   "gap": 0.04401760651690312,
+   "auroc": 0.9841536353916065,
+   "auroc_within_strata": 0.9122637070659545,
+   "gap": 0.071889928325652,
    "gap_ci": [
-    0.028828007404612603,
-    0.0612452774593251
+    0.05119914792185649,
+    0.09842605897678572
    ],
-   "comparable_pairs": 0.04357481765761637,
+   "comparable_pairs": 0.04311657501813877,
    "positives": 928
   },
   "tête entraînée sur la moitié site": {
-   "auroc": 0.995286306182457,
-   "auroc_within_strata": 0.9635218403395864,
-   "gap": 0.031764465842870515,
+   "auroc": 0.9938017909649827,
+   "auroc_within_strata": 0.9508455343057208,
+   "gap": 0.04295625665926184,
    "gap_ci": [
-    0.01884556124152378,
-    0.04722370526885677
+    0.027664838355052783,
+    0.06193185161397251
    ],
-   "comparable_pairs": 0.04357481765761637,
+   "comparable_pairs": 0.04311657501813877,
    "positives": 928
+  }
+ },
+ "coverage_by_format_report_half": {
+  "1050x1050": {
+   "images": 480,
+   "positives": 33,
+   "comparable_pairs": 14751,
+   "auroc_rfmid_head": 0.9120059656972409,
+   "share_of_comparable_pairs": 0.40826437131549087
+  },
+  "1467x1110": {
+   "images": 2,
+   "positives": 2,
+   "comparable_pairs": 0,
+   "share_of_comparable_pairs": 0.0
+  },
+  "1476x1117": {
+   "images": 7,
+   "positives": 2,
+   "comparable_pairs": 10,
+   "auroc_rfmid_head": 1.0,
+   "share_of_comparable_pairs": 0.0002767706401704907
+  },
+  "1504x1000": {
+   "images": 45,
+   "positives": 45,
+   "comparable_pairs": 0,
+   "share_of_comparable_pairs": 0.0
+  },
+  "1844x1226": {
+   "images": 31,
+   "positives": 31,
+   "comparable_pairs": 0,
+   "share_of_comparable_pairs": 0.0
+  },
+  "2048x1536": {
+   "images": 187,
+   "positives": 0,
+   "comparable_pairs": 0,
+   "share_of_comparable_pairs": 0.0
+  },
+  "2144x1424": {
+   "images": 13,
+   "positives": 13,
+   "comparable_pairs": 0,
+   "share_of_comparable_pairs": 0.0
+  },
+  "2416x1736": {
+   "images": 334,
+   "positives": 314,
+   "comparable_pairs": 6280,
+   "auroc_rfmid_head": 0.8363057324840766,
+   "share_of_comparable_pairs": 0.17381196202706817
+  },
+  "2588x1958": {
+   "images": 245,
+   "positives": 146,
+   "comparable_pairs": 14454,
+   "auroc_rfmid_head": 0.9736405147364051,
+   "share_of_comparable_pairs": 0.4000442833024273
+  },
+  "2896x1944": {
+   "images": 19,
+   "positives": 19,
+   "comparable_pairs": 0,
+   "share_of_comparable_pairs": 0.0
+  },
+  "3216x2136": {
+   "images": 205,
+   "positives": 204,
+   "comparable_pairs": 204,
+   "auroc_rfmid_head": 0.9215686274509803,
+   "share_of_comparable_pairs": 0.005646121059478011
+  },
+  "3388x2588": {
+   "images": 73,
+   "positives": 73,
+   "comparable_pairs": 0,
+   "share_of_comparable_pairs": 0.0
+  },
+  "4288x2848": {
+   "images": 23,
+   "positives": 23,
+   "comparable_pairs": 0,
+   "share_of_comparable_pairs": 0.0
+  },
+  "640x480": {
+   "images": 20,
+   "positives": 20,
+   "comparable_pairs": 0,
+   "share_of_comparable_pairs": 0.0
+  },
+  "819x614": {
+   "images": 147,
+   "positives": 3,
+   "comparable_pairs": 432,
+   "auroc_rfmid_head": 0.5578703703703703,
+   "share_of_comparable_pairs": 0.0119564916553652
   }
  }
 }

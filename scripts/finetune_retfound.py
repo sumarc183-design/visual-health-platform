@@ -52,7 +52,12 @@ from src.data.fundus_preprocess import PREPROCESS_VERSION, common_mask  # noqa: 
 from src.data.rfmid_dataset import RFMiDDataset  # noqa: E402
 from src.eval.metrics import evaluate_multilabel  # noqa: E402
 from src.models.embedding_cache import file_fingerprint  # noqa: E402
-from src.models.finetune import PartialFinetune, augment_batch, cosine_with_warmup  # noqa: E402
+from src.models.finetune import (  # noqa: E402
+    PartialFinetune,
+    augment_batch,
+    cosine_with_warmup,
+    load_finetuned_state,
+)
 from src.models.retfound_backbone import load_pretrained_backbone  # noqa: E402
 
 IMAGE_SIZE = 224
@@ -86,6 +91,63 @@ def save_predictions(path: Path, keys, groups, y, probs, class_names) -> None:
     )
 
 
+def write_report(out_dir: Path, report: dict) -> None:
+    (out_dir / "finetune_rfmid.json").write_text(json.dumps(report, indent=1, ensure_ascii=False, default=str))
+
+
+@torch.no_grad()
+def evaluate_aptos(model, class_names, args, report: dict) -> None:
+    """Probabilité de rétinopathie diabétique sur APTOS, par lots (pas de
+    préchargement : la mémoire de Colab ne suffisait pas avec RFMiD en plus),
+    et format d'image d'origine de chaque image."""
+    aptos = APTOSDataset(args.aptos_root, image_size=IMAGE_SIZE, preprocess="crop-mask")
+    if args.limit is not None:
+        aptos.df = aptos.df.iloc[: args.limit].reset_index(drop=True)
+    dr = class_names.index("DR")
+    model.eval()
+    probs = []
+    for i, (images, _) in enumerate(DataLoader(aptos, batch_size=32, num_workers=args.workers)):
+        with torch.autocast("cuda", dtype=torch.float16, enabled=args.device.startswith("cuda")):
+            probs.append(torch.sigmoid(model(images.to(args.device)).float())[:, dr].cpu())
+        if i % 20 == 0:
+            print(f"APTOS : {min((i + 1) * 32, len(aptos))}/{len(aptos)} images", flush=True)
+    p_aptos = torch.cat(probs).numpy()
+    sizes = []
+    for i in range(len(aptos)):
+        with Image.open(aptos.image_path(i)) as image:
+            sizes.append(f"{image.width}x{image.height}")
+    grade = aptos.df["diagnosis"].to_numpy()
+    np.savez(
+        args.out_dir / "pred_aptos_finetune.npz",
+        keys=np.array(aptos.image_keys),
+        grade=grade,
+        prob_dr=p_aptos,
+        formats=np.array(sizes),
+    )
+    any_dr = (grade >= 1).astype(int)
+    if 0 < any_dr.sum() < len(any_dr):
+        from sklearn.metrics import roc_auc_score
+
+        report["aptos_any_dr_auroc"] = float(roc_auc_score(any_dr, p_aptos))
+        print(f"APTOS, toute rétinopathie : AUROC {report['aptos_any_dr_auroc']:.4f}")
+
+
+def aptos_only(args) -> None:
+    """Recharge les poids enregistrés et ne refait que l'étape APTOS."""
+    artifact = torch.load(args.artifact, map_location="cpu", weights_only=True)
+    if artifact["checkpoint_sha256"] != file_fingerprint(args.checkpoint):
+        raise ValueError("le checkpoint RETFound n'est pas celui du fine-tuning enregistré")
+    vit = load_pretrained_backbone(
+        args.checkpoint, img_size=artifact["image_size"], trust_checkpoint=True if args.trust_checkpoint else None
+    )
+    model = PartialFinetune(vit, len(artifact["class_names"]), artifact["trainable_blocks"])
+    model = load_finetuned_state(model, artifact).to(args.device)
+    report_path = args.out_dir / "finetune_rfmid.json"
+    report = json.loads(report_path.read_text()) if report_path.exists() else {}
+    evaluate_aptos(model, list(artifact["class_names"]), args, report)
+    write_report(args.out_dir, report)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--data-root", type=Path, required=True, help="RFMiD")
@@ -105,7 +167,19 @@ def main() -> None:
     parser.add_argument("--aptos-root", type=Path, default=None, help="Validation externe sur APTOS")
     parser.add_argument("--limit", type=int, default=None, help="Essai rapide : nombre d'images par jeu")
     parser.add_argument("--trust-checkpoint", action="store_true")
+    parser.add_argument(
+        "--aptos-only",
+        action="store_true",
+        help="Ne refait que l'étape APTOS, avec les poids de --artifact (pas d'entraînement)",
+    )
+    parser.add_argument("--artifact", type=Path, default=None, help="Poids enregistrés (finetune_rfmid.pt)")
     args = parser.parse_args()
+    if args.aptos_only:
+        if args.artifact is None or args.aptos_root is None:
+            parser.error("--aptos-only demande --artifact et --aptos-root")
+        args.out_dir.mkdir(parents=True, exist_ok=True)
+        aptos_only(args)
+        return
     args.out_dir.mkdir(parents=True, exist_ok=True)
     torch.manual_seed(args.seed)
     t0 = time.time()
@@ -209,35 +283,33 @@ def main() -> None:
         report["test"] = evaluate_multilabel(y_test.numpy(), p_test, class_names)
         print(f"Test (lu une fois) : AUROC macro {report['test']['auroc_macro']:.4f}")
 
-    if args.aptos_root is not None:
-        aptos = APTOSDataset(args.aptos_root, image_size=IMAGE_SIZE, preprocess="crop-mask")
-        X_aptos, _ = preload(aptos, args.workers, args.limit)
-        p_aptos = predict(model, X_aptos, args.device)[:, class_names.index("DR")]
-        n = len(X_aptos)
-        sizes = []
-        for i in range(n):
-            with Image.open(aptos.image_path(i)) as image:
-                sizes.append(f"{image.width}x{image.height}")
-        np.savez(
-            args.out_dir / "pred_aptos_finetune.npz",
-            keys=np.array(aptos.image_keys[:n]),
-            grade=aptos.df["diagnosis"].to_numpy()[:n],
-            prob_dr=p_aptos,
-            formats=np.array(sizes),
-        )
-        any_dr = (aptos.df["diagnosis"].to_numpy()[:n] >= 1).astype(int)
-        if 0 < any_dr.sum() < n:
-            from sklearn.metrics import roc_auc_score
-
-            report["aptos_any_dr_auroc"] = float(roc_auc_score(any_dr, p_aptos))
-            print(f"APTOS, toute rétinopathie : AUROC {report['aptos_any_dr_auroc']:.4f}")
-
+    # Contrat d'artefact, enregistré AVANT l'étape APTOS : un arrêt pendant
+    # celle-ci ne fait pas perdre l'entraînement (relance avec --aptos-only).
+    artifact_path = args.out_dir / "finetune_rfmid.pt"
     torch.save(
-        {"state_dict": best_state, "class_names": list(class_names), **report["config"]},
-        args.out_dir / "finetune_rfmid.pt",
+        {
+            "state_dict": best_state,
+            "trainable_parameters": trainable_names,
+            "trainable_blocks": args.trainable_blocks,
+            "class_names": list(class_names),
+            "dataset": "rfmid",
+            "image_size": IMAGE_SIZE,
+            "preprocess": "crop-mask",
+            "preprocess_version": PREPROCESS_VERSION,
+            "checkpoint_sha256": report["checkpoint_sha256"],
+            "best_epoch": best_epoch,
+            "config": report["config"],
+        },
+        artifact_path,
     )
     report["duration_s"] = time.time() - t0
-    (args.out_dir / "finetune_rfmid.json").write_text(json.dumps(report, indent=1, ensure_ascii=False, default=str))
+    write_report(args.out_dir, report)
+    print(f"Poids et résultats enregistrés ({time.time() - t0:.0f} s) -> {args.out_dir}")
+
+    if args.aptos_root is not None:
+        evaluate_aptos(model, class_names, args, report)
+        report["duration_s"] = time.time() - t0
+        write_report(args.out_dir, report)
     print(f"Terminé en {report['duration_s'] / 60:.0f} min -> {args.out_dir}")
 
 

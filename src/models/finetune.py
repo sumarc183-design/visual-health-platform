@@ -114,3 +114,25 @@ def cosine_with_warmup(step: int, total_steps: int, warmup_steps: int) -> float:
         return (step + 1) / warmup_steps
     progress = (step - warmup_steps) / max(1, total_steps - warmup_steps)
     return 0.5 * (1 + math.cos(math.pi * min(1.0, progress)))
+
+
+def load_finetuned_state(model: PartialFinetune, artifact: dict) -> PartialFinetune:
+    """Applique le delta de poids sauvegardé par scripts/finetune_retfound.py
+    (blocs dégelés, normalisation finale, tête) à un modèle partiel construit
+    sur le même backbone de base. Refuse un artefact incompatible : autre
+    nombre de blocs, autres classes, paramètres manquants ou en trop."""
+    if artifact["trainable_blocks"] != model.trainable_blocks:
+        raise ValueError(
+            f"artefact pour {artifact['trainable_blocks']} blocs dégelés, modèle à {model.trainable_blocks}"
+        )
+    if len(artifact["class_names"]) != model.head.out_features:
+        raise ValueError("nombre de classes différent entre l'artefact et le modèle")
+    expected = {name for name, p in model.named_parameters() if p.requires_grad}
+    stored = set(artifact["state_dict"])
+    if stored != expected:
+        raise ValueError(
+            f"paramètres incompatibles : manquants {sorted(expected - stored)[:3]}, "
+            f"en trop {sorted(stored - expected)[:3]}"
+        )
+    model.load_state_dict(artifact["state_dict"], strict=False)
+    return model

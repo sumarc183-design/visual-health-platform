@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -41,3 +42,22 @@ def train_head(
         print(f"epoch {epoch + 1}/{epochs} — train loss: {total / count:.4f}")
 
     return head
+
+
+PROBE_TOLERANCE = 1e-3
+
+
+def head_probe(state_dict: dict) -> list[float]:
+    """Signature d'une tête : ses logits pour un vecteur de référence fixe
+    (graine 0). Deux entraînements identiques sur CPU et GPU diffèrent de
+    ~1e-7 : une empreinte au bit près les déclarerait différents, la sonde
+    comparée avec une tolérance (`probes_match`) non. Sert à lier un fichier
+    de seuils à la tête qui a produit ses prédictions."""
+    weight = state_dict["fc.weight"].double().cpu().numpy()
+    bias = state_dict["fc.bias"].double().cpu().numpy()
+    reference = np.random.default_rng(0).standard_normal(weight.shape[1])
+    return (weight @ reference + bias).tolist()
+
+
+def probes_match(a: list[float], b: list[float], tolerance: float = PROBE_TOLERANCE) -> bool:
+    return len(a) == len(b) and bool(np.allclose(a, b, rtol=tolerance, atol=tolerance))

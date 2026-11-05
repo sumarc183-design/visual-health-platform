@@ -116,3 +116,13 @@ def test_unknown_checkpoint_fingerprint_is_not_checked(tmp_path):
     cache.save()
     reloaded = EmbeddingCache(tmp_path / "c.npz", meta={**META, "checkpoint_sha256": None})
     assert reloaded.meta["checkpoint_sha256"] == "abc"
+
+
+def test_malformed_caches_are_refused(tmp_path):
+    """Clés en double (une ligne écraserait l'autre) et valeurs non finies : refusées."""
+    np.savez(tmp_path / "dup.npz", keys=np.array(["a", "a"]), X=np.ones((2, 3)))
+    with pytest.raises(CacheMismatchError, match="double"):
+        EmbeddingCache(tmp_path / "dup.npz")
+    np.savez(tmp_path / "nan.npz", keys=np.array(["a", "b"]), X=np.array([[1.0, np.nan], [0.0, 1.0]]))
+    with pytest.raises(CacheMismatchError, match="finies"):
+        EmbeddingCache(tmp_path / "nan.npz")

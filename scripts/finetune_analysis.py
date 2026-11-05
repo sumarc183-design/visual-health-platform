@@ -35,6 +35,13 @@ from src.models.embedding_cache import EmbeddingCache  # noqa: E402
 
 def compare(linear_path: Path, finetune_path: Path) -> dict:
     a, b = np.load(linear_path), np.load(finetune_path)
+    if list(a["class_names"]) != list(b["class_names"]):
+        raise ValueError("classes différentes entre les deux fichiers de prédictions")
+    if set(b["keys"]) != set(a["keys"]):
+        raise ValueError(
+            f"images différentes : {len(b['keys'])} contre {len(a['keys'])} (essai partiel ?) ; "
+            "la comparaison exige le même jeu complet"
+        )
     order = {k: i for i, k in enumerate(a["keys"])}
     idx = np.array([order[k] for k in b["keys"]])
     if not np.array_equal(a["y_true"][idx], b["y_true"]):

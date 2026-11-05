@@ -49,8 +49,15 @@ class EmbeddingCache:
         if not self.path.exists():
             return
         with np.load(self.path) as data:
-            self.embeddings = dict(zip(data["keys"].tolist(), data["X"], strict=True))
+            keys, X = data["keys"].tolist(), data["X"]
             stored = json.loads(str(data["meta"])) if "meta" in data.files else None
+        if X.ndim != 2 or len(keys) != len(X):
+            raise CacheMismatchError(f"Cache {self.path} mal formé : {len(keys)} clés pour un tableau {X.shape}")
+        if len(set(keys)) != len(keys):
+            raise CacheMismatchError(f"Cache {self.path} : {len(keys) - len(set(keys))} clé(s) en double")
+        if not np.isfinite(X).all():
+            raise CacheMismatchError(f"Cache {self.path} : valeurs non finies (NaN ou infini)")
+        self.embeddings = dict(zip(keys, X, strict=True))
         if meta is None:
             self.meta = stored
             return

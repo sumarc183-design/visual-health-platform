@@ -19,6 +19,39 @@ selon [SemVer](https://semver.org/lang/fr/).
   format d'image ; `external_validation.py --external aptos|eyepacs`, plis
   du diagnostic groupés par patient. 2 tests.
 
+### Corrigé (second audit, 5 novembre 2026)
+- **Doublons d'images dans APTOS** : 122 groupes d'embeddings identiques
+  (249 images, 6,8 %), dont 67 à cheval entre les moitiés « site » et
+  « rapport ». `src/eval/duplicates.py` regroupe doublons exacts et quasi
+  exacts (cosinus >= 0,999) avec les patients ; découpages, plis et
+  bootstraps d'APTOS se font par ces groupes. Mesure externe inchangée
+  (0,827) ; à format égal, la tête RFMiD passe de 0,942 à **0,919** et les
+  têtes adaptées de 0,934-0,945 à 0,906-0,912 (moins bien que la tête
+  RFMiD).
+- Adaptation au site : seuil few-shot choisi hors échantillon (validation
+  croisée interne sur les N images), plus sur les images d'ajustement.
+- Seuils liés à la tête : sonde de tête enregistrée par
+  `decision_metrics.py --head` (avec vérification sur la validation),
+  refus par `predict.py` d'une autre tête ou d'un seuil hors [0, 1] ;
+  `--allow-unverified-thresholds` pour un fichier historique.
+- `--reject-unusable` : l'image refusée n'est plus passée dans le modèle.
+- Cache d'embeddings : clés en double et valeurs non finies refusées ; les
+  scripts d'analyse vérifient la configuration comme le pipeline principal.
+- Occlusion : IC de la différence appariée par bootstrap sur les patients
+  (DMLA −65 % [−77 ; −45]).
+- Fine-tuning : artefact complet (taille d'image, prétraitement et sa
+  version, empreinte du checkpoint de base, paramètres entraînés),
+  `load_finetuned_state` avec test aller-retour ; comparaison refusant des
+  classes ou des images différentes.
+- Décisions : « assez de cas pour fixer un seuil » (validation) et « assez
+  de cas pour l'évaluer » (test) distingués.
+- Formulations : « format d'image d'origine, indicateur indirect de
+  l'acquisition » au lieu d'« appareil » ; résultat à format égal présenté
+  comme exploratoire, couverture par format publiée.
+- CI : la vraie cause des échecs des tests lents était un disque plein
+  (checkpoints aléatoires de 1,2 Go conservés par pytest) ; dossiers
+  temporaires vidés après chaque exécution.
+
 ### Modifié
 - `results/external_aptos.json` régénéré avec les champs génériques
   (`external_*`) ; chiffres identiques (diagnostic « à adresser » 0,966 ->

@@ -12,7 +12,7 @@ from PIL import Image
 
 from run_baseline import build_random_checkpoint, collect_embeddings
 from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image
-from src.models.classifier_head import MultiLabelHead
+from src.models.classifier_head import MultiLabelHead, head_probe
 from src.models.embedding_cache import file_fingerprint
 from src.pipeline.inference import Predictor, load_thresholds
 
@@ -59,11 +59,12 @@ def setup(tmp_path_factory):
     thresholds_path.write_text(
         json.dumps(
             {
+                "head_probe": head_probe(head.state_dict()),
                 "classes": {
                     "DR": {"insufficient_evidence": False, "threshold_f1": {"threshold": 0.0}},
                     "MYA": {"insufficient_evidence": False, "threshold_f1": {"threshold": 1.0}},
                     "RARE": {"insufficient_evidence": True, "threshold_f1": {"threshold": 0.5}},
-                }
+                },
             }
         )
     )
@@ -122,6 +123,50 @@ def test_inconsistent_artifacts_are_refused(setup, tmp_path):
             Predictor(bad, setup["checkpoint"])
     with pytest.raises(ValueError, match="mêmes classes"):
         load_thresholds(setup["thresholds"], ["autre", "MYA", "RARE"], "f1")
+
+
+def test_thresholds_are_bound_to_the_exact_head(setup, tmp_path):
+    """Seuils d'une autre tête de mêmes classes, seuil hors [0, 1], fichier
+    historique sans sonde : refusés (sauf accord explicite pour le dernier)."""
+    report = json.loads(setup["thresholds"].read_text())
+    signature = report["head_probe"]
+    assert load_thresholds(setup["thresholds"], CLASSES, "f1", signature)[1] is True
+
+    other = [v + 1.0 for v in signature]
+    with pytest.raises(ValueError, match="autre tête"):
+        load_thresholds(setup["thresholds"], CLASSES, "f1", other)
+
+    bad = tmp_path / "bad.json"
+    bad.write_text(
+        json.dumps(
+            {
+                **report,
+                "classes": {
+                    **report["classes"],
+                    "DR": {"insufficient_evidence": False, "threshold_f1": {"threshold": 1.5}},
+                },
+            }
+        )
+    )
+    with pytest.raises(ValueError, match="invalide"):
+        load_thresholds(bad, CLASSES, "f1", signature)
+
+    legacy = tmp_path / "legacy.json"
+    legacy.write_text(json.dumps({"classes": report["classes"]}))
+    with pytest.raises(ValueError, match="head_probe"):
+        load_thresholds(legacy, CLASSES, "f1", signature)
+    assert load_thresholds(legacy, CLASSES, "f1", signature, allow_unverified=True)[1] is False
+
+
+def test_rejected_images_never_reach_the_model(setup, monkeypatch):
+    predictor = setup["predictor"]
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("une image refusée ne doit pas passer dans le modèle")
+
+    monkeypatch.setattr(predictor, "probabilities", forbidden)
+    prediction = predictor.predict(setup["small"], reject_unusable=True)
+    assert prediction.rejected and prediction.findings == {}
 
 
 def test_cli_rejects_unusable_images_on_request(setup, monkeypatch, capsys):

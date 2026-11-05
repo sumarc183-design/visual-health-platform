@@ -50,6 +50,11 @@ def main() -> None:
     parser.add_argument(
         "--reject-unusable", action="store_true", help="Pas de prédiction si le contrôle qualité échoue"
     )
+    parser.add_argument(
+        "--allow-unverified-thresholds",
+        action="store_true",
+        help="Accepte un fichier de seuils sans sonde de tête (historique) : compatibilité non vérifiée",
+    )
     parser.add_argument("--out", type=Path, default=None, help="Résultats JSON")
     args = parser.parse_args()
 
@@ -60,13 +65,14 @@ def main() -> None:
         policy=args.policy,
         device=args.device,
         trust_checkpoint=True if args.trust_checkpoint else None,
+        allow_unverified_thresholds=args.allow_unverified_thresholds,
     )
     results = []
     for image in args.images:
-        prediction = predictor.predict(image)
-        if args.reject_unusable and not prediction.quality["usable"]:
+        prediction = predictor.predict(image, reject_unusable=args.reject_unusable)
+        if prediction.rejected:  # contrôle qualité échoué : pas passée dans le modèle
             print(f"\n{image} : refusée par le contrôle qualité ({' ; '.join(prediction.quality['reasons'])})")
-            results.append({"image": str(image), "rejected": True, "quality": prediction.quality})
+            results.append(prediction.to_dict())
             continue
         results.append(prediction.to_dict())
         print(f"\n{image}")

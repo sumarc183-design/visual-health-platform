@@ -4,6 +4,8 @@
   "N": {
    "positives_val": 442,
    "positives_test": 430,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.18829654157161713,
    "brier_test_calibrated": 0.1879434436559677,
@@ -51,6 +53,8 @@
   "D": {
    "positives_val": 227,
    "positives_test": 266,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.15492084622383118,
    "brier_test_calibrated": 0.1548430621623993,
@@ -98,6 +102,8 @@
   "G": {
    "positives_val": 58,
    "positives_test": 34,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.031504735350608826,
    "brier_test_calibrated": 0.03154226019978523,
@@ -145,6 +151,8 @@
   "C": {
    "positives_val": 42,
    "positives_test": 46,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.02109973132610321,
    "brier_test_calibrated": 0.021067412570118904,
@@ -192,6 +200,8 @@
   "A": {
    "positives_val": 45,
    "positives_test": 46,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.029885685071349144,
    "brier_test_calibrated": 0.029967661947011948,
@@ -239,6 +249,8 @@
   "H": {
    "positives_val": 34,
    "positives_test": 17,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.02021305449306965,
    "brier_test_calibrated": 0.020421726629137993,
@@ -286,6 +298,8 @@
   "M": {
    "positives_val": 29,
    "positives_test": 37,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.008242541924118996,
    "brier_test_calibrated": 0.008262366987764835,
@@ -333,6 +347,8 @@
   "O": {
    "positives_val": 153,
    "positives_test": 140,
+   "enough_val_for_threshold": true,
+   "enough_test_for_evaluation": true,
    "insufficient_evidence": false,
    "brier_test": 0.11185228079557419,
    "brier_test_calibrated": 0.11196768283843994,
@@ -379,6 +395,18 @@
   }
  },
  "dataset": "odir",
+ "head_file": "odir_crop-mask_head.pt",
+ "head_probe": [
+  9.114738488506406,
+  0.6143353857545074,
+  -2.0961783147750737,
+  -0.14958908085260947,
+  -4.960105584198574,
+  5.6404100784076086,
+  -1.5049866417861484,
+  0.43806881610499315
+ ],
+ "head_check_max_abs_diff_val": 3.42864991176306e-07,
  "target_sensitivity": 0.9,
  "summary": {
   "classes_evaluable": 8,
