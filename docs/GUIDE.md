@@ -215,6 +215,29 @@ AUROC (toute rétinopathie, stade ≥ 1, et rétinopathie à adresser, stade
 ≥ 2), sensibilité et spécificité aux seuils hérités, part détectée par
 stade. Rien n'est réglé sur APTOS.
 
+## Fine-tuning partiel de RETFound
+
+`scripts/finetune_retfound.py` entraîne les 4 derniers blocs du ViT-L et la
+tête sur RFMiD (configuration fixée à l'avance, sans recherche
+d'hyperparamètres : AdamW, lr 2e-5 pour les blocs et 1e-3 pour la tête,
+augmentations de couleur et de géométrie avec le masque commun réappliqué,
+epoch retenue sur la validation). Il lit une fois le test RFMiD et prédit
+sur APTOS (`--aptos-root`) en relevant le format d'image.
+
+1. **GPU** : `notebooks/colab_finetune_retfound.ipynb` (titre Colab :
+   « Visual Health — fine-tuning partiel RETFound (RFMiD + APTOS) »),
+   ~45-60 min sur T4, secrets `HF_TOKEN` et `KAGGLE_API_TOKEN`.
+2. **CPU, en local** : placer le contenu du zip dans `results/finetune/`,
+   puis
+
+```bash
+python scripts/finetune_analysis.py --finetune-dir results/finetune --rfmid-root data/raw/rfmid \
+    --embeddings embeddings --out results/finetune_analysis.json
+```
+
+Différence appariée avec la tête linéaire figée (validation, test) et AUROC
+d'APTOS globale et à appareil égal pour les deux modèles.
+
 ## Prédire sur une image nouvelle
 
 ```bash

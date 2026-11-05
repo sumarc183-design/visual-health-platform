@@ -3,6 +3,16 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions
 selon [SemVer](https://semver.org/lang/fr/).
 
+## [Non publié]
+
+### Ajouté
+- Fine-tuning partiel de RETFound : `src/models/finetune.py` (4 derniers
+  blocs et tête entraînables, partie figée sans gradient, augmentations
+  avec masque commun réappliqué), `scripts/finetune_retfound.py`
+  (configuration fixée à l'avance), `scripts/finetune_analysis.py`
+  (comparaison appariée avec la tête linéaire, APTOS à appareil égal),
+  `notebooks/colab_finetune_retfound.ipynb`. 4 tests.
+
 ## [1.0.0] — 2026-11-05
 
 Première version taguée. Socle fond d'œil complet et évalué : corrections
