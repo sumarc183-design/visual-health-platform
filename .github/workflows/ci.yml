@@ -38,4 +38,9 @@ jobs:
       - name: Tests unitaires (rapides)
         run: pytest tests/ -v -m "not slow"
       - name: Test bout-en-bout (données synthétiques)
-        run: pytest tests/ -v -m "slow"
+        # Un processus par fichier : chaque test charge un ViT-L (~1,2 Go) et la
+        # mémoire du runner (~7 Go) saturait quand ils s'enchaînaient.
+        run: |
+          for f in $(grep -l "pytest.mark.slow" tests/test_*.py); do
+            pytest "$f" -v -m "slow" || exit 1
+          done
