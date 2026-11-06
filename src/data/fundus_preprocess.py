@@ -99,6 +99,24 @@ def crop_mask(image: Image.Image, image_size: int) -> np.ndarray:
     return array
 
 
+def crop_mask_annotation(image: Image.Image, annotation: np.ndarray, image_size: int) -> np.ndarray:
+    """Applique à une annotation binaire (H, W) la géométrie de `crop_mask`
+    pour cette image. Sortie float32 (image_size, image_size) : part de chaque
+    pixel couverte par l'annotation, réduite par moyenne pour garder les
+    petites lésions ; zéro hors du masque commun."""
+    if annotation.shape != (image.height, image.width):
+        raise ValueError(f"annotation {annotation.shape} pour une image {image.size}")
+    mask = Image.fromarray(annotation.astype(np.uint8) * 255)
+    bbox = fundus_bbox(image)
+    if bbox is not None:
+        mask = mask.crop(bbox)
+    side = max(mask.size)
+    square = Image.new("L", (side, side))
+    square.paste(mask, ((side - mask.width) // 2, (side - mask.height) // 2))
+    array = np.asarray(square.resize((image_size, image_size), Image.BOX), dtype=np.float32) / 255
+    return array * common_mask(image_size)
+
+
 def load_fundus_image(path: str | Path, image_size: int, preprocess: str = "none") -> torch.Tensor:
     """Image (3, H, W) dans [0, 1], comme l'attendent le contrôle qualité et
     run_baseline.py (la normalisation ImageNet est faite juste avant RETFound)."""

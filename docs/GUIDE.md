@@ -266,6 +266,18 @@ python scripts/finetune_analysis.py --finetune-dir results/finetune_eyepacs --rf
     --embeddings embeddings --out results/finetune_eyepacs_analysis.json
 ```
 
+## Localisation des lésions (IDRiD)
+
+Les modèles regardent-ils les lésions ? `notebooks/kaggle_localization_idrid.ipynb`
+(titre Kaggle : « Visual Health — localisation des lésions sur IDRiD »), ~15 min
+sur T4, dataset `aaryapatel98/indian-diabetic-retinopathy-image-dataset` en
+input. Contenu du zip dans `results/localization/`, puis, avec IDRiD en local :
+
+```bash
+python scripts/localization_analysis.py --data-root <IDRiD> --maps-dir results/localization \
+    --out results/localization_idrid.json
+```
+
 ## Prédire sur une image nouvelle
 
 ```bash

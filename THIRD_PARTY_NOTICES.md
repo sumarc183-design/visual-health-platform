@@ -39,6 +39,8 @@ que les checkpoints officiels se chargent sans renommage.
 - **RFMiD** et **ODIR-5K** : téléchargés depuis Kaggle (miroirs publics des
   challenges RIADD et ODIR-2019). Respecter les conditions d'usage propres à
   chaque jeu ; les images ne sont pas versionnées dans ce dépôt.
+- **IDRiD** (Porwal, Pachade et Kokare) : CC BY 4.0, segmentation utilisée
+  pour mesurer la localisation ; images non versionnées.
 - **APTOS 2019 Blindness Detection** (Asia Pacific Tele-Ophthalmology
   Society, Aravind Eye Hospital) : données de compétition Kaggle, utilisées
   seulement comme jeu de validation externe, dans un notebook Kaggle, après

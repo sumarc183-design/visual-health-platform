@@ -48,6 +48,11 @@ selon [SemVer](https://semver.org/lang/fr/).
   `results/decision_rfmid_green.json`. Vérifié avec les vrais poids (écart
   ≤ 6×10⁻⁶ sur 20 images). 2 tests.
 
+- Localisation sur IDRiD : `src/data/idrid_dataset.py`, `crop_mask_annotation`
+  (même géométrie que `crop_mask`), `src/explainability/localization.py`,
+  `scripts/localization_maps.py`, `scripts/localization_analysis.py`,
+  `notebooks/kaggle_localization_idrid.ipynb`. 11 tests.
+
 ### Corrigé (second audit, 5 novembre 2026)
 - **Doublons d'images dans APTOS** : 122 groupes d'embeddings identiques
   (249 images, 6,8 %), dont 67 à cheval entre les moitiés « site » et
