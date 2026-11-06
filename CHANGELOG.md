@@ -60,8 +60,9 @@ selon [SemVer](https://semver.org/lang/fr/).
 
 ### Modifié
 - Page GitHub : présentation, résumé en anglais, planche d'exemples, données et
-  structure à jour. `LICENSE` réduit au texte officiel, pour que GitHub reconnaisse
-  CC BY-NC 4.0 ; copyright et attributions dans `THIRD_PARTY_NOTICES.md`.
+  structure à jour. `LICENSE` réduit au texte officiel ; copyright et attributions
+  dans `THIRD_PARTY_NOTICES.md`. GitHub affiche « Other » pour cette licence : voir
+  le badge et le README.
 
 ### Corrigé (troisième audit, 6 novembre 2026)
 - **Seuils** : liés à l'identité exacte de la tête (SHA-256 de ses poids) et à son
