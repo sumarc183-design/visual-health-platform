@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
-"""Extrait les embeddings RETFound d'un jeu externe (APTOS, EyePACS) dans le cache.
+"""Extrait les embeddings d'un jeu (APTOS, EyePACS, RFMiD) dans le cache.
 
-Même extraction que run_baseline.py (`dataset_embeddings` : normalisation
-ImageNet, RETFound figé) et même cache avec empreinte
+Même extraction que run_baseline.py (`dataset_embeddings`, backbone figé) et
+même cache avec empreinte
 (`<dataset>_<prétraitement>_<taille>_<checkpoint>.npz`). Écrit aussi
 `<dataset>_labels.csv` à côté du cache (clé, stade, patient, format
 d'image d'origine, indicateur de l'appareil) : l'évaluation
 (scripts/external_validation.py) se fait ensuite sur CPU, sans les images.
+
+`--backbone retfound` (défaut : 224 px, normalisation ImageNet) ou `green`
+(RETFound-Green : 392 px, normalisation 0,5). RFMiD : les trois découpages
+officiels, sans fichier d'étiquettes (elles restent dans la base).
 
 Exemple (GPU, ~10 min sur T4 pour les 3 662 images APTOS) :
     python scripts/extract_embeddings.py --dataset aptos \\
         --data-root /kaggle/input/aptos2019-blindness-detection \\
         --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth \\
         --out-dir embeddings
+    python scripts/extract_embeddings.py --dataset rfmid --backbone green --data-root <RFMiD> \\
+        --checkpoint third_party/retfound_green/retfoundgreen_statedict.pth --out-dir embeddings
 """
 
 from __future__ import annotations
@@ -31,10 +37,12 @@ from run_baseline import dataset_embeddings  # noqa: E402
 from src.data.aptos_dataset import APTOSDataset  # noqa: E402
 from src.data.eyepacs_dataset import EyePACSDataset  # noqa: E402
 from src.data.fundus_preprocess import PREPROCESS_CHOICES, PREPROCESS_VERSION  # noqa: E402
+from src.data.rfmid_dataset import RFMiDDataset  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, cache_file_name, file_fingerprint  # noqa: E402
 from src.models.retfound_backbone import RETFoundBackbone  # noqa: E402
+from src.models.retfound_green import GREEN_IMAGE_SIZE, RETFoundGreenBackbone  # noqa: E402
 
-DATASETS = {"aptos": APTOSDataset, "eyepacs": EyePACSDataset}
+DATASETS = {"aptos": APTOSDataset, "eyepacs": EyePACSDataset, "rfmid": RFMiDDataset}
 
 
 def main() -> None:
@@ -44,14 +52,17 @@ def main() -> None:
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True, help="Dossier du cache d'embeddings")
     parser.add_argument("--preprocess", choices=PREPROCESS_CHOICES, default="crop-mask")
-    parser.add_argument("--image-size", type=int, default=224)
+    parser.add_argument("--backbone", choices=["retfound", "green"], default="retfound")
+    parser.add_argument("--image-size", type=int, default=None, help="Défaut : 224 (retfound), 392 (green)")
+    parser.add_argument("--limit", type=int, default=None, help="Essai rapide : nombre d'images par jeu")
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--trust-checkpoint", action="store_true")
     args = parser.parse_args()
+    if args.image_size is None:
+        args.image_size = GREEN_IMAGE_SIZE if args.backbone == "green" else 224
 
-    dataset = DATASETS[args.dataset](args.data_root, image_size=args.image_size, preprocess=args.preprocess)
     cache = EmbeddingCache(
         args.out_dir / cache_file_name(args.dataset, args.preprocess, args.image_size, args.checkpoint),
         meta={
@@ -61,21 +72,35 @@ def main() -> None:
             "image_size": args.image_size,
         },
     )
-    holder: list[RETFoundBackbone] = []
+    holder: list[torch.nn.Module] = []
 
-    def get_backbone() -> RETFoundBackbone:
+    def get_backbone() -> torch.nn.Module:
         if not holder:
-            holder.append(
-                RETFoundBackbone(
+            if args.backbone == "green":
+                backbone = RETFoundGreenBackbone(args.checkpoint, img_size=args.image_size)
+            else:
+                backbone = RETFoundBackbone(
                     args.checkpoint,
                     img_size=args.image_size,
                     embedding_dim=1024,
                     trust_checkpoint=True if args.trust_checkpoint else None,
-                ).to(args.device)
-            )
+                )
+            holder.append(backbone.to(args.device))
         return holder[0]
 
     embed_kwargs = dict(batch_size=args.batch_size, device=args.device, num_workers=args.num_workers)
+    kwargs = dict(image_size=args.image_size, preprocess=args.preprocess)
+    if args.dataset == "rfmid":
+        for split in ("train", "val", "test"):
+            dataset = RFMiDDataset(args.data_root, split=split, **kwargs)
+            if args.limit is not None:
+                dataset.df = dataset.df.iloc[: args.limit].reset_index(drop=True)
+            X, _ = dataset_embeddings(dataset, f"rfmid {split}", get_backbone, cache, embed_kwargs)
+            print(f"{len(X)} embeddings -> {cache.path}")
+        return
+    dataset = DATASETS[args.dataset](args.data_root, **kwargs)
+    if args.limit is not None:
+        dataset.df = dataset.df.iloc[: args.limit].reset_index(drop=True)
     X, _ = dataset_embeddings(dataset, args.dataset, get_backbone, cache, embed_kwargs)
     sizes = []
     for i in range(len(dataset)):

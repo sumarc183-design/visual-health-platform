@@ -111,7 +111,9 @@ def collect_embeddings(
     backbone: RETFoundBackbone, dataset, batch_size: int = 16, device: str = "cpu", num_workers: int = 0
 ):
     loader = DataLoader(dataset, batch_size=batch_size, num_workers=num_workers)
-    mean, std = IMAGENET_MEAN.to(device), IMAGENET_STD.to(device)
+    # Normalisation du backbone quand il en déclare une (RETFound-Green), sinon ImageNet
+    mean = getattr(backbone, "input_mean", IMAGENET_MEAN).to(device)
+    std = getattr(backbone, "input_std", IMAGENET_STD).to(device)
     embeddings, labels = [], []
     with torch.no_grad():
         for images, batch_labels in loader:

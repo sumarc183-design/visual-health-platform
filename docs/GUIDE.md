@@ -248,6 +248,22 @@ différences appariées et l'AUROC par format (bootstrap par groupes de
 doublons). Les poids (`finetune_rfmid.pt`, plusieurs centaines de Mo) restent
 sur Colab : seules les prédictions et `finetune_rfmid.json` sont versionnées.
 
+## RETFound-Green et fine-tuning sur EyePACS
+
+`notebooks/colab_green_finetune_eyepacs.ipynb` (titre Colab : « Visual Health
+— RETFound-Green et fine-tuning sur EyePACS »), ~2 h sur T4, secrets
+`HF_TOKEN` et `KAGGLE_API_TOKEN`, deux téléchargements. Le test RFMiD n'y est
+pas relu. En local :
+
+```bash
+# visual_health_green.zip : les .npz dans embeddings/
+python scripts/green_analysis.py --rfmid-root data/raw/rfmid --embeddings embeddings \
+    --out results/green_analysis.json
+# visual_health_finetune_eyepacs.zip : le contenu dans results/finetune_eyepacs/
+python scripts/finetune_analysis.py --finetune-dir results/finetune_eyepacs --rfmid-root data/raw/rfmid \
+    --embeddings embeddings --out results/finetune_eyepacs_analysis.json
+```
+
 ## Prédire sur une image nouvelle
 
 ```bash

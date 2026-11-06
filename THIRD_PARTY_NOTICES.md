@@ -22,6 +22,18 @@ Le code adapté ici se limite à la construction du modèle et au chargement du
 checkpoint (architecture + `interpolate_pos_embed`), fidèle à l'original pour
 que les checkpoints officiels se chargent sans renommage.
 
+## RETFound-Green (`src/models/retfound_green.py`)
+
+- Engelmann & Bernabeu, « Training a high-performance retinal foundation
+  model with half-the-data and 400 times less compute » (arXiv:2405.00117).
+- Dépôt : https://github.com/justinengelmann/RETFound_Green
+- **Licence : Justin's Custom Non-Commercial Research Licence (CNCRL).**
+  Recherche non commerciale ; elle exclut les entités à but lucratif et les
+  projets impliquant une entreprise, sauf accord écrit préalable de l'auteur.
+  Les œuvres dérivées distribuées doivent rester sous une licence non
+  commerciale reconnue et créditer le projet.
+- Les poids ne sont pas versionnés ici.
+
 ## Jeux de données
 
 - **RFMiD** et **ODIR-5K** : téléchargés depuis Kaggle (miroirs publics des

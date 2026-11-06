@@ -16,9 +16,10 @@ Sorties (`--out-dir`) :
   appariée avec `results/pred_rfmid_crop-mask_val.npz` via
   scripts/compare_predictions.py) ;
 - `pred_rfmid_finetune_test.npz` avec `--eval-test` (lu une seule fois) ;
-- `pred_aptos_finetune.npz` avec `--aptos-root` : probabilité de
-  rétinopathie diabétique sur les 3 662 images APTOS et leur format
-  d'origine (analyse à appareil égal en local) ;
+- `pred_aptos_finetune.npz` avec `--aptos-root`, `pred_eyepacs_finetune.npz`
+  avec `--eyepacs-root` : probabilité de rétinopathie diabétique, groupe
+  (patient) et format d'origine de chaque image (analyse à format égal en
+  local) ;
 - `finetune_rfmid.json` : historique d'entraînement et métriques ;
 - `finetune_rfmid.pt` : poids entraînés (blocs dégelés et tête).
 
@@ -43,11 +44,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 from PIL import Image
+from sklearn.metrics import roc_auc_score
 from torch.utils.data import DataLoader, Subset
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.aptos_dataset import APTOSDataset  # noqa: E402
+from src.data.eyepacs_dataset import EyePACSDataset  # noqa: E402
 from src.data.fundus_preprocess import PREPROCESS_VERSION, common_mask  # noqa: E402
 from src.data.rfmid_dataset import RFMiDDataset  # noqa: E402
 from src.eval.metrics import evaluate_multilabel  # noqa: E402
@@ -95,45 +98,50 @@ def write_report(out_dir: Path, report: dict) -> None:
     (out_dir / "finetune_rfmid.json").write_text(json.dumps(report, indent=1, ensure_ascii=False, default=str))
 
 
+def external_sets(args) -> dict:
+    """Bases externes demandées : nom -> (classe du dataset, dossier)."""
+    candidates = {"aptos": (APTOSDataset, args.aptos_root), "eyepacs": (EyePACSDataset, args.eyepacs_root)}
+    return {name: entry for name, entry in candidates.items() if entry[1] is not None}
+
+
 @torch.no_grad()
-def evaluate_aptos(model, class_names, args, report: dict) -> None:
-    """Probabilité de rétinopathie diabétique sur APTOS, par lots (pas de
-    préchargement : la mémoire de Colab ne suffisait pas avec RFMiD en plus),
-    et format d'image d'origine de chaque image."""
-    aptos = APTOSDataset(args.aptos_root, image_size=IMAGE_SIZE, preprocess="crop-mask")
+def evaluate_external(model, class_names, name: str, dataset_cls, root: Path, args, report: dict) -> None:
+    """Probabilité de rétinopathie diabétique sur une base externe, par lots
+    (pas de préchargement : la mémoire de Colab ne suffisait pas avec RFMiD en
+    plus), avec le groupe et le format d'image d'origine de chaque image."""
+    dataset = dataset_cls(root, image_size=IMAGE_SIZE, preprocess="crop-mask")
     if args.limit is not None:
-        aptos.df = aptos.df.iloc[: args.limit].reset_index(drop=True)
+        dataset.df = dataset.df.iloc[: args.limit].reset_index(drop=True)
     dr = class_names.index("DR")
     model.eval()
     probs = []
-    for i, (images, _) in enumerate(DataLoader(aptos, batch_size=32, num_workers=args.workers)):
+    for i, (images, _) in enumerate(DataLoader(dataset, batch_size=32, num_workers=args.workers)):
         with torch.autocast("cuda", dtype=torch.float16, enabled=args.device.startswith("cuda")):
             probs.append(torch.sigmoid(model(images.to(args.device)).float())[:, dr].cpu())
         if i % 20 == 0:
-            print(f"APTOS : {min((i + 1) * 32, len(aptos))}/{len(aptos)} images", flush=True)
-    p_aptos = torch.cat(probs).numpy()
+            print(f"{name} : {min((i + 1) * 32, len(dataset))}/{len(dataset)} images", flush=True)
+    p_external = torch.cat(probs).numpy()
     sizes = []
-    for i in range(len(aptos)):
-        with Image.open(aptos.image_path(i)) as image:
+    for i in range(len(dataset)):
+        with Image.open(dataset.image_path(i)) as image:
             sizes.append(f"{image.width}x{image.height}")
-    grade = aptos.df["diagnosis"].to_numpy()
+    grade = dataset.df["diagnosis"].to_numpy()
     np.savez(
-        args.out_dir / "pred_aptos_finetune.npz",
-        keys=np.array(aptos.image_keys),
+        args.out_dir / f"pred_{name}_finetune.npz",
+        keys=np.array(dataset.image_keys),
+        groups=np.array(dataset.groups),
         grade=grade,
-        prob_dr=p_aptos,
+        prob_dr=p_external,
         formats=np.array(sizes),
     )
     any_dr = (grade >= 1).astype(int)
     if 0 < any_dr.sum() < len(any_dr):
-        from sklearn.metrics import roc_auc_score
-
-        report["aptos_any_dr_auroc"] = float(roc_auc_score(any_dr, p_aptos))
-        print(f"APTOS, toute rétinopathie : AUROC {report['aptos_any_dr_auroc']:.4f}")
+        report[f"{name}_any_dr_auroc"] = float(roc_auc_score(any_dr, p_external))
+        print(f"{name}, toute rétinopathie : AUROC {report[f'{name}_any_dr_auroc']:.4f}")
 
 
-def aptos_only(args) -> None:
-    """Recharge les poids enregistrés et ne refait que l'étape APTOS."""
+def external_only(args) -> None:
+    """Recharge les poids enregistrés et ne refait que les bases externes."""
     artifact = torch.load(args.artifact, map_location="cpu", weights_only=True)
     if artifact["checkpoint_sha256"] != file_fingerprint(args.checkpoint):
         raise ValueError("le checkpoint RETFound n'est pas celui du fine-tuning enregistré")
@@ -144,8 +152,9 @@ def aptos_only(args) -> None:
     model = load_finetuned_state(model, artifact).to(args.device)
     report_path = args.out_dir / "finetune_rfmid.json"
     report = json.loads(report_path.read_text()) if report_path.exists() else {}
-    evaluate_aptos(model, list(artifact["class_names"]), args, report)
-    write_report(args.out_dir, report)
+    for name, (dataset_cls, root) in external_sets(args).items():
+        evaluate_external(model, list(artifact["class_names"]), name, dataset_cls, root, args, report)
+        write_report(args.out_dir, report)
 
 
 def main() -> None:
@@ -165,20 +174,23 @@ def main() -> None:
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--eval-test", action="store_true", help="Lit le test RFMiD une fois, avec l'epoch retenue")
     parser.add_argument("--aptos-root", type=Path, default=None, help="Validation externe sur APTOS")
+    parser.add_argument("--eyepacs-root", type=Path, default=None, help="Validation externe sur EyePACS")
     parser.add_argument("--limit", type=int, default=None, help="Essai rapide : nombre d'images par jeu")
     parser.add_argument("--trust-checkpoint", action="store_true")
     parser.add_argument(
+        "--external-only",
         "--aptos-only",
+        dest="external_only",
         action="store_true",
-        help="Ne refait que l'étape APTOS, avec les poids de --artifact (pas d'entraînement)",
+        help="Ne refait que les bases externes, avec les poids de --artifact (pas d'entraînement)",
     )
     parser.add_argument("--artifact", type=Path, default=None, help="Poids enregistrés (finetune_rfmid.pt)")
     args = parser.parse_args()
-    if args.aptos_only:
-        if args.artifact is None or args.aptos_root is None:
-            parser.error("--aptos-only demande --artifact et --aptos-root")
+    if args.external_only:
+        if args.artifact is None or not external_sets(args):
+            parser.error("--external-only demande --artifact et au moins une base externe")
         args.out_dir.mkdir(parents=True, exist_ok=True)
-        aptos_only(args)
+        external_only(args)
         return
     args.out_dir.mkdir(parents=True, exist_ok=True)
     torch.manual_seed(args.seed)
@@ -283,8 +295,8 @@ def main() -> None:
         report["test"] = evaluate_multilabel(y_test.numpy(), p_test, class_names)
         print(f"Test (lu une fois) : AUROC macro {report['test']['auroc_macro']:.4f}")
 
-    # Contrat d'artefact, enregistré AVANT l'étape APTOS : un arrêt pendant
-    # celle-ci ne fait pas perdre l'entraînement (relance avec --aptos-only).
+    # Contrat d'artefact, enregistré AVANT les bases externes : un arrêt pendant
+    # celles-ci ne fait pas perdre l'entraînement (relance avec --external-only).
     artifact_path = args.out_dir / "finetune_rfmid.pt"
     torch.save(
         {
@@ -306,8 +318,8 @@ def main() -> None:
     write_report(args.out_dir, report)
     print(f"Poids et résultats enregistrés ({time.time() - t0:.0f} s) -> {args.out_dir}")
 
-    if args.aptos_root is not None:
-        evaluate_aptos(model, class_names, args, report)
+    for name, (dataset_cls, root) in external_sets(args).items():
+        evaluate_external(model, class_names, name, dataset_cls, root, args, report)
         report["duration_s"] = time.time() - t0
         write_report(args.out_dir, report)
     print(f"Terminé en {report['duration_s'] / 60:.0f} min -> {args.out_dir}")

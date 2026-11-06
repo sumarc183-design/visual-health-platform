@@ -30,6 +30,13 @@ selon [SemVer](https://semver.org/lang/fr/).
   Réserve documentée : le pré-entraînement de RETFound inclut Kaggle EyePACS.
 - Notebook EyePACS : téléchargement et extraction vérifiés, erreurs visibles.
 
+- RETFound-Green : `src/models/retfound_green.py`,
+  `extract_embeddings.py --backbone green` (et `--dataset rfmid`),
+  `scripts/green_analysis.py` (comparaison appariée avec RETFound),
+  `notebooks/colab_green_finetune_eyepacs.ipynb`. 4 tests.
+- `finetune_retfound.py --eyepacs-root`, `--external-only` (ex `--aptos-only`) ;
+  `finetune_analysis.py` traite aussi EyePACS.
+
 ### Corrigé (second audit, 5 novembre 2026)
 - **Doublons d'images dans APTOS** : 122 groupes d'embeddings identiques
   (249 images, 6,8 %), dont 67 à cheval entre les moitiés « site » et
