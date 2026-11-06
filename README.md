@@ -5,21 +5,66 @@
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-261230)](https://docs.astral.sh/ruff/)
 [![Ouvrir dans Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sumarc183-design/visual-health-platform/blob/main/notebooks/colab_baseline_retfound.ipynb)
 
-Socle modulaire d'analyse d'images médicales. Premier cas d'usage : dépistage
-multi-pathologies sur images de fond d'œil, avec
-[RETFound](https://github.com/rmaphoh/RETFound_MAE) (modèle fondamental
-rétinien préentraîné) comme backbone. Chaque nouvelle indication ajoute une
-tête spécialisée sur le socle commun, sans le reconstruire.
+Pipeline de recherche pour analyser les photos de fond d'œil avec
+[RETFound](https://github.com/rmaphoh/RETFound_MAE) et
+[RETFound-Green](https://github.com/justinengelmann/RETFound_Green) : contrôle
+qualité, classification multi-pathologies et analyse des zones utilisées par
+les modèles. Les têtes sont entraînées sur RFMiD et ODIR, puis évaluées en
+transfert sur APTOS et EyePACS.
+
+## En bref
+
+- **Baseline multi-pathologies** : AUROC macro de **0,846 sur RFMiD** et
+  **0,848 sur ODIR**, avec une tête linéaire sur RETFound figé.
+- **Fine-tuning partiel** : AUROC macro de **0,873 sur le test RFMiD**, contre
+  0,846 pour la tête figée ; le gain ne se retrouve pas sur EyePACS.
+- **Transfert de rétinopathie diabétique** : Green atteint une AUROC de
+  **0,726 sur EyePACS**, contre 0,661 pour RETFound, avec les têtes RFMiD
+  comparées dans l'expérience.
+
+**Limites** : projet de recherche, sans validation clinique. Les seuils choisis
+sur une base se transfèrent mal à une autre ; les résultats dépendent des
+maladies, des données et du protocole. La localisation IDRiD est évaluée
+séparément et ne produit pas de segmentation dans `predict.py`.
+
+[Résultats détaillés](#résultats) · [Explicabilité](#explicabilité) ·
+[Localisation IDRiD](#localisation-des-lésions) ·
+[Décisions et calibration](#décisions-et-calibration) · [Guide](docs/GUIDE.md)
+
+## Démarrage rapide
+
+**Sans installation** : ouvrir le [notebook Colab](https://colab.research.google.com/github/sumarc183-design/visual-health-platform/blob/main/notebooks/colab_baseline_retfound.ipynb),
+choisir un GPU T4, ajouter `HF_TOKEN` aux Secrets Colab, puis exécuter les cellules.
+
+**En local, avec les poids, la tête et les seuils préparés** :
+
+```bash
+python predict.py mon_fond_d_oeil.jpg --head heads/odir_crop-mask_head.pt \
+    --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth \
+    --thresholds results/decision_odir.json --policy f1
+```
+
+Installation, préparation des données, entraînement des têtes et exemple Green :
+[guide d'utilisation](docs/GUIDE.md). Les poids et les têtes sont à préparer
+séparément ; ils ne sont pas inclus dans le dépôt.
+
+## Parcours actuel
 
 ```mermaid
 flowchart LR
-    A[Image] --> B[Contrôle qualité<br/>flou, résolution]
-    B --> C[Modalité<br/>fond d'œil, dermato]
-    C --> D[RETFound figé<br/>ViT-L/16]
-    D --> E[Tête multi-label<br/>par indication]
-    E --> F[AUROC · F1<br/>gap train − validation]
-    E --> G[Grad-CAM<br/>zones décisives]
+    A[Photo de fond d'œil] --> B[Contrôle qualité<br/>flou, résolution]
+    B --> C[Recadrage et masque<br/>selon la tête]
+    C --> D[RETFound ou RETFound-Green<br/>modèle figé]
+    D --> E[Tête multi-label]
+    E --> F[Probabilités et seuils<br/>par maladie]
+    F --> G[Résultat de recherche]
+    E -.-> H[Analyses séparées<br/>occlusion et localisation IDRiD]
 ```
+
+`predict.py` choisit le backbone et le prétraitement enregistrés dans la tête.
+Le contrôle qualité peut signaler ou refuser une image ; l'occlusion et la
+localisation sont exécutées par des scripts distincts. Le fine-tuning est
+un parcours expérimental séparé. Grad-CAM reste disponible pour comparaison.
 
 ## Résultats
 
@@ -556,40 +601,6 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 - Sur APTOS, où le décalage par appareil existe (contrôle 7), ce remède ne
   peut pas être évalué : malades et sains n'y partagent presque aucun
   appareil. Il reste une hypothèse, à tester sur une base comme Messidor-2.
-
-## Démarrage rapide
-
-**Sans installation** : bouton *Open in Colab* ci-dessus, `GPU T4`, token
-HuggingFace dans les Secrets Colab (`HF_TOKEN`), `Tout exécuter`.
-
-**En local** (poids RETFound et données : voir le [guide](docs/GUIDE.md#poids-retfound)) :
-
-```bash
-pip install -r requirements-dev.txt
-python run_baseline.py --dataset rfmid --data-root <chemin RFMiD> \
-    --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth --epochs 30
-pytest tests/                   # unitaires + bout-en-bout sur images synthétiques
-```
-
-**Prédire sur une image nouvelle** (tête sauvegardée par `--save-head`,
-seuils par maladie choisis sur la validation) :
-
-```bash
-python predict.py mon_fond_d_oeil.jpg --head heads/odir_crop-mask_head.pt \
-    --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth \
-    --thresholds results/decision_odir.json --policy f1   # ou sensitivity (dépistage)
-```
-
-Avec RETFound-Green (`python scripts/train_green_head.py`, voir le
-[GUIDE](docs/GUIDE.md#prédire-sur-une-image-nouvelle)) : `--head
-heads/rfmid_green_head.pt --checkpoint
-third_party/retfound_green/retfoundgreen_statedict.pth --thresholds
-results/decision_rfmid_green.json`.
-
-Contrôle qualité sur le fichier d'origine, même prétraitement que
-l'entraînement, probabilité et décision par maladie (aucune décision pour
-les maladies en preuve insuffisante). Outil de recherche : pas un
-diagnostic.
 
 ## État du socle
 
