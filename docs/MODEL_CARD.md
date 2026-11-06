@@ -112,6 +112,12 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   EyePACS (sans étiquette, d'après l'article de RETFound-Green) : cette base
   n'est pas totalement indépendante du backbone. Ce modèle ne doit pas servir à dépister la
   rétinopathie diabétique, y compris avec les seuils fournis.
+- **Localisation (IDRiD, 81 images) : les cartes d'occlusion ne prouvent pas que
+  RETFound regarde les lésions** (0,598, +0,016 [−0,004 ; +0,037] par rapport à la
+  seule position), et elles recouvrent davantage le disque optique. Green les suit
+  mieux (0,657, +0,083 [+0,059 ; +0,111]) et évite le disque. L'accord reste
+  modeste : ces cartes ne sont pas une preuve clinique et ne doivent pas guider une
+  lecture.
 - **Contrôle qualité** : seuil de flou calibré le 5 nov. (4,16 ; détecte
   79 à 90 % des images franchement floutées, signale ~2 % d'ODIR). Il ne
   détecte pas les images « mauvaise qualité » annotées dans ODIR (AUROC

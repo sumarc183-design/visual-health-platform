@@ -9,3 +9,5 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 /embeddings/
+# Tokens de patch (150 Mo), recalculables : notebooks/kaggle_localization_idrid.ipynb
+results/localization/localization_*.npz

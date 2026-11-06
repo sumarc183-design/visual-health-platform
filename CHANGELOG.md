@@ -51,7 +51,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 - Localisation sur IDRiD : `src/data/idrid_dataset.py`, `crop_mask_annotation`
   (même géométrie que `crop_mask`), `src/explainability/localization.py`,
   `scripts/localization_maps.py`, `scripts/localization_analysis.py`,
-  `notebooks/kaggle_localization_idrid.ipynb`. 11 tests.
+  `notebooks/kaggle_localization_idrid.ipynb`. 13 tests. Résultats : occlusion
+  contre lésions, écart à la position +0,016 [−0,004 ; +0,037] pour RETFound,
+  +0,083 [+0,059 ; +0,111] pour Green ; segmentation (AP, test) disque optique
+  0,597 et 0,919, exsudats durs 0,425 et 0,651.
 
 ### Corrigé (second audit, 5 novembre 2026)
 - **Doublons d'images dans APTOS** : 122 groupes d'embeddings identiques

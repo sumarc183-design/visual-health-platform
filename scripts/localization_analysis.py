@@ -20,6 +20,11 @@ Plan fixé avant de lire les résultats, pour RETFound et RETFound-Green :
 
 IC à 95 % par bootstrap sur les images, différences appariées.
 
+Exploratoire, ajouté après lecture des résultats : Green à la grille de
+RETFound (tokens moyennés en 14×14), car sa grille native de 28×28 l'avantage ;
+l'entrée reste en 392 px. Planche d'exemples tirés au hasard dans le test
+(`--figure`).
+
 Exemple :
     python scripts/localization_analysis.py --data-root <IDRiD> --maps-dir results/localization \\
         --out results/localization_idrid.json
@@ -131,6 +136,14 @@ def segmentation_scores(tokens: np.ndarray, targets: list[np.ndarray], train: np
     return np.stack(out)
 
 
+def pool_tokens(tokens: np.ndarray) -> np.ndarray:
+    """Tokens (N, 28², D) -> (N, 14², D), moyennés par blocs de 2×2."""
+    n, count, dim = tokens.shape
+    grid = int(np.sqrt(count))
+    blocks = tokens.reshape(n, grid // 2, 2, grid // 2, 2, dim)
+    return blocks.mean(axis=(2, 4)).reshape(n, -1, dim)
+
+
 def paired_ap(y: np.ndarray, a: np.ndarray, b: np.ndarray | None, rng: np.random.Generator) -> dict:
     """AP de `a` (ou a − b), y et scores en (images, cases). IC par images."""
 
@@ -176,8 +189,49 @@ def segmentation_report(tokens_by_model: dict, ids: list[str], splits: np.ndarra
         if len(predictions) == 2:
             a, b = list(predictions)
             entry["green_minus_retfound"] = paired_ap(y_test, predictions[b], predictions[a], rng)
+            pooled = segmentation_scores(pool_tokens(tokens_by_model[b]), targets, train, retina)[~train][:, inside]
+            entry["exploratory_green_grid_14"] = {
+                "ap": paired_ap(y_test, pooled, None, rng),
+                "minus_retfound": paired_ap(y_test, pooled, predictions[a], rng),
+            }
         report[key] = entry
     return report
+
+
+def save_figure(path: Path, root: Path, data: dict, masks: dict, seed: int, count: int = 4) -> None:
+    """Images de test tirées au hasard : image, masques d'experts, cartes des deux modèles."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    dataset = IDRiDSegmentation(root, split="test", image_size=SIZE)
+    picks = np.random.default_rng(seed).choice(len(dataset), count, replace=False)
+    colors = {"OD": (0, 1, 1), "EX": (1, 1, 0), "SE": (1, 0, 1), "HE": (1, 0, 0), "MA": (0, 1, 0)}
+    retina = common_mask(SIZE)
+    fig, axes = plt.subplots(count, 4, figsize=(12, 3 * count), squeeze=False)
+    for row, i in zip(axes, picks, strict=True):
+        image_id = dataset.ids[i]
+        image = dataset.image(int(i)).permute(1, 2, 0).numpy()
+        overlay = image.copy()
+        for key, color in colors.items():
+            overlay[masks[image_id][key]] = color
+        row[0].imshow(image)
+        row[0].set_title(image_id, fontsize=9)
+        row[1].imshow(overlay)
+        row[1].set_title("Experts : disque (cyan), lésions", fontsize=9)
+        for ax, (model, d) in zip(row[2:], data.items(), strict=True):
+            k = [str(x) for x in d["ids"]].index(image_id)
+            heat = np.where(retina, resize_map(d["maps"][k], SIZE), np.nan)
+            ax.imshow(image)
+            ax.imshow(heat, cmap="magma", alpha=0.65, vmin=0, vmax=max(1e-6, float(np.nanpercentile(heat, 99))))
+            ax.set_title(f"{model}, occlusion", fontsize=9)
+        for ax in row:
+            ax.axis("off")
+    fig.tight_layout()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=120)
+    plt.close(fig)
 
 
 def main() -> None:
@@ -186,6 +240,7 @@ def main() -> None:
     parser.add_argument("--maps-dir", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--figure", type=Path, default=None, help="Planche d'exemples tirés au hasard (PNG)")
     args = parser.parse_args()
 
     masks = load_masks(args.data_root)
@@ -232,9 +287,18 @@ def main() -> None:
             )
         d = e["green_minus_retfound"]
         print(f"  Green − RETFound {d['value']:+.3f} [{d['ci'][0]:+.3f} ; {d['ci'][1]:+.3f}]")
+        x = e["exploratory_green_grid_14"]
+        d = x["minus_retfound"]
+        print(
+            f"  Green grille 14×14 {x['ap']['value']:.3f} | "
+            f"− RETFound {d['value']:+.3f} [{d['ci'][0]:+.3f} ; {d['ci'][1]:+.3f}]"
+        )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
     print(f"Résultats : {args.out}")
+    if args.figure is not None:
+        save_figure(args.figure, args.data_root, data, masks, args.seed)
+        print(f"Planche : {args.figure}")
 
 
 if __name__ == "__main__":

@@ -227,6 +227,55 @@ Méthode :
 [GUIDE](docs/GUIDE.md#contrôle-par-occlusion),
 [prétraitement](docs/GUIDE.md#prétraitement-commun-crop-mask).
 
+## Localisation des lésions
+
+Les modèles regardent-ils les lésions ? Mesure contre les masques d'experts
+d'IDRiD (81 images avec rétinopathie, découpage officiel 54/27 ; plan fixé avant
+les résultats ; [analyse](scripts/localization_analysis.py),
+[résultats](results/localization_idrid.json),
+[exemples tirés au hasard](results/localization_examples.png)).
+
+**Occlusion**, tête RFMiD jamais entraînée sur IDRiD. AUROC au pixel de la carte
+contre les masques, et écart à la carte moyenne des autres images, qui capture
+la seule position :
+
+| 81 images | RETFound | Écart à la position | Green | Écart à la position | Green − RETFound |
+|---|---|---|---|---|---|
+| **Lésions** | 0,598 | +0,016 [−0,004 ; +0,037] | **0,657** | **+0,083 [+0,059 ; +0,111]** | **+0,059 [+0,030 ; +0,089]** |
+| Exsudats durs | 0,664 | −0,021 [−0,050 ; +0,009] | 0,755 | +0,057 [+0,028 ; +0,086] | +0,091 [+0,059 ; +0,123] |
+| Hémorragies | 0,528 | +0,028 [+0,003 ; +0,056] | 0,591 | +0,111 [+0,081 ; +0,142] | +0,063 [+0,018 ; +0,112] |
+| Microanévrismes | 0,551 | −0,031 [−0,049 ; −0,012] | 0,620 | +0,054 [+0,033 ; +0,075] | +0,069 [+0,044 ; +0,092] |
+| Disque optique (contrôle) | 0,756 | +0,037 [−0,013 ; +0,081] | 0,342 | −0,251 [−0,302 ; −0,198] | −0,414 [−0,489 ; −0,341] |
+
+Les cartes de Green suivent les lésions au-delà de leur position typique et
+évitent le disque optique. Celles de RETFound ne font pas mieux que la position
+pour les lésions, et recouvrent davantage le disque (densité ×4,5 dans leurs 5 %
+de pixels les plus importants, ×0,23 pour Green). L'accord reste modeste
+(AUROC 0,66) : l'occlusion cache des carrés d'environ 1/7 de l'image.
+
+**Segmentation** : régression logistique par case sur les tokens de patch,
+54 images d'entraînement, 27 de test lues une fois. Précision moyenne (AP) sur
+une grille de 56×56 ; la référence ne connaît que la position :
+
+| Test (27 images) | Position seule | RETFound | Green | Green − RETFound | Green à la grille de RETFound (exploratoire) |
+|---|---|---|---|---|---|
+| Disque optique | 0,219 | 0,597 | **0,919** | +0,322 [+0,272 ; +0,374] | 0,748 |
+| Exsudats durs | 0,140 | 0,425 | **0,651** | +0,226 [+0,204 ; +0,249] | 0,541 |
+| Hémorragies | 0,047 | 0,243 | 0,309 | +0,066 [−0,001 ; +0,155] | 0,232 |
+| Exsudats mous | 0,006 | 0,203 | 0,273 | +0,070 [−0,072 ; +0,282] | 0,262 |
+| Microanévrismes | 0,030 | 0,037 | 0,083 | +0,046 [+0,031 ; +0,061] | 0,064 |
+
+Les deux modèles dépassent nettement la position, sauf RETFound sur les
+microanévrismes (+0,007). Une partie de l'avantage de Green vient de sa grille
+plus fine : à grille égale, il garde l'avantage sur le disque, les exsudats durs
+et les microanévrismes, pas sur les hémorragies. L'entrée reste en 392 px contre
+224, donc modèle et résolution restent confondus.
+
+Limites : 81 images d'un seul centre, toutes malades et choisies pour leurs
+lésions ; une case compte comme positive dès un pixel de lésion, ce qui gonfle les
+petites lésions ; une AP par case ne se compare pas aux scores au pixel du
+challenge IDRiD. Pas de segmentation dans `predict.py`.
+
 ## Décisions et calibration
 
 L'AUROC mesure le classement ; un outil de dépistage décide oui/non. Seuils

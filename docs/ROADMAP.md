@@ -17,7 +17,7 @@
 - [x] Tête (2026-11-04) : balayage de 24 configurations × 6 durées (régularisation, pondération des classes rares, standardisation, 5 à 50 epochs), sur la validation seulement : pas de gain démontré (+0,003 RFMiD, +0,007 ODIR au mieux, maxima biaisés vers le haut). Archivé : `scripts/sweep_head.py`, `results/sweep_head_*.json`. Tête inchangée
 
 ## J60 — Localisation
-- [ ] Localisation/segmentation des zones suspectes (ex. disque optique)
+- [x] Localisation/segmentation des zones suspectes (6 nov., première mesure sur IDRiD) : occlusion contre masques d'experts, segmentation par case sur tokens de patch, RETFound et Green ; disque optique AP 0,919, exsudats durs 0,651 (Green, 27 images de test). Pas de validation externe ni d'intégration à `predict.py`.
 - [ ] Seconde indication amorcée (dermatologie via ISIC)
 - [ ] Score de confiance calibré (avancé le 4 nov. : probabilités déjà bien calibrées, ECE ≈ 0,02-0,03, seuils par maladie choisis sur la validation ; reste la validation clinique du compromis)
 

@@ -5,7 +5,7 @@ import pytest
 import torch
 from PIL import Image
 
-from scripts.localization_analysis import occlusion_scores, paired_ap, segmentation_scores, upsample
+from scripts.localization_analysis import occlusion_scores, paired_ap, pool_tokens, segmentation_scores, upsample
 from src.data.fundus_preprocess import common_mask, crop_mask, crop_mask_annotation
 from src.data.idrid_dataset import IDRiDSegmentation, find_segmentation_root, read_annotation
 from src.explainability.localization import cell_targets, map_auroc, resize_map, top_enrichment
@@ -127,6 +127,14 @@ def test_segmentation_learns_from_tokens_and_is_evaluated_on_the_common_grid():
     assert scores.shape == (images, 56, 56)
     expected = upsample(cell_targets(targets[-1], grid, np.ones((224, 224), bool))[0].astype(float))
     assert ((scores[-1] > 0.5) == (expected > 0.5)).all()
+
+
+def test_pool_tokens_averages_neighbouring_cells():
+    tokens = np.arange(16, dtype=float).reshape(1, 16, 1)  # grille 4×4, lignes 0-3, 4-7, ...
+    pooled = pool_tokens(tokens)
+    assert pooled.shape == (1, 4, 1)
+    assert pooled[0, 0, 0] == pytest.approx(np.mean([0, 1, 4, 5]))
+    assert pooled[0, 3, 0] == pytest.approx(np.mean([10, 11, 14, 15]))
 
 
 def test_paired_ap_is_zero_for_identical_scores():
