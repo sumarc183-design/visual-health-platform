@@ -33,7 +33,7 @@ selon [SemVer](https://semver.org/lang/fr/).
 - RETFound-Green : `src/models/retfound_green.py`,
   `extract_embeddings.py --backbone green` (et `--dataset rfmid`),
   `scripts/green_analysis.py` (comparaison appariée avec RETFound),
-  `notebooks/colab_green_finetune_eyepacs.ipynb`. 4 tests.
+  `notebooks/colab_green_finetune_eyepacs.ipynb` et sa version Kaggle. 4 tests.
 - `finetune_retfound.py --eyepacs-root`, `--external-only` (ex `--aptos-only`) ;
   `finetune_analysis.py` traite aussi EyePACS.
 

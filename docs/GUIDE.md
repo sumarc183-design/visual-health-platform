@@ -253,7 +253,9 @@ sur Colab : seules les prédictions et `finetune_rfmid.json` sont versionnées.
 `notebooks/colab_green_finetune_eyepacs.ipynb` (titre Colab : « Visual Health
 — RETFound-Green et fine-tuning sur EyePACS »), ~2 h sur T4, secrets
 `HF_TOKEN` et `KAGGLE_API_TOKEN`, deux téléchargements. Le test RFMiD n'y est
-pas relu. En local :
+pas relu. Sur Kaggle : `notebooks/kaggle_green_finetune_eyepacs.ipynb` (titre :
+« Visual Health — RETFound-Green et fine-tuning sur EyePACS »), données en
+input et `Save & Run All`. En local :
 
 ```bash
 # visual_health_green.zip : les .npz dans embeddings/
