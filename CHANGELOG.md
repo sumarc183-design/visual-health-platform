@@ -37,6 +37,12 @@ selon [SemVer](https://semver.org/lang/fr/).
 - `finetune_retfound.py --eyepacs-root`, `--external-only` (ex `--aptos-only`) ;
   `finetune_analysis.py` traite aussi EyePACS.
 
+- Résultats du 6 nov. : fine-tuning sur EyePACS 0,650 contre 0,661
+  (−0,012 [−0,031 ; +0,006]) ; RETFound-Green sur EyePACS 0,726 contre 0,661
+  (+0,065 [+0,043 ; +0,085]), sur APTOS 0,958 contre 0,827, test RFMiD 0,871
+  contre 0,846 (+0,025 [−0,001 ; +0,048]). Plafond dans EyePACS inchangé
+  (0,786 contre 0,785). `notebooks/kaggle_green_finetune_eyepacs.ipynb`.
+
 ### Corrigé (second audit, 5 novembre 2026)
 - **Doublons d'images dans APTOS** : 122 groupes d'embeddings identiques
   (249 images, 6,8 %), dont 67 à cheval entre les moitiés « site » et

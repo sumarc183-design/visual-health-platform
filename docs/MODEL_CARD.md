@@ -68,9 +68,10 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
 - **Sonde sur backbone figé** : en dessous des chiffres publiés par RETFound,
   obtenus après fine-tuning complet. Un fine-tuning partiel (4 derniers
   blocs) gagne +0,026 en test RFMiD (0,873) ; sur APTOS, son gain global
-  (0,974 contre 0,827) disparaît à format égal (−0,012, non significatif) :
-  pas de preuve d'une meilleure reconnaissance externe, et pas de mesure sur
-  EyePACS (poids à recalculer). Le modèle servi par
+  (0,974 contre 0,827) disparaît à format égal (−0,012, non significatif), et
+  il ne fait pas mieux sur EyePACS (0,650 contre 0,661). RETFound-Green, non
+  servi ici, fait mieux en externe (EyePACS 0,726, APTOS 0,958, à tête égale),
+  sans gain démontré sur RFMiD. Le modèle servi par
   `predict.py` reste la tête linéaire.
 - **Population et appareils** : jeux de données publics de quelques centres.
   L'appareil reste lisible dans les embeddings même avec `crop-mask`

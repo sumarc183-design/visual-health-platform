@@ -1,0 +1,216 @@
+{
+ "config": {
+  "data_root": "/kaggle/input/datasets/andrewmvd/retinal-disease-classification",
+  "checkpoint": "third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth",
+  "out_dir": "finetune_eyepacs",
+  "trainable_blocks": 4,
+  "epochs": 30,
+  "patience": 5,
+  "batch_size": 32,
+  "lr_backbone": 2e-05,
+  "lr_head": 0.001,
+  "weight_decay": 0.05,
+  "seed": 42,
+  "workers": 2,
+  "device": "cuda",
+  "eval_test": false,
+  "aptos_root": "/kaggle/input/competitions/aptos2019-blindness-detection",
+  "eyepacs_root": "/kaggle/temp/eyepacs",
+  "limit": null,
+  "trust_checkpoint": false,
+  "external_only": false,
+  "artifact": null
+ },
+ "checkpoint_sha256": "e1e4f66a1b792eeb",
+ "preprocess_version": 1,
+ "best_epoch": 19,
+ "history": [
+  {
+   "epoch": 1,
+   "train_loss": 0.2740160391976436,
+   "val_auroc_macro": 0.5770859663471452
+  },
+  {
+   "epoch": 2,
+   "train_loss": 0.1202552984158198,
+   "val_auroc_macro": 0.7341799244115712
+  },
+  {
+   "epoch": 3,
+   "train_loss": 0.1021557379513979,
+   "val_auroc_macro": 0.7827607987431172
+  },
+  {
+   "epoch": 4,
+   "train_loss": 0.08970837369561195,
+   "val_auroc_macro": 0.8241341027555643
+  },
+  {
+   "epoch": 5,
+   "train_loss": 0.08140626183400551,
+   "val_auroc_macro": 0.8396845045046598
+  },
+  {
+   "epoch": 6,
+   "train_loss": 0.07325154306987922,
+   "val_auroc_macro": 0.8581779610007686
+  },
+  {
+   "epoch": 7,
+   "train_loss": 0.06807740318278471,
+   "val_auroc_macro": 0.8614286681360966
+  },
+  {
+   "epoch": 8,
+   "train_loss": 0.06355813133219877,
+   "val_auroc_macro": 0.8705452408656308
+  },
+  {
+   "epoch": 9,
+   "train_loss": 0.05981704909354448,
+   "val_auroc_macro": 0.8764205283896536
+  },
+  {
+   "epoch": 10,
+   "train_loss": 0.055755911363909644,
+   "val_auroc_macro": 0.8776778843037472
+  },
+  {
+   "epoch": 11,
+   "train_loss": 0.05249054431915283,
+   "val_auroc_macro": 0.8799873124815819
+  },
+  {
+   "epoch": 12,
+   "train_loss": 0.049866981742282705,
+   "val_auroc_macro": 0.8822486489611184
+  },
+  {
+   "epoch": 13,
+   "train_loss": 0.04730335169782241,
+   "val_auroc_macro": 0.885824730030956
+  },
+  {
+   "epoch": 14,
+   "train_loss": 0.044620918575674295,
+   "val_auroc_macro": 0.8871366875822166
+  },
+  {
+   "epoch": 15,
+   "train_loss": 0.043272089368353285,
+   "val_auroc_macro": 0.88664847617329
+  },
+  {
+   "epoch": 16,
+   "train_loss": 0.04114386901880304,
+   "val_auroc_macro": 0.8895212143489823
+  },
+  {
+   "epoch": 17,
+   "train_loss": 0.03907335412998994,
+   "val_auroc_macro": 0.8934579677883894
+  },
+  {
+   "epoch": 18,
+   "train_loss": 0.03707911747818192,
+   "val_auroc_macro": 0.8928313045488012
+  },
+  {
+   "epoch": 19,
+   "train_loss": 0.036532570297519364,
+   "val_auroc_macro": 0.8944449834651204
+  },
+  {
+   "epoch": 20,
+   "train_loss": 0.03465198874473572,
+   "val_auroc_macro": 0.8930746007839903
+  },
+  {
+   "epoch": 21,
+   "train_loss": 0.032941318365434805,
+   "val_auroc_macro": 0.8933470106291238
+  },
+  {
+   "epoch": 22,
+   "train_loss": 0.03245837061355512,
+   "val_auroc_macro": 0.8919540446776096
+  },
+  {
+   "epoch": 23,
+   "train_loss": 0.03244522027671337,
+   "val_auroc_macro": 0.8934051531779696
+  },
+  {
+   "epoch": 24,
+   "train_loss": 0.030997877940535545,
+   "val_auroc_macro": 0.8937199277135303
+  }
+ ],
+ "val": {
+  "auroc_macro": 0.8944449834651204,
+  "auroc_per_class": {
+   "DR": 0.9411163803388214,
+   "ARMD": 0.9803724427347439,
+   "MH": 0.9615861214374226,
+   "DN": 0.7572646757429367,
+   "MYA": 0.9934964084643759,
+   "BRVO": 0.9496159537735184,
+   "TSLN": 0.9604414715719064,
+   "ERM": 0.865380275332882,
+   "LS": 0.9775752997828344,
+   "MS": 0.8656692913385826,
+   "CSR": 0.9552681023269258,
+   "ODC": 0.8897324921752738,
+   "CRVO": 0.9956487341772152,
+   "TV": 0.8432601880877744,
+   "AH": 0.9858490566037736,
+   "ODP": 0.8411425707842646,
+   "ODE": 0.9634971920916995,
+   "ST": 0.510809748427673,
+   "AION": 0.9707086614173228,
+   "PT": 0.9553291536050156,
+   "RT": 0.993427970557308,
+   "RS": 0.9908717480602465,
+   "CRS": 0.797658621188033,
+   "EDN": 0.9505511811023623,
+   "RPEC": 0.7992902208201893,
+   "MHL": 0.7229199372056515,
+   "RP": 0.9984326018808777,
+   "PTCR": 0.6275430359937402
+  },
+  "f1_macro": 0.33562266468247254,
+  "positives_per_class": {
+   "DR": 132,
+   "ARMD": 38,
+   "MH": 102,
+   "DN": 46,
+   "MYA": 34,
+   "BRVO": 23,
+   "TSLN": 65,
+   "ERM": 7,
+   "LS": 17,
+   "MS": 5,
+   "CSR": 11,
+   "ODC": 72,
+   "CRVO": 8,
+   "TV": 2,
+   "AH": 4,
+   "ODP": 26,
+   "ODE": 21,
+   "ST": 4,
+   "AION": 5,
+   "PT": 2,
+   "RT": 6,
+   "RS": 14,
+   "CRS": 11,
+   "EDN": 5,
+   "RPEC": 6,
+   "MHL": 3,
+   "RP": 2,
+   "PTCR": 1
+  }
+ },
+ "duration_s": 1740.1221780776978,
+ "aptos_any_dr_auroc": 0.9786366477370196,
+ "eyepacs_any_dr_auroc": 0.6495494528738952
+}

@@ -76,11 +76,40 @@ format égal, aucun gain. Dans APTOS, le format est fortement lié au
 diagnostic : le fine-tuning a supprimé le décalage de scores entre formats
 (écart globale − format égal : −0,114 → +0,046), mais ces données ne
 permettent pas de dire s'il reconnaît mieux la maladie ou s'il s'appuie sur
-des indices liés à l'acquisition. Pour trancher, il faudrait appliquer ce
-modèle à EyePACS (non fait : poids à recalculer) ; la tête linéaire y tombe
-à 0,661 ([contrôle 5](#robustesse)). Bootstrap par
+des indices liés à l'acquisition. **EyePACS tranche** (second run, mêmes
+réglages, validation 0,894, [résultats](results/finetune_eyepacs_analysis.json)) :
+0,650 contre 0,661 pour la tête linéaire, soit −0,012 [−0,031 ; +0,006], et
+0,665 contre 0,680 à format égal. **Le fine-tuning n'améliore pas la
+généralisation externe.** Bootstrap par
 groupes de doublons ; à format égal, 5 % seulement des paires malade/sain
 sont comparables.
+
+**RETFound-Green** (6 novembre ; 21,8 millions de paramètres contre 303,
+392 px contre 224, même `crop-mask`, même tête, différences appariées ;
+[script](scripts/green_analysis.py), [résultats](results/green_analysis.json)) :
+
+| | RETFound | RETFound-Green | Différence [IC 95 %] |
+|---|---|---|---|
+| RFMiD, validation | 0,864 | 0,889 | +0,025 [−0,005 ; +0,045] |
+| RFMiD, test (lu une fois) | 0,846 | 0,871 | +0,025 [−0,001 ; +0,048] |
+| **EyePACS, tête RFMiD** (RD) | 0,661 | **0,726** | **+0,065 [+0,043 ; +0,085]** |
+| EyePACS, à format égal | 0,680 | 0,746 | +0,066 [+0,041 ; +0,089] |
+| EyePACS, à adresser (stade ≥ 2) | 0,690 | 0,789 | non calculée |
+| EyePACS, tête entraînée dans la base | 0,785 | 0,786 | +0,001 [−0,018 ; +0,019] |
+| APTOS, tête RFMiD (RD) | 0,827 | 0,958 | +0,131 [+0,119 ; +0,143] |
+| APTOS, à format égal | 0,941 | 0,976 | +0,035 [+0,023 ; +0,049] |
+| Sensibilité au seuil « dépistage », EyePACS (visée 0,90) | 0,02 | 0,13 | non calculée |
+| Sensibilité au seuil « dépistage », APTOS (visée 0,90) | 0,51 | 0,76 | non calculée |
+
+Green généralise nettement mieux, à la différence du fine-tuning, y compris à
+format égal et sur EyePACS, que le pré-entraînement de RETFound inclut (pas
+celui de Green). Sur RFMiD, le gain n'est pas démontré, et sur la DMLA le test
+donne −0,065 [−0,107 ; −0,027]. Les seuils ne se transposent toujours pas :
+sensibilité 0,13 sur EyePACS. Le plafond de 0,785 dans EyePACS est identique
+pour les deux modèles : il ne semble donc pas propre aux embeddings de
+RETFound ; la cause (images, annotations, tête linéaire) reste non établie.
+Limites : l'écart mêle modèle et résolution ; le pré-entraînement de Green
+inclut ODIR, d'où l'absence de cette base ; `predict.py` reste sur RETFound.
 
 - **Très bien reconnues** (AUROC test > 0,94) : rétinopathie diabétique,
   DMLA, trous maculaires, myopie (RFMiD) ;

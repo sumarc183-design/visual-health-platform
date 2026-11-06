@@ -9,7 +9,10 @@ Plan fixé avant de lire les résultats, sans réglage :
   sur les mêmes images ;
 - RFMiD multi-label : validation, puis test lu une fois pour Green ;
 - rétinopathie diabétique, tête RFMiD appliquée à APTOS et EyePACS : AUROC
-  globale, à format égal et « à adresser » ;
+  globale, à format égal et « à adresser » ; sensibilité et spécificité au
+  seuil « dépistage » (sensibilité >= 0,90) choisi sur la validation RFMiD,
+  jamais sur la base externe (mesure ajoutée après une première lecture des
+  AUROC : elle ne change ni les modèles ni les têtes) ;
 - diagnostic dans la base : tête entraînée dans la base externe, 5 plis
   groupés identiques pour les deux modèles. C'est le plafond de chaque
   embedding sur cette base : il montre si la limite d'EyePACS (0,785 avec
@@ -45,6 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.external_validation import auroc_with_ci, quiet_scores  # noqa: E402
 from scripts.finetune_analysis import paired_external_diff  # noqa: E402
 from scripts.robustness_checks import CHECKPOINT_STEM, head_scores, load  # noqa: E402
+from src.eval.decision import choose_threshold, decision_metrics  # noqa: E402
 from src.eval.duplicates import independent_groups  # noqa: E402
 from src.eval.metrics import evaluate_multilabel, paired_bootstrap_diff, stratification_gap  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache  # noqa: E402
@@ -101,12 +105,16 @@ def external_comparison(root: Path, directory: Path, name: str) -> dict:
     groups, _ = independent_groups(X["RETFound"], base)
     train = load("rfmid", root, "train")
     y_train = train.df[["DR"]].to_numpy(np.float32)
+    val = load("rfmid", root, "val")
+    y_val = val.df["DR"].to_numpy(np.float32)
     folds = list(StratifiedGroupKFold(5, shuffle=True, random_state=0).split(keys, grade, groups=groups))
 
     transfer, ceiling, report = {}, {}, {"images": len(keys), "models": {}}
     for model in FILES:
         X_train = cached(directory, model, "rfmid", train.image_keys)
         transfer[model] = quiet_scores(X_train, y_train, X[model])
+        p_val = quiet_scores(X_train, y_train, cached(directory, model, "rfmid", val.image_keys))
+        threshold = choose_threshold(y_val, p_val, "sensitivity", 0.9)
         ceiling[model] = np.zeros(len(keys))
         for fit, held_out in folds:
             ceiling[model][held_out] = quiet_scores(X[model][fit], any_dr[fit, None], X[model][held_out])
@@ -116,6 +124,13 @@ def external_comparison(root: Path, directory: Path, name: str) -> dict:
             "format_check": stratification_gap(
                 any_dr[:, None], transfer[model][:, None], ["any_dr"], formats, groups, n_boot=1000
             )["any_dr"],
+            "screening_threshold": {
+                "threshold": threshold,
+                "any_dr": decision_metrics(any_dr, transfer[model], threshold),
+                "detected_by_grade": {
+                    int(g): float((transfer[model][grade == g] >= threshold).mean()) for g in np.unique(grade)
+                },
+            },
             "in_domain_any_dr": auroc_with_ci(any_dr, ceiling[model], groups, "any_dr"),
             "in_domain_referable_dr": auroc_with_ci(referable, ceiling[model], groups, "referable_dr"),
         }
@@ -146,11 +161,13 @@ def main() -> None:
         report[name] = external_comparison(args.rfmid_root, args.embeddings, name)
         for model, m in report[name]["models"].items():
             t, g, c = m["transfer_any_dr"], m["format_check"], m["in_domain_any_dr"]
+            s = m["screening_threshold"]["any_dr"]
             print(
                 f"{name} {model:15s} : tête RFMiD {t['auroc']:.3f} [{t['ci'][0]:.3f} ; {t['ci'][1]:.3f}] | "
                 f"à format égal {g['auroc_within_strata']:.3f} | "
                 f"à adresser {m['transfer_referable_dr']['auroc']:.3f} | "
-                f"dans la base {c['auroc']:.3f} [{c['ci'][0]:.3f} ; {c['ci'][1]:.3f}]"
+                f"dans la base {c['auroc']:.3f} [{c['ci'][0]:.3f} ; {c['ci'][1]:.3f}] | "
+                f"seuil dépistage : sensibilité {s['sensitivity']:.2f}, spécificité {s['specificity']:.2f}"
             )
         for label in ("transfer", "in_domain"):
             for kind, d in report[name][f"{label}_green_minus_retfound"].items():
