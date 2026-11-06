@@ -13,8 +13,12 @@ keywords:
   - retina
   - foundation model
   - RETFound
+  - RETFound-Green
   - explainability
 references:
+  - type: software
+    title: "RETFound-Green"
+    repository-code: "https://github.com/justinengelmann/RETFound_Green"
   - type: software
     title: "RETFound"
     repository-code: "https://github.com/rmaphoh/RETFound_MAE"

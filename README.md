@@ -3,6 +3,7 @@
 [![CI](https://github.com/sumarc183-design/visual-health-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/sumarc183-design/visual-health-platform/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-261230)](https://docs.astral.sh/ruff/)
+[![Licence : CC BY-NC 4.0](https://img.shields.io/badge/licence-CC%20BY--NC%204.0-lightgrey)](LICENSE)
 [![Ouvrir dans Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sumarc183-design/visual-health-platform/blob/main/notebooks/colab_baseline_retfound.ipynb)
 
 Pipeline de recherche pour analyser les photos de fond d'œil avec
@@ -11,6 +12,12 @@ Pipeline de recherche pour analyser les photos de fond d'œil avec
 qualité, classification multi-pathologies et analyse des zones utilisées par
 les modèles. Les têtes sont entraînées sur RFMiD et ODIR, puis évaluées en
 transfert sur APTOS et EyePACS.
+
+> *In English:* a research pipeline for retinal fundus photographs, built on the
+> RETFound and RETFound-Green foundation models: quality control, multi-label
+> disease classification, external validation on APTOS and EyePACS, and lesion
+> localisation measured against expert masks (IDRiD). Not a medical device; the
+> documentation is in French.
 
 ## En bref
 
@@ -21,6 +28,12 @@ transfert sur APTOS et EyePACS.
 - **Transfert de rétinopathie diabétique** : Green atteint une AUROC de
   **0,726 sur EyePACS**, contre 0,661 pour RETFound, avec les têtes RFMiD
   comparées dans l'expérience.
+
+[![Occlusion de RETFound et de RETFound-Green comparée aux masques d'experts, sur quatre images tirées au hasard](results/localization_examples.png)](#localisation-des-lésions)
+
+*Quatre images IDRiD tirées au hasard. De gauche à droite : l'image, les masques
+d'experts (disque optique en cyan), puis les zones dont le masquage fait chuter le
+score de RETFound et de RETFound-Green.*
 
 **Limites** : projet de recherche, sans validation clinique. Les seuils choisis
 sur une base se transfèrent mal à une autre ; les résultats dépendent des
@@ -610,7 +623,7 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 | 2. Identification de la modalité | 🟡 Architecture en place, pas encore entraînée |
 | 3. Prétraitement fond d'œil | ✅ `crop-mask` (recadrage + masque commun), normalisation ImageNet, 224×224 |
 | 4. Classification multi-label | ✅ RFMiD et ODIR, AUROC mesurée |
-| 5. Localisation des zones suspectes | ⬜ J60 |
+| 5. Localisation des zones suspectes | 🟡 Mesurée sur IDRiD (81 images, [détails](#localisation-des-lésions)) ; pas de validation externe ni d'intégration à `predict.py` |
 | 6. Explicabilité | 🟡 Grad-CAM peu fiable sur ce ViT (chaleur sur le fond) ; l'occlusion le remplace. Voir [Explicabilité](#explicabilité) |
 | 7. Score de confiance calibré | 🟡 Probabilités déjà bien calibrées (ECE ≈ 0,02-0,03) et seuils par maladie ; à valider cliniquement (jalon J60). Voir [Décisions et calibration](#décisions-et-calibration) |
 | 8. Prédiction sur image nouvelle | ✅ `predict.py` ; avec les vrais poids, mêmes probabilités que l'entraînement (écart ≤ 10⁻⁶ sur 20 images, [contrôle](results/predict_check_odir.json)) |
@@ -619,26 +632,30 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 
 | Base | Usage |
 |---|---|
-| RFMiD | Fond d'œil, 28 pathologies (phase 1) |
-| ODIR-5K | Fond d'œil, 8 classes, volume complémentaire (phase 1) |
-| ISIC | Dermatologie, seconde modalité (phase 2) |
-| AI-Hub | Dépistage TSA depuis la rétine (phase 2/3, accès à négocier) |
+| RFMiD | Entraînement et test : 28 pathologies |
+| ODIR-5K | Entraînement et test : 8 classes, volume complémentaire |
+| APTOS 2019 | Transfert de la rétinopathie diabétique |
+| EyePACS | Transfert de la rétinopathie diabétique (2 500 patients) |
+| IDRiD | Localisation : 81 images avec masques d'experts |
+| ISIC | Dermatologie, seconde modalité (à venir) |
+| AI-Hub | Dépistage TSA depuis la rétine (à venir, accès à négocier) |
 
 Arbitrage des cas d'usage : [docs/USE_CASES.md](docs/USE_CASES.md).
 
 ## Structure
 
 ```
-run_baseline.py         point d'entrée : contrôle qualité -> RETFound -> tête -> AUROC
-src/pipeline/           contrôle qualité, identification de modalité
-src/data/               loaders RFMiD et ODIR (structure Kaggle réelle)
-src/models/             backbone RETFound, tête de classification
-src/explainability/     Grad-CAM adapté aux ViT
-src/eval/               métriques multi-label (AUROC, F1)
-scripts/                poids RETFound, Grad-CAM, données, générateur synthétique
-notebooks/              notebook Google Colab
+run_baseline.py         entraînement d'une tête : contrôle qualité -> RETFound -> tête -> AUROC
+predict.py              prédiction sur une image nouvelle (RETFound ou RETFound-Green)
+src/pipeline/           contrôle qualité, identification de modalité, inférence
+src/data/               RFMiD, ODIR, APTOS, EyePACS, IDRiD, prétraitement crop-mask
+src/models/             RETFound, RETFound-Green, fine-tuning, tête, cache d'embeddings
+src/explainability/     occlusion, localisation, Grad-CAM
+src/eval/               métriques, décisions, doublons, provenance des runs
+scripts/                validations externes, analyses, poids, données
+notebooks/              notebooks Google Colab et Kaggle (parties GPU)
 tests/                  tests unitaires, bout-en-bout synthétique, données réelles
-results/                sorties des runs réels
+results/                résultats des runs, archivés
 configs/                hyperparamètres de référence (non lus par les scripts)
 docs/                   guide, carte du modèle, roadmap, cas d'usage
 ```
@@ -647,7 +664,7 @@ docs/                   guide, carte du modèle, roadmap, cas d'usage
 
 | Document | Contenu |
 |---|---|
-| [GUIDE.md](docs/GUIDE.md) | Installation, poids, données, exécution, Grad-CAM, tests |
+| [GUIDE.md](docs/GUIDE.md) | Installation, poids, données, exécution, validations externes, tests |
 | [MODEL_CARD.md](docs/MODEL_CARD.md) | Usage prévu, données, métriques, limites |
 | [ROADMAP.md](docs/ROADMAP.md) | Jalons J30 / J60 / J90 |
 | [USE_CASES.md](docs/USE_CASES.md) | Arbitrage entre fond d'œil, dermatologie et TSA |
@@ -655,8 +672,8 @@ docs/                   guide, carte du modèle, roadmap, cas d'usage
 
 ## Licences et attributions
 
-**Ce dépôt est sous licence [CC BY-NC 4.0](LICENSE)** (Attribution - Pas
-d'Utilisation Commerciale) : réutilisation libre en citant la source, sans
+**Ce dépôt (© 2026 Marc Su) est sous licence [CC BY-NC 4.0](LICENSE)** (Attribution
+- Pas d'Utilisation Commerciale) : réutilisation libre en citant la source, sans
 usage commercial. C'est la licence de RETFound, dont deux fichiers du dépôt
 sont adaptés : une licence plus permissive pour l'ensemble serait
 incohérente.
@@ -664,6 +681,8 @@ incohérente.
 ⚠️ **RETFound est sous licence CC BY-NC 4.0** : recherche et usage non
 commercial uniquement, pas dans un produit commercial sans licence des
 auteurs. Détails et options : [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-Pour citer ce travail : [CITATION.cff](CITATION.cff).
+RETFound-Green a sa propre licence de recherche non commerciale, plus restrictive,
+et ses poids ne sont pas distribués ici. Pour citer ce travail :
+[CITATION.cff](CITATION.cff).
 
 Projet de recherche, pas un dispositif médical.

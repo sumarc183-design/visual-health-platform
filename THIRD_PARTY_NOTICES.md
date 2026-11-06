@@ -1,5 +1,10 @@
 # Attributions et licences
 
+Visual Health Platform : © 2026 Marc Su, sous licence CC BY-NC 4.0 ([LICENSE](LICENSE)).
+Les fichiers `src/models/retfound_backbone.py` et `src/models/pos_embed.py` sont
+adaptés de RETFound. Les poids des modèles et les jeux de données ne sont pas
+distribués avec ce dépôt et restent soumis à leurs propres conditions.
+
 ## RETFound (`src/models/retfound_backbone.py`, `src/models/pos_embed.py`)
 
 - Dépôt : https://github.com/rmaphoh/RETFound_MAE
