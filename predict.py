@@ -2,7 +2,7 @@
 """Prédit les maladies sur une ou plusieurs images de fond d'œil nouvelles.
 
 Même chaîne que l'entraînement (src/pipeline/inference.py) : contrôle
-qualité, prétraitement enregistré dans la tête, RETFound figé, tête, puis
+qualité, prétraitement enregistré dans la tête, modèle figé, tête, puis
 décision par maladie avec les seuils choisis sur la validation
 (results/decision_<dataset>.json, produits par scripts/decision_metrics.py).
 
@@ -14,6 +14,11 @@ Politiques de seuil :
 Les seuils publiés correspondent aux têtes du run publié (crop-mask,
 30 epochs, graine 42) ; avec une autre tête, recalculer les seuils.
 
+Le modèle se choisit avec la tête, qui indique le sien : RETFound (têtes RFMiD
+et ODIR) ou RETFound-Green (tête RFMiD : meilleure généralisation externe sur
+la rétinopathie diabétique, moins bon sur la DMLA ; voir README). Le
+checkpoint doit être celui de la tête, sinon la prédiction est refusée.
+
 Outil de recherche, non validé cliniquement : les décisions ne sont pas un
 diagnostic.
 
@@ -22,6 +27,10 @@ Exemple :
         --head heads/odir_crop-mask_head.pt \\
         --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth \\
         --thresholds results/decision_odir.json --policy f1 --out predictions.json
+    python predict.py image1.jpg \\
+        --head heads/rfmid_green_head.pt \\
+        --checkpoint third_party/retfound_green/retfoundgreen_statedict.pth \\
+        --thresholds results/decision_rfmid_green.json
 """
 
 from __future__ import annotations
@@ -42,7 +51,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("images", type=Path, nargs="+", help="Images de fond d'œil")
     parser.add_argument("--head", type=Path, required=True, help="Tête sauvegardée par run_baseline.py --save-head")
-    parser.add_argument("--checkpoint", type=Path, required=True, help="Checkpoint RETFound (celui de la tête)")
+    parser.add_argument("--checkpoint", type=Path, required=True, help="Checkpoint du modèle (celui de la tête)")
     parser.add_argument("--thresholds", type=Path, default=None, help="results/decision_<dataset>.json")
     parser.add_argument("--policy", choices=THRESHOLD_POLICIES, default="f1")
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")

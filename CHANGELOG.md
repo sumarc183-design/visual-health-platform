@@ -43,6 +43,11 @@ selon [SemVer](https://semver.org/lang/fr/).
   contre 0,846 (+0,025 [−0,001 ; +0,048]). Plafond dans EyePACS inchangé
   (0,786 contre 0,785). `notebooks/kaggle_green_finetune_eyepacs.ipynb`.
 
+- `predict.py` : choix du modèle par la tête (RETFound ou RETFound-Green),
+  `scripts/train_green_head.py`, `decision_metrics.py --variant`,
+  `results/decision_rfmid_green.json`. Vérifié avec les vrais poids (écart
+  ≤ 6×10⁻⁶ sur 20 images). 2 tests.
+
 ### Corrigé (second audit, 5 novembre 2026)
 - **Doublons d'images dans APTOS** : 122 groupes d'embeddings identiques
   (249 images, 6,8 %), dont 67 à cheval entre les moitiés « site » et

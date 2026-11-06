@@ -52,6 +52,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dataset", choices=["rfmid", "odir"], required=True)
     parser.add_argument("--results", type=Path, default=Path("results"))
+    parser.add_argument("--variant", default="crop-mask", help="pred_<dataset>_<variante>_val.npz (ex. green)")
     parser.add_argument("--target-sensitivity", type=float, default=0.9)
     parser.add_argument(
         "--head",
@@ -69,8 +70,8 @@ def main() -> None:
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
 
-    val = np.load(args.results / f"pred_{args.dataset}_crop-mask_val.npz")
-    test = np.load(args.results / f"pred_{args.dataset}_crop-mask_test.npz")
+    val = np.load(args.results / f"pred_{args.dataset}_{args.variant}_val.npz")
+    test = np.load(args.results / f"pred_{args.dataset}_{args.variant}_test.npz")
     classes = list(val["class_names"])
     if classes != list(test["class_names"]):
         raise ValueError("classes différentes entre validation et test")
@@ -86,7 +87,8 @@ def main() -> None:
         report["head_file"] = args.head.name
         report["head_probe"] = head_probe(head["state_dict"])
         if args.embeddings is not None:
-            name = f"{args.dataset}_{head.get('preprocess', 'none')}_{head['image_size']}_RETFound_mae_natureCFP.npz"
+            stem = "retfoundgreen_statedict" if head.get("backbone") == "green" else "RETFound_mae_natureCFP"
+            name = f"{args.dataset}_{head.get('preprocess', 'none')}_{head['image_size']}_{stem}.npz"
             X = EmbeddingCache(args.embeddings / name).get(list(val["keys"]))
             weight = head["state_dict"]["fc.weight"].double().numpy()
             bias = head["state_dict"]["fc.bias"].double().numpy()

@@ -1,9 +1,10 @@
 """Prédiction sur une image nouvelle : même chaîne que l'entraînement.
 
 contrôle qualité (fichier d'origine) -> prétraitement de la tête (`none` ou
-`crop-mask`, taille d'image) -> normalisation ImageNet -> RETFound figé ->
-tête -> probabilités -> décision par maladie avec les seuils choisis sur la
-validation (`scripts/decision_metrics.py`).
+`crop-mask`, taille d'image) -> normalisation du modèle -> modèle figé
+(RETFound ou RETFound-Green, indiqué par la tête) -> tête -> probabilités ->
+décision par maladie avec les seuils choisis sur la validation
+(`scripts/decision_metrics.py`).
 
 Outil de recherche : les décisions ne sont pas un diagnostic. Les maladies
 marquées « preuve insuffisante » (moins de 10 cas en validation ou en test)
@@ -23,9 +24,11 @@ from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image
 from src.models.classifier_head import MultiLabelHead, head_probe, probes_match
 from src.models.embedding_cache import file_fingerprint
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone
+from src.models.retfound_green import RETFoundGreenBackbone
 from src.pipeline.quality_control import DEFAULT_BLUR_THRESHOLD, check_fundus_file
 
 THRESHOLD_POLICIES = ("f1", "sensitivity")
+BACKBONES = ("retfound", "green")
 DISCLAIMER = "Outil de recherche, non validé cliniquement : ces décisions ne sont pas un diagnostic."
 
 
@@ -107,6 +110,9 @@ class Predictor:
         allow_unverified_thresholds: bool = False,
     ):
         head_ckpt = torch.load(head_path, map_location="cpu", weights_only=True)
+        self.backbone_name = head_ckpt.get("backbone", "retfound")  # têtes historiques : RETFound
+        if self.backbone_name not in BACKBONES:
+            raise ValueError(f"Modèle {self.backbone_name!r} inconnu, attendu parmi {BACKBONES}")
         self.class_names = list(head_ckpt["class_names"])
         self.image_size = head_ckpt["image_size"]
         self.preprocess = head_ckpt.get("preprocess", "none")
@@ -126,7 +132,9 @@ class Predictor:
         if expected_checkpoint is None:
             self.warnings.append("Tête sauvegardée sans empreinte du checkpoint : compatibilité non vérifiée.")
         elif expected_checkpoint != file_fingerprint(checkpoint_path):
-            raise ValueError("Le checkpoint RETFound n'est pas celui avec lequel la tête a été entraînée.")
+            raise ValueError(
+                f"Le checkpoint ({self.backbone_name}) n'est pas celui avec lequel la tête a été entraînée."
+            )
 
         if thresholds_path is not None:
             self.thresholds, verified = load_thresholds(
@@ -142,17 +150,23 @@ class Predictor:
             self.thresholds = dict.fromkeys(self.class_names)
             self.warnings.append("Aucun fichier de seuils : probabilités seules, sans décision.")
 
-        self.backbone = RETFoundBackbone(
-            checkpoint_path, img_size=self.image_size, embedding_dim=1024, trust_checkpoint=trust_checkpoint
-        ).to(device)
-        self.head = MultiLabelHead(embedding_dim=1024, num_classes=len(self.class_names))
+        if self.backbone_name == "green":
+            backbone = RETFoundGreenBackbone(checkpoint_path, img_size=self.image_size)
+        else:
+            backbone = RETFoundBackbone(
+                checkpoint_path, img_size=self.image_size, embedding_dim=1024, trust_checkpoint=trust_checkpoint
+            )
+        self.backbone = backbone.to(device)
+        self.input_mean = getattr(backbone, "input_mean", IMAGENET_MEAN).to(device)
+        self.input_std = getattr(backbone, "input_std", IMAGENET_STD).to(device)
+        self.head = MultiLabelHead(embedding_dim=backbone.embedding_dim, num_classes=len(self.class_names))
         self.head.load_state_dict(head_ckpt["state_dict"])
         self.head.to(device).eval()
 
     @torch.no_grad()
     def probabilities(self, image_path: str | Path) -> torch.Tensor:
         image = load_fundus_image(image_path, self.image_size, self.preprocess).unsqueeze(0).to(self.device)
-        image = (image - IMAGENET_MEAN.to(self.device)) / IMAGENET_STD.to(self.device)
+        image = (image - self.input_mean) / self.input_std
         return torch.sigmoid(self.head(self.backbone(image)))[0].cpu()
 
     def predict(self, image_path: str | Path, reject_unusable: bool = False) -> Prediction:

@@ -109,7 +109,13 @@ sensibilité 0,13 sur EyePACS. Le plafond de 0,785 dans EyePACS est identique
 pour les deux modèles : il ne semble donc pas propre aux embeddings de
 RETFound ; la cause (images, annotations, tête linéaire) reste non établie.
 Limites : l'écart mêle modèle et résolution ; le pré-entraînement de Green
-inclut ODIR, d'où l'absence de cette base ; `predict.py` reste sur RETFound.
+inclut ODIR, d'où l'absence de cette base.
+
+**Choix du modèle** : `predict.py` accepte les deux, RETFound restant l'exemple
+par défaut. Le compromis dépend de l'usage : Green pour la généralisation sur
+la rétinopathie diabétique, RETFound pour la DMLA ; seul RETFound a une tête
+ODIR. Aux seuils de validation, les deux se valent en moyenne sur le test RFMiD
+(F1 0,54 contre 0,50 ; [seuils Green](results/decision_rfmid_green.json)).
 
 - **Très bien reconnues** (AUROC test > 0,94) : rétinopathie diabétique,
   DMLA, trous maculaires, myopie (RFMiD) ;
@@ -521,6 +527,12 @@ python predict.py mon_fond_d_oeil.jpg --head heads/odir_crop-mask_head.pt \
     --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth \
     --thresholds results/decision_odir.json --policy f1   # ou sensitivity (dépistage)
 ```
+
+Avec RETFound-Green (`python scripts/train_green_head.py`, voir le
+[GUIDE](docs/GUIDE.md#prédire-sur-une-image-nouvelle)) : `--head
+heads/rfmid_green_head.pt --checkpoint
+third_party/retfound_green/retfoundgreen_statedict.pth --thresholds
+results/decision_rfmid_green.json`.
 
 Contrôle qualité sur le fichier d'origine, même prétraitement que
 l'entraînement, probabilité et décision par maladie (aucune décision pour

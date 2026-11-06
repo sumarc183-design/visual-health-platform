@@ -7,6 +7,7 @@ import sys
 
 import numpy as np
 import pytest
+import timm
 import torch
 from PIL import Image
 
@@ -14,9 +15,11 @@ from run_baseline import build_random_checkpoint, collect_embeddings
 from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image
 from src.models.classifier_head import MultiLabelHead, head_probe
 from src.models.embedding_cache import file_fingerprint
+from src.models.retfound_green import GREEN_EMBEDDING_DIM, RETFoundGreenBackbone
 from src.pipeline.inference import Predictor, load_thresholds
 
 CLASSES = ["DR", "MYA", "RARE"]
+GREEN_SIZE = 98
 
 # Bout en bout avec un ViT-L (~1,2 Go) : étape « lente » de la CI, dans un
 # processus séparé de la suite rapide.
@@ -199,3 +202,52 @@ def test_cli_rejects_unusable_images_on_request(setup, monkeypatch, capsys):
     results = json.loads(out.read_text())
     assert "findings" in results[0] and results[1]["rejected"]
     assert "résolution" in " ".join(results[1]["quality"]["reasons"])
+
+
+@pytest.fixture
+def green_head(tmp_path):
+    """Tête RETFound-Green, sur un checkpoint aléatoire et une petite taille d'image (multiple de 14)."""
+    torch.manual_seed(0)
+    model = timm.create_model("vit_small_patch14_reg4_dinov2", img_size=(GREEN_SIZE, GREEN_SIZE), num_classes=0)
+    checkpoint = tmp_path / "green.pth"
+    torch.save(model.state_dict(), checkpoint)
+    head = MultiLabelHead(GREEN_EMBEDDING_DIM, len(CLASSES))
+    path = tmp_path / "green_head.pt"
+    torch.save(
+        {
+            "state_dict": head.state_dict(),
+            "class_names": CLASSES,
+            "backbone": "green",
+            "dataset": "rfmid",
+            "image_size": GREEN_SIZE,
+            "preprocess": "crop-mask",
+            "preprocess_version": PREPROCESS_VERSION,
+            "checkpoint_sha256": file_fingerprint(checkpoint),
+        },
+        path,
+    )
+    return path, checkpoint, head
+
+
+def test_green_head_selects_its_model_and_matches_the_training_pipeline(setup, green_head):
+    path, checkpoint, head = green_head
+    predictor = Predictor(path, checkpoint)
+    assert predictor.backbone_name == "green" and isinstance(predictor.backbone, RETFoundGreenBackbone)
+
+    class OneImage(torch.utils.data.Dataset):
+        def __len__(self):
+            return 1
+
+        def __getitem__(self, idx):
+            return load_fundus_image(setup["image"], GREEN_SIZE, "crop-mask"), torch.zeros(len(CLASSES))
+
+    X, _ = collect_embeddings(predictor.backbone, OneImage())
+    with torch.no_grad():
+        expected = torch.sigmoid(head(torch.from_numpy(X)))[0]
+    assert torch.allclose(predictor.probabilities(setup["image"]), expected, atol=1e-5)
+
+
+def test_head_of_one_model_refuses_the_checkpoint_of_another(setup, green_head):
+    path, _, _ = green_head
+    with pytest.raises(ValueError, match="checkpoint"):
+        Predictor(path, setup["checkpoint"])

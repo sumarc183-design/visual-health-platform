@@ -274,10 +274,25 @@ python predict.py image1.jpg image2.png --head heads/odir_crop-mask_head.pt \
     --thresholds results/decision_odir.json --policy f1 --out predictions.json
 ```
 
+**Choisir le modèle** : la tête indique le sien. RETFound est l'exemple
+ci-dessus ; pour RETFound-Green (tête RFMiD uniquement) :
+
+```bash
+python scripts/train_green_head.py --rfmid-root data/raw/rfmid --embeddings embeddings \
+    --checkpoint third_party/retfound_green/retfoundgreen_statedict.pth
+python scripts/decision_metrics.py --dataset rfmid --variant green --head heads/rfmid_green_head.pt \
+    --embeddings embeddings --out results/decision_rfmid_green.json
+python predict.py image1.jpg --head heads/rfmid_green_head.pt \
+    --checkpoint third_party/retfound_green/retfoundgreen_statedict.pth \
+    --thresholds results/decision_rfmid_green.json
+```
+
 Même chaîne que l'entraînement (`src/pipeline/inference.py`, testé pour
-redonner exactement les probabilités de `run_baseline.py`) : contrôle
-qualité sur le fichier d'origine, prétraitement et taille d'image lus dans
-la tête, RETFound figé, tête, puis décision par maladie.
+redonner exactement les probabilités de `run_baseline.py` ; Green : écart
+≤ 6×10⁻⁶ sur 20 images avec les vrais poids,
+[contrôle](../results/predict_check_rfmid_green.json)) : contrôle qualité sur
+le fichier d'origine, prétraitement et taille d'image lus dans la tête, modèle
+figé, tête, puis décision par maladie.
 
 - `--thresholds` : seuils choisis sur la validation par
   `scripts/decision_metrics.py`. `--policy f1` : compromis entre maladies

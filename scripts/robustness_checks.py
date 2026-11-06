@@ -128,12 +128,16 @@ def device_gap(name: str, root: Path, results_dir: Path) -> dict:
     return out
 
 
-def head_scores(X_train, y_train, X_eval, seed: int = 42) -> np.ndarray:
+def fit_head(X_train, y_train, seed: int = 42) -> MultiLabelHead:
     torch.manual_seed(seed)
     loader = DataLoader(
         list(zip(torch.from_numpy(X_train), torch.from_numpy(y_train), strict=True)), batch_size=16, shuffle=True
     )
-    head = train_head(MultiLabelHead(X_train.shape[1], y_train.shape[1]), loader, epochs=30, lr=1e-3, device="cpu")
+    return train_head(MultiLabelHead(X_train.shape[1], y_train.shape[1]), loader, epochs=30, lr=1e-3, device="cpu")
+
+
+def head_scores(X_train, y_train, X_eval, seed: int = 42) -> np.ndarray:
+    head = fit_head(X_train, y_train, seed)
     with torch.no_grad():
         return torch.sigmoid(head(torch.from_numpy(X_eval))).numpy()
 

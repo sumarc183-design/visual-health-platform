@@ -71,8 +71,9 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   (0,974 contre 0,827) disparaît à format égal (−0,012, non significatif), et
   il ne fait pas mieux sur EyePACS (0,650 contre 0,661). RETFound-Green, non
   servi ici, fait mieux en externe (EyePACS 0,726, APTOS 0,958, à tête égale),
-  sans gain démontré sur RFMiD. Le modèle servi par
-  `predict.py` reste la tête linéaire.
+  sans gain démontré sur RFMiD et moins bon sur la DMLA (−0,065). `predict.py`
+  propose les deux modèles, avec une tête linéaire ; le fine-tuning n'y est
+  pas servi.
 - **Population et appareils** : jeux de données publics de quelques centres.
   L'appareil reste lisible dans les embeddings même avec `crop-mask`
   (exactitude équilibrée 1,00 sur RFMiD, 0,91 sur ODIR) ; aucun usage
