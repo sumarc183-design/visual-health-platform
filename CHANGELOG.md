@@ -27,6 +27,7 @@ selon [SemVer](https://semver.org/lang/fr/).
   [0,639 ; 0,683], ODIR 0,684, multi-source 0,675 ; à format égal 0,680 pour
   RFMiD ; tête entraînée dans EyePACS 0,785. `external_validation.py` ajoute
   l'AUROC à format égal et l'AUROC de chaque stade contre le stade 0.
+  Réserve documentée : le pré-entraînement de RETFound inclut Kaggle EyePACS.
 - Notebook EyePACS : téléchargement et extraction vérifiés, erreurs visibles.
 
 ### Corrigé (second audit, 5 novembre 2026)

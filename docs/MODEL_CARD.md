@@ -106,7 +106,9 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   RFMiD, donc le 0,919 d'APTOS ne se transpose pas. Sensibilité 0,02 au seuil
   « dépistage » de la tête RFMiD (visée 0,90). Une tête entraînée dans
   EyePACS atteint 0,785 : la tâche y est difficile même sans changement de
-  base, cause non établie. Ce modèle ne doit pas servir à dépister la
+  base, cause non établie. Le pré-entraînement de RETFound inclut Kaggle
+  EyePACS (sans étiquette, d'après l'article de RETFound-Green) : cette base
+  n'est pas totalement indépendante du backbone. Ce modèle ne doit pas servir à dépister la
   rétinopathie diabétique, y compris avec les seuils fournis.
 - **Contrôle qualité** : seuil de flou calibré le 5 nov. (4,16 ; détecte
   79 à 90 % des images franchement floutées, signale ~2 % d'ODIR). Il ne

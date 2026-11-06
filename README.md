@@ -356,6 +356,11 @@ d'origine ([`scripts/external_validation.py`](scripts/external_validation.py),
   recouvrent). Les stades légers pèsent lourd : tête RFMiD 0,568 pour le
   stade 1 contre le stade 0, 0,836 pour le stade 4 ; EyePACS compte plus de
   stades légers qu'APTOS, ce qui rend les deux AUROC peu comparables.
+  Réserve : d'après l'article de RETFound-Green (Supp. Table 1), le
+  pré-entraînement de RETFound (MAE, sans étiquette) inclut Kaggle EyePACS.
+  La tête et les étiquettes restent externes, mais le backbone a pu voir ces
+  images : EyePACS n'est pas totalement indépendant, et ce biais irait plutôt
+  dans le sens d'un chiffre optimiste.
   **Une tête entraînée dans EyePACS plafonne à 0,785** [0,767 ; 0,803]
   (5 plis, par patient), contre 0,995 dans APTOS : avec ces embeddings et une
   tête linéaire, la tâche est difficile sur cette base, même sans changement
