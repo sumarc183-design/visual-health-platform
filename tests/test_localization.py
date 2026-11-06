@@ -7,7 +7,7 @@ from PIL import Image
 
 from scripts.localization_analysis import occlusion_scores, paired_ap, segmentation_scores, upsample
 from src.data.fundus_preprocess import common_mask, crop_mask, crop_mask_annotation
-from src.data.idrid_dataset import IDRiDSegmentation, find_segmentation_root
+from src.data.idrid_dataset import IDRiDSegmentation, find_segmentation_root, read_annotation
 from src.explainability.localization import cell_targets, map_auroc, resize_map, top_enrichment
 
 H, W = 300, 400
@@ -66,6 +66,16 @@ def test_dataset_finds_its_folder_and_treats_missing_masks_as_empty(idrid):
     masks = dataset.masks(0)
     assert set(masks) == {"MA", "HE", "EX", "SE", "OD"}
     assert masks["EX"].max() > 0 and masks["MA"].max() == 0
+
+
+def test_rgba_annotation_ignores_the_full_alpha_channel(tmp_path):
+    array = np.zeros((4, 4, 4), np.uint8)
+    array[..., 3] = 255
+    array[1, 2, 0] = 255
+    path = tmp_path / "rgba.tif"
+    Image.fromarray(array, mode="RGBA").save(path)
+    mask = read_annotation(path)
+    assert mask.shape == (4, 4) and mask.sum() == 1 and mask[1, 2]
 
 
 def test_map_measures():

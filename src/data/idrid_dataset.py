@@ -42,6 +42,15 @@ def find_segmentation_root(root: str | Path) -> Path:
     return hits[0]
 
 
+def read_annotation(path: Path) -> np.ndarray:
+    """Masque booléen (H, W). Presque tous les fichiers sont en palette ; un
+    masque au moins (IDRiD_81_EX) est en RGBA, lésion dans le rouge et alpha
+    plein partout : l'alpha n'est jamais lu."""
+    with Image.open(path) as mask:
+        array = np.asarray(mask.convert("RGB") if mask.mode in ("RGB", "RGBA") else mask)
+    return array.max(axis=2) > 0 if array.ndim == 3 else array > 0
+
+
 class IDRiDSegmentation:
     def __init__(self, root: str | Path, split: str = "train", image_size: int = 224):
         if split not in SPLIT_DIRS:
@@ -75,8 +84,7 @@ class IDRiDSegmentation:
             for lesion, folder in LESION_DIRS.items():
                 path = self.masks_dir / folder / f"{self.ids[idx]}_{lesion}.tif"
                 if path.exists():
-                    with Image.open(path) as mask:
-                        result[lesion] = crop_mask_annotation(image, np.asarray(mask) > 0, self.image_size)
+                    result[lesion] = crop_mask_annotation(image, read_annotation(path), self.image_size)
                 else:
                     result[lesion] = np.zeros((self.image_size, self.image_size), np.float32)
         return result
