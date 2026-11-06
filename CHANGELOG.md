@@ -52,9 +52,27 @@ selon [SemVer](https://semver.org/lang/fr/).
   (même géométrie que `crop_mask`), `src/explainability/localization.py`,
   `scripts/localization_maps.py`, `scripts/localization_analysis.py`,
   `notebooks/kaggle_localization_idrid.ipynb`. 13 tests. Résultats : occlusion
-  contre lésions, écart à la position +0,016 [−0,004 ; +0,037] pour RETFound,
-  +0,083 [+0,059 ; +0,111] pour Green ; segmentation (AP, test) disque optique
+  contre lésions, écart à la position +0,016 [−0,004 ; +0,039] pour RETFound,
+  +0,083 [+0,055 ; +0,110] pour Green ; segmentation (AP, test) disque optique
   0,597 et 0,919, exsudats durs 0,425 et 0,651.
+
+### Corrigé (troisième audit, 6 novembre 2026)
+- **Seuils** : liés à l'identité exacte de la tête (SHA-256 de ses poids) et à son
+  contrat ; `decision_metrics.py --head` exige la preuve par les embeddings, en
+  validation et en test. Une sonde seule laissait passer une tête aux poids
+  différents. Fichiers `decision_*.json` régénérés, chiffres identiques.
+- **Few-shot** : plis internes groupés, tirages archivés. Sensibilités et
+  spécificités des têtes réentraînées inchangées à ±0,01.
+- **Cache** : métadonnées adoptées marquées `assumed_not_verified` ; analyses Green
+  contrôlées par leur configuration.
+- **IDRiD** : dossiers et masques obligatoires refusés s'ils manquent, découpage
+  officiel contrôlé, enrichissement sur exactement la surface annoncée (RETFound
+  disque optique ×4,7 au lieu de ×4,5), cibles et probabilités du test archivées.
+- **Fine-tuning** : `--external-only` refuse un artefact préparé autrement.
+- **Provenance** : commit et versions dans les résultats régénérés ;
+  `green_predictions.npz` et `localization_predictions.npz` permettent de recalculer.
+- **Textes** : fiche du modèle structurée par variante ; « plafond » remplacé par la
+  performance d'une sonde ; format présenté comme indicateur indirect de l'appareil.
 
 ### Corrigé (second audit, 5 novembre 2026)
 - **Doublons d'images dans APTOS** : 122 groupes d'embeddings identiques

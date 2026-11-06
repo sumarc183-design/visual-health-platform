@@ -1,4 +1,14 @@
 {
+ "run": {
+  "git_commit": "5697a57",
+  "python": "3.12.7",
+  "versions": {
+   "numpy": "1.26.4",
+   "scikit-learn": "1.9.1",
+   "torch": "2.2.2",
+   "timm": "1.0.30"
+  }
+ },
  "rfmid": {
   "val": {
    "retfound_auroc_macro": 0.8639400001074137,

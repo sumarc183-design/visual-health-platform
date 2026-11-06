@@ -1375,6 +1375,44 @@
  },
  "dataset": "rfmid",
  "head_file": "rfmid_green_head.pt",
+ "head_sha256": "44ffba26b0e1c72c093ad7b0494b5850b29ec2eed97af9ac403f82e026adf735",
+ "head_contract": {
+  "backbone": "green",
+  "checkpoint_sha256": "431de5dbc1bebbb3",
+  "preprocess": "crop-mask",
+  "preprocess_version": 1,
+  "image_size": 392,
+  "class_names": [
+   "DR",
+   "ARMD",
+   "MH",
+   "DN",
+   "MYA",
+   "BRVO",
+   "TSLN",
+   "ERM",
+   "LS",
+   "MS",
+   "CSR",
+   "ODC",
+   "CRVO",
+   "TV",
+   "AH",
+   "ODP",
+   "ODE",
+   "ST",
+   "AION",
+   "PT",
+   "RT",
+   "RS",
+   "CRS",
+   "EDN",
+   "RPEC",
+   "MHL",
+   "RP",
+   "PTCR"
+  ]
+ },
  "head_probe": [
   0.9789873498714294,
   3.5976437181638032,
@@ -1405,7 +1443,20 @@
   -2.207306921772081,
   -3.102195414013451
  ],
- "head_check_max_abs_diff_val": 4.76553613570907e-07,
+ "head_check_max_abs_diff": {
+  "val": 4.76553613570907e-07,
+  "test": 5.038938158952178e-07
+ },
+ "run": {
+  "git_commit": "5697a57",
+  "python": "3.12.7",
+  "versions": {
+   "numpy": "1.26.4",
+   "scikit-learn": "1.9.1",
+   "torch": "2.2.2",
+   "timm": "1.0.30"
+  }
+ },
  "target_sensitivity": 0.9,
  "summary": {
   "classes_evaluable": 14,

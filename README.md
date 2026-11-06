@@ -242,16 +242,16 @@ la seule position :
 
 | 81 images | RETFound | Écart à la position | Green | Écart à la position | Green − RETFound |
 |---|---|---|---|---|---|
-| **Lésions** | 0,598 | +0,016 [−0,004 ; +0,037] | **0,657** | **+0,083 [+0,059 ; +0,111]** | **+0,059 [+0,030 ; +0,089]** |
-| Exsudats durs | 0,664 | −0,021 [−0,050 ; +0,009] | 0,755 | +0,057 [+0,028 ; +0,086] | +0,091 [+0,059 ; +0,123] |
-| Hémorragies | 0,528 | +0,028 [+0,003 ; +0,056] | 0,591 | +0,111 [+0,081 ; +0,142] | +0,063 [+0,018 ; +0,112] |
-| Microanévrismes | 0,551 | −0,031 [−0,049 ; −0,012] | 0,620 | +0,054 [+0,033 ; +0,075] | +0,069 [+0,044 ; +0,092] |
-| Disque optique (contrôle) | 0,756 | +0,037 [−0,013 ; +0,081] | 0,342 | −0,251 [−0,302 ; −0,198] | −0,414 [−0,489 ; −0,341] |
+| **Lésions** | 0,598 | +0,016 [−0,004 ; +0,039] | **0,657** | **+0,083 [+0,055 ; +0,110]** | **+0,059 [+0,030 ; +0,091]** |
+| Exsudats durs | 0,664 | −0,021 [−0,051 ; +0,010] | 0,755 | +0,057 [+0,028 ; +0,090] | +0,091 [+0,058 ; +0,128] |
+| Hémorragies | 0,528 | +0,028 [+0,004 ; +0,055] | 0,591 | +0,111 [+0,082 ; +0,141] | +0,063 [+0,020 ; +0,108] |
+| Microanévrismes | 0,551 | −0,031 [−0,051 ; −0,014] | 0,620 | +0,054 [+0,036 ; +0,074] | +0,069 [+0,043 ; +0,095] |
+| Disque optique (contrôle) | 0,756 | +0,037 [−0,014 ; +0,084] | 0,342 | −0,251 [−0,302 ; −0,198] | −0,414 [−0,484 ; −0,341] |
 
 Les cartes de Green suivent les lésions au-delà de leur position typique et
 évitent le disque optique. Celles de RETFound ne font pas mieux que la position
-pour les lésions, et recouvrent davantage le disque (densité ×4,5 dans leurs 5 %
-de pixels les plus importants, ×0,23 pour Green). L'accord reste modeste
+pour les lésions, et recouvrent davantage le disque (densité ×4,7 dans exactement 5 %
+des pixels, ceux de plus fort score, contre ×0,25 pour Green ; même sens à 2 % et 10 %). L'accord reste modeste
 (AUROC 0,66) : l'occlusion cache des carrés d'environ 1/7 de l'image.
 
 **Segmentation** : régression logistique par case sur les tokens de patch,
@@ -274,7 +274,8 @@ et les microanévrismes, pas sur les hémorragies. L'entrée reste en 392 px con
 
 Limites : 81 images d'un seul centre, toutes malades et choisies pour leurs
 lésions ; une case compte comme positive dès un pixel de lésion, ce qui gonfle les
-petites lésions ; une AP par case ne se compare pas aux scores au pixel du
+petites lésions ; la référence « autres images » reste estimée sur le même ensemble ;
+une AP par case ne se compare pas aux scores au pixel du
 challenge IDRiD. Pas de segmentation dans `predict.py`.
 
 ## Décisions et calibration
@@ -476,7 +477,7 @@ d'origine ([`scripts/external_validation.py`](scripts/external_validation.py),
 d'APTOS.** APTOS coupé en deux moitiés stratifiées et **groupées** (les
 doublons d'images restent du même côté) : la moitié « site » sert à
 adapter, la moitié « rapport » à mesurer ; le seuil few-shot est choisi
-hors échantillon (validation croisée interne sur les N images)
+hors échantillon (validation croisée interne groupée sur les N images)
 ([`scripts/site_adaptation.py`](scripts/site_adaptation.py),
 [résultats](results/site_adaptation_aptos.json)) :
 
@@ -486,7 +487,7 @@ hors échantillon (validation croisée interne sur les N images)
 | Sans étiquette : centrage par domaine | 0,765 | — | — |
 | Sans étiquette : CORAL | 0,819 | — | — |
 | Seuil recalibré avec 50 images étiquetées du site | 0,821 | 0,87 | 0,46 |
-| Tête réentraînée avec 50 images étiquetées du site | 0,977 | 0,78 | 0,98 |
+| Tête réentraînée avec 50 images étiquetées du site | 0,977 | 0,79 | 0,98 |
 | Tête réentraînée avec 400 images étiquetées du site | 0,987 | 0,92 | 0,97 |
 
 - Sans étiquette, rien n'aide. Recalibrer le seuil approche la sensibilité

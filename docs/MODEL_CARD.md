@@ -131,9 +131,9 @@ avec Green. Résultats détaillés :
   n'est pas totalement indépendante du backbone. Ce modèle ne doit pas servir à dépister la
   rétinopathie diabétique, y compris avec les seuils fournis.
 - **Localisation (IDRiD, 81 images) : les cartes d'occlusion ne prouvent pas que
-  RETFound regarde les lésions** (0,598, +0,016 [−0,004 ; +0,037] par rapport à la
+  RETFound regarde les lésions** (0,598, +0,016 [−0,004 ; +0,039] par rapport à la
   seule position), et elles recouvrent davantage le disque optique. Green les suit
-  mieux (0,657, +0,083 [+0,059 ; +0,111]) et évite le disque. L'accord reste
+  mieux (0,657, +0,083 [+0,055 ; +0,110]) et évite le disque. L'accord reste
   modeste : ces cartes ne sont pas une preuve clinique et ne doivent pas guider une
   lecture.
 - **Contrôle qualité** : seuil de flou calibré le 5 nov. (4,16 ; détecte

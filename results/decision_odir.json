@@ -396,6 +396,24 @@
  },
  "dataset": "odir",
  "head_file": "odir_crop-mask_head.pt",
+ "head_sha256": "5076847e65eae148ad1ed5170b822f9d3958275b1018a25f578d49cf11358046",
+ "head_contract": {
+  "backbone": "retfound",
+  "checkpoint_sha256": "e1e4f66a1b792eeb",
+  "preprocess": "crop-mask",
+  "preprocess_version": 1,
+  "image_size": 224,
+  "class_names": [
+   "N",
+   "D",
+   "G",
+   "C",
+   "A",
+   "H",
+   "M",
+   "O"
+  ]
+ },
  "head_probe": [
   9.114738488506406,
   0.6143353857545074,
@@ -406,7 +424,20 @@
   -1.5049866417861484,
   0.43806881610499315
  ],
- "head_check_max_abs_diff_val": 3.42864991176306e-07,
+ "head_check_max_abs_diff": {
+  "val": 3.42864991176306e-07,
+  "test": 3.9878116120384277e-07
+ },
+ "run": {
+  "git_commit": "5697a57",
+  "python": "3.12.7",
+  "versions": {
+   "numpy": "1.26.4",
+   "scikit-learn": "1.9.1",
+   "torch": "2.2.2",
+   "timm": "1.0.30"
+  }
+ },
  "target_sensitivity": 0.9,
  "summary": {
   "classes_evaluable": 8,
