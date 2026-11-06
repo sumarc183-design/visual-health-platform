@@ -5,6 +5,8 @@ selon [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+## [1.1.0] — 2026-11-06
+
 ### Ajouté
 - Fine-tuning partiel de RETFound : `src/models/finetune.py` (4 derniers
   blocs et tête entraînables, partie figée sans gradient, augmentations

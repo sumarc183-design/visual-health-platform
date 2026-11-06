@@ -4,8 +4,8 @@ title: "Visual Health Platform : socle d'analyse d'images médicales (RETFound, 
 authors:
   - family-names: Su
     given-names: Marc
-version: 1.0.0
-date-released: 2026-11-05
+version: 1.1.0
+date-released: 2026-11-06
 license: CC-BY-NC-4.0
 repository-code: "https://github.com/sumarc183-design/visual-health-platform"
 keywords:
