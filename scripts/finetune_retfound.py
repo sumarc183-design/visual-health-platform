@@ -58,6 +58,7 @@ from src.models.embedding_cache import file_fingerprint  # noqa: E402
 from src.models.finetune import (  # noqa: E402
     PartialFinetune,
     augment_batch,
+    check_artifact_contract,
     cosine_with_warmup,
     load_finetuned_state,
 )
@@ -145,6 +146,7 @@ def external_only(args) -> None:
     artifact = torch.load(args.artifact, map_location="cpu", weights_only=True)
     if artifact["checkpoint_sha256"] != file_fingerprint(args.checkpoint):
         raise ValueError("le checkpoint RETFound n'est pas celui du fine-tuning enregistré")
+    check_artifact_contract(artifact, IMAGE_SIZE, PREPROCESS_VERSION)
     vit = load_pretrained_backbone(
         args.checkpoint, img_size=artifact["image_size"], trust_checkpoint=True if args.trust_checkpoint else None
     )

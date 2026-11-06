@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 
 from src.data.fundus_preprocess import common_mask
-from src.models.finetune import PartialFinetune, augment_batch, cosine_with_warmup
+from src.models.finetune import PartialFinetune, augment_batch, check_artifact_contract, cosine_with_warmup
 from src.models.retfound_backbone import RETFoundViT
 
 
@@ -103,3 +103,11 @@ def test_saved_finetune_reloads_to_identical_predictions():
     broken = {**artifact, "state_dict": {k: v for k, v in artifact["state_dict"].items() if not k.startswith("head.")}}
     with pytest.raises(ValueError, match="incompatibles"):
         load_finetuned_state(PartialFinetune(tiny_vit(), num_classes=3, trainable_blocks=2), broken)
+
+
+def test_artifact_prepared_differently_is_refused():
+    good = {"image_size": 224, "preprocess": "crop-mask", "preprocess_version": 1}
+    check_artifact_contract(good, 224, 1)
+    for change in ({"image_size": 392}, {"preprocess": "none"}, {"preprocess_version": 2}):
+        with pytest.raises(ValueError, match="incompatible"):
+            check_artifact_contract({**good, **change}, 224, 1)

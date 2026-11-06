@@ -29,8 +29,11 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.eval.decision import per_class_report  # noqa: E402
-from src.models.classifier_head import head_probe  # noqa: E402
+from src.eval.provenance import run_info  # noqa: E402
+from src.models.classifier_head import head_contract, head_probe, head_sha256  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache  # noqa: E402
+
+MAX_REPRODUCTION_GAP = 1e-3
 
 
 def summarize(report: dict) -> dict:
@@ -48,6 +51,31 @@ def summarize(report: dict) -> dict:
     return summary
 
 
+def link_head(report: dict, head_path: Path, cache_dir: Path, dataset: str, splits: dict, classes: list[str]) -> None:
+    """Lie les seuils à la tête, après preuve qu'elle a produit les prédictions :
+    elle doit les redonner depuis le cache d'embeddings, en validation et en test."""
+    head = torch.load(head_path, map_location="cpu", weights_only=True)
+    if list(head["class_names"]) != classes:
+        raise ValueError("la tête et les prédictions n'ont pas les mêmes classes")
+    stem = "retfoundgreen_statedict" if head.get("backbone") == "green" else "RETFound_mae_natureCFP"
+    name = f"{dataset}_{head.get('preprocess', 'none')}_{head['image_size']}_{stem}.npz"
+    weight = head["state_dict"]["fc.weight"].double().numpy()
+    bias = head["state_dict"]["fc.bias"].double().numpy()
+    gaps = {}
+    for split, predictions in splits.items():
+        X = EmbeddingCache(cache_dir / name).get(list(predictions["keys"]))
+        recomputed = 1 / (1 + np.exp(-(X @ weight.T + bias)))
+        gaps[split] = float(np.abs(recomputed - predictions["probs"]).max())
+        if gaps[split] > MAX_REPRODUCTION_GAP:
+            raise ValueError(f"la tête ne redonne pas les prédictions ({split}, écart max {gaps[split]:.2e})")
+    report["head_file"] = head_path.name
+    report["head_sha256"] = head_sha256(head["state_dict"])
+    report["head_contract"] = head_contract(head)
+    report["head_probe"] = head_probe(head["state_dict"])  # contrôle numérique complémentaire
+    report["head_check_max_abs_diff"] = gaps
+    print(f"Tête vérifiée : redonne les prédictions (écart max {max(gaps.values()):.1e})")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dataset", choices=["rfmid", "odir"], required=True)
@@ -58,17 +86,19 @@ def main() -> None:
         "--head",
         type=Path,
         default=None,
-        help="Tête qui a produit les prédictions : sa sonde est enregistrée avec les seuils "
-        "(predict.py refuse alors toute autre tête)",
+        help="Tête qui a produit les prédictions : son identité est enregistrée avec les seuils "
+        "(predict.py refuse alors toute autre tête). Demande --embeddings",
     )
     parser.add_argument(
         "--embeddings",
         type=Path,
         default=None,
-        help="Cache d'embeddings : vérifie que la tête redonne les prédictions de validation",
+        help="Cache d'embeddings : vérifie que la tête redonne les prédictions de validation et de test",
     )
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
+    if args.head is not None and args.embeddings is None:
+        parser.error("--head demande --embeddings : la tête doit prouver qu'elle redonne les prédictions")
 
     val = np.load(args.results / f"pred_{args.dataset}_{args.variant}_val.npz")
     test = np.load(args.results / f"pred_{args.dataset}_{args.variant}_test.npz")
@@ -81,23 +111,8 @@ def main() -> None:
     )
     report["dataset"] = args.dataset
     if args.head is not None:
-        head = torch.load(args.head, map_location="cpu", weights_only=True)
-        if list(head["class_names"]) != classes:
-            raise ValueError("la tête et les prédictions n'ont pas les mêmes classes")
-        report["head_file"] = args.head.name
-        report["head_probe"] = head_probe(head["state_dict"])
-        if args.embeddings is not None:
-            stem = "retfoundgreen_statedict" if head.get("backbone") == "green" else "RETFound_mae_natureCFP"
-            name = f"{args.dataset}_{head.get('preprocess', 'none')}_{head['image_size']}_{stem}.npz"
-            X = EmbeddingCache(args.embeddings / name).get(list(val["keys"]))
-            weight = head["state_dict"]["fc.weight"].double().numpy()
-            bias = head["state_dict"]["fc.bias"].double().numpy()
-            recomputed = 1 / (1 + np.exp(-(X @ weight.T + bias)))
-            gap = float(np.abs(recomputed - val["probs"]).max())
-            if gap > 1e-3:
-                raise ValueError(f"la tête ne redonne pas les prédictions de validation (écart max {gap:.2e})")
-            report["head_check_max_abs_diff_val"] = gap
-            print(f"Tête vérifiée : redonne les prédictions de validation (écart max {gap:.1e})")
+        link_head(report, args.head, args.embeddings, args.dataset, {"val": val, "test": test}, classes)
+    report["run"] = run_info()
     report["target_sensitivity"] = args.target_sensitivity
     report["summary"] = summary = summarize(report)
 

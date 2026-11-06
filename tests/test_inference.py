@@ -13,7 +13,7 @@ from PIL import Image
 
 from run_baseline import build_random_checkpoint, collect_embeddings
 from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image
-from src.models.classifier_head import MultiLabelHead, head_probe
+from src.models.classifier_head import MultiLabelHead, head_contract, head_probe, head_sha256, probes_match
 from src.models.embedding_cache import file_fingerprint
 from src.models.retfound_green import GREEN_EMBEDDING_DIM, RETFoundGreenBackbone
 from src.pipeline.inference import Predictor, load_thresholds
@@ -63,6 +63,8 @@ def setup(tmp_path_factory):
         json.dumps(
             {
                 "head_probe": head_probe(head.state_dict()),
+                "head_sha256": head_sha256(head.state_dict()),
+                "head_contract": head_contract(torch.load(head_path, weights_only=True)),
                 "classes": {
                     "DR": {"insufficient_evidence": False, "threshold_f1": {"threshold": 0.0}},
                     "MYA": {"insufficient_evidence": False, "threshold_f1": {"threshold": 1.0}},
@@ -130,12 +132,12 @@ def test_inconsistent_artifacts_are_refused(setup, tmp_path):
 
 def test_thresholds_are_bound_to_the_exact_head(setup, tmp_path):
     """Seuils d'une autre tête de mêmes classes, seuil hors [0, 1], fichier
-    historique sans sonde : refusés (sauf accord explicite pour le dernier)."""
+    historique sans identité : refusés (sauf accord explicite pour le dernier)."""
     report = json.loads(setup["thresholds"].read_text())
-    signature = report["head_probe"]
-    assert load_thresholds(setup["thresholds"], CLASSES, "f1", signature)[1] is True
+    head = torch.load(setup["head_path"], weights_only=True)
+    assert load_thresholds(setup["thresholds"], CLASSES, "f1", head)[1] is True
 
-    other = [v + 1.0 for v in signature]
+    other = {**head, "state_dict": {k: v + 1.0 for k, v in head["state_dict"].items()}}
     with pytest.raises(ValueError, match="autre tête"):
         load_thresholds(setup["thresholds"], CLASSES, "f1", other)
 
@@ -152,13 +154,32 @@ def test_thresholds_are_bound_to_the_exact_head(setup, tmp_path):
         )
     )
     with pytest.raises(ValueError, match="invalide"):
-        load_thresholds(bad, CLASSES, "f1", signature)
+        load_thresholds(bad, CLASSES, "f1", head)
 
     legacy = tmp_path / "legacy.json"
-    legacy.write_text(json.dumps({"classes": report["classes"]}))
-    with pytest.raises(ValueError, match="head_probe"):
-        load_thresholds(legacy, CLASSES, "f1", signature)
-    assert load_thresholds(legacy, CLASSES, "f1", signature, allow_unverified=True)[1] is False
+    legacy.write_text(json.dumps({"classes": report["classes"], "head_probe": report["head_probe"]}))
+    with pytest.raises(ValueError, match="head_sha256"):
+        load_thresholds(legacy, CLASSES, "f1", head)
+    assert load_thresholds(legacy, CLASSES, "f1", head, allow_unverified=True)[1] is False
+
+
+def test_head_with_the_same_probe_but_other_weights_is_refused(setup):
+    """Modification orthogonale au vecteur de référence : même sonde, autre tête."""
+    head = torch.load(setup["head_path"], weights_only=True)
+    weight = head["state_dict"]["fc.weight"].clone()
+    reference = torch.from_numpy(np.random.default_rng(0).standard_normal(weight.shape[1])).float()
+    change = torch.randn(weight.shape[1])
+    change -= (change @ reference) / (reference @ reference) * reference
+    other = {**head, "state_dict": {**head["state_dict"], "fc.weight": weight + change}}
+    assert probes_match(head_probe(head["state_dict"]), head_probe(other["state_dict"]))
+    with pytest.raises(ValueError, match="autre tête"):
+        load_thresholds(setup["thresholds"], CLASSES, "f1", other)
+
+
+def test_thresholds_of_another_preprocessing_are_refused(setup):
+    head = torch.load(setup["head_path"], weights_only=True)
+    with pytest.raises(ValueError, match="autre chaîne"):
+        load_thresholds(setup["thresholds"], CLASSES, "f1", {**head, "preprocess": "none"})
 
 
 def test_rejected_images_never_reach_the_model(setup, monkeypatch):

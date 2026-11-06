@@ -3,8 +3,9 @@ validation externe de la rétinopathie diabétique.
 
 3 662 images d'entraînement annotées par des cliniciens (Aravind Eye
 Hospital, Inde) en 5 stades : 0 pas de rétinopathie, 1 légère, 2 modérée,
-3 sévère, 4 proliférante. Autres patients, autres appareils et autres
-annotateurs que RFMiD et ODIR : aucune image n'a servi au développement.
+3 sévère, 4 proliférante. Autres patients et autres annotateurs que RFMiD et ODIR, appareils probablement
+différents : base sans rôle dans le développement initial, mais déjà utilisée pour
+plusieurs analyses.
 
 Étiquettes binaires dérivées du stade :
 - `any_dr` : stade >= 1 (toute rétinopathie, comme « DR » de RFMiD et « D »

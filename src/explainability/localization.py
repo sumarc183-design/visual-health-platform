@@ -81,12 +81,15 @@ def map_auroc(heat: np.ndarray, target: np.ndarray, retina: np.ndarray) -> float
 
 
 def top_enrichment(heat: np.ndarray, target: np.ndarray, retina: np.ndarray, fraction: float = 0.05) -> float:
-    """Densité de lésion dans les `fraction` pixels les plus importants,
-    divisée par la densité sur toute la rétine. 1 = pas mieux que le hasard."""
+    """Densité de lésion dans exactement `fraction` des pixels de la rétine, ceux
+    de plus fort score, divisée par la densité sur toute la rétine. 1 = pas mieux
+    que le hasard. Ex æquo départagés par l'ordre des pixels, jamais par
+    l'annotation."""
     scores, y = heat[retina], target[retina]
     if y.sum() == 0:
         return float("nan")
-    top = scores >= np.quantile(scores, 1 - fraction)
+    count = max(1, round(fraction * len(scores)))
+    top = np.argsort(-scores, kind="stable")[:count]
     return float(y[top].mean() / y.mean())
 
 

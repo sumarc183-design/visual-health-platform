@@ -27,6 +27,8 @@ from pathlib import Path
 
 import numpy as np
 
+ASSUMED_KEY = "assumed_not_verified"
+
 
 class CacheMismatchError(RuntimeError):
     """Le cache a été calculé avec une autre configuration que celle demandée."""
@@ -80,6 +82,11 @@ class EmbeddingCache:
         if unchecked:
             print(f"⚠ Cache {self.path.name} : {unchecked} non vérifié(s) (valeur inconnue sur cette machine).")
         self.meta = {**stored, **{k: v for k, v in meta.items() if v is not None or k not in stored}}
+        # Une valeur ajoutée ici est une déclaration, pas une preuve de l'origine
+        # des embeddings : elle sert à détecter les changements et reste marquée.
+        adopted = {k for k in meta if meta[k] is not None and stored.get(k) is None}
+        if adopted or stored.get(ASSUMED_KEY):
+            self.meta[ASSUMED_KEY] = sorted(adopted | set(stored.get(ASSUMED_KEY, [])))
         if self.meta != stored:
             self.save()  # enregistre l'empreinte complétée : les prochains changements seront détectés
 

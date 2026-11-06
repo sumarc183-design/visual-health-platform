@@ -192,8 +192,7 @@ l'occlusion rechargent les images de la même façon.
 ## Validation externe (APTOS 2019)
 
 Pour savoir si la détection de la rétinopathie diabétique tient sur une
-base jamais vue (autres patients, appareils et annotateurs que RFMiD et
-ODIR) :
+base externe (autres patients et annotateurs que RFMiD et ODIR) :
 
 1. **GPU** : `notebooks/kaggle_external_aptos.ipynb` (titre Kaggle :
    « Visual Health — embeddings APTOS (validation externe) »), avec la
@@ -209,8 +208,7 @@ python scripts/external_validation.py --rfmid-root data/raw/rfmid --odir-root da
     --embeddings embeddings --out results/external_aptos.json
 ```
 
-**EyePACS** (seconde base externe, où les mêmes appareils photographient
-malades et sains) : `notebooks/colab_external_eyepacs.ipynb` (titre Colab :
+**EyePACS** (seconde base externe, où le format d'image est peu lié au diagnostic) : `notebooks/colab_external_eyepacs.ipynb` (titre Colab :
 « Visual Health — embeddings EyePACS (validation externe) »), 2 500
 patients tirés au hasard (~5 000 images), puis
 `external_validation.py --external eyepacs --out results/external_eyepacs.json`
@@ -318,12 +316,13 @@ figé, tête, puis décision par maladie.
   passée dans le modèle (par défaut, l'échec est signalé et le résultat
   donné).
 - Les seuils sont **liés à la tête** : `scripts/decision_metrics.py --head
-  <tête> --embeddings embeddings` enregistre une sonde de la tête, après
-  avoir vérifié qu'elle redonne les prédictions de validation ;
-  `predict.py` refuse ensuite les seuils d'une autre tête, même de mêmes
-  classes, et tout seuil hors de [0, 1]. Un ancien fichier sans sonde
-  n'est accepté qu'avec `--allow-unverified-thresholds`, signalé comme non
-  vérifié.
+  <tête> --embeddings embeddings` enregistre l'identité exacte de ses poids et ce
+  qu'elle suppose (modèle, prétraitement, taille, classes), après avoir vérifié
+  qu'elle redonne les prédictions de validation et de test (`--head` seul est
+  refusé). `predict.py` refuse ensuite les seuils d'une autre tête, même
+  réentraînée à l'identique, et tout seuil hors de [0, 1]. Un ancien fichier sans
+  identité n'est accepté qu'avec `--allow-unverified-thresholds`, signalé comme
+  non vérifié.
 - Refus si la tête a été entraînée avec un autre checkpoint ou une autre
   version du prétraitement (têtes récentes ; les anciennes sont acceptées
   avec un avertissement).

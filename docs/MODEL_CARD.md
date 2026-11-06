@@ -4,17 +4,29 @@ Format inspiré des *Model Cards* (Mitchell et al., 2019).
 
 ## Description
 
-- **Modèle de base** : RETFound (`RETFound_mae_natureCFP`,
-  [rmaphoh/RETFound_MAE](https://github.com/rmaphoh/RETFound_MAE)), ViT-Large/16
-  préentraîné de façon auto-supervisée (Masked Autoencoder) sur des photos
-  couleur de fond d'œil. **Figé** : aucun de ses poids n'est modifié ici.
+Deux modèles de base au choix, indiqués par la tête passée à `predict.py`. Ils
+restent figés et seule une tête linéaire est servie.
+
+| | RETFound (`RETFound_mae_natureCFP`) | RETFound-Green |
+|---|---|---|
+| Architecture | ViT-Large/16, 303 millions de paramètres | ViT-Small/14 à registres, 22 millions |
+| Entrée, embedding | 224 px, 1 024 dimensions | 392 px, 384 dimensions |
+| Préentraînement | Auto-supervisé (MAE), inclut Kaggle EyePACS | Auto-supervisé, inclut ODIR |
+| Têtes disponibles | RFMiD, ODIR | RFMiD |
+| Lecture rapide | Référence du projet ; meilleur sur la DMLA de RFMiD | Meilleur classement externe de la rétinopathie |
+
 - **Ce qui est entraîné** : une tête linéaire multi-label (une sortie par
-  pathologie, sigmoïde) sur l'embedding de 1 024 dimensions.
-- **Tâche** : dépistage multi-pathologies sur photo de fond d'œil ; une image
-  peut porter plusieurs pathologies à la fois.
+  pathologie, sigmoïde) sur l'embedding. Les analyses externes réentraînent une
+  tête à une seule sortie (rétinopathie) avec les mêmes réglages : ce n'est pas la
+  tête multi-label servie.
+- **Fine-tuning partiel** : expérience seulement, sur RETFound (4 derniers blocs) ;
+  `predict.py` ne le charge pas.
+- **Tâche** : classement multi-pathologies sur photo de fond d'œil, une image
+  pouvant en porter plusieurs. Aucune variante ne fournit de décision de dépistage
+  validée.
 - **Explicabilité** : test d'occlusion (zones dont le masquage fait chuter
   la prédiction). Grad-CAM est conservé pour comparaison mais trompeur sur
-  ce modèle (voir les limites).
+  RETFound (voir les limites).
 
 ## Usage prévu
 
@@ -23,8 +35,9 @@ Format inspiré des *Model Cards* (Mitchell et al., 2019).
 - **Hors périmètre** : tout usage clinique, diagnostic ou aide à la décision
   médicale. Ce n'est pas un dispositif médical, il n'a été ni validé
   cliniquement ni évalué par un comité.
-- **Licence** : RETFound est en CC BY-NC 4.0 — aucun usage commercial sans
-  licence des auteurs (voir [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)).
+- **Licences** : RETFound est en CC BY-NC 4.0 ; RETFound-Green a sa propre licence
+  de recherche non commerciale (voir
+  [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)).
 
 ## Données d'évaluation
 
@@ -41,10 +54,13 @@ Format inspiré des *Model Cards* (Mitchell et al., 2019).
 AUROC macro et par classe (référence du domaine, indépendante du seuil)
 avec IC à 95 % par bootstrap (sur les patients pour ODIR, sur les images
 pour RFMiD), F1 macro au seuil 0,5 (peu
-parlant pour les classes rares, en attendant des seuils par classe), gap
-train − validation. Choix des variantes sur la validation par différence
-appariée ; le test n'est lu qu'une fois. Test final (`crop-mask`) : AUROC
-macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
+parlant pour les classes rares ; seuils par maladie dans
+`results/decision_*.json`), gap train − validation. Choix des variantes sur la
+validation par différence appariée. « Lu une fois » vaut pour une expérience
+donnée : les tests et bases externes ont depuis servi à plusieurs analyses, et ne
+sont plus une confirmation indépendante d'une hypothèse formulée ensuite. Test
+(`crop-mask`) : AUROC macro 0,846 sur RFMiD, 0,848 sur ODIR, et 0,871 sur RFMiD
+avec Green. Résultats détaillés :
 [README](../README.md#résultats).
 
 ## Limites connues
@@ -75,9 +91,11 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   propose les deux modèles, avec une tête linéaire ; le fine-tuning n'y est
   pas servi.
 - **Population et appareils** : jeux de données publics de quelques centres.
-  L'appareil reste lisible dans les embeddings même avec `crop-mask`
-  (exactitude équilibrée 1,00 sur RFMiD, 0,91 sur ODIR) ; aucun usage
-  mesurable par le classifieur (AUROC à appareil égal), mais ce contrôle a
+  Le format d'image, indicateur indirect de l'appareil, reste lisible dans les
+  embeddings même avec `crop-mask`
+  (exactitude équilibrée 1,00 sur RFMiD, 0,91 sur ODIR) ; pas d'usage
+  détecté par le classifieur (AUROC à format égal), ce qui ne prouve pas son
+  absence, et ce contrôle a
   peu de puissance sur ODIR. Entre bases, la performance baisse nettement
   pour la rétinopathie diabétique (0,947 → 0,820 sur RFMiD, 0,783 → 0,637
   sur ODIR) et pour la DMLA évaluée sur ODIR (0,871 → 0,785) : pas de
@@ -90,9 +108,9 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   rétinopathie diabétique.** AUROC 0,827 avec la tête RFMiD (0,947 sur son
   propre test), 0,526 avec la tête ODIR, 0,738 avec la tête multi-source.
   Les seuils réglés sur la validation ne se transposent pas (sensibilité
-  0,51 au lieu de 0,90). Les embeddings APTOS portent pourtant
-  l'information (0,995 avec une tête entraînée dans APTOS) : c'est le
-  changement de base qui échoue. Toute utilisation sur un nouveau site
+  0,51 au lieu de 0,90). Une tête entraînée dans APTOS atteint 0,995, chiffre gonflé par le lien
+  entre format et diagnostic : cela ne montre pas à lui seul où le transfert
+  échoue. Toute utilisation sur un nouveau site
   demande une évaluation et un recalibrage locaux. Réentraîner la tête
   avec quelques dizaines d'images du site donne 0,98 sur APTOS, mais ce
   chiffre est gonflé : dans APTOS, le format d'image d'origine (indicateur
@@ -107,8 +125,8 @@ macro 0,846 sur RFMiD, 0,848 sur ODIR. Résultats détaillés :
   tête ODIR, 0,675 avec la multi-source ; 0,680 à format égal pour la tête
   RFMiD, donc le 0,919 d'APTOS ne se transpose pas. Sensibilité 0,02 au seuil
   « dépistage » de la tête RFMiD (visée 0,90). Une tête entraînée dans
-  EyePACS atteint 0,785 : la tâche y est difficile même sans changement de
-  base, cause non établie. Le pré-entraînement de RETFound inclut Kaggle
+  EyePACS atteint 0,785 (performance de cette sonde linéaire, pas un plafond) :
+  la tâche y reste difficile sans changement de base, cause non établie. Le pré-entraînement de RETFound inclut Kaggle
   EyePACS (sans étiquette, d'après l'article de RETFound-Green) : cette base
   n'est pas totalement indépendante du backbone. Ce modèle ne doit pas servir à dépister la
   rétinopathie diabétique, y compris avec les seuils fournis.

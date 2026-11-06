@@ -13,10 +13,13 @@ Plan fixé avant de lire les résultats, sans réglage :
   seuil « dépistage » (sensibilité >= 0,90) choisi sur la validation RFMiD,
   jamais sur la base externe (mesure ajoutée après une première lecture des
   AUROC : elle ne change ni les modèles ni les têtes) ;
-- diagnostic dans la base : tête entraînée dans la base externe, 5 plis
-  groupés identiques pour les deux modèles. C'est le plafond de chaque
-  embedding sur cette base : il montre si la limite d'EyePACS (0,785 avec
-  RETFound) vient des embeddings.
+- diagnostic dans la base : tête linéaire entraînée dans la base externe,
+  5 plis groupés identiques pour les deux modèles. C'est la performance de cette
+  sonde, pas le plafond de l'information contenue dans les embeddings.
+
+Scores archivés dans `green_predictions.npz` : les AUROC se recalculent sans
+réentraîner. Les bases externes ont déjà servi à d'autres analyses : ces mesures
+sont exploratoires, pas une confirmation indépendante.
 
 Bootstrap par groupes indépendants (patients, doublons regroupés, repérés
 sur les embeddings RETFound et communs aux deux modèles).
@@ -48,18 +51,30 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.external_validation import auroc_with_ci, quiet_scores  # noqa: E402
 from scripts.finetune_analysis import paired_external_diff  # noqa: E402
 from scripts.robustness_checks import CHECKPOINT_STEM, head_scores, load  # noqa: E402
+from src.data.fundus_preprocess import PREPROCESS_VERSION  # noqa: E402
 from src.eval.decision import choose_threshold, decision_metrics  # noqa: E402
 from src.eval.duplicates import independent_groups  # noqa: E402
 from src.eval.metrics import evaluate_multilabel, paired_bootstrap_diff, stratification_gap  # noqa: E402
+from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache  # noqa: E402
+from src.models.retfound_green import GREEN_IMAGE_SIZE  # noqa: E402
 
 GREEN_FILE = "{}_crop-mask_392_retfoundgreen_statedict.npz"
 RETFOUND_FILE = "{}_crop-mask_224_" + CHECKPOINT_STEM + ".npz"
 FILES = {"RETFound": RETFOUND_FILE, "RETFound-Green": GREEN_FILE}
+GREEN_CHECKPOINT_SHA = "431de5dbc1bebbb3"
 
 
 def cached(directory: Path, model: str, dataset: str, keys: list[str]) -> np.ndarray:
-    return EmbeddingCache(directory / FILES[model].format(dataset)).get(keys).astype(np.float32)
+    """Refuse un cache d'une autre configuration ; l'empreinte du checkpoint n'est
+    contrôlée que pour Green, RETFound n'étant pas toujours sur la machine."""
+    meta = {
+        "checkpoint_sha256": GREEN_CHECKPOINT_SHA if model == "RETFound-Green" else None,
+        "preprocess": "crop-mask",
+        "preprocess_version": PREPROCESS_VERSION,
+        "image_size": GREEN_IMAGE_SIZE if model == "RETFound-Green" else 224,
+    }
+    return EmbeddingCache(directory / FILES[model].format(dataset), meta=meta).get(keys).astype(np.float32)
 
 
 def external_labels(directory: Path, name: str) -> pd.DataFrame:
@@ -94,7 +109,7 @@ def rfmid_comparison(root: Path, directory: Path) -> dict:
     return report
 
 
-def external_comparison(root: Path, directory: Path, name: str) -> dict:
+def external_comparison(root: Path, directory: Path, name: str, archive: dict) -> dict:
     labels = external_labels(directory, name)
     keys = list(labels["key"])
     grade = labels["diagnosis"].to_numpy()
@@ -140,6 +155,20 @@ def external_comparison(root: Path, directory: Path, name: str) -> dict:
     report["in_domain_green_minus_retfound"] = paired_external_diff(
         any_dr, ceiling["RETFound"], ceiling["RETFound-Green"], formats, groups
     )
+    archive.update(
+        {
+            f"{name}_keys": np.array(keys),
+            f"{name}_grade": grade,
+            f"{name}_groups": np.array(groups),
+            f"{name}_formats": formats,
+            f"{name}_folds": np.concatenate([np.full(len(h), i) for i, (_, h) in enumerate(folds)])[
+                np.argsort(np.concatenate([h for _, h in folds]))
+            ],
+        }
+    )
+    for model, short in (("RETFound", "retfound"), ("RETFound-Green", "green")):
+        archive[f"{name}_{short}_transfer"] = transfer[model].astype(np.float32)
+        archive[f"{name}_{short}_in_domain"] = ceiling[model].astype(np.float32)
     return report
 
 
@@ -150,15 +179,17 @@ def main() -> None:
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
 
-    report = {"rfmid": rfmid_comparison(args.rfmid_root, args.embeddings)}
-    for split, r in report["rfmid"].items():
+    report = {"run": run_info(), "rfmid": rfmid_comparison(args.rfmid_root, args.embeddings)}
+    archive: dict = {}
+    for split in ("val", "test"):
+        r = report["rfmid"][split]
         d = r["green_minus_retfound"]
         print(
             f"RFMiD {split:4s} : RETFound {r['retfound_auroc_macro']:.4f} | Green {r['green_auroc_macro']:.4f} "
             f"| écart {d['diff']:+.4f} [{d['ci'][0]:+.4f} ; {d['ci'][1]:+.4f}]"
         )
     for name in ("aptos", "eyepacs"):
-        report[name] = external_comparison(args.rfmid_root, args.embeddings, name)
+        report[name] = external_comparison(args.rfmid_root, args.embeddings, name, archive)
         for model, m in report[name]["models"].items():
             t, g, c = m["transfer_any_dr"], m["format_check"], m["in_domain_any_dr"]
             s = m["screening_threshold"]["any_dr"]
@@ -174,6 +205,7 @@ def main() -> None:
                 print(f"  Green − RETFound, {label}, {kind} : {d['diff']:+.3f} [{d['ci'][0]:+.3f} ; {d['ci'][1]:+.3f}]")
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    np.savez_compressed(args.out.parent / "green_predictions.npz", **archive)
     print(f"Résultats : {args.out}")
 
 

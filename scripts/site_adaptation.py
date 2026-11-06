@@ -39,7 +39,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
+from sklearn.model_selection import StratifiedGroupKFold
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -51,6 +51,7 @@ from src.eval.duplicates import (  # noqa: E402
     independent_groups,
     merge_groups,
 )
+from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache  # noqa: E402
 
 SHOTS = (25, 50, 100, 200, 400)
@@ -90,14 +91,30 @@ def split_site_report(X: np.ndarray, grade: np.ndarray, seed: int):
     return site, report, report_info
 
 
-def out_of_fold_scores(X_src, y_src, X_few, y_few, folds: int = 5) -> np.ndarray:
+def internal_folds(y_few: np.ndarray, groups: np.ndarray, folds: int = 5) -> list[tuple[np.ndarray, np.ndarray]]:
+    """Plis internes groupés : un groupe de doublons reste d'un seul côté. Le
+    nombre de plis dépend des groupes malades et sains disponibles ; liste vide
+    s'il y en a moins de 2."""
+    positives = len(set(groups[y_few == 1]))
+    negatives = len(set(groups[y_few == 0]))
+    k = int(min(folds, positives, negatives))
+    if k < 2:
+        return []
+    splitter = StratifiedGroupKFold(k, shuffle=True, random_state=0)
+    result = list(splitter.split(y_few, y_few, groups=groups))
+    for fit, held_out in result:
+        assert not set(groups[fit]) & set(groups[held_out]), "groupe partagé dans un pli interne"
+    return result
+
+
+def out_of_fold_scores(X_src, y_src, X_few, y_few, groups: np.ndarray, folds: int = 5) -> np.ndarray:
     """Scores des N images du site, chacune prédite par une tête entraînée sur
-    la source et les autres images du site (validation croisée interne)."""
-    k = int(min(folds, y_few.sum(), len(y_few) - y_few.sum()))
-    if k < 2:  # trop peu de malades ou de sains pour séparer : repli sur la tête source seule
+    la source et les autres images du site, hors de son groupe de doublons."""
+    splits = internal_folds(y_few, groups, folds)
+    if not splits:  # trop peu de malades ou de sains pour séparer : repli sur la tête source seule
         return quiet_scores(X_src, y_src, X_few)
     scores = np.zeros(len(y_few))
-    for train_idx, test_idx in StratifiedKFold(k, shuffle=True, random_state=0).split(X_few, y_few):
+    for train_idx, test_idx in splits:
         X_mix = np.vstack([X_src, X_few[train_idx]])
         y_mix = np.vstack([y_src, y_few[train_idx, None]])
         scores[test_idx] = quiet_scores(X_mix, y_mix, X_few[test_idx])
@@ -130,6 +147,8 @@ def main() -> None:
     y_apt = (grade >= 1).astype(np.float32)
     site, report, dup = split_site_report(X_apt, grade, args.seed)
     X_site, y_site, X_rep, y_rep = X_apt[site], y_apt[site], X_apt[report], y_apt[report]
+    all_groups, _ = independent_groups(X_apt, [str(i) for i in range(len(X_apt))])
+    groups_site = np.array(all_groups)[site]
 
     def evaluate(p_rep, threshold=None) -> dict:
         out = {"auroc": float(roc_auc_score(y_rep, p_rep))}
@@ -143,7 +162,9 @@ def main() -> None:
         "report_images": len(report),
         "split": "par groupes indépendants (doublons d'images regroupés), stratifié par stade",
         "duplicates": dup,
-        "few_shot_threshold": "choisi hors échantillon (validation croisée interne sur les N images)",
+        "few_shot_threshold": "choisi hors échantillon (validation croisée interne groupée sur les N images)",
+        "run": run_info(),
+        "few_shot_draws": {},
         "unsupervised": {},
         "few_shot": {},
     }
@@ -170,21 +191,24 @@ def main() -> None:
     # 2 et 3. Avec N étiquettes du site
     p_site_source = quiet_scores(X_src, y_src, X_site)
     for n in SHOTS:
+        draws = []
         recal, retrain = [], []
         for _ in range(args.repeats):
             pick = rng.choice(len(site), size=n, replace=False)
             while y_site[pick].min() == y_site[pick].max():  # il faut des malades et des sains
                 pick = rng.choice(len(site), size=n, replace=False)
+            draws.append([str(k) for k in labels["key"].to_numpy()[site][pick]])
             threshold = choose_threshold(y_site[pick], p_site_source[pick], "sensitivity", args.target_sensitivity)
             recal.append(evaluate(p_rep, threshold))
             # Seuil hors échantillon : scores des N images prédits par des têtes
             # qui ne les ont pas vues (validation croisée interne), pas par la
             # tête finale, entraînée sur elles.
-            oof = out_of_fold_scores(X_src, y_src, X_site[pick], y_site[pick])
+            oof = out_of_fold_scores(X_src, y_src, X_site[pick], y_site[pick], groups_site[pick])
             threshold_mix = choose_threshold(y_site[pick], oof, "sensitivity", args.target_sensitivity)
             X_mix = np.vstack([X_src, X_site[pick]])
             y_mix = np.vstack([y_src, y_site[pick, None]])
             retrain.append(evaluate(quiet_scores(X_mix, y_mix, X_rep), threshold_mix))
+        result["few_shot_draws"][str(n)] = draws
         result["few_shot"][str(n)] = {
             "threshold_recalibrated": {k: summary([r[k] for r in recal]) for k in recal[0]},
             "head_retrained": {k: summary([r[k] for r in retrain]) for k in retrain[0]},

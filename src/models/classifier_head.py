@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -61,3 +63,29 @@ def head_probe(state_dict: dict) -> list[float]:
 
 def probes_match(a: list[float], b: list[float], tolerance: float = PROBE_TOLERANCE) -> bool:
     return len(a) == len(b) and bool(np.allclose(a, b, rtol=tolerance, atol=tolerance))
+
+
+def head_sha256(state_dict: dict) -> str:
+    """Identité exacte d'une tête : SHA-256 de ses poids (float32 petit-boutiste,
+    noms triés), indépendant de la façon dont le fichier a été écrit. Une autre
+    tête, même réentraînée à l'identique sur une autre machine, a une autre
+    identité : ses seuils doivent être recalculés."""
+    digest = hashlib.sha256()
+    for name in sorted(state_dict):
+        digest.update(name.encode())
+        digest.update(state_dict[name].detach().cpu().numpy().astype("<f4").tobytes())
+    return digest.hexdigest()
+
+
+def head_contract(head: dict) -> dict:
+    """Ce qu'une tête sauvegardée suppose de la chaîne qui la précède. Une tête
+    historique sans empreinte garde ces champs à None : c'est un statut déclaré,
+    pas une provenance vérifiée."""
+    return {
+        "backbone": head.get("backbone", "retfound"),
+        "checkpoint_sha256": head.get("checkpoint_sha256"),
+        "preprocess": head.get("preprocess", "none"),
+        "preprocess_version": head.get("preprocess_version"),
+        "image_size": head["image_size"],
+        "class_names": list(head["class_names"]),
+    }

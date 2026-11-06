@@ -7,7 +7,7 @@ Plan fixé avant de lire les résultats, pour RETFound et RETFound-Green :
 1. **Occlusion (81 images)**, tête RFMiD servie par predict.py, jamais
    entraînée sur IDRiD. Pour chaque image, AUROC au pixel de la carte contre
    les lésions (union MA, HE, EX, SE), puis par type, et enrichissement dans
-   les 5 % de pixels les plus importants. Référence : la carte moyenne des
+   exactement 5 % des pixels, ceux de plus fort score (et 2 % et 10 %, en stabilité). Référence : la carte moyenne des
    **autres** images, car lésions et cartes ont des positions typiques (une
    AUROC > 0,5 peut venir de la seule position). Le disque optique, structure
    normale, sert de contrôle : il ne fait pas partie de la rétinopathie.
@@ -18,7 +18,9 @@ Plan fixé avant de lire les résultats, pour RETFound et RETFound-Green :
    Référence : fréquence de la lésion à chaque position dans l'entraînement,
    qui ne regarde pas l'image.
 
-IC à 95 % par bootstrap sur les images, différences appariées.
+IC à 95 % par bootstrap sur les images, différences appariées. Cibles et
+probabilités du test archivées (`localization_predictions.npz`) : les AP se
+recalculent sans réentraîner.
 
 Exploratoire, ajouté après lecture des résultats : Green à la grille de
 RETFound (tokens moyennés en 14×14), car sa grille native de 28×28 l'avantage ;
@@ -45,7 +47,8 @@ from sklearn.preprocessing import StandardScaler
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.fundus_preprocess import common_mask  # noqa: E402
-from src.data.idrid_dataset import LESION_DIRS, LESIONS, IDRiDSegmentation  # noqa: E402
+from src.data.idrid_dataset import LESION_DIRS, LESIONS, IDRiDSegmentation, check_official_split  # noqa: E402
+from src.eval.provenance import run_info  # noqa: E402
 from src.explainability.localization import cell_targets, map_auroc, resize_map, top_enrichment  # noqa: E402
 
 SIZE = 224
@@ -77,17 +80,27 @@ def mean_ci(values: np.ndarray, rng: np.random.Generator) -> dict:
     }
 
 
+def lesion_target(mask: dict, key: str) -> np.ndarray:
+    return mask[key] if key != "lesions" else np.logical_or.reduce([mask[k] for k in LESIONS])
+
+
 def occlusion_scores(maps: np.ndarray, masks: list[dict], key: str, retina: np.ndarray) -> dict[str, np.ndarray]:
     """Par image : AUROC de sa carte, AUROC de la carte moyenne des autres, enrichissement."""
     total = maps.sum(axis=0)
     own, other, enrichment = [], [], []
     for i, mask in enumerate(masks):
-        target = mask[key] if key != "lesions" else np.logical_or.reduce([mask[k] for k in LESIONS])
+        target = lesion_target(mask, key)
         others = (total - maps[i]) / (len(maps) - 1)
         own.append(map_auroc(maps[i], target, retina))
         other.append(map_auroc(others, target, retina))
         enrichment.append(top_enrichment(maps[i], target, retina))
     return {"own": np.array(own), "other": np.array(other), "enrichment": np.array(enrichment)}
+
+
+def fraction_enrichment(maps: np.ndarray, masks: list[dict], key: str, retina: np.ndarray, fraction: float):
+    return np.array(
+        [top_enrichment(m, lesion_target(mask, key), retina, fraction) for m, mask in zip(maps, masks, strict=True)]
+    )
 
 
 def occlusion_report(maps_by_model: dict, logits_by_model: dict, masks: list[dict], seed: int) -> dict:
@@ -102,6 +115,9 @@ def occlusion_report(maps_by_model: dict, logits_by_model: dict, masks: list[dic
             s = occlusion_scores(resized, masks, key, retina)
             scores[model, key] = s
             report[model][key] = {
+                "top_fraction_enrichment": {
+                    str(f): mean_ci(fraction_enrichment(resized, masks, key, retina, f), rng) for f in (0.02, 0.10)
+                },
                 "auroc": mean_ci(s["own"], rng),
                 "auroc_other_images": mean_ci(s["other"], rng),
                 "auroc_minus_other_images": mean_ci(s["own"] - s["other"], rng),
@@ -161,7 +177,9 @@ def paired_ap(y: np.ndarray, a: np.ndarray, b: np.ndarray | None, rng: np.random
     return {"value": float(point), "ci": [float(x) for x in np.percentile(draws, [2.5, 97.5])]}
 
 
-def segmentation_report(tokens_by_model: dict, ids: list[str], splits: np.ndarray, masks: dict, seed: int) -> dict:
+def segmentation_report(
+    tokens_by_model: dict, ids: list[str], splits: np.ndarray, masks: dict, seed: int, archive: dict | None = None
+) -> dict:
     retina = common_mask(SIZE)
     train = splits == "train"
     rng = np.random.default_rng(seed)
@@ -179,9 +197,14 @@ def segmentation_report(tokens_by_model: dict, ids: list[str], splits: np.ndarra
             "ap_position_only": paired_ap(y_test, prior_test, None, rng),
         }
         predictions = {}
+        if archive is not None:
+            archive[f"{key}_y"] = y_test
+            archive[f"{key}_position_only"] = prior_test[0].astype(np.float32)
         for model, tokens in tokens_by_model.items():
             probs = segmentation_scores(tokens, targets, train, retina)[~train][:, inside]
             predictions[model] = probs
+            if archive is not None:
+                archive[f"{key}_{FILES[model]}"] = probs.astype(np.float32)
             entry[model] = {
                 "ap": paired_ap(y_test, probs, None, rng),
                 "ap_minus_position": paired_ap(y_test, probs, prior_test, rng),
@@ -250,13 +273,21 @@ def main() -> None:
     for model, d in data.items():
         if [str(i) for i in d["ids"]] != ids:
             raise ValueError(f"{model} : images différentes de RETFound")
+    if [str(s) for s in data["RETFound-Green"]["splits"]] != [str(s) for s in splits]:
+        raise ValueError("RETFound-Green : découpage différent de RETFound")
+    check_official_split(ids, [str(s) for s in splits])
     image_masks = [masks[i] for i in ids]
+    archive: dict = {"ids_test": np.array(ids)[splits == "test"]}
     report = {
+        "run": run_info(),
+        "maps_manifest": {m: str(d["manifest"]) if "manifest" in d.files else None for m, d in data.items()},
         "images": len(ids),
         "occlusion": occlusion_report(
             {m: d["maps"] for m, d in data.items()}, {m: d["logits"] for m, d in data.items()}, image_masks, args.seed
         ),
-        "segmentation": segmentation_report({m: d["tokens"] for m, d in data.items()}, ids, splits, masks, args.seed),
+        "segmentation": segmentation_report(
+            {m: d["tokens"] for m, d in data.items()}, ids, splits, masks, args.seed, archive
+        ),
     }
 
     print(f"Occlusion, {len(ids)} images : AUROC [IC] | carte des autres images | écart | enrichissement top 5 %")
@@ -295,6 +326,7 @@ def main() -> None:
         )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    np.savez_compressed(args.out.parent / "localization_predictions.npz", **archive)
     print(f"Résultats : {args.out}")
     if args.figure is not None:
         save_figure(args.figure, args.data_root, data, masks, args.seed)

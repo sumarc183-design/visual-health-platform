@@ -21,6 +21,8 @@
 - [ ] Seconde indication amorcée (dermatologie via ISIC)
 - [ ] Score de confiance calibré (avancé le 4 nov. : probabilités déjà bien calibrées, ECE ≈ 0,02-0,03, seuils par maladie choisis sur la validation ; reste la validation clinique du compromis)
 
+- [ ] Protocole de confirmation daté avant toute nouvelle lecture (audit du 6 nov.) : variantes figées, et lot de patients EyePACS encore jamais examinés. Les bases actuelles sont exploratoires.
+
 ## J90 — Modularité démontrée
 - [ ] Socle modulaire validé sur 2 modalités (rétine + dermato)
 - [ ] Dossier d'accès AI-Hub (étude TSA/rétine) avancé

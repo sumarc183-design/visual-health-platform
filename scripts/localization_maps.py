@@ -15,6 +15,7 @@ Exemple (GPU T4, ~10 min) :
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 from pathlib import Path
@@ -24,9 +25,12 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from src.data.fundus_preprocess import PREPROCESS_VERSION  # noqa: E402
 from src.data.idrid_dataset import IDRiDSegmentation  # noqa: E402
+from src.eval.provenance import run_info  # noqa: E402
 from src.explainability.localization import MODELS, FrozenClassifier, resize_map  # noqa: E402
 from src.explainability.occlusion import occlusion_map  # noqa: E402
+from src.models.embedding_cache import file_fingerprint  # noqa: E402
 
 MAP_SIZE = 56
 FILE_NAMES = {"RETFound": "retfound", "RETFound-Green": "green"}
@@ -82,6 +86,19 @@ def main() -> None:
             maps=np.stack(maps),
             logits=np.array(logits),
             tokens=np.stack(tokens),
+            manifest=np.array(
+                json.dumps(
+                    {
+                        "model": name,
+                        "checkpoint_sha256": file_fingerprint(checkpoints[name]),
+                        "dr_heads_sha256": file_fingerprint(args.dr_heads),
+                        "preprocess": "crop-mask",
+                        "preprocess_version": PREPROCESS_VERSION,
+                        "image_size": cfg["image_size"],
+                        "run": run_info(),
+                    }
+                )
+            ),
         )
         del model
         if torch.cuda.is_available():

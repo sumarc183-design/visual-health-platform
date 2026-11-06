@@ -62,7 +62,7 @@ def main() -> None:
     parser.add_argument(
         "--allow-unverified-thresholds",
         action="store_true",
-        help="Accepte un fichier de seuils sans sonde de tête (historique) : compatibilité non vérifiée",
+        help="Accepte un fichier de seuils sans identité de tête (historique) : compatibilité non vérifiée",
     )
     parser.add_argument("--out", type=Path, default=None, help="Résultats JSON")
     args = parser.parse_args()

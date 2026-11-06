@@ -125,10 +125,9 @@ def _mann_whitney_pairs(y: np.ndarray, p: np.ndarray, strata: np.ndarray) -> tup
 
 def stratified_auroc(y: np.ndarray, p: np.ndarray, strata) -> float:
     """AUROC « à strate égale » : probabilité qu'un positif soit classé
-    au-dessus d'un négatif **de la même strate** (ex. même appareil photo).
-    Comparée à l'AUROC globale, elle mesure ce que le modèle gagne en
-    exploitant les différences de prévalence entre strates : un modèle qui
-    reconnaît l'appareil plutôt que la maladie perd à strate égale."""
+    au-dessus d'un négatif **de la même strate** (ex. même format d'image).
+    L'écart avec l'AUROC globale montre une dépendance aux strates, sans en
+    identifier la cause : les paires comparées et leurs populations diffèrent."""
     ordered, pairs = _mann_whitney_pairs(np.asarray(y), np.asarray(p), np.asarray(strata))
     return float(ordered / pairs) if pairs else float("nan")
 

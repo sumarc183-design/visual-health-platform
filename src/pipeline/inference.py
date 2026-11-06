@@ -21,7 +21,7 @@ from pathlib import Path
 import torch
 
 from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image
-from src.models.classifier_head import MultiLabelHead, head_probe, probes_match
+from src.models.classifier_head import MultiLabelHead, head_contract, head_sha256
 from src.models.embedding_cache import file_fingerprint
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone
 from src.models.retfound_green import RETFoundGreenBackbone
@@ -55,15 +55,17 @@ def load_thresholds(
     path: str | Path,
     class_names: list[str],
     policy: str,
-    head_signature: list[float] | None = None,
+    head: dict | None = None,
     allow_unverified: bool = False,
 ) -> tuple[dict, bool]:
     """Seuils par maladie d'un fichier results/decision_<dataset>.json. None =
     pas de décision (preuve insuffisante, ou aucun positif en validation).
 
-    Le fichier doit porter la sonde de la tête qui a produit ses prédictions
-    (`head_probe`) : une autre tête, même de mêmes classes, est refusée.
-    Fichier sans sonde (historique) : refusé, sauf `allow_unverified`.
+    `head` : tête chargée (state_dict, class_names, image_size...). Le fichier
+    doit porter l'identité exacte de la tête qui a produit ses prédictions
+    (`head_sha256`) et le même contrat (modèle, prétraitement, taille, classes) :
+    une autre tête est refusée, même de mêmes classes et de même sonde. Fichier
+    sans identité (historique) : refusé, sauf `allow_unverified`.
     Renvoie (seuils, compatibilité vérifiée)."""
     if policy not in THRESHOLD_POLICIES:
         raise ValueError(f"politique de seuil {policy!r} inconnue, choisir parmi {THRESHOLD_POLICIES}")
@@ -74,17 +76,22 @@ def load_thresholds(
             f"Les seuils ({path}) ne portent pas sur les mêmes classes que la tête : "
             f"{list(classes)[:4]}... contre {list(class_names)[:4]}..."
         )
-    stored = report.get("head_probe")
-    if stored is None or head_signature is None:
+    stored = report.get("head_sha256")
+    if stored is None or head is None:
         if not allow_unverified:
             raise ValueError(
-                f"Les seuils ({path}) ne sont pas liés à une tête (pas de « head_probe ») : compatibilité "
-                "invérifiable. Regénérer les seuils avec scripts/decision_metrics.py --head, ou accepter "
-                "explicitement (--allow-unverified-thresholds)."
+                f"Les seuils ({path}) ne sont pas liés à une tête (pas de « head_sha256 ») : compatibilité "
+                "invérifiable. Regénérer les seuils avec scripts/decision_metrics.py --head --embeddings, ou "
+                "accepter explicitement (--allow-unverified-thresholds)."
             )
         verified = False
-    elif not probes_match(stored, head_signature):
+    elif stored != head_sha256(head["state_dict"]):
         raise ValueError(f"Les seuils ({path}) ont été calculés pour une autre tête que celle chargée.")
+    elif report.get("head_contract") != head_contract(head):
+        raise ValueError(
+            f"Les seuils ({path}) supposent une autre chaîne : {report.get('head_contract')} "
+            f"contre {head_contract(head)}."
+        )
     else:
         verified = True
     thresholds = {}
@@ -141,7 +148,7 @@ class Predictor:
                 thresholds_path,
                 self.class_names,
                 policy,
-                head_signature=head_probe(head_ckpt["state_dict"]),
+                head=head_ckpt,
                 allow_unverified=allow_unverified_thresholds,
             )
             if not verified:

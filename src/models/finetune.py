@@ -116,6 +116,14 @@ def cosine_with_warmup(step: int, total_steps: int, warmup_steps: int) -> float:
     return 0.5 * (1 + math.cos(math.pi * min(1.0, progress)))
 
 
+def check_artifact_contract(artifact: dict, image_size: int, preprocess_version: int) -> None:
+    """Refuse un artefact préparé autrement que ne le ferait le code actuel."""
+    expected = {"image_size": image_size, "preprocess": "crop-mask", "preprocess_version": preprocess_version}
+    conflicts = {k: (artifact.get(k), v) for k, v in expected.items() if artifact.get(k) != v}
+    if conflicts:
+        raise ValueError(f"artefact de fine-tuning incompatible (artefact, attendu) : {conflicts}")
+
+
 def load_finetuned_state(model: PartialFinetune, artifact: dict) -> PartialFinetune:
     """Applique le delta de poids sauvegardé par scripts/finetune_retfound.py
     (blocs dégelés, normalisation finale, tête) à un modèle partiel construit

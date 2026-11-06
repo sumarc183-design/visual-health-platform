@@ -105,9 +105,10 @@ Green généralise nettement mieux, à la différence du fine-tuning, y compris 
 format égal et sur EyePACS, que le pré-entraînement de RETFound inclut (pas
 celui de Green). Sur RFMiD, le gain n'est pas démontré, et sur la DMLA le test
 donne −0,065 [−0,107 ; −0,027]. Les seuils ne se transposent toujours pas :
-sensibilité 0,13 sur EyePACS. Le plafond de 0,785 dans EyePACS est identique
-pour les deux modèles : il ne semble donc pas propre aux embeddings de
-RETFound ; la cause (images, annotations, tête linéaire) reste non établie.
+sensibilité 0,13 sur EyePACS. Dans EyePACS, une tête linéaire entraînée dans la base
+atteint 0,785 et 0,786 : cette limite n'est donc pas propre à RETFound, mais ce
+n'est pas le plafond des embeddings, seulement la performance de cette sonde ;
+la cause (images, annotations, tête linéaire) reste non établie.
 Limites : l'écart mêle modèle et résolution ; le pré-entraînement de Green
 inclut ODIR, d'où l'absence de cette base.
 
@@ -334,7 +335,8 @@ l'appareil : elle passe par la rétine elle-même (couleur, netteté,
 éclairage). Le prétraitement ne garantit donc pas, à lui seul, un modèle
 indépendant de l'appareil.
 
-**2. Le classifieur ne s'aide pas de façon mesurable de l'appareil.** AUROC
+**2. Pas d'usage de l'appareil détecté par ce contrôle, ce qui ne prouve pas
+son absence.** AUROC
 globale contre AUROC à appareil égal (paires malade/sain du même appareil,
 `stratification_gap` dans [`metrics.py`](src/eval/metrics.py)). Un écart
 positif signifierait qu'une partie du classement vient des différences de
@@ -405,8 +407,8 @@ prouve pas la généralisation à une **troisième** source : voir le contrôle 
 
 **5. Validation externe : la rétinopathie diabétique se généralise mal.**
 APTOS 2019 (3 662 images, Aravind Eye Hospital : autres patients,
-appareils et annotateurs), jamais utilisée pour le développement ; rien
-n'est réglé dessus, les seuils viennent de la validation de la base
+appareils et annotateurs), sans rôle dans le développement au moment de cette
+mesure, mais qui a depuis servi à d'autres analyses ; rien n'y est réglé, les seuils viennent de la validation de la base
 d'origine ([`scripts/external_validation.py`](scripts/external_validation.py),
 [résultats](results/external_aptos.json), voir le
 [GUIDE](docs/GUIDE.md#validation-externe-aptos-2019)) :
@@ -445,10 +447,10 @@ d'origine ([`scripts/external_validation.py`](scripts/external_validation.py),
   La tête et les étiquettes restent externes, mais le backbone a pu voir ces
   images : EyePACS n'est pas totalement indépendant, et ce biais irait plutôt
   dans le sens d'un chiffre optimiste.
-  **Une tête entraînée dans EyePACS plafonne à 0,785** [0,767 ; 0,803]
-  (5 plis, par patient), contre 0,995 dans APTOS : avec ces embeddings et une
-  tête linéaire, la tâche est difficile sur cette base, même sans changement
-  de base. La cause (qualité d'image, annotation, limite des embeddings
+  **Une tête linéaire entraînée dans EyePACS atteint 0,785** [0,767 ; 0,803]
+  (5 plis, par patient), contre 0,995 dans APTOS : avec ces embeddings et cette
+  sonde, la tâche reste difficile sur cette base, sans changement de base. Ce
+  n'est pas un plafond de l'information. La cause (qualité d'image, annotation, limite des embeddings
   figés) n'est pas établie. Le 0,995 d'APTOS est, lui, gonflé par le lien
   format/diagnostic.
 - **Les seuils ne se transposent pas** : le seuil réglé pour 90 % de

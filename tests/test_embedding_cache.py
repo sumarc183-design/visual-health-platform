@@ -1,12 +1,14 @@
 """Vérifie le cache d'embeddings et son usage par run_baseline.py."""
 
+import json
+
 import numpy as np
 import pandas as pd
 import pytest
 import torch
 
 from run_baseline import dataset_embeddings
-from src.models.embedding_cache import CacheMismatchError, EmbeddingCache, cache_file_name
+from src.models.embedding_cache import ASSUMED_KEY, CacheMismatchError, EmbeddingCache, cache_file_name
 
 
 class TinyDataset(torch.utils.data.Dataset):
@@ -126,3 +128,23 @@ def test_malformed_caches_are_refused(tmp_path):
     np.savez(tmp_path / "nan.npz", keys=np.array(["a", "b"]), X=np.array([[1.0, np.nan], [0.0, 1.0]]))
     with pytest.raises(CacheMismatchError, match="finies"):
         EmbeddingCache(tmp_path / "nan.npz")
+
+
+def test_adopted_metadata_stays_marked_as_not_verified(tmp_path):
+    """Un cache qui ne déclare pas son checkpoint : l'empreinte demandée sert à
+    détecter les changements, sans devenir une preuve de son origine."""
+    path = tmp_path / "c.npz"
+    np.savez(path, keys=np.array(["a"]), X=np.zeros((1, 2), np.float32), meta=np.array(json.dumps({"preprocess": "p"})))
+    adopted = EmbeddingCache(path, meta={"preprocess": "p", "checkpoint_sha256": "abc"})
+    assert adopted.meta[ASSUMED_KEY] == ["checkpoint_sha256"]
+    again = EmbeddingCache(path, meta={"preprocess": "p", "checkpoint_sha256": "abc"})
+    assert again.meta[ASSUMED_KEY] == ["checkpoint_sha256"]
+    with pytest.raises(CacheMismatchError):
+        EmbeddingCache(path, meta={"preprocess": "p", "checkpoint_sha256": "autre"})
+
+
+def test_cache_with_verified_metadata_has_no_mark(tmp_path):
+    cache = EmbeddingCache(tmp_path / "c.npz", meta={"preprocess": "p"})
+    cache.add(["a"], np.zeros((1, 2)))
+    cache.save()
+    assert ASSUMED_KEY not in EmbeddingCache(tmp_path / "c.npz", meta={"preprocess": "p"}).meta

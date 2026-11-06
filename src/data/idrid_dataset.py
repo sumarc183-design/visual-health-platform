@@ -2,8 +2,10 @@
 d'œil avec rétinopathie diabétique, découpage officiel 54 / 27, lésions
 dessinées par des experts au pixel près, disque optique en plus.
 
-Un masque absent signifie que la lésion n'a pas été annotée sur cette image :
-il compte comme vide (cas de 41 images pour les exsudats mous).
+Un masque d'hémorragies ou d'exsudats mous absent signifie que la lésion n'a pas
+été annotée sur cette image : il compte comme vide (1 et 41 images). Les
+microanévrismes, exsudats durs et disque optique existent pour toutes : leur
+absence, comme celle d'un dossier, signale une copie incomplète et est refusée.
 
 Structure attendue, cherchée sous `root` :
 <dossier>/1. Original Images/{a. Training Set,b. Testing Set}/IDRiD_01.jpg et
@@ -28,7 +30,10 @@ LESION_DIRS = {
     "OD": "5. Optic Disc",
 }
 LESIONS = ("MA", "HE", "EX", "SE")  # le disque optique est une structure normale, pas une lésion
+MAY_BE_ABSENT = ("HE", "SE")
 SPLIT_DIRS = {"train": "a. Training Set", "test": "b. Testing Set"}
+OFFICIAL_TRAIN_IMAGES = 54
+OFFICIAL_IMAGES = 81
 _MASKS_DIR = "2. All Segmentation Groundtruths"
 
 
@@ -51,6 +56,15 @@ def read_annotation(path: Path) -> np.ndarray:
     return array.max(axis=2) > 0 if array.ndim == 3 else array > 0
 
 
+def check_official_split(ids: list[str], splits: list[str]) -> None:
+    """Refuse identifiants répétés et écart au découpage officiel (01-54 / 55-81)."""
+    if len(set(ids)) != len(ids):
+        raise ValueError("identifiants IDRiD répétés")
+    expected = {f"IDRiD_{i:02d}": "train" if i <= OFFICIAL_TRAIN_IMAGES else "test" for i in range(1, OFFICIAL_IMAGES + 1)}
+    if dict(zip(ids, splits, strict=True)) != expected:
+        raise ValueError("les images ou leur répartition ne suivent pas le découpage officiel d'IDRiD")
+
+
 class IDRiDSegmentation:
     def __init__(self, root: str | Path, split: str = "train", image_size: int = 224):
         if split not in SPLIT_DIRS:
@@ -63,6 +77,9 @@ class IDRiDSegmentation:
         self.ids = sorted(p.stem for p in self.images_dir.glob("IDRiD_*.jpg"))
         if not self.ids:
             raise ValueError(f"Aucune image dans {self.images_dir}")
+        missing = [d for d in LESION_DIRS.values() if not (self.masks_dir / d).is_dir()]
+        if missing:
+            raise FileNotFoundError(f"Annotations IDRiD incomplètes dans {self.masks_dir} : {missing}")
 
     def __len__(self) -> int:
         return len(self.ids)
@@ -85,6 +102,8 @@ class IDRiDSegmentation:
                 path = self.masks_dir / folder / f"{self.ids[idx]}_{lesion}.tif"
                 if path.exists():
                     result[lesion] = crop_mask_annotation(image, read_annotation(path), self.image_size)
-                else:
+                elif lesion in MAY_BE_ABSENT:
                     result[lesion] = np.zeros((self.image_size, self.image_size), np.float32)
+                else:
+                    raise FileNotFoundError(f"Masque manquant : {path}")
         return result

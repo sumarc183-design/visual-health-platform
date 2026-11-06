@@ -7,7 +7,14 @@ from PIL import Image
 
 from scripts.localization_analysis import occlusion_scores, paired_ap, pool_tokens, segmentation_scores, upsample
 from src.data.fundus_preprocess import common_mask, crop_mask, crop_mask_annotation
-from src.data.idrid_dataset import IDRiDSegmentation, find_segmentation_root, read_annotation
+from src.data.idrid_dataset import (
+    LESION_DIRS,
+    MAY_BE_ABSENT,
+    IDRiDSegmentation,
+    check_official_split,
+    find_segmentation_root,
+    read_annotation,
+)
 from src.explainability.localization import cell_targets, map_auroc, resize_map, top_enrichment
 
 H, W = 300, 400
@@ -53,9 +60,11 @@ def idrid(tmp_path):
     image, spot = fundus_with_spot()
     (tmp_path / "A" / "1. Original Images" / "a. Training Set").mkdir(parents=True)
     image.save(tmp_path / "A" / "1. Original Images" / "a. Training Set" / "IDRiD_01.jpg", quality=95)
-    masks = tmp_path / "A" / "2. All Segmentation Groundtruths" / "a. Training Set" / "3. Hard Exudates"
-    masks.mkdir(parents=True)
-    Image.fromarray(spot.astype(np.uint8)).save(masks / "IDRiD_01_EX.tif")
+    root = tmp_path / "A" / "2. All Segmentation Groundtruths" / "a. Training Set"
+    for lesion, folder in LESION_DIRS.items():
+        (root / folder).mkdir(parents=True)
+        if lesion not in MAY_BE_ABSENT:
+            Image.fromarray(spot.astype(np.uint8)).save(root / folder / f"IDRiD_01_{lesion}.tif")
     return tmp_path
 
 
@@ -65,7 +74,27 @@ def test_dataset_finds_its_folder_and_treats_missing_masks_as_empty(idrid):
     assert dataset.ids == ["IDRiD_01"] and dataset.image(0).shape == (3, 112, 112)
     masks = dataset.masks(0)
     assert set(masks) == {"MA", "HE", "EX", "SE", "OD"}
-    assert masks["EX"].max() > 0 and masks["MA"].max() == 0
+    assert masks["EX"].max() > 0 and masks["HE"].max() == 0 and masks["SE"].max() == 0
+
+
+def test_incomplete_annotations_are_refused(idrid):
+    root = idrid / "A" / "2. All Segmentation Groundtruths" / "a. Training Set"
+    (root / "1. Microaneurysms" / "IDRiD_01_MA.tif").unlink()
+    with pytest.raises(FileNotFoundError, match="Masque manquant"):
+        IDRiDSegmentation(idrid, split="train", image_size=112).masks(0)
+    (root / "1. Microaneurysms").rmdir()
+    with pytest.raises(FileNotFoundError, match="incomplètes"):
+        IDRiDSegmentation(idrid, split="train", image_size=112)
+
+
+def test_official_split_is_checked():
+    ids = [f"IDRiD_{i:02d}" for i in range(1, 82)]
+    splits = ["train"] * 54 + ["test"] * 27
+    check_official_split(ids, splits)
+    with pytest.raises(ValueError, match="découpage officiel"):
+        check_official_split(ids, ["test"] + splits[1:])
+    with pytest.raises(ValueError, match="répétés"):
+        check_official_split(["IDRiD_01", *ids[1:-1], "IDRiD_01"], splits)
 
 
 def test_rgba_annotation_ignores_the_full_alpha_channel(tmp_path):
@@ -86,6 +115,17 @@ def test_map_measures():
     assert map_auroc(perfect, target, retina) == 1.0
     assert np.isnan(map_auroc(perfect, np.zeros((8, 8), bool), retina))
     assert top_enrichment(perfect, target, retina, fraction=0.1) == pytest.approx(4.0)
+
+
+def test_top_enrichment_keeps_exactly_the_announced_surface():
+    """Carte constante : tous les pixels à égalité, le quantile les prendrait tous."""
+    retina = np.ones((10, 10), bool)
+    target = np.zeros((10, 10), bool)
+    target[0, 0] = True  # premier pixel : ex æquo départagé par l'ordre, sans regarder la cible
+    assert top_enrichment(np.ones((10, 10)), target, retina, fraction=0.05) == pytest.approx(20.0)
+    target = np.zeros((10, 10), bool)
+    target[9, 9] = True
+    assert top_enrichment(np.ones((10, 10)), target, retina, fraction=0.05) == 0.0
 
 
 def test_resize_map_averages():

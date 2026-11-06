@@ -31,7 +31,6 @@ from __future__ import annotations
 import argparse
 import json
 import platform
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -47,6 +46,7 @@ from src.data.fundus_preprocess import PREPROCESS_CHOICES, PREPROCESS_VERSION
 from src.data.odir_dataset import TEST_FRACTION, ODIRDataset
 from src.data.rfmid_dataset import RFMiDDataset
 from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel
+from src.eval.provenance import git_commit
 from src.models.classifier_head import MultiLabelHead, train_head
 from src.models.embedding_cache import EmbeddingCache, cache_file_name, file_fingerprint
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone, build_retfound_vit_large
@@ -138,21 +138,6 @@ def dataset_embeddings(dataset, label: str, get_backbone, cache: EmbeddingCache 
         cache.add([keys[i] for i in todo], X_new)
         cache.save()
     return cache.get(keys), dataset.df[dataset.class_names].to_numpy(dtype=np.float32)
-
-
-def git_commit() -> str | None:
-    """Commit du code exécuté (+ « -dirty » si des fichiers suivis sont modifiés)."""
-    repo = Path(__file__).resolve().parent
-    try:
-        commit = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
-        ).stdout.strip()
-        dirty = subprocess.run(
-            ["git", "status", "--porcelain", "--untracked-files=no"], cwd=repo, capture_output=True, text=True
-        ).stdout.strip()
-    except (OSError, subprocess.CalledProcessError):
-        return None
-    return commit + ("-dirty" if dirty else "")
 
 
 def main() -> None:

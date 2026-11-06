@@ -3,8 +3,8 @@
 
 35 126 images d'entraînement annotées en 5 stades (0 pas de rétinopathie à
 4 proliférante), issues d'un programme de dépistage américain (EyePACS) :
-les mêmes appareils photographient malades et sains, contrairement à APTOS
-où l'appareil donne presque le diagnostic. Les deux yeux d'un patient sont
+le format d'image, indicateur indirect de l'acquisition, y est peu lié au
+diagnostic, contrairement à APTOS où il le donne presque. Les deux yeux d'un patient sont
 deux images (`<patient>_left.jpeg`, `<patient>_right.jpeg`) : le bootstrap
 se fait par patient.
 
