@@ -167,8 +167,14 @@ sensibilité 0,13 sur EyePACS. Dans EyePACS, une tête linéaire entraînée dan
 atteint 0,785 et 0,786 : cette limite n'est donc pas propre à RETFound, mais ce
 n'est pas le plafond des embeddings, seulement la performance de cette sonde ;
 la cause (images, annotations, tête linéaire) reste non établie.
-Limites : l'écart mêle modèle et résolution ; le pré-entraînement de Green
-inclut ODIR, d'où l'absence de cette base.
+**À résolution égale, l'avance de Green fond** (8 novembre ; Green en 224 px,
+encodages de position interpolés ; [résultats](results/green_analysis_224.json)) :
+EyePACS 0,680 contre 0,661, soit +0,019 [−0,001 ; +0,038] ; APTOS à format égal
++0,014 [−0,004 ; +0,030] ; test RFMiD +0,002. Aucun gain n'est démontré à 224 px :
+l'avantage observé à 392 px tient donc en grande partie à la résolution, ou à une
+perte due à l'adaptation, Green n'ayant pas été entraîné à 224 px. Ce test ne dit pas
+si RETFound gagnerait aussi à une résolution plus haute.
+Limites : le pré-entraînement de Green inclut ODIR, d'où l'absence de cette base.
 
 **Choix du modèle** : `predict.py` accepte les deux, RETFound restant l'exemple
 par défaut. Le compromis dépend de l'usage : Green pour la généralisation sur

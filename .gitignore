@@ -11,3 +11,6 @@ __pycache__/
 /embeddings/
 # Tokens de patch (150 Mo), recalculables : notebooks/kaggle_localization_idrid.ipynb
 results/localization/localization_*.npz
+
+# Scores par image avec les étiquettes APTOS/EyePACS : ne pas publier (règlements Kaggle)
+results/green_predictions_*.npz

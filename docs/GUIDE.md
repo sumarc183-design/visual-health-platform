@@ -278,7 +278,9 @@ python scripts/localization_analysis.py --data-root <IDRiD> --maps-dir results/l
 
 **À résolution égale** : `notebooks/kaggle_green_224.ipynb` (titre Kaggle : « Visual
 Health — RETFound-Green à 224 px »), puis `green_analysis.py --green-size 224 --out
-results/green_analysis_224.json`.
+results/green_analysis_224.json`. RETFound à 384 px :
+`notebooks/kaggle_retfound_384.ipynb` (titre Kaggle : « Visual Health — RETFound à 384
+px »), puis `green_analysis.py --retfound-size 384 --out results/green_analysis_retfound384.json`.
 
 ## Prédire sur une image nouvelle
 

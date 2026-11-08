@@ -85,11 +85,11 @@ avec Green. Résultats détaillés :
   obtenus après fine-tuning complet. Un fine-tuning partiel (4 derniers
   blocs) gagne +0,026 en test RFMiD (0,873) ; sur APTOS, son gain global
   (0,974 contre 0,827) disparaît à format égal (−0,012, non significatif), et
-  il ne fait pas mieux sur EyePACS (0,650 contre 0,661). RETFound-Green, non
-  servi ici, fait mieux en externe (EyePACS 0,726, APTOS 0,958, à tête égale),
-  sans gain démontré sur RFMiD et moins bon sur la DMLA (−0,065). `predict.py`
-  propose les deux modèles, avec une tête linéaire ; le fine-tuning n'y est
-  pas servi.
+  il ne fait pas mieux sur EyePACS (0,650 contre 0,661). RETFound-Green, servi
+  par `predict.py` au choix, fait mieux en externe à 392 px (EyePACS 0,726, APTOS
+  0,958, à tête égale), mais aucun gain n'est démontré à résolution égale (224 px :
+  EyePACS 0,680, +0,019 [−0,001 ; +0,038]). Il est moins bon sur la DMLA (−0,065).
+  Le fine-tuning n'est pas servi.
 - **Population et appareils** : jeux de données publics de quelques centres.
   Le format d'image, indicateur indirect de l'appareil, reste lisible dans les
   embeddings même avec `crop-mask`

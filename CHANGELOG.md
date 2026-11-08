@@ -9,6 +9,11 @@ selon [SemVer](https://semver.org/lang/fr/).
 - Green à résolution égale : `RETFoundGreenBackbone` accepte une autre taille
   d'image (encodages de position interpolés, 392 px inchangé),
   `green_analysis.py --green-size 224`, `notebooks/kaggle_green_224.ipynb`. 1 test.
+  Résultat du 8 nov. : EyePACS 0,680 contre 0,661 (+0,019 [−0,001 ; +0,038]),
+  APTOS à format égal +0,014 [−0,004 ; +0,030], test RFMiD +0,002 : aucun gain
+  démontré à 224 px. Fiche du modèle : « Green non servi » corrigé (audit du 6 nov.).
+- RETFound à 384 px : `green_analysis.py --retfound-size 384`,
+  `notebooks/kaggle_retfound_384.ipynb`.
 - `docs/DROITS_DONNEES.md` : licences des modèles et des données (fond d'œil, ISIC),
   et points à trancher pour un usage en entreprise.
 
