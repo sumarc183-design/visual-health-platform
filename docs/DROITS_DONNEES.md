@@ -11,8 +11,10 @@ trancher. Une licence peut changer : vérifier à nouveau avant tout usage comme
 - **Non commercial** : RETFound (CC BY-NC 4.0), RETFound-Green (licence propre, qui
   exclut aussi les projets impliquant une entreprise sauf accord écrit), la plupart des
   jeux ISIC (CC BY-NC).
-- **Non vérifié** : APTOS et EyePACS (règlements Kaggle illisibles sans connexion), ODIR
-  (aucune licence trouvée).
+- **Non commercial, et limité par un règlement de compétition** : APTOS (recherche
+  académique et enseignement), EyePACS (seulement pour la compétition et pendant sa durée,
+  d'après le texte). Les deux interdisent de publier ou redistribuer les données.
+- **Non vérifié** : ODIR (aucune licence trouvée).
 
 ## Modèles
 
@@ -28,11 +30,33 @@ trancher. Une licence peut changer : vérifier à nouveau avant tout usage comme
 | RFMiD | Entraînement et test | CC BY 4.0 | Possible avec attribution (doi:10.21227/s3g7-st65) | [IEEE DataPort](https://ieee-dataport.org/open-access/retinal-fundus-multi-disease-image-dataset-rfmid) | Licence du miroir Kaggle utilisé non lue |
 | IDRiD | Localisation | CC BY 4.0 (aussi dans le `LICENSE.txt` téléchargé) | Possible avec attribution (doi:10.21227/H25W98) | [IEEE DataPort](https://ieee-dataport.org/open-access/indian-diabetic-retinopathy-image-dataset-idrid) | — |
 | ODIR-5K | Entraînement et test | Aucune trouvée | Inconnu ; données fournies par Shanggong Medical Technology | [site du challenge](https://odir2019.grand-challenge.org/) | Lire la page de téléchargement, ou écrire à ODIR@sgex.cn |
-| APTOS 2019 | Validation externe | Règlement Kaggle non lu | Inconnu | [règlement](https://www.kaggle.com/competitions/aptos2019-blindness-detection/rules) | Lire l'onglet « Rules », connecté |
-| EyePACS (Kaggle 2015) | Validation externe | Règlement Kaggle non lu | Inconnu | [règlement](https://www.kaggle.com/competitions/diabetic-retinopathy-detection/rules) | Lire l'onglet « Rules », connecté |
+| APTOS 2019 | Validation externe | Règlement de compétition, section 7 | Exclu : usage non commercial seulement | [règlement](https://www.kaggle.com/competitions/aptos2019-blindness-detection/rules) | Voir ci-dessous |
+| EyePACS (Kaggle 2015) | Validation externe | Règlement de compétition, section « Data » | Exclu ; usage limité à la compétition et à sa durée | [règlement](https://www.kaggle.com/competitions/diabetic-retinopathy-detection/rules) | Voir ci-dessous |
 
 Les pages IEEE DataPort indiquent à la fois un accès ouvert aux utilisateurs connectés et
 un abonnement requis : à vérifier sur la page de téléchargement.
+
+### Règlements APTOS et EyePACS (lus le 8 novembre 2026)
+
+**APTOS 2019**, section 7 A : « You may access and use the Competition Data for
+non-commercial purposes only, including for participating in the Competition and on
+Kaggle.com forums, and for academic research and education. » Section 7 B : « You agree not
+to transmit, duplicate, publish, redistribute or otherwise provide or make available the
+Competition Data to any party not participating in the Competition. »
+
+**EyePACS** (California Healthcare Foundation, 2015) : « Participants must use the Data
+solely for the purpose and duration of the Competition [...] and agree not to transmit,
+duplicate, publish, redistribute or otherwise provide or make available the Data to any
+party not participating in the Competition. » Et : « participation in the Competition shall
+not be construed as having or being granted a license [...] in any of the Data. »
+
+Conséquences à trancher :
+- EyePACS : le texte ne prévoit aucun usage après la compétition, même de recherche. Notre
+  validation externe sort a priori de ce cadre.
+- APTOS : recherche académique et enseignement seulement ; un projet d'entreprise n'est
+  pas clairement couvert.
+- Les deux : les étiquettes et les identifiants d'images font partie des données. Plusieurs
+  fichiers de `results/` publiés en contiennent (stade par image).
 
 ## Dermatologie (seconde indication, J60)
 
@@ -59,6 +83,7 @@ dermoscopie : la tâche et la qualité d'image diffèrent des autres jeux ISIC.
    RETFound-Green ? Si oui : accord écrit de l'auteur, ou abandon de Green.
 2. RETFound étant non commercial, quel modèle de base pour un produit vendu : licence des
    auteurs, autre modèle, ou préentraînement sur des données propres ?
-3. Règlements Kaggle d'APTOS et d'EyePACS, et licence d'ODIR.
+3. APTOS et EyePACS : retirer les étiquettes publiées dans `results/` (et de l'historique
+   git ?), et décider si ces bases peuvent rester dans le projet. Licence d'ODIR.
 4. Pour la dermatologie : partir de SLICE-3D Permissive (compatible a priori) ou des jeux
    CC BY-NC (plus proches de la dermoscopie classique) ?
