@@ -189,6 +189,14 @@ identique pour toutes les images :
 Le prétraitement est enregistré dans la tête (`--save-head`) : Grad-CAM et
 l'occlusion rechargent les images de la même façon.
 
+## Notebooks et dépôt privé
+
+Les notebooks clonent le dépôt GitHub. Si le dépôt est privé, créer un jeton GitHub à
+granularité fine, limité à ce dépôt et en lecture seule (« Contents : Read-only »), et
+l'ajouter aux Secrets Colab ou Kaggle sous le nom `GITHUB_TOKEN`. Le jeton n'est jamais
+affiché, même si le clonage échoue. Pour rejouer un run à l'identique, remplacer
+`REVISION = "main"` par le commit voulu.
+
 ## Validation externe (APTOS 2019)
 
 Pour savoir si la détection de la rétinopathie diabétique tient sur une
