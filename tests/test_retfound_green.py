@@ -29,6 +29,17 @@ def test_loads_weights_and_stays_frozen(checkpoint):
     assert not any(p.requires_grad for p in backbone.parameters())
 
 
+def test_weights_load_at_another_resolution(checkpoint):
+    """Poids prévus pour 98 px chargés à 70 px : encodages de position interpolés,
+    le reste identique."""
+    small = RETFoundGreenBackbone(checkpoint, img_size=70)
+    native = RETFoundGreenBackbone(checkpoint, img_size=SIZE)
+    assert small.backbone.pos_embed.shape[1] == 25 and native.backbone.pos_embed.shape[1] == 49
+    name = "blocks.0.attn.proj.weight"
+    assert torch.equal(small.backbone.state_dict()[name], native.backbone.state_dict()[name])
+    assert small(torch.rand(1, 3, 70, 70)).shape == (1, GREEN_EMBEDDING_DIM)
+
+
 def test_embedding_is_the_mean_of_patch_tokens_without_prefix_tokens(checkpoint):
     backbone = RETFoundGreenBackbone(checkpoint, img_size=SIZE)
     x = torch.randn(2, 3, SIZE, SIZE)

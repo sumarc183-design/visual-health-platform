@@ -276,6 +276,10 @@ python scripts/localization_analysis.py --data-root <IDRiD> --maps-dir results/l
     --out results/localization_idrid.json
 ```
 
+**À résolution égale** : `notebooks/kaggle_green_224.ipynb` (titre Kaggle : « Visual
+Health — RETFound-Green à 224 px »), puis `green_analysis.py --green-size 224 --out
+results/green_analysis_224.json`.
+
 ## Prédire sur une image nouvelle
 
 ```bash

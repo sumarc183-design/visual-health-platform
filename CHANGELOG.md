@@ -6,6 +6,9 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Green à résolution égale : `RETFoundGreenBackbone` accepte une autre taille
+  d'image (encodages de position interpolés, 392 px inchangé),
+  `green_analysis.py --green-size 224`, `notebooks/kaggle_green_224.ipynb`. 1 test.
 - `docs/DROITS_DONNEES.md` : licences des modèles et des données (fond d'œil, ISIC),
   et points à trancher pour un usage en entreprise.
 

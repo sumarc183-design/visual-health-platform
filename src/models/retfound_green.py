@@ -12,6 +12,7 @@ from pathlib import Path
 import timm
 import torch
 import torch.nn as nn
+from timm.layers import resample_abs_pos_embed
 
 GREEN_IMAGE_SIZE = 392
 GREEN_EMBEDDING_DIM = 384
@@ -29,12 +30,17 @@ class RETFoundGreenBackbone(nn.Module):
 
     def __init__(self, checkpoint_path: str | Path, img_size: int = GREEN_IMAGE_SIZE):
         super().__init__()
-        self.backbone = timm.create_model(
-            "vit_small_patch14_reg4_dinov2",
-            img_size=(img_size, img_size),
-            num_classes=0,
-            checkpoint_path=str(checkpoint_path),
-        )
+        self.backbone = timm.create_model("vit_small_patch14_reg4_dinov2", img_size=(img_size, img_size), num_classes=0)
+        state = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+        grid = self.backbone.patch_embed.grid_size
+        if state["pos_embed"].shape != self.backbone.pos_embed.shape:
+            # Autre résolution que celle des poids (392 px) : encodages de position
+            # interpolés (pratique courante de timm). Green n'a pas été entraîné ainsi.
+            side = int(round(state["pos_embed"].shape[1] ** 0.5))
+            state["pos_embed"] = resample_abs_pos_embed(
+                state["pos_embed"], new_size=list(grid), old_size=[side, side], num_prefix_tokens=0
+            )
+        self.backbone.load_state_dict(state, strict=True)
         self.backbone.global_pool = "avg"  # comme le dépôt d'origine
         for param in self.backbone.parameters():
             param.requires_grad = False

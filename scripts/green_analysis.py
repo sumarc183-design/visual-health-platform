@@ -28,6 +28,13 @@ Deux réserves sur l'indépendance : le pré-entraînement de RETFound inclut
 Kaggle EyePACS, ce qui pourrait l'avantager sur cette base ; celui de Green
 inclut ODIR, d'où l'absence d'ODIR ici (article de Green, Supp. Table 1).
 
+Résolution égale (`--green-size 224`, plan fixé le 8 novembre avant tout run) :
+Green reçoit des images de 224 px, comme RETFound, avec ses encodages de position
+interpolés depuis 392 px. Question : son avantage externe (EyePACS, APTOS à format
+égal) tient-il à résolution égale ? Même plan que ci-dessus, résultats dans un
+fichier séparé. Réserve : Green n'a pas été entraîné à 224 px ; une baisse peut venir
+de la résolution comme de l'interpolation.
+
 Exemple :
     python scripts/green_analysis.py --rfmid-root data/raw/rfmid --embeddings embeddings \\
         --out results/green_analysis.json
@@ -59,10 +66,11 @@ from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache  # noqa: E402
 from src.models.retfound_green import GREEN_IMAGE_SIZE  # noqa: E402
 
-GREEN_FILE = "{}_crop-mask_392_retfoundgreen_statedict.npz"
+GREEN_FILE = "{}_crop-mask_{size}_retfoundgreen_statedict.npz"
 RETFOUND_FILE = "{}_crop-mask_224_" + CHECKPOINT_STEM + ".npz"
 FILES = {"RETFound": RETFOUND_FILE, "RETFound-Green": GREEN_FILE}
 GREEN_CHECKPOINT_SHA = "431de5dbc1bebbb3"
+GREEN_SIZE = {"value": GREEN_IMAGE_SIZE}  # --green-size
 
 
 def cached(directory: Path, model: str, dataset: str, keys: list[str]) -> np.ndarray:
@@ -72,9 +80,13 @@ def cached(directory: Path, model: str, dataset: str, keys: list[str]) -> np.nda
         "checkpoint_sha256": GREEN_CHECKPOINT_SHA if model == "RETFound-Green" else None,
         "preprocess": "crop-mask",
         "preprocess_version": PREPROCESS_VERSION,
-        "image_size": GREEN_IMAGE_SIZE if model == "RETFound-Green" else 224,
+        "image_size": GREEN_SIZE["value"] if model == "RETFound-Green" else 224,
     }
-    return EmbeddingCache(directory / FILES[model].format(dataset), meta=meta).get(keys).astype(np.float32)
+    return (
+        EmbeddingCache(directory / FILES[model].format(dataset, size=GREEN_SIZE["value"]), meta=meta)
+        .get(keys)
+        .astype(np.float32)
+    )
 
 
 def external_labels(directory: Path, name: str) -> pd.DataFrame:
@@ -177,9 +189,17 @@ def main() -> None:
     parser.add_argument("--rfmid-root", type=Path, required=True)
     parser.add_argument("--embeddings", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--green-size", type=int, default=GREEN_IMAGE_SIZE, help="392 (natif) ou 224 (résolution égale)"
+    )
     args = parser.parse_args()
+    GREEN_SIZE["value"] = args.green_size
 
-    report = {"run": run_info(), "rfmid": rfmid_comparison(args.rfmid_root, args.embeddings)}
+    report = {
+        "run": run_info(),
+        "green_image_size": args.green_size,
+        "rfmid": rfmid_comparison(args.rfmid_root, args.embeddings),
+    }
     archive: dict = {}
     for split in ("val", "test"):
         r = report["rfmid"][split]
@@ -205,7 +225,8 @@ def main() -> None:
                 print(f"  Green − RETFound, {label}, {kind} : {d['diff']:+.3f} [{d['ci'][0]:+.3f} ; {d['ci'][1]:+.3f}]")
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
-    np.savez_compressed(args.out.parent / "green_predictions.npz", **archive)
+    suffix = "" if args.green_size == GREEN_IMAGE_SIZE else f"_{args.green_size}"
+    np.savez_compressed(args.out.parent / f"green_predictions{suffix}.npz", **archive)
     print(f"Résultats : {args.out}")
 
 
