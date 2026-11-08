@@ -5,6 +5,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Ajouté
+- `docs/DROITS_DONNEES.md` : licences des modèles et des données (fond d'œil, ISIC),
+  et points à trancher pour un usage en entreprise.
+
 ## [1.1.0] — 2026-11-06
 
 ### Ajouté
