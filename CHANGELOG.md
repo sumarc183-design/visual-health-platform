@@ -26,7 +26,6 @@ selon [SemVer](https://semver.org/lang/fr/).
   commit, Python et versions des bibliothèques. Avec `--external-only`, provenance
   de l'évaluation et empreinte de l'artefact séparées du run d'entraînement.
   Deux cas de test ajoutés ; suite complète : 132 tests réussis le 9 novembre.
-- `AGENTS.md` : consignes de commits locaux sans push, fichiers exclus et jalons fixes.
 - Dermatologie, socle initial : `src/data/isic_dataset.py` (ISIC 2019, groupes par lésion),
   `src/models/timm_backbones.py` (DINOv2 ; Green y passe, résultats inchangés),
   `extract_embeddings.py --dataset isic2019 --backbone dinov2`. 3 tests.

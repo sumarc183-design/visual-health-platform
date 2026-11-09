@@ -20,3 +20,6 @@ results/localization/localization_*.npz
 
 # Scores par image avec les étiquettes APTOS/EyePACS : ne pas publier (règlements Kaggle)
 results/green_predictions_*.npz
+
+# Consignes locales des agents (jamais versionnées)
+/AGENTS.md
