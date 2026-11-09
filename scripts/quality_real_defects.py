@@ -16,9 +16,11 @@ est signalé, intervalles binomiaux exacts à 95 %. AUROC par image ; bootstrap
 par patient (500 tirages), intervalle absent si moins de 10 patients positifs
 ou négatifs. Évaluation de mots-clés source, pas d'une vérité clinique.
 
---prepare-only prépare 24 images du train avec codes anonymes, sans mots-clés
-ni scores visibles. Les préannotations visuelles restent locales et provisoires ;
-elles ne servent ni à régler le seuil ni à mesurer les performances.
+--prepare-only prépare la relecture du train avec codes anonymes, sans mots-clés
+ni scores visibles : toutes les images à mot-clé de qualité (hors poussière), autant
+de témoins tirés au hasard, mélangés (série équilibrée depuis le 9 novembre ; la
+première série, 18 cas pour 6 témoins, orientait le relecteur). Les relectures restent
+locales ; elles ne servent ni à régler le seuil ni à mesurer les performances.
 """
 
 from __future__ import annotations
@@ -122,16 +124,22 @@ def evaluate_target(records: list[dict], tag: str, threshold: float) -> dict:
     return out
 
 
-def prepare_review(records: list[dict], images: Path, directory: Path, seed: int) -> None:
-    directory.mkdir(parents=True, exist_ok=True)
+def review_selection(records: list[dict], seed: int) -> list[dict]:
+    """Relecture à l'aveugle : tous les cas du train (mot-clé de qualité hors poussière)
+    et autant de témoins sans mot-clé tirés au hasard, dans un ordre aléatoire."""
     train = [r for r in records if r["split"] == "train"]
     cases = [r for r in train if any(t in r["tags"] for t in QUALITY_TAGS if t != "lens dust")]
     controls = [r for r in train if not r["tags"]]
+    if len(controls) < len(cases):
+        raise ValueError(f"{len(controls)} témoins pour {len(cases)} cas : série non équilibrée")
     rng = np.random.default_rng(seed)
-    chosen = cases[:24] + [
-        controls[i] for i in rng.choice(len(controls), min(max(0, 24 - len(cases)), len(controls)), False)
-    ]
-    rng.shuffle(chosen)
+    chosen = cases + [controls[i] for i in sorted(rng.choice(len(controls), len(cases), replace=False))]
+    return [chosen[i] for i in rng.permutation(len(chosen))]
+
+
+def prepare_review(records: list[dict], images: Path, directory: Path, seed: int) -> None:
+    directory.mkdir(parents=True, exist_ok=True)
+    chosen = review_selection(records, seed)
     mapping = {f"Q{i + 1:02d}": r["filename"] for i, r in enumerate(chosen)}
     mapping_path = directory / "review_mapping.json"
     if mapping_path.exists() and json.loads(mapping_path.read_text()) != mapping:
@@ -163,7 +171,7 @@ def prepare_review(records: list[dict], images: Path, directory: Path, seed: int
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--odir-root", type=Path, required=True)
-    parser.add_argument("--local-dir", type=Path, default=Path("data/quality_review"))
+    parser.add_argument("--local-dir", type=Path, default=Path("data/quality_review_v2"))
     parser.add_argument("--out", type=Path, default=Path("results/quality_real_defects.json"))
     parser.add_argument("--controls", type=int, default=120)
     parser.add_argument("--seed", type=int, default=0)

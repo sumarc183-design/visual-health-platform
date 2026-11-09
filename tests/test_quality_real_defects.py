@@ -26,3 +26,18 @@ def test_auc_interval_is_withheld_for_too_few_positive_patients():
     result = auc_with_groups(rows, y, y.astype(float))
     assert result["value"] == pytest.approx(1)
     assert result["ci"] is None and "moins de 10" in result["reason"]
+
+
+def test_review_selection_is_balanced_and_mixed():
+    from scripts.quality_real_defects import review_selection
+
+    cases = [{"split": "train", "tags": ["low image quality"], "filename": f"c{i}"} for i in range(5)]
+    dust = [{"split": "train", "tags": ["lens dust"], "filename": f"d{i}"} for i in range(5)]
+    controls = [{"split": "train", "tags": [], "filename": f"t{i}"} for i in range(40)]
+    val = [{"split": "val", "tags": ["low image quality"], "filename": "v0"}]
+    chosen = review_selection(cases + dust + controls + val, seed=0)
+    names = [r["filename"] for r in chosen]
+    assert sum(n.startswith("c") for n in names) == 5 and sum(n.startswith("t") for n in names) == 5
+    assert not any(n.startswith(("d", "v")) for n in names)
+    assert names[:5] != [f"c{i}" for i in range(5)]  # cas et témoins mélangés
+    assert review_selection(cases + dust + controls + val, seed=0) == chosen  # reproductible
