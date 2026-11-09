@@ -72,3 +72,44 @@ La suite complète précédente comptait 132 tests réussis avant l'ajout de cet
 brique ; elle n'a pas été relancée depuis. Le diagnostic n'améliore pas encore
 la détection mesurée de défauts réels : les annotations et l'évaluation distincte
 restent à faire.
+
+## Défauts réels : protocole exploratoire du 9 novembre
+
+Plan fixé avant le calcul des scores réels, dans `scripts/quality_real_defects.py`.
+Les annotations techniques viennent du `data.xlsx` original, y compris les yeux
+retirés de `full_df.csv`. Les patients gardent leur split du projet. Les patients
+du test et ceux absents du CSV nettoyé sont exclus ; leurs images ne sont pas ouvertes.
+
+- Tous les yeux avec un des six mots-clés techniques source sont conservés ;
+  120 yeux témoins sont tirés par split (graine 0). Un patient avec un défaut
+  connu ne peut pas devenir témoin par l'autre œil.
+- Critère principal : annotation source « low image quality ». Secondaire :
+  « lens dust ». Ces mots-clés ne décrivent pas spécifiquement l'exposition ;
+  leur absence ne certifie pas une image de bonne qualité.
+- Nouvelle alarme exploratoire : luminance moyenne sous le percentile 2 des
+  témoins du train. Comparateur : seuil de flou existant 4,16. Leur union est
+  rapportée sans réglage supplémentaire. Le pipeline de prédiction reste inchangé.
+- Évaluation sur les patients de validation : patient signalé si au moins un
+  œil sélectionné est signalé. Sensibilité et fausses alertes ont des intervalles
+  binomiaux exacts à 95 %. L'AUROC est calculée par image, avec bootstrap par
+  patient (500 tirages) ; aucun IC d'AUROC si une classe compte moins de 10 patients.
+- Les comptes source disponibles annoncent seulement 2 yeux « low image quality »
+  en validation : aucune conclusion solide ne pourra être tirée sur ce critère.
+  L'échantillon est enrichi en défauts ; il n'estime pas la prévalence réelle.
+- Une revue visuelle de 24 images du train utilise des codes anonymes, sans
+  affichage des mots-clés ni des scores. Les préannotations techniques sont
+  provisoires, sans avis clinique, et restent sous `data/quality_review/`, hors Git.
+  Elles ne servent ni à calibrer le seuil ni à évaluer la validation.
+
+Préparation locale :
+
+```bash
+"../.venv-audit/bin/python" scripts/quality_real_defects.py \
+    --odir-root data/raw/odir --prepare-only
+```
+
+Calcul après revue, sans sélection de variante selon le résultat : même commande
+sans `--prepare-only`. Le JSON ne contient que des agrégats et les empreintes
+de provenance ; images, mots-clés par œil, mesures individuelles et préannotations
+restent locaux. Cette analyse reste exploratoire : les mots-clés et la validation
+ODIR ont déjà été examinés dans des travaux antérieurs du projet.
