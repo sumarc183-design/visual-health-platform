@@ -6,7 +6,17 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
-- Dermatologie, sans run : `src/data/isic_dataset.py` (ISIC 2019, groupes par lésion),
+- Résultats dermatologiques ISIC 2019 (9 nov.) : PanDerm-Large, DINOv2-L et
+  DINOv2-B figés, même sonde linéaire et protocole défini avant le run.
+  PanDerm − DINOv2-L : AUROC macro +0,037 [+0,030 ; +0,043] sur le test officiel.
+  Résultats, gains par classe et réserves dans `docs/DERMATOLOGIE.md` ; JSON archivé,
+  scores individuels conservés localement.
+- Provenance des prochains rapports de neuf scripts d'analyse et de fine-tuning :
+  commit, Python et versions des bibliothèques. Avec `--external-only`, provenance
+  de l'évaluation et empreinte de l'artefact séparées du run d'entraînement.
+  Deux cas de test ajoutés ; suite complète : 132 tests réussis le 9 novembre.
+- `AGENTS.md` : consignes de commits locaux sans push, fichiers exclus et jalons fixes.
+- Dermatologie, socle initial : `src/data/isic_dataset.py` (ISIC 2019, groupes par lésion),
   `src/models/timm_backbones.py` (DINOv2 ; Green y passe, résultats inchangés),
   `extract_embeddings.py --dataset isic2019 --backbone dinov2`. 3 tests.
 - `load_embeddings` : chargeur d'embeddings commun aux analyses (configuration et

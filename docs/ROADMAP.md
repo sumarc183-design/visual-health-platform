@@ -1,6 +1,9 @@
 # Roadmap Visual Health
 
-## J30 — Socle
+État au 9 novembre 2026. Échéances fixes : J30 le 1er décembre 2026,
+J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
+
+## J30 — Socle (1er décembre 2026)
 
 > Atteint au sens « première baseline » (4 nov.). Pas encore un socle
 > opérationnel : contrôle qualité limité au flou et à la résolution (seuil
@@ -15,15 +18,22 @@
 - [x] Protocole d'évaluation (2026-11-03) : IC à 95 % par bootstrap (patients pour ODIR, images pour RFMiD), prédictions sauvegardées, comparaison appariée entre variantes, test ODIR mis de côté (70/15/15), cache d'embeddings
 - [x] Prétraitement commun `crop-mask` (2026-11-04) : +0,020 d'AUROC sur ODIR (significatif), neutre sur RFMiD, raccourci DMLA réduit sur les exemples examinés (92 % → 5 % de l'effet hors rétine) ; test final : RFMiD 0,846, ODIR 0,848
 - [x] Tête (2026-11-04) : balayage de 24 configurations × 6 durées (régularisation, pondération des classes rares, standardisation, 5 à 50 epochs), sur la validation seulement : pas de gain démontré (+0,003 RFMiD, +0,007 ODIR au mieux, maxima biaisés vers le haut). Archivé : `scripts/sweep_head.py`, `results/sweep_head_*.json`. Tête inchangée
+- [ ] Contrôle qualité au-delà du flou et de la résolution : définir des défauts
+  annotés et mesurer leur détection avant d'ajouter des règles de rejet.
+- [ ] Identification de modalité : constituer un jeu étiqueté, entraîner et évaluer
+  le classifieur avant son intégration au parcours de prédiction.
 
-## J60 — Localisation
+## J60 — Localisation (31 décembre 2026)
 - [x] Localisation/segmentation des zones suspectes (6 nov., première mesure sur IDRiD) : occlusion contre masques d'experts, segmentation par case sur tokens de patch, RETFound et Green ; disque optique AP 0,919, exsudats durs 0,651 (Green, 27 images de test). Pas de validation externe ni d'intégration à `predict.py`.
-- [ ] Seconde indication amorcée (dermatologie via ISIC)
+- [x] Seconde indication amorcée (9 nov., dermatologie sur ISIC 2019) : PanDerm,
+  DINOv2-L et DINOv2-B figés ; gain principal d'AUROC macro de PanDerm sur
+  DINOv2-L +0,037 [+0,030 ; +0,043] sur le test officiel. Sonde linéaire uniquement,
+  recouvrement de préentraînement possible ; [résultats et réserves](DERMATOLOGIE.md#résultats).
 - [ ] Score de confiance calibré (avancé le 4 nov. : probabilités déjà bien calibrées, ECE ≈ 0,02-0,03, seuils par maladie choisis sur la validation ; reste la validation clinique du compromis)
 
 - [ ] Protocole de confirmation daté avant toute nouvelle lecture (audit du 6 nov.) : variantes figées, et lot de patients EyePACS encore jamais examinés. Les bases actuelles sont exploratoires.
 
-## J90 — Modularité démontrée
+## J90 — Modularité démontrée (30 janvier 2027)
 - [ ] Socle modulaire validé sur 2 modalités (rétine + dermato)
 - [ ] Dossier d'accès AI-Hub (étude TSA/rétine) avancé
 - [ ] Note de synthèse pour arbitrage de la 3e indication
