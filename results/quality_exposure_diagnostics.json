@@ -1,0 +1,185 @@
+{
+  "run": {
+    "git_commit": "c7f8155",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.30"
+    }
+  },
+  "plan_date": "2026-11-09",
+  "dataset": "ODIR",
+  "split": "train",
+  "seed": 0,
+  "images": 120,
+  "input_sample_sha256": "e3a363a52b52585a36f0abe117e1c2053a356059efa9775622499ddffbe99e1f",
+  "preprocess": "crop-mask",
+  "preprocess_version": 1,
+  "analysis_size": 512,
+  "mask": "retina_blur_mask (champ intérieur, géométrie fixée avant perturbation)",
+  "luminance_scale": [
+    0,
+    255
+  ],
+  "dark_level_inclusive": 10,
+  "bright_level_inclusive": 245,
+  "rgb_gains": {
+    "0.25": {
+      "mean_luminance": {
+        "median": 23.484107252141982,
+        "quartiles": [
+          18.724999043757652,
+          29.77314903355773
+        ]
+      },
+      "median_luminance": {
+        "median": 23.0,
+        "quartiles": [
+          18.0,
+          29.0
+        ]
+      },
+      "dark_pixel_share": {
+        "median": 0.0,
+        "quartiles": [
+          0.0,
+          0.023888527641778866
+        ]
+      },
+      "bright_pixel_share": {
+        "median": 0.0,
+        "quartiles": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "0.5": {
+      "mean_luminance": {
+        "median": 47.01176496838025,
+        "quartiles": [
+          37.40418929773562,
+          59.54883529681763
+        ]
+      },
+      "median_luminance": {
+        "median": 45.5,
+        "quartiles": [
+          35.75,
+          57.25
+        ]
+      },
+      "dark_pixel_share": {
+        "median": 0.0,
+        "quartiles": [
+          0.0,
+          0.0
+        ]
+      },
+      "bright_pixel_share": {
+        "median": 0.0,
+        "quartiles": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "1.0": {
+      "mean_luminance": {
+        "median": 93.99325211648306,
+        "quartiles": [
+          74.78211699306405,
+          119.08715670899633
+        ]
+      },
+      "median_luminance": {
+        "median": 91.0,
+        "quartiles": [
+          71.5,
+          114.5
+        ]
+      },
+      "dark_pixel_share": {
+        "median": 0.0,
+        "quartiles": [
+          0.0,
+          0.0
+        ]
+      },
+      "bright_pixel_share": {
+        "median": 0.0,
+        "quartiles": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "1.5": {
+      "mean_luminance": {
+        "median": 140.25736625356998,
+        "quartiles": [
+          110.39427625203999,
+          173.57084799571604
+        ]
+      },
+      "median_luminance": {
+        "median": 136.5,
+        "quartiles": [
+          107.25,
+          168.25
+        ]
+      },
+      "dark_pixel_share": {
+        "median": 0.0,
+        "quartiles": [
+          0.0,
+          0.0
+        ]
+      },
+      "bright_pixel_share": {
+        "median": 0.0,
+        "quartiles": [
+          0.0,
+          0.005764547633618931
+        ]
+      }
+    },
+    "2.0": {
+      "mean_luminance": {
+        "median": 174.60656683496532,
+        "quartiles": [
+          143.06863110720116,
+          206.82060096644227
+        ]
+      },
+      "median_luminance": {
+        "median": 175.5,
+        "quartiles": [
+          141.5,
+          207.75
+        ]
+      },
+      "dark_pixel_share": {
+        "median": 0.0,
+        "quartiles": [
+          0.0,
+          0.0
+        ]
+      },
+      "bright_pixel_share": {
+        "median": 0.006649071807425541,
+        "quartiles": [
+          0.0004892773357813138,
+          0.08327755252957977
+        ]
+      }
+    }
+  },
+  "limitations": [
+    "Diagnostic descriptif sur des perturbations synthétiques du train ; aucune validation clinique.",
+    "Aucune annotation de qualité réelle utilisée ; aucune performance de détection estimée.",
+    "Aucun seuil de rejet choisi ; contrôle qualité et prédictions inchangés."
+  ]
+}

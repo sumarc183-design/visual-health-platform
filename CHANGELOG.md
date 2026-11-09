@@ -6,6 +6,11 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Diagnostic exploratoire d'exposition (J30) : `src/pipeline/exposure.py`,
+  `scripts/quality_exposure_diagnostics.py` et `docs/QUALITE_EXPOSITION.md`.
+  Premier calcul sur 120 images du train ODIR, cinq perturbations RGB fixées
+  avant le run ; statistiques agrégées, sans nouveau seuil ni règle de rejet.
+  Six cas de test ajoutés ; 15 tests ciblés exposition/qualité réussis.
 - Résultats dermatologiques ISIC 2019 (9 nov.) : PanDerm-Large, DINOv2-L et
   DINOv2-B figés, même sonde linéaire et protocole défini avant le run.
   PanDerm − DINOv2-L : AUROC macro +0,037 [+0,030 ; +0,043] sur le test officiel.

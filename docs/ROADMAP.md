@@ -20,6 +20,8 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
 - [x] Tête (2026-11-04) : balayage de 24 configurations × 6 durées (régularisation, pondération des classes rares, standardisation, 5 à 50 epochs), sur la validation seulement : pas de gain démontré (+0,003 RFMiD, +0,007 ODIR au mieux, maxima biaisés vers le haut). Archivé : `scripts/sweep_head.py`, `results/sweep_head_*.json`. Tête inchangée
 - [ ] Contrôle qualité au-delà du flou et de la résolution : définir des défauts
   annotés et mesurer leur détection avant d'ajouter des règles de rejet.
+  Diagnostic descriptif d'exposition préparé et exécuté le 9 novembre sur
+  120 images du train ODIR ; [protocole et limites](QUALITE_EXPOSITION.md).
 - [ ] Identification de modalité : constituer un jeu étiqueté, entraîner et évaluer
   le classifieur avant son intégration au parcours de prédiction.
 
