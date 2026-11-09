@@ -650,7 +650,7 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 | APTOS 2019 | Transfert de la rétinopathie diabétique |
 | EyePACS | Transfert de la rétinopathie diabétique (2 500 patients) |
 | IDRiD | Localisation : 81 images avec masques d'experts |
-| ISIC | Dermatologie, seconde modalité (à venir) |
+| ISIC 2019 | Dermatologie, seconde indication : run réalisé ; PanDerm − DINOv2-L, AUROC macro +0,037 [+0,030 ; +0,043] sur le test ([résultats](docs/DERMATOLOGIE.md#résultats)) |
 | AI-Hub | Dépistage TSA depuis la rétine (à venir, accès à négocier) |
 
 Arbitrage des cas d'usage : [docs/USE_CASES.md](docs/USE_CASES.md).
@@ -681,7 +681,7 @@ docs/                   guide, carte du modèle, roadmap, cas d'usage
 | [MODEL_CARD.md](docs/MODEL_CARD.md) | Usage prévu, données, métriques, limites |
 | [ROADMAP.md](docs/ROADMAP.md) | Jalons J30 / J60 / J90 |
 | [USE_CASES.md](docs/USE_CASES.md) | Arbitrage entre fond d'œil, dermatologie et TSA |
-| [DERMATOLOGIE.md](docs/DERMATOLOGIE.md) | Seconde indication : choix des modèles et des données, avant tout run |
+| [DERMATOLOGIE.md](docs/DERMATOLOGIE.md) | Seconde indication : plan fixé avant le run et résultats ISIC 2019 ; gain d'AUROC macro de PanDerm sur DINOv2-L de +0,037 [+0,030 ; +0,043] |
 | [DROITS_DONNEES.md](docs/DROITS_DONNEES.md) | Licences des modèles et des données, points à trancher pour un usage en entreprise |
 | [CHANGELOG.md](CHANGELOG.md) | Historique des versions |
 

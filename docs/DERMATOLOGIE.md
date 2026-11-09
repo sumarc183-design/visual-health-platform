@@ -107,6 +107,16 @@ Chaque valeur est suivie de son intervalle à 95 %. Les mesures sont sur l'éche
 | DINOv2 ViT-L/14 | 0,881 [0,874 ; 0,888] | 0,439 [0,421 ; 0,459] |
 | DINOv2 ViT-B/14 | 0,872 [0,864 ; 0,880] | 0,441 [0,422 ; 0,460] |
 
+L'exactitude équilibrée de 0,44 à 0,50 s'explique en partie par la construction
+de la tête : chaque classe est prédite séparément, sans pondération compensant
+le déséquilibre des classes, puis la classe au score le plus haut est retenue
+(argmax). Les classes rares sont donc peu choisies : le dermatofibrome (DF,
+91 images du test) est prédit sur 52 à 84 images selon le modèle, et les lésions
+vasculaires (VASC, 104 images) sur 41 à 44 images. Cela pénalise leurs rappels et
+la moyenne des rappels. L'AUROC macro, qui évalue le classement des scores par
+classe sans cette décision par argmax, reste la mesure principale ; cette
+explication ne modifie ni la tête ni l'analyse.
+
 | Différence appariée | AUROC macro | Exactitude équilibrée |
 |---|---|---|
 | **PanDerm − DINOv2-L (principale)** | **+0,037 [+0,030 ; +0,043]** | **+0,061 [+0,040 ; +0,084]** |
@@ -118,6 +128,28 @@ un gain mesurable dans ce protocole, à taille de modèle comparable. Le passage
 DINOv2-B à DINOv2-L améliore aussi l'AUROC sur le test, sans gain démontré en
 exactitude équilibrée. Ces comparaisons secondaires restent distinctes du critère
 principal fixé avant le run.
+
+### Gains par classe et validation
+
+Sur le test, PanDerm dépasse DINOv2-L en AUROC sur les huit classes en estimation
+ponctuelle. Les gains les plus élevés concernent SCC, BKL, VASC et AK ; le plus
+faible concerne DF, dont l'intervalle inclut zéro : aucun gain n'est démontré
+pour cette classe seule.
+
+| Classe | PanDerm − DINOv2-L, AUROC [IC à 95 %] |
+|---|---|
+| Mélanome (MEL) | +0,030 [+0,021 ; +0,039] |
+| Nævus (NV) | +0,016 [+0,011 ; +0,021] |
+| Carcinome basocellulaire (BCC) | +0,023 [+0,016 ; +0,029] |
+| Kératose actinique (AK) | +0,046 [+0,028 ; +0,063] |
+| Kératose bénigne (BKL) | +0,058 [+0,042 ; +0,075] |
+| Dermatofibrome (DF) | +0,007 [−0,016 ; +0,026] |
+| Lésions vasculaires (VASC) | +0,048 [+0,019 ; +0,081] |
+| Carcinome épidermoïde (SCC) | +0,066 [+0,041 ; +0,093] |
+
+La validation va dans le même sens : PanDerm dépasse aussi DINOv2-L en AUROC
+macro, avec **+0,038 [+0,021 ; +0,055]**. Cette concordance renforce le constat,
+sans remplacer la comparaison principale sur le test officiel.
 
 ### Réserves et traçabilité
 
@@ -134,8 +166,14 @@ principal fixé avant le run.
   Python 3.12.7, NumPy 1.26.4, scikit-learn 1.9.1, torch 2.2.2 et timm 1.0.30.
 - Empreintes déclarées dans les caches : PanDerm `23405e92f853c6f7`, DINOv2-L
   `0d3a8369d3cb28e6`, DINOv2-B `388c468b37acb34e`. Celle de PanDerm correspond à
-  l'empreinte attendue ; celles de DINOv2 ne sont pas vérifiées contre les poids
-  locaux, absents sur cette machine.
+  l'empreinte attendue. Les poids DINOv2-B sont présents dans
+  `third_party/dinov2/dinov2_vitb14_timm.pth`, avec une empreinte locale
+  `ba7954cb2db99604`, différente de celle du fichier du run Kaggle. Les poids ont
+  été réenregistrés sur Kaggle : deux sérialisations des mêmes tenseurs ne donnent
+  pas nécessairement le même fichier ni la même empreinte. Cette différence ne
+  démontre donc pas une différence de poids ; leur équivalence n'a pas été vérifiée
+  par comparaison des tenseurs. L'empreinte DINOv2-L n'est pas vérifiée contre un
+  fichier de poids local.
 - Contrôles : archive ZIP intègre ; mêmes 31 522 clés uniques dans les trois
   caches, embeddings finis ; cohérence des moyennes macro, différences, intervalles
   et dimensions des scores ; 7 tests ciblés ISIC/analyse réussis ; lint et format
