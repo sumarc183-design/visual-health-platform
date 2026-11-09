@@ -120,9 +120,11 @@ CHECKPOINT_STEMS = {
     "retfound": "RETFound_mae_natureCFP",
     "green": "retfoundgreen_statedict",
     "dinov2": "dinov2_vitb14_timm",
+    "dinov2-large": "dinov2_vitl14_timm",
+    "panderm": "panderm_large",
 }
-KNOWN_CHECKPOINTS = {"green": "431de5dbc1bebbb3"}
-NATIVE_SIZES = {"retfound": 224, "green": 392, "dinov2": 224}
+KNOWN_CHECKPOINTS = {"green": "431de5dbc1bebbb3", "panderm": "23405e92f853c6f7"}  # PanDerm : fichier Google Drive
+NATIVE_SIZES = {"retfound": 224, "green": 392, "dinov2": 224, "dinov2-large": 224, "panderm": 224}
 
 
 def load_embeddings(

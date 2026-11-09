@@ -12,6 +12,11 @@ test officiel ne donne pas d'identifiant de lésion : bootstrap par image.
 
 Structure attendue sous `root` : ISIC_2019_Training_Input/, ISIC_2019_Test_Input/
 (images .jpg) et les quatre CSV officiels (GroundTruth et Metadata, Training et Test).
+
+Images : protocole d'évaluation de PanDerm (petit côté à 256 px pour une sortie de
+224, puis recadrage central), le même pour tous les modèles comparés. Les images
+ISIC ne sont pas carrées (600 × 450, 1 024 × 768...) : un redimensionnement simple
+les déformerait.
 """
 
 from __future__ import annotations
@@ -21,13 +26,26 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
+from PIL import Image
 from sklearn.model_selection import StratifiedGroupKFold
 from torch.utils.data import Dataset
 
-from .fundus_preprocess import load_fundus_image
-
 CLASS_NAMES = ["MEL", "NV", "BCC", "AK", "BKL", "DF", "VASC", "SCC"]
 VALIDATION_FOLDS = 7
+RESIZE_RATIO = 256 / 224
+
+
+def load_skin_image(path: str | Path, image_size: int) -> torch.Tensor:
+    """Image (3, size, size) dans [0, 1] : petit côté à round(size × 256/224)
+    (bilinéaire), puis recadrage central, comme `Resize(256), CenterCrop(224)`."""
+    image = Image.open(path).convert("RGB")
+    short = round(image_size * RESIZE_RATIO)
+    scale = short / min(image.size)
+    w, h = max(short, round(image.width * scale)), max(short, round(image.height * scale))
+    image = image.resize((w, h), Image.BILINEAR)
+    left, top = (w - image_size) // 2, (h - image_size) // 2
+    image = image.crop((left, top, left + image_size, top + image_size))
+    return torch.from_numpy(np.asarray(image, dtype=np.float32) / 255.0).permute(2, 0, 1)
 
 
 class ISIC2019Dataset(Dataset):
@@ -70,6 +88,6 @@ class ISIC2019Dataset(Dataset):
         return len(self.df)
 
     def __getitem__(self, idx: int):
-        image = load_fundus_image(self.image_path(idx), self.image_size, "none")  # redimensionnement simple
+        image = load_skin_image(self.image_path(idx), self.image_size)
         labels = torch.tensor(self.df.iloc[idx][CLASS_NAMES].to_numpy(dtype=np.float32))
         return image, labels

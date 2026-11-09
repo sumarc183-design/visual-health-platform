@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extrait les embeddings d'un jeu (APTOS, EyePACS, RFMiD) dans le cache.
+"""Extrait les embeddings d'un jeu (APTOS, EyePACS, RFMiD, ISIC 2019) dans le cache.
 
 Même extraction que run_baseline.py (`dataset_embeddings`, backbone figé) et
 même cache avec empreinte
@@ -9,8 +9,10 @@ d'image d'origine, indicateur de l'appareil) : l'évaluation
 (scripts/external_validation.py) se fait ensuite sur CPU, sans les images.
 
 `--backbone retfound` (défaut : 224 px, normalisation ImageNet) ou `green`
-(RETFound-Green : 392 px, normalisation 0,5). RFMiD : les trois découpages
-officiels, sans fichier d'étiquettes (elles restent dans la base).
+(RETFound-Green : 392 px, normalisation 0,5) ; pour la dermatologie, `dinov2`
+(ViT-B/14), `dinov2-large` (ViT-L/14) ou `panderm` (PanDerm-Large), 224 px, normalisation ImageNet. RFMiD et
+ISIC 2019 : les trois découpages, sans fichier d'étiquettes (elles restent dans la
+base).
 
 Exemple (GPU, ~10 min sur T4 pour les 3 662 images APTOS) :
     python scripts/extract_embeddings.py --dataset aptos \\
@@ -42,7 +44,13 @@ from src.data.rfmid_dataset import RFMiDDataset  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, cache_file_name, file_fingerprint  # noqa: E402
 from src.models.retfound_backbone import RETFoundBackbone  # noqa: E402
 from src.models.retfound_green import GREEN_IMAGE_SIZE, RETFoundGreenBackbone  # noqa: E402
-from src.models.timm_backbones import DINOV2_IMAGE_SIZE, DINOv2Backbone  # noqa: E402
+from src.models.timm_backbones import (  # noqa: E402
+    DINOV2_IMAGE_SIZE,
+    PANDERM_IMAGE_SIZE,
+    DINOv2Backbone,
+    DINOv2LargeBackbone,
+    PanDermBackbone,
+)
 
 DATASETS = {"aptos": APTOSDataset, "eyepacs": EyePACSDataset, "rfmid": RFMiDDataset, "isic2019": ISIC2019Dataset}
 SPLIT_DATASETS = ("rfmid", "isic2019")  # trois découpages, sans fichier d'étiquettes
@@ -55,16 +63,31 @@ def main() -> None:
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True, help="Dossier du cache d'embeddings")
     parser.add_argument("--preprocess", choices=PREPROCESS_CHOICES, default="crop-mask")
-    parser.add_argument("--backbone", choices=["retfound", "green", "dinov2"], default="retfound")
-    parser.add_argument("--image-size", type=int, default=None, help="Défaut : 224 (retfound), 392 (green)")
+    parser.add_argument(
+        "--backbone", choices=["retfound", "green", "dinov2", "dinov2-large", "panderm"], default="retfound"
+    )
+    parser.add_argument("--image-size", type=int, default=None, help="Défaut : 392 (green), 224 (autres)")
     parser.add_argument("--limit", type=int, default=None, help="Essai rapide : nombre d'images par jeu")
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--trust-checkpoint", action="store_true")
+    parser.add_argument(
+        "--splits",
+        nargs="+",
+        choices=["train", "val", "test"],
+        default=["train", "val", "test"],
+        help="RFMiD et ISIC : découpages à extraire (le test peut se télécharger pendant ce temps)",
+    )
     args = parser.parse_args()
     if args.image_size is None:
-        args.image_size = {"green": GREEN_IMAGE_SIZE, "dinov2": DINOV2_IMAGE_SIZE}.get(args.backbone, 224)
+        native = {
+            "green": GREEN_IMAGE_SIZE,
+            "dinov2": DINOV2_IMAGE_SIZE,
+            "dinov2-large": DINOV2_IMAGE_SIZE,
+            "panderm": PANDERM_IMAGE_SIZE,
+        }
+        args.image_size = native.get(args.backbone, 224)
     if args.dataset == "isic2019" and args.preprocess != "none":
         parser.error("ISIC : --preprocess none (crop-mask est propre au fond d'œil)")
 
@@ -85,6 +108,10 @@ def main() -> None:
                 backbone = RETFoundGreenBackbone(args.checkpoint, img_size=args.image_size)
             elif args.backbone == "dinov2":
                 backbone = DINOv2Backbone(args.checkpoint, img_size=args.image_size)
+            elif args.backbone == "dinov2-large":
+                backbone = DINOv2LargeBackbone(args.checkpoint, img_size=args.image_size)
+            elif args.backbone == "panderm":
+                backbone = PanDermBackbone(args.checkpoint, img_size=args.image_size)
             else:
                 backbone = RETFoundBackbone(
                     args.checkpoint,
@@ -98,7 +125,7 @@ def main() -> None:
     embed_kwargs = dict(batch_size=args.batch_size, device=args.device, num_workers=args.num_workers)
     kwargs = dict(image_size=args.image_size, preprocess=args.preprocess)
     if args.dataset in SPLIT_DATASETS:
-        for split in ("train", "val", "test"):
+        for split in args.splits:
             if args.dataset == "isic2019":
                 dataset = ISIC2019Dataset(args.data_root, split=split, image_size=args.image_size)
             else:

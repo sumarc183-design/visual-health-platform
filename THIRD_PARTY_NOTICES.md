@@ -43,8 +43,17 @@ que les checkpoints officiels se chargent sans renommage.
 
 - Oquab et al., « DINOv2: Learning Robust Visual Features without Supervision ».
   Dépôt : https://github.com/facebookresearch/dinov2, poids chargés via timm
-  (`vit_base_patch14_dinov2.lvd142m`).
+  (`vit_base_patch14_dinov2.lvd142m` et `vit_large_patch14_dinov2.lvd142m`).
 - **Licence : Apache 2.0.** Poids non versionnés ici.
+
+## PanDerm (`src/models/timm_backbones.py`)
+
+- Yan et al., « A multimodal vision foundation model for clinical dermatology »,
+  Nature Medicine 2025 (arXiv:2410.15038). Dépôt : https://github.com/SiyuanYan1/PanDerm
+- **Licence : CC BY-NC-ND 4.0**, « non-commercial academic research purposes » avec
+  attribution. Aucun code ni poids de PanDerm n'est copié ici : le modèle est construit
+  avec timm (`beit_large_patch16_224`) et les poids PanDerm-Large sont téléchargés à
+  l'exécution depuis le Google Drive des auteurs, sans modification.
 
 ## Jeux de données
 
