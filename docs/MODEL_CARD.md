@@ -141,11 +141,15 @@ avec Green. Résultats détaillés :
 - **Contrôle qualité** : seuil de flou calibré le 5 nov. (4,16 ; détecte
   79 à 90 % des images franchement floutées, signale ~2 % d'ODIR). Il ne
   détecte pas les images « mauvaise qualité » annotées dans ODIR (AUROC
-  0,51 sur 21 images) : leur défaut n'est pas le flou. Le modèle n'est pas
+  0,51 sur 21 images) : ce libellé n'est pas une annotation spécifique du flou. Le modèle n'est pas
   moins bon sur les images les moins nettes de RFMiD et ODIR. Il signale
   et ne retire rien par défaut (`predict.py --reject-unusable` pour
   refuser) : ce n'est pas un contrôle de qualité complet (exposition,
   champ, artefacts non mesurés).
+  L'étude exploratoire du 9 novembre n'ajoute aucune détection en combinant
+  luminance basse et flou aux seuils fixés ; seulement 2 patients « low image
+  quality » en validation. Les 24 préannotations visuelles du train restent
+  provisoires, sans validation clinique ([détails](QUALITE_EXPOSITION.md)).
 - **Grad-CAM est trompeur sur ce modèle** : il s'allume sur le fond noir
   (artefacts des ViT MAE). L'explication de référence est l'occlusion
   (`scripts/occlusion_examples.py`), qui ne montre elle aussi que *où*, pas

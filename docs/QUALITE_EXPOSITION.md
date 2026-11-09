@@ -113,3 +113,59 @@ sans `--prepare-only`. Le JSON ne contient que des agrégats et les empreintes
 de provenance ; images, mots-clés par œil, mesures individuelles et préannotations
 restent locaux. Cette analyse reste exploratoire : les mots-clés et la validation
 ODIR ont déjà été examinés dans des travaux antérieurs du projet.
+
+## Résultats sur les défauts réels (9 novembre)
+
+Code exécuté : `0e09729`, sans modification suivie. Analyse de 463 images :
+303 du train (dont 120 témoins) et 160 de validation (dont 120 témoins,
+110 patients). Les 646 patients du test ou absents du CSV nettoyé sont exclus.
+Source : [quality_real_defects.json](../results/quality_real_defects.json).
+
+Le seuil de luminance moyenne appris sur les 120 témoins du train vaut
+**49,108 sur l'échelle 0–255**. Il n'est pas intégré au pipeline.
+Les taux ci-dessous portent sur les patients, signalés si au moins un œil
+sélectionné déclenche l'alarme ; intervalles exacts à 95 %.
+
+| Alarme | « Low image quality » : 2 patients | « Lens dust » : 26 patients | Fausses alertes : 110 patients témoins |
+|---|---|---|---|
+| Luminance basse | 0/2 : 0 % [0 ; 84,2] | 1/26 : 3,8 % [0,1 ; 19,6] | 1/110 : 0,9 % [0,02 ; 5,0] |
+| Flou existant | 0/2 : 0 % [0 ; 84,2] | 3/26 : 11,5 % [2,4 ; 30,2] | 0/110 : 0 % [0 ; 3,3] |
+| Union des deux | 0/2 : 0 % [0 ; 84,2] | 3/26 : 11,5 % [2,4 ; 30,2] | 1/110 : 0,9 % [0,02 ; 5,0] |
+
+**Aucune détection supplémentaire avec l'union aux seuils fixés**, mais une
+fausse alerte de plus sur les témoins. Deux cas positifs ne permettent ni de
+conclure à une sensibilité nulle dans la population, ni de valider un détecteur.
+Les témoins n'étant pas certifiés sans défaut, ces fausses alertes sont définies
+par rapport aux mots-clés source, pas à une adjudication experte.
+
+Sur les 35 images « lens dust » de validation, l'AUROC par image vaut 0,530
+[0,408 ; 0,665] pour la luminance basse et 0,756 [0,638 ; 0,856] pour le flou
+(bootstrap par patient). Sur les 2 images « low image quality », les estimations
+ponctuelles sont respectivement 0,504 et 0,900, sans IC selon le protocole :
+l'effectif est trop faible pour une interprétation robuste. Aucune supériorité
+statistique entre détecteurs n'est déduite de leurs intervalles séparés.
+
+### Revue visuelle et suite
+
+Les 24 images anonymisées du train ont reçu des préannotations techniques par
+une revue visuelle automatisée : visibilité du fond d'œil, assombrissement,
+zones très claires, voile/flou possible et artefacts. Deux vues externes de
+l'œil ont été repérées. Les cas ambigus sont notés `uncertain`, et les mesures
+d'exposition sont `not_applicable` lorsque le champ rétinien est absent.
+Il ne s'agit pas d'annotations cliniques validées ni d'une seconde lecture humaine.
+
+Les planches, la grille `review.csv`, la correspondance des codes et les mesures
+individuelles sont sous `data/quality_review/`, hors Git. L'empreinte de la grille
+et le compte des 24 préannotations provisoires sont enregistrés dans le JSON.
+Ces préannotations n'ont pas été utilisées pour les performances ci-dessus.
+
+Contrôles : 23 tests ciblés réussis ; lint et format vérifiés ; contrôle
+indépendant du seuil train, de la disjonction des patients, des AUROC par les
+rangs, des comptes d'alarmes par patient et de l'empreinte de la grille locale.
+La suite complète n'a pas été relancée pour cette brique indépendante.
+
+À faire : relecture humaine des préannotations et annotations spécifiques des
+défauts sur un échantillon plus large, avec plusieurs lecteurs si possible.
+Tout futur détecteur doit avoir son protocole fixé avant une nouvelle mesure.
+Le résultat actuel ne justifie aucune nouvelle règle de rejet ; les défauts de
+modalité (vue externe de l'œil) doivent aussi être traités séparément de l'exposition.

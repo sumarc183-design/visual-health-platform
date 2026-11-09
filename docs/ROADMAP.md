@@ -22,6 +22,10 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
   annotés et mesurer leur détection avant d'ajouter des règles de rejet.
   Diagnostic descriptif d'exposition préparé et exécuté le 9 novembre sur
   120 images du train ODIR ; [protocole et limites](QUALITE_EXPOSITION.md).
+  Étude de 463 images réelles et 24 préannotations visuelles provisoires :
+  aucun gain de détection avec l'union luminosité/flou aux seuils fixés ;
+  seulement 2 patients « low image quality » en validation. Relecture humaine
+  et annotations spécifiques encore nécessaires ; aucune nouvelle règle de rejet.
 - [ ] Identification de modalité : constituer un jeu étiqueté, entraîner et évaluer
   le classifieur avant son intégration au parcours de prédiction.
 

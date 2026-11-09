@@ -15,8 +15,9 @@ results/quality_calibration.json) : 2e percentile du score sur les images
 d'entraînement ODIR jugées acceptables. Il détecte le flou franc (79 à 90 %
 des images floutées à σ ≥ 4 px), signale ~2 % d'ODIR et 0,1 % de RFMiD, et
 aucune image nette d'origine. Il ne détecte pas les images « low image
-quality » d'ODIR (AUROC 0,51) : leur défaut n'est pas le flou (surtout un
-manque de luminosité). Le contrôle signale, il ne retire rien par défaut.
+quality » d'ODIR (AUROC 0,51) : ce libellé ne constitue pas une annotation
+spécifique du flou ou de l'exposition. Le contrôle signale, il ne retire rien
+par défaut.
 """
 
 from __future__ import annotations

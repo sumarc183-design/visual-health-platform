@@ -1,0 +1,226 @@
+{
+  "run": {
+    "git_commit": "0e09729",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.30"
+    }
+  },
+  "plan_date": "2026-11-09",
+  "seed": 0,
+  "controls_requested_per_split": 120,
+  "preprocess_version": 1,
+  "analysis_size": 512,
+  "source_workbook_sha256": "0507270f4edad478857a300514018eabefff5fe3ce04ed3b5bd4fcefbd5f54bf",
+  "split_csv_sha256": "3bb34a50bfe369df15dcd76edc2fd795e913d888b68072674629a06fd28d0b24",
+  "selection_sha256": "7e867092b8a1d9ed30093d49ed0017feefa31f7a8914166d66aba7b91c08f594",
+  "input_images_sha256": "7245c2493d534d2c8e7a460a56c646920b0c90717a72d073da679dd9a728310a",
+  "local_visual_review": {
+    "sha256": "7fd7d4b7650e0de6acc0970367df3fbfdb8c26a4ea6c390852744322d01d0a4a",
+    "images": 24,
+    "provisional_reviews": 24,
+    "pending": 0,
+    "used_for_calibration_or_validation": false
+  },
+  "excluded_source_patients_test_or_unmapped": 646,
+  "counts": {
+    "train": {
+      "images": 303,
+      "source_tags": {
+        "low image quality": 14,
+        "lens dust": 165,
+        "image offset": 0,
+        "no fundus image": 1,
+        "anterior segment image": 2,
+        "optic disk photographically invisible": 1
+      }
+    },
+    "val": {
+      "images": 160,
+      "source_tags": {
+        "low image quality": 2,
+        "lens dust": 35,
+        "image offset": 1,
+        "no fundus image": 0,
+        "anterior segment image": 0,
+        "optic disk photographically invisible": 2
+      }
+    }
+  },
+  "thresholds": {
+    "mean_luminance_below": 49.107588866789065,
+    "calibration": "P2 des témoins train",
+    "calibration_images": 120,
+    "blur_below": 4.16
+  },
+  "validation": {
+    "low image quality": {
+      "positive_images": 2,
+      "control_images": 120,
+      "detectors": {
+        "low_luminance": {
+          "sensitivity": {
+            "detected": 0,
+            "patients": 2,
+            "rate": 0.0,
+            "ci": [
+              0.0,
+              0.841886116991581
+            ]
+          },
+          "false_alert_rate": {
+            "detected": 1,
+            "patients": 110,
+            "rate": 0.00909090909090909,
+            "ci": [
+              0.0002301354055502925,
+              0.04961118931198478
+            ]
+          },
+          "auroc_image": {
+            "value": 0.5041666666666667,
+            "ci": null,
+            "reason": "moins de 10 patients dans une classe"
+          }
+        },
+        "blur": {
+          "sensitivity": {
+            "detected": 0,
+            "patients": 2,
+            "rate": 0.0,
+            "ci": [
+              0.0,
+              0.841886116991581
+            ]
+          },
+          "false_alert_rate": {
+            "detected": 0,
+            "patients": 110,
+            "rate": 0.0,
+            "ci": [
+              0.0,
+              0.032979194032219696
+            ]
+          },
+          "auroc_image": {
+            "value": 0.9,
+            "ci": null,
+            "reason": "moins de 10 patients dans une classe"
+          }
+        },
+        "either": {
+          "sensitivity": {
+            "detected": 0,
+            "patients": 2,
+            "rate": 0.0,
+            "ci": [
+              0.0,
+              0.841886116991581
+            ]
+          },
+          "false_alert_rate": {
+            "detected": 1,
+            "patients": 110,
+            "rate": 0.00909090909090909,
+            "ci": [
+              0.0002301354055502925,
+              0.04961118931198478
+            ]
+          }
+        }
+      }
+    },
+    "lens dust": {
+      "positive_images": 35,
+      "control_images": 120,
+      "detectors": {
+        "low_luminance": {
+          "sensitivity": {
+            "detected": 1,
+            "patients": 26,
+            "rate": 0.038461538461538464,
+            "ci": [
+              0.0009732878933350304,
+              0.19636964676253893
+            ]
+          },
+          "false_alert_rate": {
+            "detected": 1,
+            "patients": 110,
+            "rate": 0.00909090909090909,
+            "ci": [
+              0.0002301354055502925,
+              0.04961118931198478
+            ]
+          },
+          "auroc_image": {
+            "value": 0.5304761904761904,
+            "ci": [
+              0.4077516978809852,
+              0.6648110688386382
+            ],
+            "valid_bootstrap_draws": 500
+          }
+        },
+        "blur": {
+          "sensitivity": {
+            "detected": 3,
+            "patients": 26,
+            "rate": 0.11538461538461539,
+            "ci": [
+              0.02445807531796222,
+              0.3015404001075678
+            ]
+          },
+          "false_alert_rate": {
+            "detected": 0,
+            "patients": 110,
+            "rate": 0.0,
+            "ci": [
+              0.0,
+              0.032979194032219696
+            ]
+          },
+          "auroc_image": {
+            "value": 0.7557142857142858,
+            "ci": [
+              0.6381444209039547,
+              0.8558931178666714
+            ],
+            "valid_bootstrap_draws": 500
+          }
+        },
+        "either": {
+          "sensitivity": {
+            "detected": 3,
+            "patients": 26,
+            "rate": 0.11538461538461539,
+            "ci": [
+              0.02445807531796222,
+              0.3015404001075678
+            ]
+          },
+          "false_alert_rate": {
+            "detected": 1,
+            "patients": 110,
+            "rate": 0.00909090909090909,
+            "ci": [
+              0.0002301354055502925,
+              0.04961118931198478
+            ]
+          }
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Mots-clés source de qualité générale/poussière ; pas d'étiquettes spécifiques d'exposition.",
+    "Témoins sans mot-clé, pas des images certifiées acceptables ; échantillon enrichi en défauts.",
+    "Validation exploratoire déjà utilisée dans le projet ; aucun résultat prospectif ou clinique.",
+    "Trop peu de patients low image quality pour une conclusion solide ; pas d'IC AUROC dans ce cas.",
+    "Aucune modification des seuils ni des rejets du pipeline de prédiction."
+  ]
+}

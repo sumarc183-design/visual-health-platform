@@ -6,6 +6,12 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Défauts réels ODIR (9 nov.) : annotations techniques originales réassociées
+  aux splits par patient, 24 préannotations visuelles provisoires du train
+  conservées localement, étude de 463 images. Aucun gain de détection avec
+  l'union luminosité/flou aux seuils fixés ; seulement 2 patients « low image
+  quality » en validation. Résultats agrégés dans `results/quality_real_defects.json`,
+  aucune nouvelle règle de rejet. Huit cas de test ajoutés ; 23 tests ciblés réussis.
 - Diagnostic exploratoire d'exposition (J30) : `src/pipeline/exposure.py`,
   `scripts/quality_exposure_diagnostics.py` et `docs/QUALITE_EXPOSITION.md`.
   Premier calcul sur 120 images du train ODIR, cinq perturbations RGB fixées
