@@ -27,6 +27,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.eval.metrics import paired_bootstrap_diff
+from src.eval.predictions import validate_predictions  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 
 
@@ -38,6 +39,11 @@ def load_predictions(path: Path) -> dict:
 def align(a: dict, b: dict) -> np.ndarray:
     """Probabilités de B remises dans l'ordre des images de A, après
     vérification que ce sont les mêmes images, étiquettes et classes."""
+    for name, pred in (("A", a), ("B", b)):
+        try:
+            validate_predictions(pred, f"run {name}")
+        except ValueError as error:
+            raise SystemExit(str(error)) from None
     if list(a["class_names"]) != list(b["class_names"]):
         raise SystemExit("Les deux runs n'ont pas les mêmes classes.")
     if set(a["keys"].tolist()) != set(b["keys"].tolist()):

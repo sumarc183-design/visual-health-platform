@@ -14,8 +14,8 @@ def save_run(path, keys, y, probs, classes=("a", "b")):
 def test_align_reorders_b_on_a(tmp_path):
     y = np.array([[1, 0], [0, 1], [1, 1]], dtype=np.float32)
     a = save_run(tmp_path / "a.npz", ["k1", "k2", "k3"], y, np.zeros((3, 2)))
-    b = save_run(tmp_path / "b.npz", ["k3", "k1", "k2"], y[[2, 0, 1]], np.array([[3, 3], [1, 1], [2, 2]], float))
-    assert np.array_equal(align(a, b), [[1, 1], [2, 2], [3, 3]])
+    b = save_run(tmp_path / "b.npz", ["k3", "k1", "k2"], y[[2, 0, 1]], np.array([[0.3, 0.3], [0.1, 0.1], [0.2, 0.2]]))
+    assert np.array_equal(align(a, b), [[0.1, 0.1], [0.2, 0.2], [0.3, 0.3]])
 
 
 def test_align_refuses_different_images_or_labels(tmp_path):

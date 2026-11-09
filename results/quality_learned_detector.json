@@ -1,6 +1,6 @@
 {
   "run": {
-    "git_commit": "7855413-dirty",
+    "git_commit": "7dee09e-dirty",
     "python": "3.12.7",
     "versions": {
       "numpy": "1.26.4",
@@ -80,49 +80,82 @@
     }
   },
   "test_b_human_review": {
-    "defect_seen": 19,
-    "no_defect": 17,
+    "images": {
+      "defect": 19,
+      "clear": 8,
+      "indeterminate": 9
+    },
+    "patients": {
+      "defect": 18,
+      "clear": 8,
+      "indeterminate": 9
+    },
+    "unit": "patient (au moins un œil signalé) ; indéterminés rapportés à part",
     "detectors": {
       "learned": {
         "sensitivity": {
           "detected": 3,
-          "patients": 19,
-          "rate": 0.15789473684210525,
+          "patients": 18,
+          "rate": 0.16666666666666666,
           "ci": [
-            0.03382624900176467,
-            0.3957845512666743
+            0.035785083121574676,
+            0.41417749139477406
           ]
         },
         "false_alert_rate": {
           "detected": 0,
-          "patients": 17,
+          "patients": 8,
           "rate": 0.0,
           "ci": [
             0.0,
-            0.19506432296909318
+            0.3694166475528192
+          ]
+        },
+        "flagged_indeterminate": {
+          "detected": 0,
+          "patients": 9,
+          "rate": 0.0,
+          "ci": [
+            0.0,
+            0.3362671168799428
           ]
         }
       },
       "current": {
         "sensitivity": {
           "detected": 4,
-          "patients": 19,
-          "rate": 0.21052631578947367,
+          "patients": 18,
+          "rate": 0.2222222222222222,
           "ci": [
-            0.060524537709289755,
-            0.45565308189150555
+            0.0640920477176665,
+            0.4763727657364801
           ]
         },
         "false_alert_rate": {
           "detected": 0,
-          "patients": 17,
+          "patients": 8,
           "rate": 0.0,
           "ci": [
             0.0,
-            0.19506432296909318
+            0.3694166475528192
+          ]
+        },
+        "flagged_indeterminate": {
+          "detected": 0,
+          "patients": 9,
+          "rate": 0.0,
+          "ci": [
+            0.0,
+            0.3362671168799428
           ]
         }
       }
     }
-  }
+  },
+  "inputs_sha256": {
+    "study_manifest": "7e867092b8a1d9ed30093d49ed0017feefa31f7a8914166d66aba7b91c08f594",
+    "review": "cb91ef2cd670a04574adf75d7e6fab3cc07de4736b6efb215e3093d4c31bd9ed",
+    "review_mapping": "f65d45e45d452984cac2941ac57d6a4fc118d69d96add21453e494d273de9e5b"
+  },
+  "local_archive": "quality_learned_detector.npz (scores, modèle ; local, non versionné)"
 }

@@ -23,3 +23,10 @@ results/green_predictions_*.npz
 
 # Consignes locales des agents (jamais versionnées)
 /AGENTS.md
+# Données individuelles APTOS/EyePACS (règlements Kaggle) : locales, jamais versionnées
+/results/green_predictions.npz
+/results/finetune/pred_aptos_finetune.npz
+/results/finetune_eyepacs/pred_aptos_finetune.npz
+/results/finetune_eyepacs/pred_eyepacs_finetune.npz
+/results/*_draws.json
+/results/quality_learned_detector.npz

@@ -189,8 +189,9 @@ restent locales (`data/quality_review_v2/`).
   technique est vu sur 16 des 18 images à mot-clé, et sur 3 des 18 témoins.
 
 Limites : un seul relecteur humain, non spécialiste, sur le train ; série trop petite
-pour régler ou valider un seuil. Ces annotations ne servent ni à régler ni à valider les
-détecteurs actuels.
+pour régler ou valider un seuil. Ces annotations ne servent à régler aucun seuil ; elles
+servent seulement d'évaluation exploratoire (test B ci-dessous). Les grilles sont conservées
+séparément : lecture initiale de Marc, préannotation de l'assistant, version harmonisée.
 
 ## Détecteur appris sur des défauts simulés (9 novembre 2026) : sans gain
 
@@ -203,12 +204,21 @@ régression logistique, seuil 0,5. Aucun vrai défaut à l'entraînement.
 |---|---|---|
 | A. Validation ODIR, patients à mot-clé détectés | 3 / 31 | 3 / 31 |
 | A. Fausses alertes sur les témoins | 6 / 110 | 1 / 110 |
-| B. Relecture de Marc, défauts vus détectés | 3 / 19 | 4 / 19 |
-| B. Fausses alertes | 0 / 17 | 0 / 17 |
+| B. Relecture de Marc, patients avec défaut détectés | 3 / 18 | 4 / 18 |
+| B. Fausses alertes, patients sans défaut confirmé | 0 / 8 | 0 / 8 |
+| B. Signalés parmi les patients indéterminés (rapporté à part) | 0 / 9 | 0 / 9 |
 
-AUROC du détecteur appris sur le test A : 0,56 [0,46 ; 0,67], pas mieux que le hasard.
-Les défauts simulés ne ressemblent pas assez aux vrais. Le JSON porte `7855413-dirty` :
-seule une conversion de types pour l'écriture JSON a été corrigée après un premier run
-interrompu avant tout affichage. Résultats : `results/quality_learned_detector.json`.
+AUROC du détecteur appris sur le test A : 0,56 [0,46 ; 0,67] ; aucun gain démontré.
+Une explication possible, non démontrée par ce seul résultat : les défauts simulés ne
+ressemblent pas assez aux vrais.
+
+**Corrections après l'audit du 9 novembre**, sans changer le modèle (AUROC identique) :
+au test B, une réponse « incertain » n'est plus comptée comme « aucun défaut » (trois
+états, les indéterminés à part), et les taux se comptent par patient (36 images,
+35 patients). Le premier rapport (3/19 et 4/19 images, 0/17 fausses alertes) reste archivé
+dans `results/quality_learned_detector_initial.json` ; il porte `7855413-dirty` (seule une
+conversion de types pour l'écriture JSON avait été corrigée). Les clés du cache des
+images dégradées portent désormais le défaut, sa graine et la version du générateur.
+Résultats : `results/quality_learned_detector.json` ; scores et modèle archivés localement.
 Aucune règle de rejet ajoutée. Piste suivante : apprendre sur de vrais défauts annotés
 (mots-clés ODIR, relecture humaine), ce qui demande plus d'annotations.

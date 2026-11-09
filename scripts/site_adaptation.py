@@ -230,8 +230,13 @@ def main() -> None:
             f"spécificité {b['specificity']['mean']:.2f}"
         )
     args.out.parent.mkdir(parents=True, exist_ok=True)
+    # Les tirages contiennent des identifiants APTOS (règlement Kaggle) : fichier local
+    # séparé, ignoré par git ; le rapport versionné ne garde que les agrégats.
+    draws_path = args.out.with_name(args.out.stem + "_draws.json")
+    draws_path.write_text(json.dumps(result.pop("few_shot_draws"), ensure_ascii=False))
+    result["few_shot_draws_file"] = f"{draws_path.name} (local, non versionné)"
     args.out.write_text(json.dumps(result, indent=1, ensure_ascii=False))
-    print(f"Résultats : {args.out}")
+    print(f"Résultats : {args.out} ; tirages : {draws_path}")
 
 
 if __name__ == "__main__":

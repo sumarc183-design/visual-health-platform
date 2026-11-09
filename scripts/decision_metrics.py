@@ -29,6 +29,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.eval.decision import per_class_report  # noqa: E402
+from src.eval.predictions import validate_predictions  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.models.classifier_head import head_contract, head_probe, head_sha256  # noqa: E402
 from src.models.embedding_cache import load_embeddings  # noqa: E402
@@ -64,9 +65,10 @@ def link_head(report: dict, head_path: Path, cache_dir: Path, dataset: str, spli
     gaps = {}
     for split, predictions in splits.items():
         X = load_embeddings(cache_dir, dataset, list(predictions["keys"]), backbone, preprocess, size)
+        validate_predictions({**predictions, "class_names": classes}, f"prédictions {split}")
         recomputed = 1 / (1 + np.exp(-(X @ weight.T + bias)))
         gaps[split] = float(np.abs(recomputed - predictions["probs"]).max())
-        if gaps[split] > MAX_REPRODUCTION_GAP:
+        if not np.isfinite(gaps[split]) or gaps[split] > MAX_REPRODUCTION_GAP:
             raise ValueError(f"la tête ne redonne pas les prédictions ({split}, écart max {gaps[split]:.2e})")
     report["head_file"] = head_path.name
     report["head_sha256"] = head_sha256(head["state_dict"])

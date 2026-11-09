@@ -62,8 +62,11 @@ docstring) ; notebook : `notebooks/kaggle_dermatology_isic2019.ipynb`.
    en mode strict (seules les 366 clés `encoder.*` du checkpoint CAE sont gardées ; leur
    code charge en `strict=False`). Sur une même entrée, écart maximal de 3,8e-6 avec leur
    implémentation. Empreinte du fichier : `23405e92f853c6f7`.
-2. **Images** : le chargement donne exactement les mêmes pixels que leur transformation
-   torchvision (`Resize(256)`, `CenterCrop(224)`) sur de vraies images ISIC.
+2. **Images** : le chargement donne les mêmes pixels que leur transformation torchvision
+   (`Resize(256)`, `CenterCrop(224)`) sur les six images ISIC de 600 × 450 testées. Ce n'est
+   pas une équivalence générale : l'audit du 9 novembre trouve des écarts sur une image
+   synthétique de 334 × 200 (arrondis différents). Les trois modèles reçoivent la même
+   transformation du projet ; l'effet sur les scores n'est pas quantifié.
 3. **Préentraînement de PanDerm** (article, Methods) : 2 149 706 images de 11 sources
    (cohortes MYM et HOP, MMT, NSSI, Edu1 et Edu2, sous-ensemble ISIC 2024, TCGA-SKCM...).
    **ISIC 2019, HAM10000 et BCN20000 n'y figurent pas** ; ce sont des jeux d'évaluation
@@ -156,7 +159,8 @@ sans remplacer la comparaison principale sur le test officiel.
 Trouvé le 9 novembre en examinant le routeur de modalité : le fichier officiel du test
 marque 78 des 6 191 images avec `score_weight = 0` et `validation_weight = 0`. Elles ne
 comptent dans aucun score du challenge ; au moins l'une d'elles est un dessin, pas une
-lésion (image piège). Recalcul sur les scores archivés, sans réentraînement :
+lésion. Un poids nul ne prouve pas que les 78 soient inutilisables. Recalcul sur les scores
+archivés, sans réentraînement :
 
 | Images du test | PanDerm − DINOv2-L, AUROC macro |
 |---|---|
@@ -165,6 +169,12 @@ lésion (image piège). Recalcul sur les scores archivés, sans réentraînement
 | Score final officiel seulement (5 920) | +0,038 [+0,031 ; +0,044] |
 
 La conclusion ne change pas. Le résultat principal reste celui du plan.
+
+**Comparabilité avec le classement officiel** : notre mesure porte sur 8 classes sans
+pondération, hors « UNK ». Le challenge note 9 catégories (dont une hors cible) et applique
+des poids ([évaluation ISIC 2019](https://challenge.isic-archive.com/landing/2019/),
+[code de calcul](https://github.com/ImageMarkup/isic-challenge-scoring/blob/master/isic_challenge_scoring/classification.py)).
+Nos chiffres ne se comparent donc pas directement au classement officiel.
 
 ### Réserves et traçabilité
 

@@ -18,6 +18,13 @@ Plan fixé le 9 novembre 2026, avant tout run :
 - comparateur, sur les mêmes images : détecteur actuel (luminance moyenne sous le P2
   des témoins train, ou flou sous 4,16).
 
+Corrections après l'audit du 9 novembre (le résultat initial reste archivé dans
+`results/quality_learned_detector_initial.json`) : au test B, une réponse « incertain »
+n'est plus comptée comme « aucun défaut » (trois états : défaut vu, aucun défaut
+confirmé, indéterminé, ce dernier rapporté à part) et les taux se comptent par patient
+(deux yeux d'un patient = un patient) ; les clés du cache des images dégradées portent
+le défaut, sa graine et la version du générateur ; scores et modèle archivés localement.
+
 Réserves : défauts simulés plus simples que les vrais ; mots-clés d'ODIR non
 spécifiques ; relecture d'un seul humain non spécialiste, sur le train. Exploratoire :
 aucune règle de rejet n'est ajoutée au pipeline.
@@ -45,7 +52,7 @@ from sklearn.preprocessing import StandardScaler
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.quality_real_defects import auc_with_groups, exact_rate, patient_rate  # noqa: E402
+from scripts.quality_real_defects import auc_with_groups, patient_rate  # noqa: E402
 from src.data.fundus_preprocess import crop_mask  # noqa: E402
 from src.data.odir_quality import source_records  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
@@ -57,6 +64,9 @@ SIZE = 512
 N_BASE = 600
 DEFECTS = ("blur", "dark", "washed", "spots", "glare_band")
 THRESHOLD = 0.5
+GENERATOR_VERSION = "1"  # à changer si `degrade` change : invalide les clés du cache
+TRANSFORM = "crop-mask-512/area-224/imagenet"
+DEFECT_FIELDS = ("underexposed", "overexposed", "blur", "artifacts")
 LUMINANCE_P2 = 49.107588866789065  # results/quality_real_defects.json
 BLUR_THRESHOLD = 4.16
 
@@ -94,6 +104,23 @@ def degrade(image: np.ndarray, defect: str, rng) -> np.ndarray:
         raise ValueError(defect)
     x[~mask] = 0
     return np.clip(x, 0, 255).astype(np.uint8)
+
+
+def review_state(review: dict) -> str:
+    """« defect » : fond d'œil non visible ou un défaut vu ; « clear » : fond d'œil visible
+    et aucun défaut, sans réponse incertaine ; « indeterminate » sinon."""
+    values = [review[c] for c in DEFECT_FIELDS]
+    if review["fundus_visible"] == "no" or "yes" in values:
+        return "defect"
+    if review["fundus_visible"] == "yes" and all(v == "no" for v in values):
+        return "clear"
+    return "indeterminate"
+
+
+def sha256_file(path: Path) -> str:
+    import hashlib
+
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def retina(path: Path) -> np.ndarray:
@@ -148,23 +175,30 @@ def main() -> None:
     base = [clean[i] for i in sorted(rng.choice(len(clean), N_BASE, replace=False))]
     plan = {r["filename"]: (DEFECTS[rng.integers(len(DEFECTS))], int(rng.integers(2**31))) for r in base}
 
-    def make(key: str) -> np.ndarray:
-        kind, name = key.split("/", 1)
-        image = retina(images / name)
-        if kind == "clean" or kind == "real":
-            return image
+    def degraded_key(name: str) -> str:
         defect, seed = plan[name]
-        return degrade(image, defect, np.random.default_rng(seed))
+        return f"degraded/v{GENERATOR_VERSION}/{defect}/{seed}/{name}"
+
+    def make(key: str) -> np.ndarray:
+        kind, rest = key.split("/", 1)
+        if kind in ("clean", "real"):
+            return retina(images / rest)
+        version, defect, seed, name = rest.split("/", 3)
+        if version != f"v{GENERATOR_VERSION}":
+            raise ValueError(f"clé d'une autre version du générateur : {key}")
+        return degrade(retina(images / name), defect, np.random.default_rng(int(seed)))
 
     fingerprint = file_fingerprint(args.checkpoint)
-    cache = EmbeddingCache(args.cache, meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE})
+    cache = EmbeddingCache(
+        args.cache, meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE, "transform": TRANSFORM}
+    )
     backbone = DINOv2Backbone(args.checkpoint)
     names = [r["filename"] for r in base]
     print("Entraînement : images propres et dégradées", flush=True)
     X_train = np.vstack(
         [
             embed_keys([f"clean/{n}" for n in names], make, backbone, cache),
-            embed_keys([f"degraded/{n}" for n in names], make, backbone, cache),
+            embed_keys([degraded_key(n) for n in names], make, backbone, cache),
         ]
     )
     y_train = np.repeat([0, 1], len(names))
@@ -196,20 +230,30 @@ def main() -> None:
     print("Test B : relecture de Marc", flush=True)
     mapping = json.loads((args.review_dir / "review_mapping.json").read_text())
     reviews = list(csv.DictReader((args.review_dir / "review.csv").open()))
-    rows = [{"filename": mapping[r["code"]]} for r in reviews]
-    seen = np.array(
-        [
-            r["fundus_visible"] == "no"
-            or any(r[c] == "yes" for c in ("underexposed", "overexposed", "blur", "artifacts"))
-            for r in reviews
-        ]
-    )
+    groups = {
+        r["filename"]: r["group"] for r in json.loads((args.review_dir / "source_manifest.json").read_text())["records"]
+    }
+    rows = [{"filename": mapping[r["code"]], "group": groups[mapping[r["code"]]]} for r in reviews]
+    states = np.array([review_state(r) for r in reviews])
     p_rev = proba(rows)
-    test_b = {"defect_seen": int(seen.sum()), "no_defect": int((~seen).sum()), "detectors": {}}
+    test_b = {
+        "images": {s: int((states == s).sum()) for s in ("defect", "clear", "indeterminate")},
+        "patients": {
+            s: len({r["group"] for r, t in zip(rows, states, strict=True) if t == s})
+            for s in ("defect", "clear", "indeterminate")
+        },
+        "unit": "patient (au moins un œil signalé) ; indéterminés rapportés à part",
+        "detectors": {},
+    }
     for name, flags in (("learned", p_rev >= THRESHOLD), ("current", current(rows))):
+        part = {
+            s: ([r for r, t in zip(rows, states, strict=True) if t == s], flags[states == s])
+            for s in ("defect", "clear", "indeterminate")
+        }
         test_b["detectors"][name] = {
-            "sensitivity": exact_rate([bool(f) for f in flags[seen]]),
-            "false_alert_rate": exact_rate([bool(f) for f in flags[~seen]]),
+            "sensitivity": patient_rate(*part["defect"]),
+            "false_alert_rate": patient_rate(*part["clear"]),
+            "flagged_indeterminate": patient_rate(*part["indeterminate"]),
         }
 
     report = {
@@ -220,9 +264,26 @@ def main() -> None:
         "threshold": THRESHOLD,
         "test_a_odir_validation": test_a,
         "test_b_human_review": test_b,
+        "inputs_sha256": {
+            "study_manifest": sha256_file(args.study_dir / "source_manifest.json"),
+            "review": sha256_file(args.review_dir / "review.csv"),
+            "review_mapping": sha256_file(args.review_dir / "review_mapping.json"),
+        },
+        "local_archive": f"{args.out.with_suffix('.npz').name} (scores, modèle ; local, non versionné)",
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    np.savez(
+        args.out.with_suffix(".npz"),
+        val_files=np.array([r["filename"] for r in val]),
+        val_scores=p_val,
+        review_codes=np.array([r["code"] for r in reviews]),
+        review_scores=p_rev,
+        coef=model.coef_,
+        intercept=model.intercept_,
+        scaler_mean=scaler.mean_,
+        scaler_scale=scaler.scale_,
+    )
     for test, r in (("A", test_a), ("B", test_b)):
         for name, d in r["detectors"].items():
             s, f = d["sensitivity"], d["false_alert_rate"]

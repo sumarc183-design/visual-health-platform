@@ -633,7 +633,7 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 | Étape | État |
 |---|---|
 | 1. Contrôle qualité (flou, résolution) | 🟡 Seuil de flou calibré ([résultats](results/quality_calibration.json)) : détecte le flou franc, pas les autres défauts de qualité ; signale sans filtrer par défaut |
-| 2. Identification de la modalité | 🟡 Architecture en place, pas encore entraînée |
+| 2. Identification de la modalité | 🟡 Routeur entraîné et évalué (9 nov.) : 998/1 000 images bien routées sur d'autres sources, un critère non atteint ; non branché dans `predict.py` ([détails](docs/MODALITE.md)) |
 | 3. Prétraitement fond d'œil | ✅ `crop-mask` (recadrage + masque commun), normalisation ImageNet, 224×224 |
 | 4. Classification multi-label | ✅ RFMiD et ODIR, AUROC mesurée |
 | 5. Localisation des zones suspectes | 🟡 Mesurée sur IDRiD (81 images, [détails](#localisation-des-lésions)) ; pas de validation externe ni d'intégration à `predict.py` |

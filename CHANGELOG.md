@@ -5,6 +5,21 @@ selon [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Corrigé
+- Audit du 9 nov. : identifiants et étiquettes APTOS/EyePACS retirés des fichiers suivis
+  (4 archives de scores gardées en local ; tirages few-shot séparés du rapport
+  `site_adaptation_aptos.json`) et test qui empêche leur retour, sur le contenu des
+  fichiers. L'historique git n'est pas réécrit.
+- Archives de prédictions validées avant tout calcul (clés uniques, dimensions,
+  probabilités finies dans [0, 1]) : une liaison tête/seuils avec des NaN ou une
+  comparaison avec des clés en double sont refusées (`src/eval/predictions.py`).
+- Détecteur qualité, test humain : réponses « incertain » rapportées à part au lieu de
+  compter comme « aucun défaut », taux par patient (3/18 et 4/18 au lieu de 3/19 et
+  4/19) ; clés de cache versionnées pour les défauts simulés. Résultat initial archivé.
+- Documentation : statut du routeur synchronisé, contrôle du routeur non indépendant
+  signalé, équivalence des pixels ISIC bornée aux images testées, différence avec le
+  score officiel ISIC précisée.
+
 ### Ajouté
 - Contrôle qualité (9 nov.) : relecture humaine de 36 images ODIR en série équilibrée
   (défaut vu sur 16/18 images à mot-clé, 3/18 témoins) ; détecteur appris sur des
@@ -18,7 +33,7 @@ selon [SemVer](https://semver.org/lang/fr/).
   automatiquement dans `predict.py`. `docs/MODALITE.md`, `results/modality_router.json`,
   `scripts/train_modality_router.py` ; le placeholder MobileNet est remplacé. 4 tests.
 - Dermatologie, contrôle ajouté après le run : 78 images du test ISIC ne sont jamais
-  notées par le challenge (images pièges) ; sans elles, ou sur les 5 920 images du score
+  notées par le challenge (au moins une est un dessin) ; sans elles, ou sur les 5 920 images du score
   final officiel, PanDerm − DINOv2-L reste à +0,037 et +0,038.
 - Défauts réels ODIR (9 nov.) : annotations techniques originales réassociées
   aux splits par patient, 24 préannotations visuelles provisoires du train

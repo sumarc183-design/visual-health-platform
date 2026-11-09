@@ -7,8 +7,8 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
 
 > Atteint au sens « première baseline » (4 nov.). Pas encore un socle
 > opérationnel : contrôle qualité limité au flou et à la résolution (seuil
-> de flou calibré le 5 nov.), routage de modalité non entraîné (audit du
-> 4 novembre). Commande de prédiction sur image nouvelle
+> de flou calibré le 5 nov.), routage de modalité non entraîné à la date de l'audit du
+> 4 novembre (entraîné et évalué depuis le 9 nov., voir plus bas). Commande de prédiction sur image nouvelle
 > (`predict.py`) livrée et vérifiée avec les vrais poids le 4 novembre.
 
 - [x] Contrôle qualité (flou, résolution) implémenté : sonde sur un échantillon, sans filtrage ; sur le fichier d'origine depuis le 4 nov. ; seuil de flou calibré le 5 nov. (4,16 : flou franc détecté à 79-90 %, ~2 % d'ODIR signalé ; ne détecte pas les autres défauts de qualité)

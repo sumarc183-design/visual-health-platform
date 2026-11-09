@@ -22,3 +22,19 @@ def test_degrade_changes_the_field_and_keeps_the_background_black(defect):
 def test_unknown_defect_is_refused():
     with pytest.raises(ValueError):
         degrade(np.zeros((8, 8, 3), np.uint8), "rain", np.random.default_rng(0))
+
+
+def _review(visible="yes", **values):
+    base = {"fundus_visible": visible, "underexposed": "no", "overexposed": "no", "blur": "no", "artifacts": "no"}
+    return {**base, **values}
+
+
+def test_uncertain_answers_are_not_counted_as_clear():
+    from scripts.quality_learned_detector import review_state
+
+    assert review_state(_review()) == "clear"
+    assert review_state(_review(blur="yes")) == "defect"
+    assert review_state(_review(visible="no")) == "defect"
+    assert review_state(_review(blur="uncertain")) == "indeterminate"
+    assert review_state(_review(visible="uncertain")) == "indeterminate"
+    assert review_state(_review(blur="")) == "indeterminate"  # case vide ou en attente

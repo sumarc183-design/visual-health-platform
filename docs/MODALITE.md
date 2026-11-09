@@ -56,6 +56,11 @@ déclaré par l'utilisateur. À décider avec le tuteur.
 
 ## Limites
 
+- **Contrôle non indépendant** (audit du 9 novembre) : ajustement et contrôle ont été
+  tirés image par image, si bien que 70 patients ODIR et une lésion ISIC sont communs aux
+  deux. Les chiffres du contrôle sont donc optimistes ; le test (autres sources) n'est pas
+  concerné. Avant le prochain run : découper d'abord par patient et par lésion, puis tirer
+  les images. Le résultat actuel, critère non atteint compris, reste tel quel.
 - « Inconnu » n'est représenté que par des photos d'Imagenette : photos de peau sans
   dermoscope, radiographies, captures d'écran ou documents ne sont pas testés.
 - Les images ISIC viennent du début des archives (premiers fichiers), pas d'un tirage dans
