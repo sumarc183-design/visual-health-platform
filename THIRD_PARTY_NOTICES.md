@@ -39,11 +39,20 @@ que les checkpoints officiels se chargent sans renommage.
   commerciale reconnue et créditer le projet.
 - Les poids ne sont pas versionnés ici.
 
+## DINOv2 (`src/models/timm_backbones.py`)
+
+- Oquab et al., « DINOv2: Learning Robust Visual Features without Supervision ».
+  Dépôt : https://github.com/facebookresearch/dinov2, poids chargés via timm
+  (`vit_base_patch14_dinov2.lvd142m`).
+- **Licence : Apache 2.0.** Poids non versionnés ici.
+
 ## Jeux de données
 
 - **RFMiD** et **ODIR-5K** : téléchargés depuis Kaggle (miroirs publics des
   challenges RIADD et ODIR-2019). Respecter les conditions d'usage propres à
   chaque jeu ; les images ne sont pas versionnées dans ce dépôt.
+- **ISIC 2019** (BCN_20000, HAM10000, MSK) : CC BY-NC 4.0, à citer selon
+  https://challenge.isic-archive.com/data/ ; images non versionnées.
 - **IDRiD** (Porwal, Pachade et Kokare) : CC BY 4.0, segmentation utilisée
   pour mesurer la localisation ; images non versionnées.
 - **APTOS 2019 Blindness Detection** (Asia Pacific Tele-Ophthalmology

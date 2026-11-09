@@ -6,6 +6,9 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Dermatologie, sans run : `src/data/isic_dataset.py` (ISIC 2019, groupes par lésion),
+  `src/models/timm_backbones.py` (DINOv2 ; Green y passe, résultats inchangés),
+  `extract_embeddings.py --dataset isic2019 --backbone dinov2`. 3 tests.
 - `load_embeddings` : chargeur d'embeddings commun aux analyses (configuration et
   complétude vérifiées), point restant de l'audit du 6 nov. Résultats inchangés. 1 test.
 - `docs/DERMATOLOGIE.md` : choix des modèles (PanDerm, DINOv2, Derm Foundation, MONET)

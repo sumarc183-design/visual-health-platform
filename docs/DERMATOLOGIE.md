@@ -36,6 +36,15 @@ Aucune de ces pages ne publie de résultat sur ISIC 2019 ou SLICE-3D : il faudra
   grand jeu compatible avec un usage commercial, mais ce sont des recadrages de photos du
   corps entier, pas de la dermoscopie, et la tâche est binaire.
 
+## État du code (9 novembre)
+
+Prêts et testés, sans run : chargeur ISIC 2019 (`src/data/isic_dataset.py`, groupes par
+lésion, validation tirée en groupes, test officiel sans « UNK » : 21 712 / 3 619 / 6 191
+images, aucune lésion partagée entre entraînement et validation), modèle DINOv2
+(`src/models/timm_backbones.py`, vérifié avec les vrais poids), extraction
+(`extract_embeddings.py --dataset isic2019 --backbone dinov2 --preprocess none`). PanDerm
+et le notebook GPU attendent la validation du choix.
+
 ## Points à vérifier avant le run
 
 1. Que le préentraînement de PanDerm n'inclut pas les images d'évaluation (sinon la

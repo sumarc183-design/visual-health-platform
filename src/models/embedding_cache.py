@@ -116,9 +116,13 @@ def cache_file_name(dataset: str, preprocess: str, image_size: int, checkpoint: 
 
 # Nom de fichier du checkpoint de chaque modèle, et empreinte quand elle est connue
 # sans le fichier (Green : release publique ; RETFound : poids pas toujours présents).
-CHECKPOINT_STEMS = {"retfound": "RETFound_mae_natureCFP", "green": "retfoundgreen_statedict"}
+CHECKPOINT_STEMS = {
+    "retfound": "RETFound_mae_natureCFP",
+    "green": "retfoundgreen_statedict",
+    "dinov2": "dinov2_vitb14_timm",
+}
 KNOWN_CHECKPOINTS = {"green": "431de5dbc1bebbb3"}
-NATIVE_SIZES = {"retfound": 224, "green": 392}
+NATIVE_SIZES = {"retfound": 224, "green": 392, "dinov2": 224}
 
 
 def load_embeddings(

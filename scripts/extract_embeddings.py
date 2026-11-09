@@ -37,12 +37,15 @@ from run_baseline import dataset_embeddings  # noqa: E402
 from src.data.aptos_dataset import APTOSDataset  # noqa: E402
 from src.data.eyepacs_dataset import EyePACSDataset  # noqa: E402
 from src.data.fundus_preprocess import PREPROCESS_CHOICES, PREPROCESS_VERSION  # noqa: E402
+from src.data.isic_dataset import ISIC2019Dataset  # noqa: E402
 from src.data.rfmid_dataset import RFMiDDataset  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, cache_file_name, file_fingerprint  # noqa: E402
 from src.models.retfound_backbone import RETFoundBackbone  # noqa: E402
 from src.models.retfound_green import GREEN_IMAGE_SIZE, RETFoundGreenBackbone  # noqa: E402
+from src.models.timm_backbones import DINOV2_IMAGE_SIZE, DINOv2Backbone  # noqa: E402
 
-DATASETS = {"aptos": APTOSDataset, "eyepacs": EyePACSDataset, "rfmid": RFMiDDataset}
+DATASETS = {"aptos": APTOSDataset, "eyepacs": EyePACSDataset, "rfmid": RFMiDDataset, "isic2019": ISIC2019Dataset}
+SPLIT_DATASETS = ("rfmid", "isic2019")  # trois découpages, sans fichier d'étiquettes
 
 
 def main() -> None:
@@ -52,7 +55,7 @@ def main() -> None:
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True, help="Dossier du cache d'embeddings")
     parser.add_argument("--preprocess", choices=PREPROCESS_CHOICES, default="crop-mask")
-    parser.add_argument("--backbone", choices=["retfound", "green"], default="retfound")
+    parser.add_argument("--backbone", choices=["retfound", "green", "dinov2"], default="retfound")
     parser.add_argument("--image-size", type=int, default=None, help="Défaut : 224 (retfound), 392 (green)")
     parser.add_argument("--limit", type=int, default=None, help="Essai rapide : nombre d'images par jeu")
     parser.add_argument("--batch-size", type=int, default=64)
@@ -61,7 +64,9 @@ def main() -> None:
     parser.add_argument("--trust-checkpoint", action="store_true")
     args = parser.parse_args()
     if args.image_size is None:
-        args.image_size = GREEN_IMAGE_SIZE if args.backbone == "green" else 224
+        args.image_size = {"green": GREEN_IMAGE_SIZE, "dinov2": DINOV2_IMAGE_SIZE}.get(args.backbone, 224)
+    if args.dataset == "isic2019" and args.preprocess != "none":
+        parser.error("ISIC : --preprocess none (crop-mask est propre au fond d'œil)")
 
     cache = EmbeddingCache(
         args.out_dir / cache_file_name(args.dataset, args.preprocess, args.image_size, args.checkpoint),
@@ -78,6 +83,8 @@ def main() -> None:
         if not holder:
             if args.backbone == "green":
                 backbone = RETFoundGreenBackbone(args.checkpoint, img_size=args.image_size)
+            elif args.backbone == "dinov2":
+                backbone = DINOv2Backbone(args.checkpoint, img_size=args.image_size)
             else:
                 backbone = RETFoundBackbone(
                     args.checkpoint,
@@ -90,12 +97,15 @@ def main() -> None:
 
     embed_kwargs = dict(batch_size=args.batch_size, device=args.device, num_workers=args.num_workers)
     kwargs = dict(image_size=args.image_size, preprocess=args.preprocess)
-    if args.dataset == "rfmid":
+    if args.dataset in SPLIT_DATASETS:
         for split in ("train", "val", "test"):
-            dataset = RFMiDDataset(args.data_root, split=split, **kwargs)
+            if args.dataset == "isic2019":
+                dataset = ISIC2019Dataset(args.data_root, split=split, image_size=args.image_size)
+            else:
+                dataset = RFMiDDataset(args.data_root, split=split, **kwargs)
             if args.limit is not None:
                 dataset.df = dataset.df.iloc[: args.limit].reset_index(drop=True)
-            X, _ = dataset_embeddings(dataset, f"rfmid {split}", get_backbone, cache, embed_kwargs)
+            X, _ = dataset_embeddings(dataset, f"{args.dataset} {split}", get_backbone, cache, embed_kwargs)
             print(f"{len(X)} embeddings -> {cache.path}")
         return
     dataset = DATASETS[args.dataset](args.data_root, **kwargs)
