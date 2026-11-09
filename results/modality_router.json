@@ -1,0 +1,190 @@
+{
+  "run": {
+    "git_commit": "4d4571f",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.30"
+    }
+  },
+  "plan": "fixé le 9 novembre 2026 avant tout run (docstring du script)",
+  "backbone": {
+    "model": "dinov2_vitb14",
+    "checkpoint_sha256": "ba7954cb2db99604",
+    "image_size": 224
+  },
+  "threshold": 0.9,
+  "sizes": {
+    "fit": 1000,
+    "control": 300,
+    "test": 500
+  },
+  "sources": {
+    "fit_control": {
+      "fundus": "ODIR train",
+      "dermoscopy": "ISIC 2019 train",
+      "unknown": "Imagenette train"
+    },
+    "test": {
+      "fundus": "RFMiD test",
+      "dermoscopy": "ISIC 2019 test",
+      "unknown": "Imagenette val"
+    }
+  },
+  "control": {
+    "confusion": {
+      "fundus": {
+        "fundus": 300,
+        "dermoscopy": 0,
+        "unknown": 0
+      },
+      "dermoscopy": {
+        "fundus": 0,
+        "dermoscopy": 299,
+        "unknown": 1
+      },
+      "unknown": {
+        "fundus": 0,
+        "dermoscopy": 0,
+        "unknown": 300
+      }
+    },
+    "recall": {
+      "fundus": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ],
+        "n": 300
+      },
+      "dermoscopy": {
+        "value": 0.9966666666666667,
+        "ci": [
+          0.9815687479519322,
+          0.9999156108676822
+        ],
+        "n": 300
+      },
+      "unknown": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ],
+        "n": 300
+      }
+    },
+    "wrong_specialist": {
+      "fundus": {
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ],
+        "count": 0
+      },
+      "dermoscopy": {
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ],
+        "count": 0
+      },
+      "unknown": {
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ],
+        "count": 0
+      }
+    },
+    "criteria": {
+      "fundus_recall_ge_0.95": true,
+      "dermoscopy_recall_ge_0.95": true,
+      "no_cross_specialist_error": true,
+      "unknown_to_specialist_le_0.02": true
+    }
+  },
+  "test": {
+    "confusion": {
+      "fundus": {
+        "fundus": 499,
+        "dermoscopy": 1,
+        "unknown": 0
+      },
+      "dermoscopy": {
+        "fundus": 0,
+        "dermoscopy": 499,
+        "unknown": 1
+      },
+      "unknown": {
+        "fundus": 0,
+        "dermoscopy": 0,
+        "unknown": 500
+      }
+    },
+    "recall": {
+      "fundus": {
+        "value": 0.998,
+        "ci": [
+          0.9889075231010312,
+          0.9999493656659926
+        ],
+        "n": 500
+      },
+      "dermoscopy": {
+        "value": 0.998,
+        "ci": [
+          0.9889075231010312,
+          0.9999493656659926
+        ],
+        "n": 500
+      },
+      "unknown": {
+        "value": 1.0,
+        "ci": [
+          0.9926493899480923,
+          1.0
+        ],
+        "n": 500
+      }
+    },
+    "wrong_specialist": {
+      "fundus": {
+        "value": 0.002,
+        "ci": [
+          5.0634334007415215e-05,
+          0.011092476898968787
+        ],
+        "count": 1
+      },
+      "dermoscopy": {
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.007350610051907784
+        ],
+        "count": 0
+      },
+      "unknown": {
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.007350610051907784
+        ],
+        "count": 0
+      }
+    },
+    "criteria": {
+      "fundus_recall_ge_0.95": true,
+      "dermoscopy_recall_ge_0.95": true,
+      "no_cross_specialist_error": false,
+      "unknown_to_specialist_le_0.02": true
+    }
+  }
+}

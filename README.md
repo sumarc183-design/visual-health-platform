@@ -681,6 +681,7 @@ docs/                   guide, carte du modèle, roadmap, cas d'usage
 | [MODEL_CARD.md](docs/MODEL_CARD.md) | Usage prévu, données, métriques, limites |
 | [ROADMAP.md](docs/ROADMAP.md) | Jalons J30 / J60 / J90 |
 | [USE_CASES.md](docs/USE_CASES.md) | Arbitrage entre fond d'œil, dermatologie et TSA |
+| [MODALITE.md](docs/MODALITE.md) | Routeur de modalité : fond d'œil, dermoscopie ou inconnu ; 998/1 000 images bien routées sur d'autres sources, un critère non atteint |
 | [DERMATOLOGIE.md](docs/DERMATOLOGIE.md) | Seconde indication : plan fixé avant le run et résultats ISIC 2019 ; gain d'AUROC macro de PanDerm sur DINOv2-L de +0,037 [+0,030 ; +0,043] |
 | [DROITS_DONNEES.md](docs/DROITS_DONNEES.md) | Licences des modèles et des données, points à trancher pour un usage en entreprise |
 | [CHANGELOG.md](CHANGELOG.md) | Historique des versions |

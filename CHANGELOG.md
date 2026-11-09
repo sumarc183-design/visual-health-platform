@@ -6,6 +6,16 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Routeur de modalité (J30, 9 nov.) : DINOv2-B figé, régression logistique à trois
+  classes (fond d'œil, dermoscopie, inconnu) et seuil de confiance 0,9 fixés avant le
+  run. Test sur d'autres sources : 499/500 fonds d'œil (RFMiD), 499/500 dermoscopies
+  (ISIC test), 500/500 photos ordinaires rejetées. Critère « aucune erreur croisée » non
+  atteint (un fond d'œil très pathologique envoyé en dermoscopie). Non branché
+  automatiquement dans `predict.py`. `docs/MODALITE.md`, `results/modality_router.json`,
+  `scripts/train_modality_router.py` ; le placeholder MobileNet est remplacé. 4 tests.
+- Dermatologie, contrôle ajouté après le run : 78 images du test ISIC ne sont jamais
+  notées par le challenge (images pièges) ; sans elles, ou sur les 5 920 images du score
+  final officiel, PanDerm − DINOv2-L reste à +0,037 et +0,038.
 - Défauts réels ODIR (9 nov.) : annotations techniques originales réassociées
   aux splits par patient, 24 préannotations visuelles provisoires du train
   conservées localement, étude de 463 images. Aucun gain de détection avec

@@ -26,8 +26,12 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
   aucun gain de détection avec l'union luminosité/flou aux seuils fixés ;
   seulement 2 patients « low image quality » en validation. Relecture humaine
   et annotations spécifiques encore nécessaires ; aucune nouvelle règle de rejet.
-- [ ] Identification de modalité : constituer un jeu étiqueté, entraîner et évaluer
-  le classifieur avant son intégration au parcours de prédiction.
+- [ ] Identification de modalité : routeur entraîné et évalué le 9 novembre
+  (DINOv2-B figé, plan fixé avant le run) : 499/500 fonds d'œil, 499/500 dermoscopies
+  et 500/500 photos ordinaires bien routés sur d'autres sources. Critère « aucune
+  erreur croisée » non atteint (un fond d'œil pathologique envoyé en dermoscopie) ;
+  intégration à `predict.py` comme garde-fou à décider avec le tuteur
+  ([détails](MODALITE.md)).
 
 ## J60 — Localisation (31 décembre 2026)
 - [x] Localisation/segmentation des zones suspectes (6 nov., première mesure sur IDRiD) : occlusion contre masques d'experts, segmentation par case sur tokens de patch, RETFound et Green ; disque optique AP 0,919, exsudats durs 0,651 (Green, 27 images de test). Pas de validation externe ni d'intégration à `predict.py`.

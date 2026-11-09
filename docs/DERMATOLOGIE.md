@@ -151,6 +151,21 @@ La validation va dans le même sens : PanDerm dépasse aussi DINOv2-L en AUROC
 macro, avec **+0,038 [+0,021 ; +0,055]**. Cette concordance renforce le constat,
 sans remplacer la comparaison principale sur le test officiel.
 
+### Contrôle ajouté après le run : images jamais notées
+
+Trouvé le 9 novembre en examinant le routeur de modalité : le fichier officiel du test
+marque 78 des 6 191 images avec `score_weight = 0` et `validation_weight = 0`. Elles ne
+comptent dans aucun score du challenge ; au moins l'une d'elles est un dessin, pas une
+lésion (image piège). Recalcul sur les scores archivés, sans réentraînement :
+
+| Images du test | PanDerm − DINOv2-L, AUROC macro |
+|---|---|
+| Toutes (6 191, plan fixé avant le run) | +0,037 [+0,030 ; +0,043] |
+| Sans les 78 jamais notées (6 113) | +0,037 [+0,030 ; +0,044] |
+| Score final officiel seulement (5 920) | +0,038 [+0,031 ; +0,044] |
+
+La conclusion ne change pas. Le résultat principal reste celui du plan.
+
 ### Réserves et traçabilité
 
 - Il s'agit d'une sonde linéaire sur des modèles figés, pas d'un ajustement complet
