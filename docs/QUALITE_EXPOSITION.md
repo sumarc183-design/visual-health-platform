@@ -169,3 +169,25 @@ défauts sur un échantillon plus large, avec plusieurs lecteurs si possible.
 Tout futur détecteur doit avoir son protocole fixé avant une nouvelle mesure.
 Le résultat actuel ne justifie aucune nouvelle règle de rejet ; les défauts de
 modalité (vue externe de l'œil) doivent aussi être traités séparément de l'exposition.
+
+## Relecture humaine (9 novembre 2026)
+
+Série équilibrée de 36 images du train ODIR, codes anonymes et ordre aléatoire :
+18 images avec un mot-clé de qualité (hors poussière) et 18 témoins tirés au hasard
+(`scripts/quality_real_defects.py --prepare-only`). Relectures et correspondances
+restent locales (`data/quality_review_v2/`).
+
+- **Deux lectures indépendantes** : Marc, seul et sans voir d'autre lecture, et une
+  préannotation de l'assistant. Accord avant discussion, sur 36 images : fond d'œil
+  visible 33, trop sombre 34, trop clair 29, flou 33, artefacts 33.
+- **Définitions précisées après comparaison** : la plupart des désaccords venaient du
+  sens des questions. « Trop sombre » ou « trop clair » veut dire *au point de cacher des
+  détails*, pas seulement une photo sombre ou claire ; « fond d'œil visible » veut dire
+  rétine visible (disque ou vaisseaux), même sans le cercle du champ. Ces désaccords ont
+  été harmonisés après discussion ; les désaccords de jugement gardent la réponse de Marc.
+- **Concordance avec les mots-clés d'ODIR** (lecture finale de Marc) : un défaut
+  technique est vu sur 16 des 18 images à mot-clé, et sur 3 des 18 témoins.
+
+Limites : un seul relecteur humain, non spécialiste, sur le train ; série trop petite
+pour régler ou valider un seuil. Ces annotations ne servent ni à régler ni à valider les
+détecteurs actuels.
