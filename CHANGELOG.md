@@ -6,6 +6,8 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- `docs/DERMATOLOGIE.md` : choix des modèles (PanDerm, DINOv2, Derm Foundation, MONET)
+  et des jeux ISIC pour la seconde indication, licences comprises.
 - Notebooks : clonage possible d'un dépôt privé (secret `GITHUB_TOKEN`, jamais
   affiché) et révision du code fixable (`REVISION`), point restant de l'audit du 6 nov.
 - Green à résolution égale : `RETFoundGreenBackbone` accepte une autre taille

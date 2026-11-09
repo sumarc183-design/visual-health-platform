@@ -674,6 +674,7 @@ docs/                   guide, carte du modèle, roadmap, cas d'usage
 | [MODEL_CARD.md](docs/MODEL_CARD.md) | Usage prévu, données, métriques, limites |
 | [ROADMAP.md](docs/ROADMAP.md) | Jalons J30 / J60 / J90 |
 | [USE_CASES.md](docs/USE_CASES.md) | Arbitrage entre fond d'œil, dermatologie et TSA |
+| [DERMATOLOGIE.md](docs/DERMATOLOGIE.md) | Seconde indication : choix des modèles et des données, avant tout run |
 | [DROITS_DONNEES.md](docs/DROITS_DONNEES.md) | Licences des modèles et des données, points à trancher pour un usage en entreprise |
 | [CHANGELOG.md](CHANGELOG.md) | Historique des versions |
 
