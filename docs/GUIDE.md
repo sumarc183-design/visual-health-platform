@@ -140,6 +140,11 @@ Options utiles :
   d'entraînement ODIR acceptables. Il détecte le flou franc, pas les autres
   défauts de qualité (exposition, artefacts).
 
+### Diagnostic d'exposition
+
+Diagnostic exploratoire d'exposition, sans nouvelle règle de rejet :
+[protocole et commande](QUALITE_EXPOSITION.md), sur le train ODIR uniquement.
+
 ### Comparer deux variantes
 
 Les nouveaux JSON de `compare_predictions.py`, `external_validation.py`,
