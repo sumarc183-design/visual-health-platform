@@ -9,6 +9,12 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 /embeddings/
+/embeddings_derm/
+/log_dinov2-large.txt
+/log_dinov2.txt
+/log_panderm.txt
+# Scores ISIC locaux : accord de Marc requis avant versionnement
+/results/dermatology_isic2019.npz
 # Tokens de patch (150 Mo), recalculables : notebooks/kaggle_localization_idrid.ipynb
 results/localization/localization_*.npz
 

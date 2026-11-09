@@ -80,3 +80,66 @@ L'article de PanDerm ne donne pas de résultat dédié à ISIC 2019 avec une son
 (seule une ablation, protocole non précisé). Sur HAM10000, il rapporte une AUROC de 0,988
 (sonde linéaire, Extended Data Table 8) : nos chiffres ne sont pas directement comparables
 (autre jeu, autre tête).
+
+## Résultats
+
+Analyse locale du 9 novembre 2026, après extraction des trois caches Kaggle.
+Résultats complets : [dermatology_isic2019.json](../results/dermatology_isic2019.json).
+Le plan ci-dessus a été conservé : une seule exécution de l'analyse sur le test,
+sans sélection de réglages après lecture des résultats.
+
+21 712 images d'entraînement, 3 619 de validation et 6 191 du test officiel, après
+exclusion des « UNK ». Les intervalles à 95 % utilisent 1 000 tirages bootstrap
+par groupes, communs aux modèles pour les différences appariées. En validation,
+les lésions et les quasi-doublons forment 1 990 groupes (3 paires quasi identiques).
+Sur le test, aucun quasi-doublon n'est détecté au seuil fixé (cosinus ≥ 0,999 sur
+DINOv2-L) : les 6 191 groupes correspondent donc aux images. Sans identifiants de
+lésion sur ce test, une corrélation résiduelle entre images reste possible.
+
+### Test officiel
+
+Chaque valeur est suivie de son intervalle à 95 %. Les mesures sont sur l'échelle
+0–1 ; l'exactitude équilibrée est la moyenne des rappels des huit classes.
+
+| Modèle figé | AUROC macro | Exactitude équilibrée |
+|---|---|---|
+| PanDerm-Large | 0,918 [0,912 ; 0,923] | 0,501 [0,480 ; 0,522] |
+| DINOv2 ViT-L/14 | 0,881 [0,874 ; 0,888] | 0,439 [0,421 ; 0,459] |
+| DINOv2 ViT-B/14 | 0,872 [0,864 ; 0,880] | 0,441 [0,422 ; 0,460] |
+
+| Différence appariée | AUROC macro | Exactitude équilibrée |
+|---|---|---|
+| **PanDerm − DINOv2-L (principale)** | **+0,037 [+0,030 ; +0,043]** | **+0,061 [+0,040 ; +0,084]** |
+| PanDerm − DINOv2-B | +0,046 [+0,040 ; +0,053] | +0,059 [+0,039 ; +0,082] |
+| DINOv2-L − DINOv2-B | +0,010 [+0,002 ; +0,017] | −0,002 [−0,021 ; +0,019] |
+
+L'intervalle de la comparaison principale exclut zéro : la spécialisation apporte
+un gain mesurable dans ce protocole, à taille de modèle comparable. Le passage de
+DINOv2-B à DINOv2-L améliore aussi l'AUROC sur le test, sans gain démontré en
+exactitude équilibrée. Ces comparaisons secondaires restent distinctes du critère
+principal fixé avant le run.
+
+### Réserves et traçabilité
+
+- Il s'agit d'une sonde linéaire sur des modèles figés, pas d'un ajustement complet
+  ni d'une validation clinique. L'écart ne permet pas d'isoler causalement le seul
+  contenu du préentraînement : architectures et méthodes de préentraînement diffèrent.
+- Un recouvrement avec le préentraînement de PanDerm reste possible, ses sources
+  n'étant pas toutes publiques. HAM10000, inclus dans ISIC 2019, a déjà servi à
+  l'évaluer : cette mesure n'est pas aveugle pour PanDerm.
+- Les intervalles reflètent le rééchantillonnage des groupes d'évaluation, pas la
+  variabilité entre plusieurs entraînements de la tête.
+- Code d'analyse : `5b2292c`, enregistré `5b2292c-dirty` dans le JSON car seul
+  `.gitignore` avait été modifié pour protéger les caches, journaux et scores locaux.
+  Python 3.12.7, NumPy 1.26.4, scikit-learn 1.9.1, torch 2.2.2 et timm 1.0.30.
+- Empreintes déclarées dans les caches : PanDerm `23405e92f853c6f7`, DINOv2-L
+  `0d3a8369d3cb28e6`, DINOv2-B `388c468b37acb34e`. Celle de PanDerm correspond à
+  l'empreinte attendue ; celles de DINOv2 ne sont pas vérifiées contre les poids
+  locaux, absents sur cette machine.
+- Contrôles : archive ZIP intègre ; mêmes 31 522 clés uniques dans les trois
+  caches, embeddings finis ; cohérence des moyennes macro, différences, intervalles
+  et dimensions des scores ; 7 tests ciblés ISIC/analyse réussis ; lint et format
+  vérifiés sur `src`, `scripts` et `tests`. La suite complète n'a pas été relancée.
+  Aucun nouvel entraînement ni nouvelle évaluation du test pour ces contrôles.
+- Le fichier local `results/dermatology_isic2019.npz` reste ignoré par Git ; son
+  éventuel partage nécessite l'accord de Marc.
