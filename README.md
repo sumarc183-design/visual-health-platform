@@ -172,8 +172,15 @@ encodages de position interpolés ; [résultats](results/green_analysis_224.json
 EyePACS 0,680 contre 0,661, soit +0,019 [−0,001 ; +0,038] ; APTOS à format égal
 +0,014 [−0,004 ; +0,030] ; test RFMiD +0,002. Aucun gain n'est démontré à 224 px :
 l'avantage observé à 392 px tient donc en grande partie à la résolution, ou à une
-perte due à l'adaptation, Green n'ayant pas été entraîné à 224 px. Ce test ne dit pas
-si RETFound gagnerait aussi à une résolution plus haute.
+perte due à l'adaptation, Green n'ayant pas été entraîné à 224 px.
+
+**RETFound ne gagne pas à monter en résolution** (384 px, encodages de position
+interpolés ; [résultats](results/green_analysis_retfound384.json),
+[écart apparié](results/retfound_384_vs_224.json)) : EyePACS 0,651 contre 0,661 à
+224 px (−0,010 [−0,020 ; −0,001]), APTOS 0,769 contre 0,827. Green à 392 px garde son
+avance sur RETFound à 384 px : +0,075 [+0,053 ; +0,095] sur EyePACS, +0,068 à format
+égal. Chaque modèle fait mieux à sa résolution d'origine : l'avantage de Green tient à
+l'ensemble modèle et résolution, pas à la seule résolution.
 Limites : le pré-entraînement de Green inclut ODIR, d'où l'absence de cette base.
 
 **Choix du modèle** : `predict.py` accepte les deux, RETFound restant l'exemple

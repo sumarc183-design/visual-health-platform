@@ -169,7 +169,7 @@ def external_comparison(root: Path, directory: Path, name: str, archive: dict) -
             f"{name}_keys": np.array(keys),
             f"{name}_grade": grade,
             f"{name}_groups": np.array(groups),
-            f"{name}_formats": formats,
+            f"{name}_formats": formats.astype(str),
             f"{name}_folds": np.concatenate([np.full(len(h), i) for i, (_, h) in enumerate(folds)])[
                 np.argsort(np.concatenate([h for _, h in folds]))
             ],

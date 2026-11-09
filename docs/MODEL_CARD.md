@@ -88,7 +88,9 @@ avec Green. Résultats détaillés :
   il ne fait pas mieux sur EyePACS (0,650 contre 0,661). RETFound-Green, servi
   par `predict.py` au choix, fait mieux en externe à 392 px (EyePACS 0,726, APTOS
   0,958, à tête égale), mais aucun gain n'est démontré à résolution égale (224 px :
-  EyePACS 0,680, +0,019 [−0,001 ; +0,038]). Il est moins bon sur la DMLA (−0,065).
+  EyePACS 0,680, +0,019 [−0,001 ; +0,038]), et RETFound ne gagne pas à 384 px
+  (EyePACS 0,651) : chaque modèle est meilleur à sa résolution d'origine, où Green
+  reste devant. Il est moins bon sur la DMLA (−0,065).
   Le fine-tuning n'est pas servi.
 - **Population et appareils** : jeux de données publics de quelques centres.
   Le format d'image, indicateur indirect de l'appareil, reste lisible dans les

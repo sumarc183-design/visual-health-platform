@@ -19,7 +19,9 @@ selon [SemVer](https://semver.org/lang/fr/).
   APTOS à format égal +0,014 [−0,004 ; +0,030], test RFMiD +0,002 : aucun gain
   démontré à 224 px. Fiche du modèle : « Green non servi » corrigé (audit du 6 nov.).
 - RETFound à 384 px : `green_analysis.py --retfound-size 384`,
-  `notebooks/kaggle_retfound_384.ipynb`.
+  `notebooks/kaggle_retfound_384.ipynb`. Résultat du 9 nov. : EyePACS 0,651 contre
+  0,661 à 224 px (−0,010 [−0,020 ; −0,001]), APTOS 0,769 contre 0,827 ; Green à
+  392 px reste devant (+0,075 [+0,053 ; +0,095] sur EyePACS).
 - `docs/DROITS_DONNEES.md` : licences des modèles et des données (fond d'œil, ISIC),
   et points à trancher pour un usage en entreprise.
 

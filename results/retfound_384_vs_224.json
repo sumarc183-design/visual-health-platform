@@ -1,0 +1,45 @@
+{
+ "run": {
+  "git_commit": "276caaf-dirty",
+  "python": "3.12.7",
+  "versions": {
+   "numpy": "1.26.4",
+   "scikit-learn": "1.9.1",
+   "torch": "2.2.2",
+   "timm": "1.0.30"
+  }
+ },
+ "description": "RETFound à 384 px moins RETFound à 224 px, tête RFMiD, scores archivés ; groupes de doublons repérés sur les embeddings à 224 px (ceux des autres analyses)",
+ "aptos": {
+  "global": {
+   "diff": -0.05725435091001041,
+   "ci": [
+    -0.06432909728857829,
+    -0.05053052986073217
+   ]
+  },
+  "within_format": {
+   "diff": -0.04747205284552847,
+   "ci": [
+    -0.07042366297798172,
+    -0.02477306326688703
+   ]
+  }
+ },
+ "eyepacs": {
+  "global": {
+   "diff": -0.010029871382802535,
+   "ci": [
+    -0.019895390358603975,
+    -0.0006521124649140872
+   ]
+  },
+  "within_format": {
+   "diff": -0.001138617733458247,
+   "ci": [
+    -0.014221173664204311,
+    0.011238755415235195
+   ]
+  }
+ }
+}
