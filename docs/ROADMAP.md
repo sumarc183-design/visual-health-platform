@@ -26,6 +26,9 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
   aucun gain de détection avec l'union luminosité/flou aux seuils fixés ;
   seulement 2 patients « low image quality » en validation. Relecture humaine
   et annotations spécifiques encore nécessaires ; aucune nouvelle règle de rejet.
+  Relecture humaine faite le 9 novembre (36 images, série équilibrée) : les mots-clés
+  d'ODIR concordent avec ce qu'un humain voit. Détecteur appris sur défauts simulés :
+  pas mieux que le hasard sur les vrais défauts.
 - [ ] Identification de modalité : routeur entraîné et évalué le 9 novembre
   (DINOv2-B figé, plan fixé avant le run) : 499/500 fonds d'œil, 499/500 dermoscopies
   et 500/500 photos ordinaires bien routés sur d'autres sources. Critère « aucune

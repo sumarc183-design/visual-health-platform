@@ -191,3 +191,24 @@ restent locales (`data/quality_review_v2/`).
 Limites : un seul relecteur humain, non spécialiste, sur le train ; série trop petite
 pour régler ou valider un seuil. Ces annotations ne servent ni à régler ni à valider les
 détecteurs actuels.
+
+## Détecteur appris sur des défauts simulés (9 novembre 2026) : sans gain
+
+Plan fixé avant le run (`scripts/quality_learned_detector.py`, commit `7855413`) :
+600 images propres du train ODIR, chacune dupliquée avec un défaut simulé (flou,
+sous-exposition, voile clair, taches, bande claire en bas), embeddings DINOv2-B figés,
+régression logistique, seuil 0,5. Aucun vrai défaut à l'entraînement.
+
+| Test (vrais défauts) | Détecteur appris | Détecteur actuel (luminance ou flou) |
+|---|---|---|
+| A. Validation ODIR, patients à mot-clé détectés | 3 / 31 | 3 / 31 |
+| A. Fausses alertes sur les témoins | 6 / 110 | 1 / 110 |
+| B. Relecture de Marc, défauts vus détectés | 3 / 19 | 4 / 19 |
+| B. Fausses alertes | 0 / 17 | 0 / 17 |
+
+AUROC du détecteur appris sur le test A : 0,56 [0,46 ; 0,67], pas mieux que le hasard.
+Les défauts simulés ne ressemblent pas assez aux vrais. Le JSON porte `7855413-dirty` :
+seule une conversion de types pour l'écriture JSON a été corrigée après un premier run
+interrompu avant tout affichage. Résultats : `results/quality_learned_detector.json`.
+Aucune règle de rejet ajoutée. Piste suivante : apprendre sur de vrais défauts annotés
+(mots-clés ODIR, relecture humaine), ce qui demande plus d'annotations.

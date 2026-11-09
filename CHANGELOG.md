@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Contrôle qualité (9 nov.) : relecture humaine de 36 images ODIR en série équilibrée
+  (défaut vu sur 16/18 images à mot-clé, 3/18 témoins) ; détecteur appris sur des
+  défauts simulés, sans gain sur les vrais défauts (AUROC 0,56 [0,46 ; 0,67]).
+  `docs/QUALITE_EXPOSITION.md`, `results/quality_learned_detector.json`. 7 tests.
 - Routeur de modalité (J30, 9 nov.) : DINOv2-B figé, régression logistique à trois
   classes (fond d'œil, dermoscopie, inconnu) et seuil de confiance 0,9 fixés avant le
   run. Test sur d'autres sources : 499/500 fonds d'œil (RFMiD), 499/500 dermoscopies

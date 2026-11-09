@@ -208,8 +208,8 @@ def main() -> None:
     test_b = {"defect_seen": int(seen.sum()), "no_defect": int((~seen).sum()), "detectors": {}}
     for name, flags in (("learned", p_rev >= THRESHOLD), ("current", current(rows))):
         test_b["detectors"][name] = {
-            "sensitivity": exact_rate(list(flags[seen])),
-            "false_alert_rate": exact_rate(list(flags[~seen])),
+            "sensitivity": exact_rate([bool(f) for f in flags[seen]]),
+            "false_alert_rate": exact_rate([bool(f) for f in flags[~seen]]),
         }
 
     report = {

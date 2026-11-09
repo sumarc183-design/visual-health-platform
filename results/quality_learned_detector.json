@@ -1,0 +1,128 @@
+{
+  "run": {
+    "git_commit": "7855413-dirty",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.30"
+    }
+  },
+  "plan": "fixé le 9 novembre 2026 avant tout run (docstring du script)",
+  "backbone": {
+    "model": "dinov2_vitb14",
+    "checkpoint_sha256": "ba7954cb2db99604"
+  },
+  "training": {
+    "base_images": 600,
+    "defects": {
+      "blur": 123,
+      "dark": 121,
+      "washed": 113,
+      "spots": 120,
+      "glare_band": 123
+    }
+  },
+  "threshold": 0.5,
+  "test_a_odir_validation": {
+    "positive_images": 40,
+    "control_images": 120,
+    "detectors": {
+      "learned": {
+        "sensitivity": {
+          "detected": 3,
+          "patients": 31,
+          "rate": 0.0967741935483871,
+          "ci": [
+            0.0204198626877921,
+            0.2575390646277355
+          ]
+        },
+        "false_alert_rate": {
+          "detected": 6,
+          "patients": 110,
+          "rate": 0.05454545454545454,
+          "ci": [
+            0.020277720969548958,
+            0.11494662512228844
+          ]
+        },
+        "auroc_image": {
+          "value": 0.5629166666666667,
+          "ci": [
+            0.45618415025194686,
+            0.6678324190177638
+          ],
+          "valid_bootstrap_draws": 500
+        }
+      },
+      "current": {
+        "sensitivity": {
+          "detected": 3,
+          "patients": 31,
+          "rate": 0.0967741935483871,
+          "ci": [
+            0.0204198626877921,
+            0.2575390646277355
+          ]
+        },
+        "false_alert_rate": {
+          "detected": 1,
+          "patients": 110,
+          "rate": 0.00909090909090909,
+          "ci": [
+            0.0002301354055502925,
+            0.04961118931198478
+          ]
+        }
+      }
+    }
+  },
+  "test_b_human_review": {
+    "defect_seen": 19,
+    "no_defect": 17,
+    "detectors": {
+      "learned": {
+        "sensitivity": {
+          "detected": 3,
+          "patients": 19,
+          "rate": 0.15789473684210525,
+          "ci": [
+            0.03382624900176467,
+            0.3957845512666743
+          ]
+        },
+        "false_alert_rate": {
+          "detected": 0,
+          "patients": 17,
+          "rate": 0.0,
+          "ci": [
+            0.0,
+            0.19506432296909318
+          ]
+        }
+      },
+      "current": {
+        "sensitivity": {
+          "detected": 4,
+          "patients": 19,
+          "rate": 0.21052631578947367,
+          "ci": [
+            0.060524537709289755,
+            0.45565308189150555
+          ]
+        },
+        "false_alert_rate": {
+          "detected": 0,
+          "patients": 17,
+          "rate": 0.0,
+          "ci": [
+            0.0,
+            0.19506432296909318
+          ]
+        }
+      }
+    }
+  }
+}
