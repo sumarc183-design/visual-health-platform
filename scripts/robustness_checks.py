@@ -48,7 +48,7 @@ from src.data.odir_dataset import ODIRDataset  # noqa: E402
 from src.data.rfmid_dataset import RFMiDDataset  # noqa: E402
 from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel, stratification_gap  # noqa: E402
 from src.models.classifier_head import MultiLabelHead, train_head  # noqa: E402
-from src.models.embedding_cache import EmbeddingCache  # noqa: E402
+from src.models.embedding_cache import load_embeddings  # noqa: E402
 
 CHECKPOINT_STEM = "RETFound_mae_natureCFP"
 MIN_DEVICE_IMAGES = 30  # format retenu comme « appareil » s'il a au moins 30 images en train
@@ -80,7 +80,8 @@ def embeddings(cache_dir: Path, name: str, preprocess: str, keys: list[str]) -> 
         "preprocess_version": PREPROCESS_VERSION,
         "image_size": 224,
     }
-    return EmbeddingCache(cache_dir / f"{name}_{preprocess}_224_{CHECKPOINT_STEM}.npz", meta=meta).get(keys)
+    del meta  # contrat porté par le chargeur commun
+    return load_embeddings(cache_dir, name, keys, "retfound", preprocess)
 
 
 def device_probe(name: str, root: Path, cache_dir: Path) -> dict:

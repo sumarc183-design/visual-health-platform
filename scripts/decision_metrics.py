@@ -31,7 +31,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.eval.decision import per_class_report  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.models.classifier_head import head_contract, head_probe, head_sha256  # noqa: E402
-from src.models.embedding_cache import EmbeddingCache  # noqa: E402
+from src.models.embedding_cache import load_embeddings  # noqa: E402
 
 MAX_REPRODUCTION_GAP = 1e-3
 
@@ -57,13 +57,13 @@ def link_head(report: dict, head_path: Path, cache_dir: Path, dataset: str, spli
     head = torch.load(head_path, map_location="cpu", weights_only=True)
     if list(head["class_names"]) != classes:
         raise ValueError("la tête et les prédictions n'ont pas les mêmes classes")
-    stem = "retfoundgreen_statedict" if head.get("backbone") == "green" else "RETFound_mae_natureCFP"
-    name = f"{dataset}_{head.get('preprocess', 'none')}_{head['image_size']}_{stem}.npz"
+    backbone = head.get("backbone", "retfound")
+    preprocess, size = head.get("preprocess", "none"), head["image_size"]
     weight = head["state_dict"]["fc.weight"].double().numpy()
     bias = head["state_dict"]["fc.bias"].double().numpy()
     gaps = {}
     for split, predictions in splits.items():
-        X = EmbeddingCache(cache_dir / name).get(list(predictions["keys"]))
+        X = load_embeddings(cache_dir, dataset, list(predictions["keys"]), backbone, preprocess, size)
         recomputed = 1 / (1 + np.exp(-(X @ weight.T + bias)))
         gaps[split] = float(np.abs(recomputed - predictions["probs"]).max())
         if gaps[split] > MAX_REPRODUCTION_GAP:

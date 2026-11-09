@@ -112,3 +112,40 @@ class EmbeddingCache:
 
 def cache_file_name(dataset: str, preprocess: str, image_size: int, checkpoint: str | Path) -> str:
     return f"{dataset}_{preprocess}_{image_size}_{Path(checkpoint).stem}.npz"
+
+
+# Nom de fichier du checkpoint de chaque modèle, et empreinte quand elle est connue
+# sans le fichier (Green : release publique ; RETFound : poids pas toujours présents).
+CHECKPOINT_STEMS = {"retfound": "RETFound_mae_natureCFP", "green": "retfoundgreen_statedict"}
+KNOWN_CHECKPOINTS = {"green": "431de5dbc1bebbb3"}
+NATIVE_SIZES = {"retfound": 224, "green": 392}
+
+
+def load_embeddings(
+    directory: str | Path,
+    dataset: str,
+    keys: list[str],
+    backbone: str = "retfound",
+    preprocess: str = "crop-mask",
+    image_size: int | None = None,
+) -> np.ndarray:
+    """Chargeur commun des analyses : refuse un cache calculé avec une autre
+    configuration (prétraitement, sa version, taille, checkpoint quand il est
+    connu) ou auquel manquent des images."""
+    from src.data.fundus_preprocess import PREPROCESS_VERSION
+
+    if backbone not in CHECKPOINT_STEMS:
+        raise ValueError(f"modèle {backbone!r} inconnu, attendu parmi {sorted(CHECKPOINT_STEMS)}")
+    size = image_size or NATIVE_SIZES[backbone]
+    meta = {
+        "checkpoint_sha256": KNOWN_CHECKPOINTS.get(backbone),
+        "preprocess": preprocess,
+        "preprocess_version": PREPROCESS_VERSION,
+        "image_size": size,
+    }
+    path = Path(directory) / f"{dataset}_{preprocess}_{size}_{CHECKPOINT_STEMS[backbone]}.npz"
+    cache = EmbeddingCache(path, meta=meta)
+    missing = cache.missing(keys)
+    if missing:
+        raise CacheMismatchError(f"{path.name} : {len(missing)} image(s) absente(s), dont {missing[:3]}")
+    return cache.get(keys).astype(np.float32)

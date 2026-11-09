@@ -64,12 +64,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.external_validation import auroc_with_ci, quiet_scores  # noqa: E402
 from scripts.finetune_analysis import paired_external_diff  # noqa: E402
 from scripts.robustness_checks import CHECKPOINT_STEM, head_scores, load  # noqa: E402
-from src.data.fundus_preprocess import PREPROCESS_VERSION  # noqa: E402
 from src.eval.decision import choose_threshold, decision_metrics  # noqa: E402
 from src.eval.duplicates import independent_groups  # noqa: E402
 from src.eval.metrics import evaluate_multilabel, paired_bootstrap_diff, stratification_gap  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
-from src.models.embedding_cache import EmbeddingCache  # noqa: E402
+from src.models.embedding_cache import load_embeddings  # noqa: E402
 from src.models.retfound_green import GREEN_IMAGE_SIZE  # noqa: E402
 
 GREEN_FILE = "{}_crop-mask_{size}_retfoundgreen_statedict.npz"
@@ -81,21 +80,10 @@ RETFOUND_SIZE = {"value": 224}  # --retfound-size
 
 
 def cached(directory: Path, model: str, dataset: str, keys: list[str]) -> np.ndarray:
-    """Refuse un cache d'une autre configuration ; l'empreinte du checkpoint n'est
-    contrôlée que pour Green, RETFound n'étant pas toujours sur la machine."""
-    meta = {
-        "checkpoint_sha256": GREEN_CHECKPOINT_SHA if model == "RETFound-Green" else None,
-        "preprocess": "crop-mask",
-        "preprocess_version": PREPROCESS_VERSION,
-        "image_size": GREEN_SIZE["value"] if model == "RETFound-Green" else RETFOUND_SIZE["value"],
-    }
-    return (
-        EmbeddingCache(
-            directory / FILES[model].format(dataset, size=GREEN_SIZE["value"], rsize=RETFOUND_SIZE["value"]), meta=meta
-        )
-        .get(keys)
-        .astype(np.float32)
-    )
+    """Chargeur commun : refuse un cache d'une autre configuration."""
+    if model == "RETFound-Green":
+        return load_embeddings(directory, dataset, keys, "green", image_size=GREEN_SIZE["value"])
+    return load_embeddings(directory, dataset, keys, "retfound", image_size=RETFOUND_SIZE["value"])
 
 
 def external_labels(directory: Path, name: str) -> pd.DataFrame:

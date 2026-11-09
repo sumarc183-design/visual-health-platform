@@ -6,6 +6,8 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- `load_embeddings` : chargeur d'embeddings commun aux analyses (configuration et
+  complétude vérifiées), point restant de l'audit du 6 nov. Résultats inchangés. 1 test.
 - `docs/DERMATOLOGIE.md` : choix des modèles (PanDerm, DINOv2, Derm Foundation, MONET)
   et des jeux ISIC pour la seconde indication, licences comprises.
 - Notebooks : clonage possible d'un dépôt privé (secret `GITHUB_TOKEN`, jamais

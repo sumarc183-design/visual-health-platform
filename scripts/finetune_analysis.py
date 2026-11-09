@@ -42,7 +42,7 @@ from src.eval.metrics import (  # noqa: E402
     stratification_gap,
     stratified_auroc,
 )
-from src.models.embedding_cache import EmbeddingCache  # noqa: E402
+from src.models.embedding_cache import load_embeddings  # noqa: E402
 
 
 def compare(linear_path: Path, finetune_path: Path) -> dict:
@@ -114,7 +114,7 @@ def main() -> None:
         grade = ft["grade"]
         y = (grade >= 1).astype(np.float32)
         keys, formats = list(ft["keys"]), ft["formats"]
-        X = EmbeddingCache(args.embeddings / f"{name}_crop-mask_224_RETFound_mae_natureCFP.npz").get(keys)
+        X = load_embeddings(args.embeddings, name, keys)
         groups, _ = independent_groups(X, list(ft["groups"]) if "groups" in ft.files else keys)
         with contextlib.redirect_stdout(io.StringIO()):
             linear = head_scores(

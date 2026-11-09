@@ -46,7 +46,7 @@ from scripts.robustness_checks import embeddings, head_scores, load  # noqa: E40
 from scripts.site_adaptation import split_site_report  # noqa: E402
 from src.eval.duplicates import independent_groups  # noqa: E402
 from src.eval.metrics import stratification_gap  # noqa: E402
-from src.models.embedding_cache import EmbeddingCache  # noqa: E402
+from src.models.embedding_cache import load_embeddings  # noqa: E402
 
 MIN_FORMAT_IMAGES = 30
 
@@ -67,7 +67,7 @@ def main() -> None:
 
     labels = pd.read_csv(args.embeddings / "aptos_labels.csv").merge(pd.read_csv(args.formats), on="id_code")
     labels["format"] = labels["width"].astype(str) + "x" + labels["height"].astype(str)
-    X = EmbeddingCache(args.embeddings / "aptos_crop-mask_224_RETFound_mae_natureCFP.npz").get(list(labels["key"]))
+    X = load_embeddings(args.embeddings, "aptos", list(labels["key"]))
     grade = labels["diagnosis"].to_numpy()
     y = (grade >= 1).astype(np.float32)
     formats = labels["format"].to_numpy()

@@ -69,7 +69,7 @@ from src.eval.duplicates import (  # noqa: E402
     merge_groups,
 )
 from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel, stratification_gap  # noqa: E402
-from src.models.embedding_cache import EmbeddingCache  # noqa: E402
+from src.models.embedding_cache import load_embeddings  # noqa: E402
 
 DR_COLUMN = {"rfmid": "DR", "odir": "D"}
 CHECKPOINT_STEM = "RETFound_mae_natureCFP"
@@ -139,8 +139,7 @@ def main() -> None:
 
     ext = args.external
     labels = pd.read_csv(args.embeddings / f"{ext}_labels.csv")
-    cache = EmbeddingCache(args.embeddings / f"{ext}_crop-mask_224_{CHECKPOINT_STEM}.npz")
-    X_ext = cache.get(list(labels["key"]))
+    X_ext = load_embeddings(args.embeddings, ext, list(labels["key"]))
     grade = labels["diagnosis"].to_numpy()
     any_dr, referable = (grade >= 1).astype(float), (grade >= 2).astype(float)
     # Unités indépendantes : patient quand la base le donne (EyePACS : deux yeux

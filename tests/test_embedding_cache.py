@@ -148,3 +148,30 @@ def test_cache_with_verified_metadata_has_no_mark(tmp_path):
     cache.add(["a"], np.zeros((1, 2)))
     cache.save()
     assert ASSUMED_KEY not in EmbeddingCache(tmp_path / "c.npz", meta={"preprocess": "p"}).meta
+
+
+def _cache(tmp_path, name, meta):
+    cache = EmbeddingCache(tmp_path / name, meta=meta)
+    cache.add(["a", "b"], np.ones((2, 3)))
+    cache.save()
+
+
+def test_shared_loader_checks_configuration_and_completeness(tmp_path):
+    from src.data.fundus_preprocess import PREPROCESS_VERSION
+    from src.models.embedding_cache import load_embeddings
+
+    meta = {"checkpoint_sha256": "x", "preprocess": "crop-mask", "preprocess_version": PREPROCESS_VERSION}
+    _cache(tmp_path, "d_crop-mask_224_RETFound_mae_natureCFP.npz", {**meta, "image_size": 224})
+    assert load_embeddings(tmp_path, "d", ["b", "a"]).shape == (2, 3)
+    with pytest.raises(CacheMismatchError, match="absente"):
+        load_embeddings(tmp_path, "d", ["a", "z"])
+    _cache(
+        tmp_path, "e_crop-mask_224_RETFound_mae_natureCFP.npz", {**meta, "image_size": 224, "preprocess_version": -1}
+    )
+    with pytest.raises(CacheMismatchError):
+        load_embeddings(tmp_path, "e", ["a"])
+    _cache(tmp_path, "d_crop-mask_392_retfoundgreen_statedict.npz", {**meta, "image_size": 392})
+    with pytest.raises(CacheMismatchError):  # empreinte connue de Green, différente de « x »
+        load_embeddings(tmp_path, "d", ["a"], "green")
+    with pytest.raises(ValueError, match="inconnu"):
+        load_embeddings(tmp_path, "d", ["a"], "autre")
