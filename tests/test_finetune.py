@@ -111,3 +111,60 @@ def test_artifact_prepared_differently_is_refused():
     for change in ({"image_size": 392}, {"preprocess": "none"}, {"preprocess_version": 2}):
         with pytest.raises(ValueError, match="incompatible"):
             check_artifact_contract({**good, **change}, 224, 1)
+
+
+@pytest.mark.parametrize("training_run", [None, {"git_commit": "training-commit"}])
+def test_external_evaluation_preserves_training_provenance(tmp_path, monkeypatch, training_run):
+    """Une nouvelle évaluation ne réattribue pas l'entraînement au code courant."""
+    import json
+    from argparse import Namespace
+
+    from scripts import finetune_retfound as script
+
+    checkpoint = tmp_path / "base.pth"
+    checkpoint.write_bytes(b"base-checkpoint")
+    trained = PartialFinetune(tiny_vit(), num_classes=2, trainable_blocks=2)
+    artifact_path = tmp_path / "finetune.pt"
+    torch.save(
+        {
+            "checkpoint_sha256": script.file_fingerprint(checkpoint),
+            "image_size": 224,
+            "preprocess": "crop-mask",
+            "preprocess_version": script.PREPROCESS_VERSION,
+            "class_names": ["a", "b"],
+            "trainable_blocks": 2,
+            "state_dict": {n: p.detach().clone() for n, p in trained.named_parameters() if p.requires_grad},
+        },
+        artifact_path,
+    )
+    original = {"val": {"auroc_macro": 0.75}}
+    if training_run is not None:
+        original["run"] = training_run
+    report_path = tmp_path / "finetune_rfmid.json"
+    report_path.write_text(json.dumps(original))
+    current_run = {"git_commit": "evaluation-commit", "versions": {"torch": "test"}}
+    monkeypatch.setattr(script, "run_info", lambda: current_run)
+    monkeypatch.setattr(script, "load_pretrained_backbone", lambda *a, **kw: tiny_vit())
+
+    def evaluate(model, class_names, name, dataset_cls, root, args, report):
+        report[f"{name}_any_dr_auroc"] = 0.8
+
+    monkeypatch.setattr(script, "evaluate_external", evaluate)
+    script.external_only(
+        Namespace(
+            artifact=artifact_path,
+            checkpoint=checkpoint,
+            trust_checkpoint=False,
+            device="cpu",
+            out_dir=tmp_path,
+            aptos_root=tmp_path,
+            eyepacs_root=None,
+        )
+    )
+    report = json.loads(report_path.read_text())
+    assert report.get("run") == training_run
+    assert report["val"] == original["val"]
+    assert report["aptos_any_dr_auroc"] == 0.8
+    assert report["external_runs"] == [
+        {"dataset": "aptos", "run": current_run, "artifact_sha256": script.file_fingerprint(artifact_path)}
+    ]

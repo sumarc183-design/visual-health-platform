@@ -57,6 +57,7 @@ from scripts.robustness_checks import (  # noqa: E402
     load,
 )
 from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel, paired_bootstrap_diff  # noqa: E402
+from src.eval.provenance import run_info  # noqa: E402
 
 DATASETS = ("rfmid", "odir")
 SHARED = {"rfmid": list(SHARED_CLASSES), "odir": list(SHARED_CLASSES.values())}
@@ -201,7 +202,7 @@ def main() -> None:
     splits = ("train", "val", "test") if args.report_test else ("train", "val")
     data = {(n, s): load_split(n, roots[n], s, args.embeddings) for n in DATASETS for s in splits}
 
-    report = {"selection_split": "val", "variants": {}}
+    report = {"run": run_info(), "selection_split": "val", "variants": {}}
     for variant in VARIANTS:
         report["variants"][variant] = r = evaluate_variant(variant, data)
         dev, macro = r["device_balanced_accuracy"], r["in_domain_auroc_macro"]

@@ -42,6 +42,7 @@ from src.eval.metrics import (  # noqa: E402
     stratification_gap,
     stratified_auroc,
 )
+from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import load_embeddings  # noqa: E402
 
 
@@ -97,9 +98,10 @@ def main() -> None:
     args = parser.parse_args()
 
     report = {
+        "run": run_info(),
         "validation": compare(
             args.results / "pred_rfmid_crop-mask_val.npz", args.finetune_dir / "pred_rfmid_finetune_val.npz"
-        )
+        ),
     }
     test_path = args.finetune_dir / "pred_rfmid_finetune_test.npz"
     if test_path.exists():

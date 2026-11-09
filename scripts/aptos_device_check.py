@@ -46,6 +46,7 @@ from scripts.robustness_checks import embeddings, head_scores, load  # noqa: E40
 from scripts.site_adaptation import split_site_report  # noqa: E402
 from src.eval.duplicates import independent_groups  # noqa: E402
 from src.eval.metrics import stratification_gap  # noqa: E402
+from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import load_embeddings  # noqa: E402
 
 MIN_FORMAT_IMAGES = 30
@@ -75,6 +76,7 @@ def main() -> None:
     by_format = labels.assign(dr=y).groupby("format")["dr"].agg(["mean", "size"]).sort_values("size", ascending=False)
     frequent = by_format[by_format["size"] >= MIN_FORMAT_IMAGES]
     report = {
+        "run": run_info(),
         "images": int(len(labels)),
         "formats": int(len(by_format)),
         "adjusted_mutual_information_format_dr": float(adjusted_mutual_info_score(y.astype(int), formats)),

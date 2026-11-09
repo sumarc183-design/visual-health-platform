@@ -142,6 +142,17 @@ Options utiles :
 
 ### Comparer deux variantes
 
+Les nouveaux JSON de `compare_predictions.py`, `external_validation.py`,
+`aptos_device_check.py`, `robustness_checks.py`, `domain_remedies.py`,
+`device_recalibration.py`, `occlusion_population.py`, `finetune_analysis.py` et
+`finetune_retfound.py` enregistrent aussi un champ `run` : commit (suffixé
+`-dirty` si des fichiers suivis sont modifiés), Python et versions de NumPy,
+scikit-learn, torch et timm. Il décrit l'exécution qui produit le rapport,
+sans établir à lui seul la provenance des artefacts d'entrée. Les anciens JSON
+restent inchangés. Avec `finetune_retfound.py --external-only`, la nouvelle
+évaluation est tracée dans `external_runs`, avec l'empreinte de l'artefact chargé,
+sans remplacer le `run` d'entraînement ni l'inventer s'il était absent.
+
 Sur la validation ODIR, une AUROC par classe a un IC de ±0,03 à ±0,09 :
 deux runs ne se comparent pas en regardant leurs chiffres séparés.
 `scripts/compare_predictions.py` calcule la différence **appariée** (mêmes

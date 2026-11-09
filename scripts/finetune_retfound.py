@@ -54,6 +54,7 @@ from src.data.eyepacs_dataset import EyePACSDataset  # noqa: E402
 from src.data.fundus_preprocess import PREPROCESS_VERSION, common_mask  # noqa: E402
 from src.data.rfmid_dataset import RFMiDDataset  # noqa: E402
 from src.eval.metrics import evaluate_multilabel  # noqa: E402
+from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import file_fingerprint  # noqa: E402
 from src.models.finetune import (  # noqa: E402
     PartialFinetune,
@@ -154,8 +155,13 @@ def external_only(args) -> None:
     model = load_finetuned_state(model, artifact).to(args.device)
     report_path = args.out_dir / "finetune_rfmid.json"
     report = json.loads(report_path.read_text()) if report_path.exists() else {}
+    external_run = run_info()
     for name, (dataset_cls, root) in external_sets(args).items():
         evaluate_external(model, list(artifact["class_names"]), name, dataset_cls, root, args, report)
+        # Une évaluation ultérieure ne doit pas réattribuer le run d'entraînement.
+        report.setdefault("external_runs", []).append(
+            {"dataset": name, "run": external_run, "artifact_sha256": file_fingerprint(args.artifact)}
+        )
         write_report(args.out_dir, report)
 
 
@@ -272,6 +278,7 @@ def main() -> None:
     model.load_state_dict(best_state, strict=False)
     best_epoch = max(history, key=lambda h: h["val_auroc_macro"])["epoch"]
     report = {
+        "run": run_info(),
         "config": {k: (str(v) if isinstance(v, Path) else v) for k, v in vars(args).items()},
         "checkpoint_sha256": file_fingerprint(args.checkpoint),
         "preprocess_version": PREPROCESS_VERSION,

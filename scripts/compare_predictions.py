@@ -27,6 +27,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.eval.metrics import paired_bootstrap_diff
+from src.eval.provenance import run_info  # noqa: E402
 
 
 def load_predictions(path: Path) -> dict:
@@ -71,7 +72,9 @@ def main() -> None:
         print(f"  {name:>8s} : {d['diff']:+.3f}  [IC 95 % {lo:+.3f} ; {hi:+.3f}]  {verdict}{n_pos}")
     if args.json is not None:
         args.json.parent.mkdir(parents=True, exist_ok=True)
-        args.json.write_text(json.dumps({"a": str(args.run_a), "b": str(args.run_b), **diff}, indent=2))
+        args.json.write_text(
+            json.dumps({"run": run_info(), "a": str(args.run_a), "b": str(args.run_b), **diff}, indent=2)
+        )
         print(f"Comparaison JSON : {args.json}")
 
 

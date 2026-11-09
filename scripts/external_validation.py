@@ -69,6 +69,7 @@ from src.eval.duplicates import (  # noqa: E402
     merge_groups,
 )
 from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel, stratification_gap  # noqa: E402
+from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import load_embeddings  # noqa: E402
 
 DR_COLUMN = {"rfmid": "DR", "odir": "D"}
@@ -158,6 +159,7 @@ def main() -> None:
     for train_idx, test_idx in folds:
         in_domain[test_idx] = quiet_scores(X_ext[train_idx], any_dr[train_idx, None], X_ext[test_idx])
     report = {
+        "run": run_info(),
         "diagnostic_in_external_5fold": {
             "any_dr": auroc_with_ci(any_dr, in_domain, ext_groups, "any_dr"),
             "referable_dr": auroc_with_ci(referable, in_domain, ext_groups, "referable_dr"),

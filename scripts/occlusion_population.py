@@ -41,6 +41,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.gradcam_examples import load_val_dataset  # noqa: E402
 from src.data.fundus_preprocess import common_mask  # noqa: E402
+from src.eval.provenance import run_info  # noqa: E402
 from src.explainability.gradcam import RETFoundClassifier  # noqa: E402
 from src.explainability.occlusion import background_test, fundus_mask, occlusion_map, outside_share  # noqa: E402
 from src.models.classifier_head import MultiLabelHead  # noqa: E402
@@ -162,6 +163,7 @@ def main() -> None:
 
     vit_cache: dict[int, torch.nn.Module] = {}
     report = {
+        "run": run_info(),
         "dataset": args.dataset,
         "seed": args.seed,
         "patch": args.patch,

@@ -47,6 +47,7 @@ from src.data.fundus_preprocess import PREPROCESS_VERSION  # noqa: E402
 from src.data.odir_dataset import ODIRDataset  # noqa: E402
 from src.data.rfmid_dataset import RFMiDDataset  # noqa: E402
 from src.eval.metrics import bootstrap_auroc_ci, evaluate_multilabel, stratification_gap  # noqa: E402
+from src.eval.provenance import run_info  # noqa: E402
 from src.models.classifier_head import MultiLabelHead, train_head  # noqa: E402
 from src.models.embedding_cache import load_embeddings  # noqa: E402
 
@@ -187,7 +188,7 @@ def main() -> None:
     args = parser.parse_args()
     roots = {"rfmid": args.rfmid_root, "odir": args.odir_root}
 
-    report = {"device_probe": {}, "device_gap": {}}
+    report = {"run": run_info(), "device_probe": {}, "device_gap": {}}
     for name, root in roots.items():
         report["device_probe"][name] = probe = device_probe(name, root, args.embeddings)
         print(

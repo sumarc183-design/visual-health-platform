@@ -36,6 +36,13 @@ trancher. Une licence peut changer : vérifier à nouveau avant tout usage comme
 Les pages IEEE DataPort indiquent à la fois un accès ouvert aux utilisateurs connectés et
 un abonnement requis : à vérifier sur la page de téléchargement.
 
+**ODIR, vérification du 9 novembre 2026 :** l'accueil du challenge et les pages
+[Download](https://odir2019.grand-challenge.org/Download/) et
+[dataset](https://odir2019.grand-challenge.org/dataset/) ont renvoyé une erreur HTTP
+403 lors de la consultation. Leurs conditions n'ont donc pas pu être lues ; la
+licence reste non vérifiée. À faire : consulter ces pages depuis un navigateur
+connecté, ou demander les conditions à ODIR@sgex.cn. Aucun message n'a été envoyé.
+
 ### Règlements APTOS et EyePACS (lus le 8 novembre 2026)
 
 **APTOS 2019**, section 7 A : « You may access and use the Competition Data for

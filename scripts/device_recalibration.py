@@ -48,6 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.robustness_checks import SHARED_CLASSES, embeddings, image_formats, load  # noqa: E402
 from src.eval.metrics import evaluate_multilabel, paired_bootstrap_diff, stratification_gap  # noqa: E402
+from src.eval.provenance import run_info  # noqa: E402
 from src.models.classifier_head import MultiLabelHead, train_head  # noqa: E402
 
 COLUMNS = {"rfmid": list(SHARED_CLASSES), "odir": list(SHARED_CLASSES.values())}
@@ -125,7 +126,7 @@ def main() -> None:
                 "groups": ds.groups,
             }
 
-    report = {"min_device_images": args.min_device_images, "directions": {}}
+    report = {"run": run_info(), "min_device_images": args.min_device_images, "directions": {}}
     for source, target in (("odir", "rfmid"), ("rfmid", "odir")):
         src = data[source, "train"]
         logits_fn = train_logits_fn(src["X"], src["y"])
