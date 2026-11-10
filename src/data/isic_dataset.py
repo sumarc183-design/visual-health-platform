@@ -38,7 +38,12 @@ RESIZE_RATIO = 256 / 224
 def load_skin_image(path: str | Path, image_size: int) -> torch.Tensor:
     """Image (3, size, size) dans [0, 1] : petit côté à round(size × 256/224)
     (bilinéaire), puis recadrage central, comme `Resize(256), CenterCrop(224)`."""
-    image = Image.open(path).convert("RGB")
+    return skin_tensor(Image.open(path), image_size)
+
+
+def skin_tensor(image: Image.Image, image_size: int) -> torch.Tensor:
+    """Même transformation que `load_skin_image`, sur une image déjà ouverte."""
+    image = image.convert("RGB")
     short = round(image_size * RESIZE_RATIO)
     scale = short / min(image.size)
     w, h = max(short, round(image.width * scale)), max(short, round(image.height * scale))
