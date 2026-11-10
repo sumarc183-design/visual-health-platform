@@ -1,5 +1,7 @@
 """Segmentation IDRiD : alignement image/masque, mesures contre les masques."""
 
+import json
+
 import numpy as np
 import pytest
 import torch
@@ -199,3 +201,26 @@ def test_retfound_tokens_average_to_the_embedding(tmp_path):
     assert tokens.shape == (1, 196, 1024)
     expected = model.vit.fc_norm(tokens.mean(dim=1)).sum(dim=1)
     assert torch.allclose(model(x)[:, 0], expected, atol=1e-3)
+
+
+def test_input_inventory_detects_a_modified_mask_and_lists_absent_ones(idrid):
+    from scripts.localization_analysis import check_inputs
+    from src.data.idrid_dataset import compare_inventories, input_inventory
+
+    before = input_inventory(idrid, {"train": ["IDRiD_01"]})
+    assert len(before["absent_masks"]) == 2  # HE et SE non annotés
+    archive_path = idrid / "maps.npz"
+    np.savez(
+        archive_path,
+        ids=np.array(["IDRiD_01"]),
+        splits=np.array(["train"]),
+        manifest=np.array(json.dumps({"inputs": before})),
+    )
+    with np.load(archive_path) as archive:
+        assert check_inputs(archive, idrid)["verified"]
+    mask = idrid / "A" / "2. All Segmentation Groundtruths" / "a. Training Set" / "3. Hard Exudates" / "IDRiD_01_EX.tif"
+    Image.fromarray(np.ones((H, W), np.uint8)).save(mask)
+    after = input_inventory(idrid, {"train": ["IDRiD_01"]})
+    assert compare_inventories(before, after) == [str(mask.relative_to(idrid / "A"))]
+    with np.load(archive_path) as archive, pytest.raises(ValueError, match="différentes"):
+        check_inputs(archive, idrid)

@@ -26,7 +26,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.fundus_preprocess import PREPROCESS_VERSION  # noqa: E402
-from src.data.idrid_dataset import IDRiDSegmentation  # noqa: E402
+from src.data.idrid_dataset import IDRiDSegmentation, input_inventory  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.explainability.localization import MODELS, FrozenClassifier, resize_map  # noqa: E402
 from src.explainability.occlusion import occlusion_map  # noqa: E402
@@ -34,6 +34,14 @@ from src.models.embedding_cache import file_fingerprint  # noqa: E402
 
 MAP_SIZE = 56
 FILE_NAMES = {"RETFound": "retfound", "RETFound-Green": "green"}
+
+
+def inputs_by_split(ids: list[str], splits: list[str]) -> dict[str, list[str]]:
+    """Images réellement traitées, par découpage (avec --limit, une partie seulement)."""
+    out: dict[str, list[str]] = {}
+    for image_id, split in zip(ids, splits, strict=True):
+        out.setdefault(split, []).append(image_id)
+    return out
 
 
 def main() -> None:
@@ -95,6 +103,7 @@ def main() -> None:
                         "preprocess": "crop-mask",
                         "preprocess_version": PREPROCESS_VERSION,
                         "image_size": cfg["image_size"],
+                        "inputs": input_inventory(args.data_root, inputs_by_split(ids, splits)),
                         "run": run_info(),
                     }
                 )

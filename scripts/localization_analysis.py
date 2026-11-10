@@ -47,7 +47,14 @@ from sklearn.preprocessing import StandardScaler
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.fundus_preprocess import common_mask  # noqa: E402
-from src.data.idrid_dataset import LESION_DIRS, LESIONS, IDRiDSegmentation, check_official_split  # noqa: E402
+from src.data.idrid_dataset import (  # noqa: E402
+    LESION_DIRS,
+    LESIONS,
+    IDRiDSegmentation,
+    check_official_split,
+    compare_inventories,
+    input_inventory,
+)
 from src.eval.provenance import run_info  # noqa: E402
 from src.explainability.localization import cell_targets, map_auroc, resize_map, top_enrichment  # noqa: E402
 
@@ -257,6 +264,25 @@ def save_figure(path: Path, root: Path, data: dict, masks: dict, seed: int, coun
     plt.close(fig)
 
 
+def check_inputs(archive, data_root: Path) -> dict:
+    """Compare l'inventaire du manifeste (images et masques lus pour les cartes) aux
+    fichiers présents. Archive sans inventaire : signalée non vérifiée, pas refusée."""
+    if "manifest" not in archive.files:
+        return {"verified": False, "reason": "archive sans manifeste (antérieure au 10 novembre 2026)"}
+    recorded = json.loads(str(archive["manifest"])).get("inputs")
+    if recorded is None:
+        return {"verified": False, "reason": "manifeste sans inventaire des entrées"}
+    ids_by_split: dict[str, list[str]] = {}
+    for image_id, split in zip(archive["ids"], archive["splits"], strict=True):
+        ids_by_split.setdefault(str(split), []).append(str(image_id))
+    differing = compare_inventories(recorded, input_inventory(data_root, ids_by_split))
+    if differing:
+        raise ValueError(
+            f"entrées IDRiD différentes de celles des cartes : {differing[:5]} ({len(differing)} fichiers)"
+        )
+    return {"verified": True, "digest": recorded["digest"], "absent_masks": len(recorded["absent_masks"])}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--data-root", type=Path, required=True)
@@ -281,6 +307,7 @@ def main() -> None:
     report = {
         "run": run_info(),
         "maps_manifest": {m: str(d["manifest"]) if "manifest" in d.files else None for m, d in data.items()},
+        "inputs_check": {m: check_inputs(d, args.data_root) for m, d in data.items()},
         "images": len(ids),
         "occlusion": occlusion_report(
             {m: d["maps"] for m, d in data.items()}, {m: d["logits"] for m, d in data.items()}, image_masks, args.seed

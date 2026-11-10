@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Corrigé
+- IDRiD (audit du 9 nov., constat 8) : le manifeste des cartes inventorie désormais
+  chaque image et chaque masque lus (empreinte SHA-256), masques HE/SE absents listés ;
+  l'analyse vérifie cet inventaire contre les fichiers présents et refuse un écart.
+  Archives antérieures signalées « non vérifiées ». Prendra effet au prochain run Kaggle.
 - IDRiD (10 nov.) : localisation relancée sur Kaggle pour obtenir le manifeste des
   archives (modèle, empreintes du checkpoint et des têtes, prétraitement, commit
   `93aa9d5`) ; cartes, tokens et logits identiques au bit près aux archives précédentes.

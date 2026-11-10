@@ -14,6 +14,8 @@ Structure attendue, cherchée sous `root` :
 
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 
 import numpy as np
@@ -60,7 +62,9 @@ def check_official_split(ids: list[str], splits: list[str]) -> None:
     """Refuse identifiants répétés et écart au découpage officiel (01-54 / 55-81)."""
     if len(set(ids)) != len(ids):
         raise ValueError("identifiants IDRiD répétés")
-    expected = {f"IDRiD_{i:02d}": "train" if i <= OFFICIAL_TRAIN_IMAGES else "test" for i in range(1, OFFICIAL_IMAGES + 1)}
+    expected = {
+        f"IDRiD_{i:02d}": "train" if i <= OFFICIAL_TRAIN_IMAGES else "test" for i in range(1, OFFICIAL_IMAGES + 1)
+    }
     if dict(zip(ids, splits, strict=True)) != expected:
         raise ValueError("les images ou leur répartition ne suivent pas le découpage officiel d'IDRiD")
 
@@ -107,3 +111,32 @@ class IDRiDSegmentation:
                 else:
                     raise FileNotFoundError(f"Masque manquant : {path}")
         return result
+
+
+def input_inventory(root: str | Path, ids_by_split: dict[str, list[str]]) -> dict:
+    """Empreinte de chaque image et de chaque masque lus (16 premiers caractères du
+    SHA-256), masques HE/SE absents listés : une image ou un masque modifié, ajouté ou
+    retiré change l'empreinte globale."""
+    seg = find_segmentation_root(root)
+    files: dict[str, str] = {}
+    for split, ids in ids_by_split.items():
+        for image_id in ids:
+            paths = {f"1. Original Images/{SPLIT_DIRS[split]}/{image_id}.jpg": None}
+            for lesion, folder in LESION_DIRS.items():
+                paths[f"{_MASKS_DIR}/{SPLIT_DIRS[split]}/{folder}/{image_id}_{lesion}.tif"] = lesion
+            for rel, lesion in paths.items():
+                path = seg / rel
+                if path.exists():
+                    files[rel] = hashlib.sha256(path.read_bytes()).hexdigest()[:16]
+                elif lesion in MAY_BE_ABSENT:
+                    files[rel] = "absent"
+                else:
+                    raise FileNotFoundError(f"Fichier IDRiD manquant : {path}")
+    digest = hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()
+    return {"digest": digest, "files": files, "absent_masks": sorted(k for k, v in files.items() if v == "absent")}
+
+
+def compare_inventories(recorded: dict, current: dict) -> list[str]:
+    """Fichiers dont l'empreinte diffère (ou présents d'un seul côté)."""
+    a, b = recorded["files"], current["files"]
+    return sorted(k for k in set(a) | set(b) if a.get(k) != b.get(k))
