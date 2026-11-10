@@ -30,3 +30,4 @@ results/green_predictions_*.npz
 /results/finetune_eyepacs/pred_eyepacs_finetune.npz
 /results/*_draws.json
 /results/quality_learned_detector.npz
+/results/quality_real_detector.npz
