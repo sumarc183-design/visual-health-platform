@@ -26,6 +26,12 @@ selon [SemVer](https://semver.org/lang/fr/).
   score officiel ISIC précisée.
 
 ### Ajouté
+- Routeur de modalité, protocole 2 (10 nov.) : groupes disjoints, inconnus médicaux
+  (radiographies, frottis) à l'ajustement ; au test, 0/756 images médicales jamais vues
+  (OCT, échographie, scanner) envoyées à un modèle spécialisé, 300/300 fonds d'œil
+  DeepDRiD reconnus. Même erreur croisée qu'au protocole 1 (une rétine très pathologique
+  vers la dermoscopie) : critère toujours non atteint. `docs/MODALITE.md`,
+  `results/modality_router_v2.json`.
 - Contrôle qualité (10 nov.) : détecteur appris sur de vrais défauts ODIR. Faute
   d'exemples de défauts généraux hors série relue, il apprend la poussière : 17/26
   patients repérés en validation (3/26 pour l'actuel), mais 25/110 fausses alertes ;

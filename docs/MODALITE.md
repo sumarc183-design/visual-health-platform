@@ -67,3 +67,44 @@ déclaré par l'utilisateur. À décider avec le tuteur.
   toute la base.
 - Une seule erreur croisée sur 1 000 : sa fréquence réelle est mal connue (IC jusqu'à
   1,1 % pour le fond d'œil).
+
+## Protocole 2 (10 novembre 2026) : inconnus variés, même erreur résiduelle
+
+Plan fixé et commité avant le run (`979271c`, docstring de
+[`scripts/train_modality_router_v2.py`](../scripts/train_modality_router_v2.py)), après
+l'audit du 9 novembre. Résultats : [`results/modality_router_v2.json`](../results/modality_router_v2.json).
+
+- Ajustement et contrôle séparés par patient (ODIR) et par lésion (ISIC) : aucun groupe
+  commun, vérifié sur les vrais tirages.
+- « Inconnu » appris sur des photos (Imagenette), des radiographies du thorax et des
+  frottis sanguins (MedMNIST, CC BY 4.0).
+- Test sur des sources jamais vues, dont trois types d'images médicales absents de
+  l'ajustement et une seconde source de fonds d'œil.
+
+| Test (sources jamais vues) | Images | Bien routées, protocole 2 | Tête du protocole 1 |
+|---|---|---|---|
+| Fond d'œil, RFMiD | 500 | 499 (1 envoyée en dermoscopie) | 499 (même image) |
+| Fond d'œil, RetinaMNIST (DeepDRiD) | 300 | 300 | 300 |
+| Dermoscopie, ISIC test | 500 | 500 | 500 |
+| Photos (Imagenette) | 300 | 300 rejetées | 300 rejetées |
+| OCT de la rétine | 300 | 300 rejetées | 300 rejetées |
+| Échographie mammaire | 156 | 156 rejetées | 156 rejetées |
+| Scanner (CT) | 300 | 300 rejetées | 300 rejetées |
+
+Contrôle (groupes disjoints) : 900 images sur 900 bien routées.
+
+**Critères** : tous atteints sauf « aucune erreur croisée ». La seule erreur est la même
+image qu'au protocole 1 (RFMiD 443, rétine très pathologique), envoyée en dermoscopie avec
+une confiance encore plus haute (0,955 contre 0,922). Ajouter des inconnus médicaux n'y
+change rien : c'est un problème de frontière entre fond d'œil malade et peau, pas de
+reconnaissance des inconnus.
+
+**Lecture** : le refus des images hors cible tient sur trois types d'images médicales
+jamais vus (0 sur 756 envoyée à un modèle spécialisé), et les deux têtes se comportent de
+la même façon. Le risque restant est une rétine très atteinte prise pour de la peau. Le
+routeur reste non branché automatiquement ; l'usage proposé est toujours celui de
+garde-fou (refuser les inconnus), la modalité restant déclarée.
+
+Limites : images MedMNIST déjà redimensionnées ; toujours pas de photos de peau prises au
+téléphone ni de vues externes de l'œil ; une seule erreur croisée, sa fréquence réelle
+reste mal connue.

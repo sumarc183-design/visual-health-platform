@@ -1,0 +1,452 @@
+{
+  "run": {
+    "git_commit": "979271c",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.30"
+    }
+  },
+  "plan": "fixé le 10 novembre 2026 avant tout run (docstring du script)",
+  "backbone": {
+    "model": "dinov2_vitb14",
+    "checkpoint_sha256": "ba7954cb2db99604",
+    "image_size": 224
+  },
+  "threshold": 0.9,
+  "sizes": {
+    "fit": {
+      "fundus": 1000,
+      "dermoscopy": 1000,
+      "unknown": 1000
+    },
+    "control": {
+      "fundus": 300,
+      "dermoscopy": 300,
+      "unknown": 300
+    },
+    "test": {
+      "fundus/rfmid": 500,
+      "fundus/retinamnist": 300,
+      "dermoscopy/isic_test": 500,
+      "unknown/imagenette_val": 300,
+      "unknown/oct": 300,
+      "unknown/breast": 156,
+      "unknown/organc": 300
+    }
+  },
+  "groups_shared_fit_control": {
+    "fundus": 0,
+    "dermoscopy": 0,
+    "unknown": 0
+  },
+  "control": {
+    "fundus": {
+      "n": 300,
+      "decisions": {
+        "fundus": 300,
+        "dermoscopy": 0,
+        "unknown": 0
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ]
+      }
+    },
+    "dermoscopy": {
+      "n": 300,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 300,
+        "unknown": 0
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ]
+      }
+    },
+    "unknown": {
+      "n": 300,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 0,
+        "unknown": 300
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ]
+      }
+    }
+  },
+  "test": {
+    "fundus/rfmid": {
+      "n": 500,
+      "decisions": {
+        "fundus": 499,
+        "dermoscopy": 1,
+        "unknown": 0
+      },
+      "correct": {
+        "value": 0.998,
+        "ci": [
+          0.9889075231010312,
+          0.9999493656659926
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 1,
+        "value": 0.002,
+        "ci": [
+          5.0634334007415215e-05,
+          0.011092476898968787
+        ]
+      }
+    },
+    "fundus/retinamnist": {
+      "n": 300,
+      "decisions": {
+        "fundus": 300,
+        "dermoscopy": 0,
+        "unknown": 0
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ]
+      }
+    },
+    "dermoscopy/isic_test": {
+      "n": 500,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 500,
+        "unknown": 0
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9926493899480923,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.007350610051907784
+        ]
+      }
+    },
+    "unknown/imagenette_val": {
+      "n": 300,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 0,
+        "unknown": 300
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ]
+      }
+    },
+    "unknown/oct": {
+      "n": 300,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 0,
+        "unknown": 300
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ]
+      }
+    },
+    "unknown/breast": {
+      "n": 156,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 0,
+        "unknown": 156
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9766307284086198,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.023369271591380202
+        ]
+      }
+    },
+    "unknown/organc": {
+      "n": 300,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 0,
+        "unknown": 300
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ]
+      }
+    }
+  },
+  "test_v1_head": {
+    "fundus/rfmid": {
+      "n": 500,
+      "decisions": {
+        "fundus": 499,
+        "dermoscopy": 1,
+        "unknown": 0
+      },
+      "correct": {
+        "value": 0.998,
+        "ci": [
+          0.9889075231010312,
+          0.9999493656659926
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 1,
+        "value": 0.002,
+        "ci": [
+          5.0634334007415215e-05,
+          0.011092476898968787
+        ]
+      }
+    },
+    "fundus/retinamnist": {
+      "n": 300,
+      "decisions": {
+        "fundus": 300,
+        "dermoscopy": 0,
+        "unknown": 0
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ]
+      }
+    },
+    "dermoscopy/isic_test": {
+      "n": 500,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 500,
+        "unknown": 0
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9926493899480923,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.007350610051907784
+        ]
+      }
+    },
+    "unknown/imagenette_val": {
+      "n": 300,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 0,
+        "unknown": 300
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ]
+      }
+    },
+    "unknown/oct": {
+      "n": 300,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 0,
+        "unknown": 300
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ]
+      }
+    },
+    "unknown/breast": {
+      "n": 156,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 0,
+        "unknown": 156
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9766307284086198,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.023369271591380202
+        ]
+      }
+    },
+    "unknown/organc": {
+      "n": 300,
+      "decisions": {
+        "fundus": 0,
+        "dermoscopy": 0,
+        "unknown": 300
+      },
+      "correct": {
+        "value": 1.0,
+        "ci": [
+          0.9877790253057065,
+          1.0
+        ]
+      },
+      "to_wrong_specialist": {
+        "count": 0,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.01222097469429355
+        ]
+      }
+    }
+  },
+  "criteria": {
+    "fundus_rfmid_recall_ge_0.95": true,
+    "fundus_retinamnist_recall_ge_0.95": true,
+    "dermoscopy_recall_ge_0.95": true,
+    "no_cross_specialist_error": false,
+    "unknown_imagenette_val_to_specialist_le_0.02": true,
+    "unknown_oct_to_specialist_le_0.02": true,
+    "unknown_breast_to_specialist_le_0.02": true,
+    "unknown_organc_to_specialist_le_0.02": true
+  }
+}
