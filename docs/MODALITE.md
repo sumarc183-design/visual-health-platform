@@ -108,3 +108,20 @@ garde-fou (refuser les inconnus), la modalité restant déclarée.
 Limites : images MedMNIST déjà redimensionnées ; toujours pas de photos de peau prises au
 téléphone ni de vues externes de l'œil ; une seule erreur croisée, sa fréquence réelle
 reste mal connue.
+
+## Test de résistance : fonds d'œil de mauvaise qualité (10 novembre 2026)
+
+Plan fixé avant le calcul (`scripts/modality_router_quality_stress.py`, commit `c475422`) :
+têtes des protocoles 1 et 2 inchangées, appliquées aux 800 photos de validation et
+d'évaluation de DeepDRiD, séparées selon la qualité notée par ses experts.
+
+| DeepDRiD | Images | Reconnues fond d'œil (les deux têtes) | Envoyées en dermoscopie | Probabilité de dermoscopie maximale |
+|---|---|---|---|---|
+| Qualité suffisante | 362 | 362 | 0 | 0,001 |
+| Qualité insuffisante (floues, sombres, mal cadrées) | 438 | 438 | 0 | 0,0002 |
+
+Critères atteints : aucune image de mauvaise qualité n'approche la dermoscopie.
+L'erreur résiduelle des protocoles 1 et 2 (RFMiD 443) ne vient donc pas de la qualité
+d'image : c'est une rétine très pathologique, jaunâtre et couverte de lésions, un cas
+rare plutôt qu'un défaut de prise de vue. Limite : DeepDRiD vient surtout d'un site,
+et sa rétinopathie diabétique ne couvre pas toutes les pathologies sévères.

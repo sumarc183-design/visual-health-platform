@@ -26,6 +26,12 @@ selon [SemVer](https://semver.org/lang/fr/).
   score officiel ISIC précisée.
 
 ### Ajouté
+- Routeur, test de résistance (10 nov.) : 800/800 fonds d'œil DeepDRiD reconnus, dont
+  438 de qualité insuffisante, aucun vers la dermoscopie (probabilité max 0,001) ;
+  l'erreur résiduelle (rétine très pathologique) n'est pas liée à la qualité d'image.
+- Contrôle qualité, seuil d'avertissement (analyse secondaire) : à 10 % de fausses
+  alertes fixées sur la validation DeepDRiD, 40 % des images insuffisantes repérées à
+  l'évaluation (5 % pour le détecteur actuel) ; 21 % de fausses alertes sur ODIR.
 - Contrôle qualité (10 nov.) : détecteur appris sur les notes d'experts de DeepDRiD
   (CC BY-SA 4.0, 1 062 images de qualité insuffisante). Évaluation : sensibilité 0,67
   contre 0,05 pour le détecteur actuel, spécificité 0,57 contre 0,97, AUROC 0,69

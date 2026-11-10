@@ -1,0 +1,175 @@
+{
+  "run": {
+    "git_commit": "c475422",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.30"
+    }
+  },
+  "plan": "fixé le 10 novembre 2026 avant ce calcul (docstring du script)",
+  "images": {
+    "sufficient": 362,
+    "insufficient": 438
+  },
+  "heads": {
+    "protocol_1": {
+      "all": {
+        "n": 800,
+        "decisions": {
+          "fundus": 800,
+          "dermoscopy": 0,
+          "unknown": 0
+        },
+        "fundus_recall": {
+          "value": 1.0,
+          "ci": [
+            0.9953995154792545,
+            1.0
+          ]
+        },
+        "to_dermoscopy": {
+          "count": 0,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.004600484520745439
+          ]
+        },
+        "max_dermoscopy_probability": 0.0011963595170527697
+      },
+      "sufficient": {
+        "n": 362,
+        "decisions": {
+          "fundus": 362,
+          "dermoscopy": 0,
+          "unknown": 0
+        },
+        "fundus_recall": {
+          "value": 1.0,
+          "ci": [
+            0.9898614702002749,
+            1.0
+          ]
+        },
+        "to_dermoscopy": {
+          "count": 0,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.010138529799725038
+          ]
+        },
+        "max_dermoscopy_probability": 0.0011963595170527697
+      },
+      "insufficient": {
+        "n": 438,
+        "decisions": {
+          "fundus": 438,
+          "dermoscopy": 0,
+          "unknown": 0
+        },
+        "fundus_recall": {
+          "value": 1.0,
+          "ci": [
+            0.9916132673108207,
+            1.0
+          ]
+        },
+        "to_dermoscopy": {
+          "count": 0,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.00838673268917933
+          ]
+        },
+        "max_dermoscopy_probability": 0.00012284026888664812
+      },
+      "criteria": {
+        "fundus_recall_ge_0.95_sufficient": true,
+        "no_fundus_to_dermoscopy": true
+      }
+    },
+    "protocol_2": {
+      "all": {
+        "n": 800,
+        "decisions": {
+          "fundus": 800,
+          "dermoscopy": 0,
+          "unknown": 0
+        },
+        "fundus_recall": {
+          "value": 1.0,
+          "ci": [
+            0.9953995154792545,
+            1.0
+          ]
+        },
+        "to_dermoscopy": {
+          "count": 0,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.004600484520745439
+          ]
+        },
+        "max_dermoscopy_probability": 0.00128835067152977
+      },
+      "sufficient": {
+        "n": 362,
+        "decisions": {
+          "fundus": 362,
+          "dermoscopy": 0,
+          "unknown": 0
+        },
+        "fundus_recall": {
+          "value": 1.0,
+          "ci": [
+            0.9898614702002749,
+            1.0
+          ]
+        },
+        "to_dermoscopy": {
+          "count": 0,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.010138529799725038
+          ]
+        },
+        "max_dermoscopy_probability": 0.00128835067152977
+      },
+      "insufficient": {
+        "n": 438,
+        "decisions": {
+          "fundus": 438,
+          "dermoscopy": 0,
+          "unknown": 0
+        },
+        "fundus_recall": {
+          "value": 1.0,
+          "ci": [
+            0.9916132673108207,
+            1.0
+          ]
+        },
+        "to_dermoscopy": {
+          "count": 0,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.00838673268917933
+          ]
+        },
+        "max_dermoscopy_probability": 0.00016297366528306156
+      },
+      "criteria": {
+        "fundus_recall_ge_0.95_sufficient": true,
+        "no_fundus_to_dermoscopy": true
+      }
+    }
+  }
+}
