@@ -1,0 +1,104 @@
+{
+  "run": {
+    "git_commit": "cedb922",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.30"
+    }
+  },
+  "plan": "fixé le 10 novembre 2026 après le run principal, avant ce calcul (docstring)",
+  "rule": "plus petit seuil de spécificité >= 0.9 sur la validation DeepDRiD",
+  "threshold": 0.9889294505119324,
+  "deepdrid_val": {
+    "sensitivity": {
+      "detected": 81,
+      "patients": 218,
+      "rate": 0.37155963302752293,
+      "ci": [
+        0.3072648755471506,
+        0.43939949658670086
+      ]
+    },
+    "specificity": {
+      "detected": 164,
+      "patients": 182,
+      "rate": 0.9010989010989011,
+      "ci": [
+        0.8482007236408319,
+        0.9403250436518246
+      ]
+    }
+  },
+  "deepdrid_eval": {
+    "sensitivity": {
+      "detected": 89,
+      "patients": 220,
+      "rate": 0.40454545454545454,
+      "ci": [
+        0.3390999253284289,
+        0.47259960501232867
+      ]
+    },
+    "specificity": {
+      "detected": 162,
+      "patients": 180,
+      "rate": 0.9,
+      "ci": [
+        0.8465649683471653,
+        0.9396495982195368
+      ]
+    }
+  },
+  "odir_validation": {
+    "sensitivity": {
+      "detected": 12,
+      "patients": 31,
+      "rate": 0.3870967741935484,
+      "ci": [
+        0.21849959849856915,
+        0.5781304108659586
+      ]
+    },
+    "false_alert_rate": {
+      "detected": 23,
+      "patients": 110,
+      "rate": 0.20909090909090908,
+      "ci": [
+        0.13740334530073886,
+        0.29703545248234053
+      ]
+    }
+  },
+  "human_review": {
+    "sensitivity": {
+      "detected": 7,
+      "patients": 18,
+      "rate": 0.3888888888888889,
+      "ci": [
+        0.1729858547897518,
+        0.6425487941069373
+      ]
+    },
+    "false_alert_rate": {
+      "detected": 1,
+      "patients": 8,
+      "rate": 0.125,
+      "ci": [
+        0.0031597235312519063,
+        0.5265096708752065
+      ]
+    },
+    "flagged_indeterminate": {
+      "detected": 2,
+      "patients": 9,
+      "rate": 0.2222222222222222,
+      "ci": [
+        0.028144973477898197,
+        0.600093573716312
+      ]
+    }
+  }
+}

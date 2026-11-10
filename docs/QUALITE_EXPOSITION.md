@@ -296,3 +296,24 @@ rejet ajoutée.
 Réserves : DeepDRiD vient surtout d'un site (Nicheng) ; « insuffisant » suit la définition
 de ses annotateurs ; ODIR et la relecture ont déjà servi ; licence CC BY-SA (portée pour un
 modèle entraîné à faire vérifier, voir `DROITS_DONNEES.md`).
+
+### Seuil d'avertissement (analyse secondaire, 10 novembre 2026)
+
+Règle fixée après le run principal et avant ce calcul (`scripts/quality_deepdrid_threshold.py`,
+commit `cedb922`) : plus petit seuil donnant au moins 0,90 de spécificité sur la
+**validation** DeepDRiD, appliqué tel quel ailleurs. Seuil obtenu : 0,989 (les probabilités
+de la régression sont très tranchées). Seconde lecture de l'évaluation, annoncée comme
+telle ; le résultat principal reste celui du seuil 0,5.
+
+| Seuil 0,989 | Défauts repérés | Images correctes signalées |
+|---|---|---|
+| DeepDRiD, validation | 81 / 218 (0,37) | 18 / 182 (0,10) |
+| DeepDRiD, évaluation | 89 / 220 (0,40) | 18 / 180 (0,10) |
+| ODIR, validation (patients) | 12 / 31 | 23 / 110 |
+| Relecture de Marc (patients) | 7 / 18 | 1 / 8 |
+
+À 10 % de fausses alertes, le détecteur repère 40 % des images insuffisantes de
+l'évaluation, contre 5 % pour le détecteur actuel (à 3 % de fausses alertes). Le compromis
+tient sur l'évaluation DeepDRiD, mais pas tout à fait sur ODIR (21 % de fausses alertes) :
+un seuil se transfère mal d'une base à l'autre, comme pour les maladies. Pour un usage
+réel, il faudrait le recalibrer sur le site concerné.
