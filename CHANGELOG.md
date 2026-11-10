@@ -26,6 +26,12 @@ selon [SemVer](https://semver.org/lang/fr/).
   score officiel ISIC précisée.
 
 ### Ajouté
+- Contrôle qualité (10 nov.) : détecteur appris sur les notes d'experts de DeepDRiD
+  (CC BY-SA 4.0, 1 062 images de qualité insuffisante). Évaluation : sensibilité 0,67
+  contre 0,05 pour le détecteur actuel, spécificité 0,57 contre 0,97, AUROC 0,69
+  [0,62 ; 0,75] ; défauts graves bien repérés. Transfert ODIR : 21/31 patients repérés
+  (3/31 actuel) et 10/18 dans la relecture (4/18), avec plus de fausses alertes. Usage
+  envisagé : avertissement, pas rejet. `src/data/deepdrid.py`, 2 tests.
 - Routeur de modalité, protocole 2 (10 nov.) : groupes disjoints, inconnus médicaux
   (radiographies, frottis) à l'ajustement ; au test, 0/756 images médicales jamais vues
   (OCT, échographie, scanner) envoyées à un modèle spécialisé, 300/300 fonds d'œil

@@ -251,3 +251,48 @@ défaut général n'est appris faute d'exemples. Aucune règle de rejet ajoutée
 que les 23 d'ODIR (train et validation). Options : relire davantage d'images (par exemple
 les images écartées par le chargeur ODIR), ou une base annotée en qualité (comme
 EyeQ, dérivée d'EyePACS, dont les conditions d'usage seraient à vérifier).
+
+## Détecteur appris sur les notes d'experts de DeepDRiD (10 novembre 2026)
+
+Plan fixé avant le run (`scripts/quality_deepdrid_detector.py`, commit `8ffb126`) :
+DeepDRiD (CC BY-SA 4.0), cible = qualité globale jugée insuffisante pour le diagnostic par
+ses experts ; apprentissage sur l'entraînement (1 200 images, 300 patients), mesure sur la
+validation puis sur l'évaluation (400 images chacune, patients disjoints), lue une fois ;
+mêmes embeddings DINOv2-B, régression logistique, seuil 0,5. Le JSON porte
+`8ffb126-dirty` : seuls deux fichiers de documentation (droits, attributions) ont été
+modifiés pendant le run, pas le code.
+
+| DeepDRiD, évaluation (220 insuffisantes, 180 suffisantes) | Détecteur appris | Détecteur actuel |
+|---|---|---|
+| Sensibilité (images insuffisantes signalées) | 148 / 220 (0,67) | 11 / 220 (0,05) |
+| Spécificité (images suffisantes non signalées) | 103 / 180 (0,57) | 175 / 180 (0,97) |
+| AUROC (bootstrap par patient) | 0,69 [0,62 ; 0,75] | — |
+
+Validation : AUROC 0,72 [0,67 ; 0,77], sensibilité 0,65, spécificité 0,69.
+
+**Les défauts graves sont bien repérés** (évaluation, détecteur appris) : netteté très
+basse (note ≤ 4) 40 sur 44, cadrage sans disque ni macula (≤ 4) 11 sur 11, artefacts
+couvrant plus d'un quart de l'image (≥ 6) 87 sur 107. La moitié des images de DeepDRiD est
+notée insuffisante : beaucoup ont des défauts légers, d'où la spécificité modeste.
+
+**Transfert vers ODIR, sans réentraînement** :
+
+| Autre source | Détecteur appris sur DeepDRiD | Détecteur actuel |
+|---|---|---|
+| Validation ODIR, patients à mot-clé repérés | 21 / 31 | 3 / 31 |
+| Validation ODIR, fausses alertes sur les témoins | 49 / 110 | 1 / 110 |
+| Relecture de Marc, patients avec défaut repérés | 10 / 18 | 4 / 18 |
+| Relecture de Marc, fausses alertes (sans défaut confirmé) | 1 / 8 | 0 / 8 |
+
+AUROC au transfert ODIR : 0,61 (mots-clés ODIR, surtout de la poussière).
+
+**Lecture** : c'est le premier détecteur qui repère la majorité des vrais défauts, sur deux
+sources ; le détecteur actuel n'en voit presque aucun. Mais au seuil fixé, il signale
+aussi beaucoup d'images correctes : il conviendrait à un **avertissement** (« qualité
+douteuse, à vérifier »), pas à un rejet automatique. Le seuil d'un usage réel serait à
+choisir sur la validation selon le compromis voulu, puis à confirmer. Aucune règle de
+rejet ajoutée.
+
+Réserves : DeepDRiD vient surtout d'un site (Nicheng) ; « insuffisant » suit la définition
+de ses annotateurs ; ODIR et la relecture ont déjà servi ; licence CC BY-SA (portée pour un
+modèle entraîné à faire vérifier, voir `DROITS_DONNEES.md`).

@@ -29,6 +29,7 @@ trancher. Une licence peut changer : vérifier à nouveau avant tout usage comme
 |---|---|---|---|---|---|
 | RFMiD | Entraînement et test | CC BY 4.0 | Possible avec attribution (doi:10.21227/s3g7-st65) | [IEEE DataPort](https://ieee-dataport.org/open-access/retinal-fundus-multi-disease-image-dataset-rfmid) | Licence du miroir Kaggle utilisé non lue |
 | IDRiD | Localisation | CC BY 4.0 (aussi dans le `LICENSE.txt` téléchargé) | Possible avec attribution (doi:10.21227/H25W98) | [IEEE DataPort](https://ieee-dataport.org/open-access/indian-diabetic-retinopathy-image-dataset-idrid) | — |
+| DeepDRiD (photos classiques) | Contrôle qualité (notes d'experts), test du routeur (via RetinaMNIST) | CC BY-SA 4.0 (fichier `LICENSE` du dépôt) | Possible avec attribution ; une œuvre adaptée doit être partagée sous la même licence (portée pour un modèle entraîné à faire vérifier) | [dépôt](https://github.com/deepdrdoc/DeepDRiD), doi:10.1016/j.patter.2022.100512 | — |
 | ODIR-5K | Entraînement et test | Aucune trouvée | Inconnu ; données fournies par Shanggong Medical Technology | [site du challenge](https://odir2019.grand-challenge.org/) | Lire la page de téléchargement, ou écrire à ODIR@sgex.cn |
 | APTOS 2019 | Validation externe | Règlement de compétition, section 7 | Exclu : usage non commercial seulement | [règlement](https://www.kaggle.com/competitions/aptos2019-blindness-detection/rules) | Voir ci-dessous |
 | EyePACS (Kaggle 2015) | Validation externe | Règlement de compétition, section « Data » | Exclu ; usage limité à la compétition et à sa durée | [règlement](https://www.kaggle.com/competitions/diabetic-retinopathy-detection/rules) | Voir ci-dessous |
@@ -64,6 +65,10 @@ Conséquences à trancher :
   pas clairement couvert.
 - Les deux : les étiquettes et les identifiants d'images font partie des données. Plusieurs
   fichiers de `results/` publiés en contiennent (stade par image).
+
+**MedMNIST+** (routeur de modalité : radiographies, frottis, OCT, échographie, scanner,
+RetinaMNIST) : CC BY 4.0 pour la collection ([Zenodo](https://zenodo.org/records/10519652)) ;
+chaque jeu d'origine garde ses propres conditions, non relues une à une.
 
 ## Dermatologie (seconde indication, J60)
 

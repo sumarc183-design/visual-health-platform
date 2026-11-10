@@ -1,0 +1,327 @@
+{
+  "run": {
+    "git_commit": "8ffb126-dirty",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.30"
+    }
+  },
+  "plan": "fixé le 10 novembre 2026 avant tout run (docstring du script)",
+  "backbone": {
+    "model": "dinov2_vitb14",
+    "checkpoint_sha256": "ba7954cb2db99604",
+    "transform": "crop-mask-512/area-224/imagenet"
+  },
+  "threshold": 0.5,
+  "deepdrid": {
+    "train": {
+      "images": 1200,
+      "patients": 300,
+      "insufficient_quality": 624
+    },
+    "val": {
+      "images": 400,
+      "patients": 100,
+      "insufficient_quality": 218
+    },
+    "eval": {
+      "images": 400,
+      "patients": 100,
+      "insufficient_quality": 220
+    }
+  },
+  "results": {
+    "deepdrid_val": {
+      "learned": {
+        "sensitivity": {
+          "detected": 142,
+          "patients": 218,
+          "rate": 0.6513761467889908,
+          "ci": [
+            0.5840957919053301,
+            0.7144758169079178
+          ]
+        },
+        "specificity": {
+          "detected": 126,
+          "patients": 182,
+          "rate": 0.6923076923076923,
+          "ci": [
+            0.6197588919440563,
+            0.7584672875129739
+          ]
+        },
+        "unit": "image",
+        "auroc_image": {
+          "value": 0.7210152233088012,
+          "ci": [
+            0.6732113850069013,
+            0.7734802411613905
+          ],
+          "valid_bootstrap_draws": 500
+        }
+      },
+      "current": {
+        "sensitivity": {
+          "detected": 22,
+          "patients": 218,
+          "rate": 0.10091743119266056,
+          "ci": [
+            0.06433192064219996,
+            0.14879916158580853
+          ]
+        },
+        "specificity": {
+          "detected": 181,
+          "patients": 182,
+          "rate": 0.9945054945054945,
+          "ci": [
+            0.9697683091616784,
+            0.9998609008401068
+          ]
+        },
+        "unit": "image"
+      },
+      "learned_sensitivity_by_subscore": {
+        "artifact_ge_6": {
+          "detected": 81,
+          "patients": 97,
+          "rate": 0.8350515463917526,
+          "ci": [
+            0.7459988133833472,
+            0.9026753486457814
+          ]
+        },
+        "clarity_le_4": {
+          "detected": 33,
+          "patients": 36,
+          "rate": 0.9166666666666666,
+          "ci": [
+            0.7753102394430269,
+            0.9824735040760654
+          ]
+        },
+        "field_le_4": {
+          "detected": 7,
+          "patients": 10,
+          "rate": 0.7,
+          "ci": [
+            0.3475471499400027,
+            0.9332604888222655
+          ]
+        }
+      }
+    },
+    "deepdrid_eval": {
+      "learned": {
+        "sensitivity": {
+          "detected": 148,
+          "patients": 220,
+          "rate": 0.6727272727272727,
+          "ci": [
+            0.6064320809367985,
+            0.7342929293705496
+          ]
+        },
+        "specificity": {
+          "detected": 103,
+          "patients": 180,
+          "rate": 0.5722222222222222,
+          "ci": [
+            0.49648030167808355,
+            0.645545514054241
+          ]
+        },
+        "unit": "image",
+        "auroc_image": {
+          "value": 0.6933838383838384,
+          "ci": [
+            0.6237652588793341,
+            0.7482981950834088
+          ],
+          "valid_bootstrap_draws": 500
+        }
+      },
+      "current": {
+        "sensitivity": {
+          "detected": 11,
+          "patients": 220,
+          "rate": 0.05,
+          "ci": [
+            0.025220813260292713,
+            0.08770113916432278
+          ]
+        },
+        "specificity": {
+          "detected": 175,
+          "patients": 180,
+          "rate": 0.9722222222222222,
+          "ci": [
+            0.9363694222569141,
+            0.9909203949889306
+          ]
+        },
+        "unit": "image"
+      },
+      "learned_sensitivity_by_subscore": {
+        "artifact_ge_6": {
+          "detected": 87,
+          "patients": 107,
+          "rate": 0.8130841121495327,
+          "ci": [
+            0.7261922865310468,
+            0.8819269278768064
+          ]
+        },
+        "clarity_le_4": {
+          "detected": 40,
+          "patients": 44,
+          "rate": 0.9090909090909091,
+          "ci": [
+            0.7833134105347255,
+            0.9746715782965493
+          ]
+        },
+        "field_le_4": {
+          "detected": 11,
+          "patients": 11,
+          "rate": 1.0,
+          "ci": [
+            0.7150858470818455,
+            1.0
+          ]
+        }
+      }
+    },
+    "odir_validation_transfer": {
+      "positive_images": 40,
+      "control_images": 120,
+      "detectors": {
+        "learned_deepdrid": {
+          "sensitivity": {
+            "detected": 21,
+            "patients": 31,
+            "rate": 0.6774193548387096,
+            "ci": [
+              0.48627017040724996,
+              0.8331763625770405
+            ]
+          },
+          "false_alert_rate": {
+            "detected": 49,
+            "patients": 110,
+            "rate": 0.44545454545454544,
+            "ci": [
+              0.3506606902340706,
+              0.5432591716138948
+            ]
+          },
+          "auroc_image": {
+            "value": 0.6114583333333333,
+            "ci": [
+              0.5128365299334812,
+              0.7252505060728744
+            ],
+            "valid_bootstrap_draws": 500
+          }
+        },
+        "current": {
+          "sensitivity": {
+            "detected": 3,
+            "patients": 31,
+            "rate": 0.0967741935483871,
+            "ci": [
+              0.0204198626877921,
+              0.2575390646277355
+            ]
+          },
+          "false_alert_rate": {
+            "detected": 1,
+            "patients": 110,
+            "rate": 0.00909090909090909,
+            "ci": [
+              0.0002301354055502925,
+              0.04961118931198478
+            ]
+          }
+        }
+      }
+    },
+    "human_review_transfer": {
+      "images": {
+        "defect": 19,
+        "clear": 8,
+        "indeterminate": 9
+      },
+      "unit": "patient",
+      "detectors": {
+        "learned_deepdrid": {
+          "sensitivity": {
+            "detected": 10,
+            "patients": 18,
+            "rate": 0.5555555555555556,
+            "ci": [
+              0.30757165899875616,
+              0.7846984926127001
+            ]
+          },
+          "false_alert_rate": {
+            "detected": 1,
+            "patients": 8,
+            "rate": 0.125,
+            "ci": [
+              0.0031597235312519063,
+              0.5265096708752065
+            ]
+          },
+          "flagged_indeterminate": {
+            "detected": 7,
+            "patients": 9,
+            "rate": 0.7777777777777778,
+            "ci": [
+              0.39990642628368783,
+              0.9718550265221018
+            ]
+          }
+        },
+        "current": {
+          "sensitivity": {
+            "detected": 4,
+            "patients": 18,
+            "rate": 0.2222222222222222,
+            "ci": [
+              0.0640920477176665,
+              0.4763727657364801
+            ]
+          },
+          "false_alert_rate": {
+            "detected": 0,
+            "patients": 8,
+            "rate": 0.0,
+            "ci": [
+              0.0,
+              0.3694166475528192
+            ]
+          },
+          "flagged_indeterminate": {
+            "detected": 0,
+            "patients": 9,
+            "rate": 0.0,
+            "ci": [
+              0.0,
+              0.3362671168799428
+            ]
+          }
+        }
+      }
+    }
+  },
+  "inputs_sha256": {
+    "review": "cb91ef2cd670a04574adf75d7e6fab3cc07de4736b6efb215e3093d4c31bd9ed",
+    "study_manifest": "7e867092b8a1d9ed30093d49ed0017feefa31f7a8914166d66aba7b91c08f594"
+  },
+  "local_archive": "quality_deepdrid_detector.npz (scores, modèle ; local, non versionné)"
+}

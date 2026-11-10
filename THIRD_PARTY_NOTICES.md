@@ -62,6 +62,11 @@ que les checkpoints officiels se chargent sans renommage.
   chaque jeu ; les images ne sont pas versionnées dans ce dépôt.
 - **ISIC 2019** (BCN_20000, HAM10000, MSK) : CC BY-NC 4.0, à citer selon
   https://challenge.isic-archive.com/data/ ; images non versionnées.
+- **DeepDRiD** (Liu et al., « DeepDRiD: Diabetic Retinopathy—Grading and Image Quality
+  Estimation Challenge », Patterns 2022) : CC BY-SA 4.0, https://github.com/deepdrdoc/DeepDRiD ;
+  notes de qualité utilisées pour le contrôle qualité ; images non versionnées.
+- **MedMNIST+** (Yang et al., Scientific Data 2023) : CC BY 4.0,
+  https://zenodo.org/records/10519652 ; images d'autres modalités pour le routeur ; non versionnées.
 - **IDRiD** (Porwal, Pachade et Kokare) : CC BY 4.0, segmentation utilisée
   pour mesurer la localisation ; images non versionnées.
 - **APTOS 2019 Blindness Detection** (Asia Pacific Tele-Ophthalmology

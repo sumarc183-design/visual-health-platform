@@ -31,6 +31,9 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
   aucun gain démontré sur les vrais défauts.
   Détecteur appris sur de vrais défauts (10 nov.) : repère la poussière, pas les
   défauts généraux, faute d'exemples ; il faut plus d'images annotées.
+  Appris sur les notes d'experts de DeepDRiD (10 nov.) : repère 67 % des images de
+  qualité insuffisante (5 % pour le détecteur actuel) et la plupart des défauts graves,
+  mais avec beaucoup de fausses alertes ; candidat pour un avertissement, pas un rejet.
 - [ ] Identification de modalité : routeur entraîné et évalué le 9 novembre
   (DINOv2-B figé, plan fixé avant le run) : 499/500 fonds d'œil, 499/500 dermoscopies
   et 500/500 photos ordinaires bien routés sur d'autres sources. Critère « aucune
