@@ -6,6 +6,11 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Corrigé
+- IDRiD (10 nov.) : localisation relancée sur Kaggle pour obtenir le manifeste des
+  archives (modèle, empreintes du checkpoint et des têtes, prétraitement, commit
+  `93aa9d5`) ; cartes, tokens et logits identiques au bit près aux archives précédentes.
+  Point restant de l'audit du 6 nov. ; l'inventaire des images et masques bruts n'est
+  pas encore dans le manifeste (audit du 9 nov., constat 8).
 - Audit du 9 nov. : identifiants et étiquettes APTOS/EyePACS retirés des fichiers suivis
   (4 archives de scores gardées en local ; tirages few-shot séparés du rapport
   `site_adaptation_aptos.json`) et test qui empêche leur retour, sur le contenu des
