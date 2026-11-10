@@ -31,3 +31,4 @@ results/green_predictions_*.npz
 /results/*_draws.json
 /results/quality_learned_detector.npz
 /results/quality_real_detector.npz
+/results/quality_deepdrid_detector.npz
