@@ -222,3 +222,32 @@ images dégradées portent désormais le défaut, sa graine et la version du gé
 Résultats : `results/quality_learned_detector.json` ; scores et modèle archivés localement.
 Aucune règle de rejet ajoutée. Piste suivante : apprendre sur de vrais défauts annotés
 (mots-clés ODIR, relecture humaine), ce qui demande plus d'annotations.
+
+## Détecteur appris sur de vrais défauts (10 novembre 2026) : la poussière seulement
+
+Plan fixé avant le run (`scripts/quality_real_detector.py`, commit `65325bc`) : mêmes
+embeddings et mêmes tests que le détecteur simulé ; positifs = images d'entraînement
+ODIR à mot-clé technique, hors patients de la relecture humaine ; négatifs = les 600
+images propres déjà tirées ; régression logistique à classes équilibrées, seuil 0,5.
+
+**Constat après coup** : les 18 images d'entraînement à défaut général (flou, sombre...)
+appartiennent toutes à la série relue par Marc, réservée au test. Les 165 positifs
+restants sont donc tous de la poussière : le modèle a appris la poussière, pas les
+défauts généraux.
+
+| Test (vrais défauts) | Appris sur vrais défauts | Détecteur actuel |
+|---|---|---|
+| A. Validation ODIR, patients à poussière seule détectés | 17 / 26 | 3 / 26 |
+| A. Validation ODIR, patients à défaut général détectés | 0 / 5 | 0 / 5 |
+| A. Fausses alertes sur les témoins | 25 / 110 | 1 / 110 |
+| B. Relecture de Marc, patients avec défaut détectés | 2 / 18 | 4 / 18 |
+| B. Fausses alertes, patients sans défaut confirmé | 2 / 8 | 0 / 8 |
+
+AUROC au test A : 0,68 [0,58 ; 0,77], contre 0,56 pour le détecteur simulé : un signal
+réel, mais porté par la poussière, avec beaucoup de fausses alertes au seuil fixé. Aucun
+défaut général n'est appris faute d'exemples. Aucune règle de rejet ajoutée.
+
+**Suite proposée** : pour apprendre les défauts généraux, il faut plus d'exemples annotés
+que les 23 d'ODIR (train et validation). Options : relire davantage d'images (par exemple
+les images écartées par le chargeur ODIR), ou une base annotée en qualité (comme
+EyeQ, dérivée d'EyePACS, dont les conditions d'usage seraient à vérifier).

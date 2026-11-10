@@ -26,6 +26,10 @@ selon [SemVer](https://semver.org/lang/fr/).
   score officiel ISIC précisée.
 
 ### Ajouté
+- Contrôle qualité (10 nov.) : détecteur appris sur de vrais défauts ODIR. Faute
+  d'exemples de défauts généraux hors série relue, il apprend la poussière : 17/26
+  patients repérés en validation (3/26 pour l'actuel), mais 25/110 fausses alertes ;
+  défauts généraux non repérés. AUROC 0,68 [0,58 ; 0,77]. `results/quality_real_detector.json`.
 - Contrôle qualité (9 nov.) : relecture humaine de 36 images ODIR en série équilibrée
   (défaut vu sur 16/18 images à mot-clé, 3/18 témoins) ; détecteur appris sur des
   défauts simulés, sans gain sur les vrais défauts (AUROC 0,56 [0,46 ; 0,67]).
