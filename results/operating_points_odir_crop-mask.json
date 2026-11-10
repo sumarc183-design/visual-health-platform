@@ -1,0 +1,802 @@
+{
+  "run": {
+    "git_commit": "ee9c3b6",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.30"
+    }
+  },
+  "plan": "fixé le 10 novembre 2026 avant ce calcul (docstring du script)",
+  "dataset": "odir",
+  "variant": "crop-mask",
+  "unit": "image",
+  "classes": {
+    "N": {
+      "cases_val": 442,
+      "cases_test": 430,
+      "images_test": 965,
+      "status": "ok",
+      "points": [
+        {
+          "target_sensitivity_on_validation": 0.8,
+          "threshold": 0.5088716745376587,
+          "test_sensitivity": {
+            "value": 0.8116279069767441,
+            "ci": [
+              0.7714081087906449,
+              0.8474954977862001
+            ]
+          },
+          "test_specificity": {
+            "value": 0.6299065420560748,
+            "ci": [
+              0.5874306582481514,
+              0.6709387207461189
+            ]
+          },
+          "counts": {
+            "tp": 349,
+            "fn": 81,
+            "fp": 198,
+            "tn": 337
+          },
+          "per_1000": {
+            "sick": 446,
+            "detected": 362,
+            "missed": 84,
+            "false_alerts": 205
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.9,
+          "threshold": 0.37813687324523926,
+          "test_sensitivity": {
+            "value": 0.9209302325581395,
+            "ci": [
+              0.8912591304665824,
+              0.9446224328215319
+            ]
+          },
+          "test_specificity": {
+            "value": 0.48785046728971965,
+            "ci": [
+              0.4447282229521193,
+              0.5311076029703047
+            ]
+          },
+          "counts": {
+            "tp": 396,
+            "fn": 34,
+            "fp": 274,
+            "tn": 261
+          },
+          "per_1000": {
+            "sick": 446,
+            "detected": 410,
+            "missed": 35,
+            "false_alerts": 284
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.95,
+          "threshold": 0.30361485481262207,
+          "test_sensitivity": {
+            "value": 0.9441860465116279,
+            "ci": [
+              0.9180889050000788,
+              0.9639152957067001
+            ]
+          },
+          "test_specificity": {
+            "value": 0.411214953271028,
+            "ci": [
+              0.3691760503138283,
+              0.45424003255773543
+            ]
+          },
+          "counts": {
+            "tp": 406,
+            "fn": 24,
+            "fp": 315,
+            "tn": 220
+          },
+          "per_1000": {
+            "sick": 446,
+            "detected": 421,
+            "missed": 25,
+            "false_alerts": 326
+          }
+        }
+      ]
+    },
+    "D": {
+      "cases_val": 227,
+      "cases_test": 266,
+      "images_test": 965,
+      "status": "ok",
+      "points": [
+        {
+          "target_sensitivity_on_validation": 0.8,
+          "threshold": 0.20400406420230865,
+          "test_sensitivity": {
+            "value": 0.7969924812030075,
+            "ci": [
+              0.7435748319987059,
+              0.8436586630813918
+            ]
+          },
+          "test_specificity": {
+            "value": 0.580829756795422,
+            "ci": [
+              0.5432584223714697,
+              0.6177159571609091
+            ]
+          },
+          "counts": {
+            "tp": 212,
+            "fn": 54,
+            "fp": 293,
+            "tn": 406
+          },
+          "per_1000": {
+            "sick": 276,
+            "detected": 220,
+            "missed": 56,
+            "false_alerts": 304
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.9,
+          "threshold": 0.11544723808765411,
+          "test_sensitivity": {
+            "value": 0.9285714285714286,
+            "ci": [
+              0.8907010370537465,
+              0.9564501896518578
+            ]
+          },
+          "test_specificity": {
+            "value": 0.38912732474964234,
+            "ci": [
+              0.35280224806336974,
+              0.42639246632726363
+            ]
+          },
+          "counts": {
+            "tp": 247,
+            "fn": 19,
+            "fp": 427,
+            "tn": 272
+          },
+          "per_1000": {
+            "sick": 276,
+            "detected": 256,
+            "missed": 20,
+            "false_alerts": 442
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.95,
+          "threshold": 0.06748129427433014,
+          "test_sensitivity": {
+            "value": 0.9887218045112782,
+            "ci": [
+              0.9673959496565642,
+              0.9976680985362127
+            ]
+          },
+          "test_specificity": {
+            "value": 0.25464949928469244,
+            "ci": [
+              0.22272983036289937,
+              0.28865561467546097
+            ]
+          },
+          "counts": {
+            "tp": 263,
+            "fn": 3,
+            "fp": 521,
+            "tn": 178
+          },
+          "per_1000": {
+            "sick": 276,
+            "detected": 273,
+            "missed": 3,
+            "false_alerts": 540
+          }
+        }
+      ]
+    },
+    "G": {
+      "cases_val": 58,
+      "cases_test": 34,
+      "images_test": 965,
+      "status": "ok",
+      "points": [
+        {
+          "target_sensitivity_on_validation": 0.8,
+          "threshold": 0.06988539546728134,
+          "test_sensitivity": {
+            "value": 0.8235294117647058,
+            "ci": [
+              0.6546848689318661,
+              0.9323593473172429
+            ]
+          },
+          "test_specificity": {
+            "value": 0.8614393125671321,
+            "ci": [
+              0.837565985896118,
+              0.8829978043986962
+            ]
+          },
+          "counts": {
+            "tp": 28,
+            "fn": 6,
+            "fp": 129,
+            "tn": 802
+          },
+          "per_1000": {
+            "sick": 35,
+            "detected": 29,
+            "missed": 6,
+            "false_alerts": 134
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.9,
+          "threshold": 0.020813049748539925,
+          "test_sensitivity": {
+            "value": 0.9705882352941176,
+            "ci": [
+              0.8467323304396823,
+              0.9992556357653097
+            ]
+          },
+          "test_specificity": {
+            "value": 0.6799140708915145,
+            "ci": [
+              0.6488765777413339,
+              0.7098083638550359
+            ]
+          },
+          "counts": {
+            "tp": 33,
+            "fn": 1,
+            "fp": 298,
+            "tn": 633
+          },
+          "per_1000": {
+            "sick": 35,
+            "detected": 34,
+            "missed": 1,
+            "false_alerts": 309
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.95,
+          "threshold": 0.009530547074973583,
+          "test_sensitivity": {
+            "value": 1.0,
+            "ci": [
+              0.8971820757409874,
+              1.0
+            ]
+          },
+          "test_specificity": {
+            "value": 0.5048335123523093,
+            "ci": [
+              0.47220839354253746,
+              0.5374279650686762
+            ]
+          },
+          "counts": {
+            "tp": 34,
+            "fn": 0,
+            "fp": 461,
+            "tn": 470
+          },
+          "per_1000": {
+            "sick": 35,
+            "detected": 35,
+            "missed": 0,
+            "false_alerts": 478
+          }
+        }
+      ]
+    },
+    "C": {
+      "cases_val": 42,
+      "cases_test": 46,
+      "images_test": 965,
+      "status": "ok",
+      "points": [
+        {
+          "target_sensitivity_on_validation": 0.8,
+          "threshold": 0.12917795777320862,
+          "test_sensitivity": {
+            "value": 0.6739130434782609,
+            "ci": [
+              0.5198279593624653,
+              0.8046745633261057
+            ]
+          },
+          "test_specificity": {
+            "value": 0.9836779107725789,
+            "ci": [
+              0.9732218993368741,
+              0.9908366172866688
+            ]
+          },
+          "counts": {
+            "tp": 31,
+            "fn": 15,
+            "fp": 15,
+            "tn": 904
+          },
+          "per_1000": {
+            "sick": 48,
+            "detected": 32,
+            "missed": 16,
+            "false_alerts": 16
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.9,
+          "threshold": 0.07193344831466675,
+          "test_sensitivity": {
+            "value": 0.6956521739130435,
+            "ci": [
+              0.5424513485698682,
+              0.8225731847040552
+            ]
+          },
+          "test_specificity": {
+            "value": 0.9771490750816104,
+            "ci": [
+              0.9652811866634355,
+              0.985800577421139
+            ]
+          },
+          "counts": {
+            "tp": 32,
+            "fn": 14,
+            "fp": 21,
+            "tn": 898
+          },
+          "per_1000": {
+            "sick": 48,
+            "detected": 33,
+            "missed": 15,
+            "false_alerts": 22
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.95,
+          "threshold": 0.005968176294118166,
+          "test_sensitivity": {
+            "value": 0.8260869565217391,
+            "ci": [
+              0.6858093499247006,
+              0.9217965761936471
+            ]
+          },
+          "test_specificity": {
+            "value": 0.9390642002176278,
+            "ci": [
+              0.921596046474273,
+              0.9536450595107588
+            ]
+          },
+          "counts": {
+            "tp": 38,
+            "fn": 8,
+            "fp": 56,
+            "tn": 863
+          },
+          "per_1000": {
+            "sick": 48,
+            "detected": 39,
+            "missed": 8,
+            "false_alerts": 58
+          }
+        }
+      ]
+    },
+    "A": {
+      "cases_val": 45,
+      "cases_test": 46,
+      "images_test": 965,
+      "status": "ok",
+      "points": [
+        {
+          "target_sensitivity_on_validation": 0.8,
+          "threshold": 0.05777826905250549,
+          "test_sensitivity": {
+            "value": 0.6304347826086957,
+            "ci": [
+              0.47548451740916303,
+              0.7679342812000558
+            ]
+          },
+          "test_specificity": {
+            "value": 0.8726877040261154,
+            "ci": [
+              0.8493937877526607,
+              0.8935604756934493
+            ]
+          },
+          "counts": {
+            "tp": 29,
+            "fn": 17,
+            "fp": 117,
+            "tn": 802
+          },
+          "per_1000": {
+            "sick": 48,
+            "detected": 30,
+            "missed": 18,
+            "false_alerts": 121
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.9,
+          "threshold": 0.02854670211672783,
+          "test_sensitivity": {
+            "value": 0.8695652173913043,
+            "ci": [
+              0.737434983812373,
+              0.95059265342629
+            ]
+          },
+          "test_specificity": {
+            "value": 0.7029379760609358,
+            "ci": [
+              0.6722326167340735,
+              0.7323362096125576
+            ]
+          },
+          "counts": {
+            "tp": 40,
+            "fn": 6,
+            "fp": 273,
+            "tn": 646
+          },
+          "per_1000": {
+            "sick": 48,
+            "detected": 41,
+            "missed": 6,
+            "false_alerts": 283
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.95,
+          "threshold": 0.015556465834379196,
+          "test_sensitivity": {
+            "value": 0.9130434782608695,
+            "ci": [
+              0.7920826751160522,
+              0.9757969291970654
+            ]
+          },
+          "test_specificity": {
+            "value": 0.514689880304679,
+            "ci": [
+              0.4818301401473378,
+              0.5474551919877824
+            ]
+          },
+          "counts": {
+            "tp": 42,
+            "fn": 4,
+            "fp": 446,
+            "tn": 473
+          },
+          "per_1000": {
+            "sick": 48,
+            "detected": 44,
+            "missed": 4,
+            "false_alerts": 462
+          }
+        }
+      ]
+    },
+    "H": {
+      "cases_val": 34,
+      "cases_test": 17,
+      "images_test": 965,
+      "status": "ok",
+      "points": [
+        {
+          "target_sensitivity_on_validation": 0.8,
+          "threshold": 0.020910393446683884,
+          "test_sensitivity": {
+            "value": 0.6470588235294118,
+            "ci": [
+              0.3832836634434029,
+              0.857902516889779
+            ]
+          },
+          "test_specificity": {
+            "value": 0.6497890295358649,
+            "ci": [
+              0.6184663465691282,
+              0.6801776290954523
+            ]
+          },
+          "counts": {
+            "tp": 11,
+            "fn": 6,
+            "fp": 332,
+            "tn": 616
+          },
+          "per_1000": {
+            "sick": 18,
+            "detected": 11,
+            "missed": 6,
+            "false_alerts": 344
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.9,
+          "threshold": 0.0015979785239323974,
+          "test_sensitivity": {
+            "value": 1.0,
+            "ci": [
+              0.8049356770309067,
+              1.0
+            ]
+          },
+          "test_specificity": {
+            "value": 0.18354430379746836,
+            "ci": [
+              0.15938815932941547,
+              0.20968394388606942
+            ]
+          },
+          "counts": {
+            "tp": 17,
+            "fn": 0,
+            "fp": 774,
+            "tn": 174
+          },
+          "per_1000": {
+            "sick": 18,
+            "detected": 18,
+            "missed": 0,
+            "false_alerts": 802
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.95,
+          "threshold": 0.0014575835084542632,
+          "test_sensitivity": {
+            "value": 1.0,
+            "ci": [
+              0.8049356770309067,
+              1.0
+            ]
+          },
+          "test_specificity": {
+            "value": 0.18037974683544303,
+            "ci": [
+              0.15639924698214633,
+              0.20636394259677843
+            ]
+          },
+          "counts": {
+            "tp": 17,
+            "fn": 0,
+            "fp": 777,
+            "tn": 171
+          },
+          "per_1000": {
+            "sick": 18,
+            "detected": 18,
+            "missed": 0,
+            "false_alerts": 805
+          }
+        }
+      ]
+    },
+    "M": {
+      "cases_val": 29,
+      "cases_test": 37,
+      "images_test": 965,
+      "status": "ok",
+      "points": [
+        {
+          "target_sensitivity_on_validation": 0.8,
+          "threshold": 0.7428165078163147,
+          "test_sensitivity": {
+            "value": 0.918918918918919,
+            "ci": [
+              0.7809037937619998,
+              0.9829564693041812
+            ]
+          },
+          "test_specificity": {
+            "value": 0.9946120689655172,
+            "ci": [
+              0.9874714881461959,
+              0.9982483083645879
+            ]
+          },
+          "counts": {
+            "tp": 34,
+            "fn": 3,
+            "fp": 5,
+            "tn": 923
+          },
+          "per_1000": {
+            "sick": 38,
+            "detected": 35,
+            "missed": 3,
+            "false_alerts": 5
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.9,
+          "threshold": 0.3165406584739685,
+          "test_sensitivity": {
+            "value": 0.972972972972973,
+            "ci": [
+              0.858396904388842,
+              0.9993159689753053
+            ]
+          },
+          "test_specificity": {
+            "value": 0.9892241379310345,
+            "ci": [
+              0.9802723456052662,
+              0.9948207980239048
+            ]
+          },
+          "counts": {
+            "tp": 36,
+            "fn": 1,
+            "fp": 10,
+            "tn": 918
+          },
+          "per_1000": {
+            "sick": 38,
+            "detected": 37,
+            "missed": 1,
+            "false_alerts": 10
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.95,
+          "threshold": 0.2591981291770935,
+          "test_sensitivity": {
+            "value": 0.972972972972973,
+            "ci": [
+              0.858396904388842,
+              0.9993159689753053
+            ]
+          },
+          "test_specificity": {
+            "value": 0.9881465517241379,
+            "ci": [
+              0.9788900818896968,
+              0.9940683583340195
+            ]
+          },
+          "counts": {
+            "tp": 36,
+            "fn": 1,
+            "fp": 11,
+            "tn": 917
+          },
+          "per_1000": {
+            "sick": 38,
+            "detected": 37,
+            "missed": 1,
+            "false_alerts": 11
+          }
+        }
+      ]
+    },
+    "O": {
+      "cases_val": 153,
+      "cases_test": 140,
+      "images_test": 965,
+      "status": "ok",
+      "points": [
+        {
+          "target_sensitivity_on_validation": 0.8,
+          "threshold": 0.11442535370588303,
+          "test_sensitivity": {
+            "value": 0.7642857142857142,
+            "ci": [
+              0.6852001461050137,
+              0.8318523169819809
+            ]
+          },
+          "test_specificity": {
+            "value": 0.5709090909090909,
+            "ci": [
+              0.5363261784480221,
+              0.6049836318919768
+            ]
+          },
+          "counts": {
+            "tp": 107,
+            "fn": 33,
+            "fp": 354,
+            "tn": 471
+          },
+          "per_1000": {
+            "sick": 145,
+            "detected": 111,
+            "missed": 34,
+            "false_alerts": 367
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.9,
+          "threshold": 0.08371005952358246,
+          "test_sensitivity": {
+            "value": 0.8571428571428571,
+            "ci": [
+              0.7880251271999381,
+              0.9105029395295094
+            ]
+          },
+          "test_specificity": {
+            "value": 0.3987878787878788,
+            "ci": [
+              0.3651824272345965,
+              0.4331191331276686
+            ]
+          },
+          "counts": {
+            "tp": 120,
+            "fn": 20,
+            "fp": 496,
+            "tn": 329
+          },
+          "per_1000": {
+            "sick": 145,
+            "detected": 124,
+            "missed": 21,
+            "false_alerts": 514
+          }
+        },
+        {
+          "target_sensitivity_on_validation": 0.95,
+          "threshold": 0.04474037140607834,
+          "test_sensitivity": {
+            "value": 0.9357142857142857,
+            "ci": [
+              0.8814742371044579,
+              0.970185685094348
+            ]
+          },
+          "test_specificity": {
+            "value": 0.15636363636363637,
+            "ci": [
+              0.13223684280274814,
+              0.18297430966754302
+            ]
+          },
+          "counts": {
+            "tp": 131,
+            "fn": 9,
+            "fp": 696,
+            "tn": 129
+          },
+          "per_1000": {
+            "sick": 145,
+            "detected": 136,
+            "missed": 9,
+            "false_alerts": 721
+          }
+        }
+      ]
+    }
+  }
+}

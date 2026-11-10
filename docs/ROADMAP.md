@@ -49,6 +49,7 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
   DINOv2-L +0,037 [+0,030 ; +0,043] sur le test officiel. Sonde linéaire uniquement,
   recouvrement de préentraînement possible ; [résultats et réserves](DERMATOLOGIE.md#résultats).
 - [ ] Score de confiance calibré (avancé le 4 nov. : probabilités déjà bien calibrées, ECE ≈ 0,02-0,03, seuils par maladie choisis sur la validation ; reste la validation clinique du compromis)
+  Compromis par maladie préparés le 10 nov. pour aider ce choix ([CONFIANCE.md](CONFIANCE.md)).
 
 - [ ] Protocole de confirmation daté avant toute nouvelle lecture (audit du 6 nov.) : variantes figées, et lot de patients EyePACS encore jamais examinés. Les bases actuelles sont exploratoires.
 

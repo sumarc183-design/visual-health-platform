@@ -26,6 +26,9 @@ selon [SemVer](https://semver.org/lang/fr/).
   score officiel ISIC précisée.
 
 ### Ajouté
+- Score de confiance (J60, 10 nov.) : compromis cas manqués / fausses alertes pour 1 000
+  personnes, par maladie, à 80, 90 et 95 % de sensibilité visée (seuils choisis sur la
+  validation). `docs/CONFIANCE.md`, `scripts/operating_points.py`, 1 test.
 - Routeur, test de résistance (10 nov.) : 800/800 fonds d'œil DeepDRiD reconnus, dont
   438 de qualité insuffisante, aucun vers la dermoscopie (probabilité max 0,001) ;
   l'erreur résiduelle (rétine très pathologique) n'est pas liée à la qualité d'image.
