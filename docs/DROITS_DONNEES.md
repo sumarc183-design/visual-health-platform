@@ -100,6 +100,30 @@ SLICE-3D Permissive est le seul grand jeu ISIC compatible a priori avec un usage
 commercial. Ce sont des recadrages de photos du corps entier, pas des images de
 dermoscopie : la tâche et la qualité d'image diffèrent des autres jeux ISIC.
 
+## Cohorte de confirmation : candidates (11 novembre 2026)
+
+**Le lot EyePACS prévu pour la confirmation n'est probablement pas utilisable** : son
+règlement limite l'usage à la compétition et à sa durée (voir plus haut). Quatre bases
+de rétinopathie diabétique jamais utilisées dans le projet peuvent le remplacer. Toutes
+sont gradées selon l'échelle internationale (0 à 4) ; aucune n'autorise un usage
+commercial sans accord.
+
+| Base | Images | Licence lue | Accès | Remarques |
+|---|---|---|---|---|
+| [BRSET](https://physionet.org/content/brazilian-ophthalmological/1.0.2/) (Brésil, 2010-2020) | 16 266 (8 524 patients) | PhysioNet Credentialed Health Data License 1.5.0 : recherche seulement | Compte PhysioNet accrédité, formation CITI, accord signé | Population nouvelle ; aussi d'autres pathologies (multi-label) ; identifiants patients |
+| [DDR](https://github.com/nkicsl/DDR-dataset) (Chine) | 13 673 (9 598 patients, d'après l'article) | CC BY-NC-SA 4.0 (README) : pas d'usage commercial sans accord écrit, partage à l'identique | Téléchargement libre (Google Drive, Baidu) | Découpage et nombre d'images gradées à vérifier après téléchargement |
+| [Messidor-2](https://www.adcis.net/en/third-party/messidor2/) (France) | 1 748 (d'après l'article) | Recherche et enseignement, gratuit ; usage commercial non autorisé sans accord | Formulaire sur le site | Petite ; gradation fournie par des tiers |
+| [IDRiD, gradation](https://idrid.grand-challenge.org/Data/) (Inde) | 516 (413 entraînement, 103 test) | CC BY 4.0 | IEEE DataPort, compte gratuit | Seule licence ouverte, mais petite ; les 81 images de segmentation déjà utilisées en font probablement partie (non précisé) : à exclure |
+
+Sources consultées le 11 novembre 2026 (pages ci-dessus). Les tailles de DDR et de
+Messidor-2 viennent des articles, pas de fichiers téléchargés.
+
+**Proposition, à valider avec le tuteur** : DDR comme cohorte de confirmation principale
+(grande, téléchargement libre, aucune image vue par le projet), BRSET en seconde
+confirmation si l'accréditation PhysioNet est obtenue. Les deux licences sont non
+commerciales : compatibles avec le statut actuel de démonstration, pas avec un produit.
+Rien n'a été téléchargé ni demandé.
+
 ## Questions à trancher
 
 1. Le projet est-il un « projet impliquant une entreprise » au sens de la licence de
