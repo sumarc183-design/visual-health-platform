@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extrait les embeddings d'un jeu (APTOS, EyePACS, RFMiD, ISIC 2019) dans le cache.
+"""Extrait les embeddings d'un jeu (APTOS, DDR, EyePACS, RFMiD, ISIC 2019) dans le cache.
 
 Même extraction que run_baseline.py (`dataset_embeddings`, backbone figé) et
 même cache avec empreinte
@@ -37,6 +37,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from run_baseline import dataset_embeddings  # noqa: E402
 from src.data.aptos_dataset import APTOSDataset  # noqa: E402
+from src.data.ddr_dataset import DDRDataset  # noqa: E402
 from src.data.eyepacs_dataset import EyePACSDataset  # noqa: E402
 from src.data.fundus_preprocess import PREPROCESS_CHOICES, PREPROCESS_VERSION  # noqa: E402
 from src.data.isic_dataset import ISIC2019Dataset  # noqa: E402
@@ -52,7 +53,13 @@ from src.models.timm_backbones import (  # noqa: E402
     PanDermBackbone,
 )
 
-DATASETS = {"aptos": APTOSDataset, "eyepacs": EyePACSDataset, "rfmid": RFMiDDataset, "isic2019": ISIC2019Dataset}
+DATASETS = {
+    "aptos": APTOSDataset,
+    "ddr": DDRDataset,
+    "eyepacs": EyePACSDataset,
+    "rfmid": RFMiDDataset,
+    "isic2019": ISIC2019Dataset,
+}
 SPLIT_DATASETS = ("rfmid", "isic2019")  # trois découpages, sans fichier d'étiquettes
 
 

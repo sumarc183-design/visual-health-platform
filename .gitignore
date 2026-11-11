@@ -34,3 +34,5 @@ results/green_predictions_*.npz
 /results/quality_learned_detector.npz
 /results/quality_real_detector.npz
 /results/quality_deepdrid_detector.npz
+# Scores et étiquettes DDR par image (confirmation), gardés en local
+/results/confirmation_ddr.npz
