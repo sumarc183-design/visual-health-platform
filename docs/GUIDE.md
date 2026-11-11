@@ -418,6 +418,42 @@ différence appariée ; `notebooks/kaggle_gpu_checks.ipynb` le lance sur ODIR
 Si l'occlusion tombe sur les lésions alors que Grad-CAM tombe sur le fond,
 c'est Grad-CAM qui se trompe sur ce modèle, pas le modèle.
 
+## Reprendre sur un autre ordinateur
+
+`git clone` ne suffit pas : données, poids, caches et plusieurs fichiers de résultats
+restent hors de Git (taille ou licence). État au 11 novembre 2026, environ 33 Go.
+
+**Le plus simple** : copier le dossier du projet entier (disque externe, ou Assistant
+de migration si le nouvel ordinateur est un Mac), puis vérifier avec `pytest`. À défaut,
+copier au moins ce qui coûte cher à refaire :
+
+| Élément local | Taille | Si on ne le copie pas |
+|---|---|---|
+| `heads/*.pt` (têtes servies par `predict.py`, routeur) | 0,5 Mo | Réentraîner (commandes plus haut) ; **indispensable à `predict.py`** |
+| `embeddings/`, `embeddings_derm/` (caches) | 0,3 Go | Recalcul : plusieurs heures CPU, ou Kaggle pour APTOS/EyePACS |
+| Résultats ignorés : `results/*.npz` listés dans `.gitignore`, `results/finetune*/`, `results/localization/localization_*.npz` | 0,4 Go | Relancer les scripts ou notebooks correspondants |
+| `docs/AUDIT.md`, `AGENTS.md` (jamais commités) | < 1 Mo | Perdus : à copier |
+| `third_party/` (DINOv2-B, PanDerm, RETFound-Green) | 1,7 Go | Retélécharger (ci-dessous) |
+| `data/raw/` | 31 Go | Retélécharger (ci-dessous) |
+
+Sources pour retélécharger :
+
+| Données ou poids | Source |
+|---|---|
+| RFMiD, ODIR | `python scripts/download_rfmid_odir.py --out data/raw` (Kaggle, sans compte) |
+| DeepDRiD | `git clone https://github.com/deepdrdoc/DeepDRiD data/raw/deepdrid` |
+| MedMNIST+ (routeur) | [Zenodo 10519652](https://zenodo.org/records/10519652), fichiers `*mnist_128.npz` / `*_224.npz` dans `data/raw/medmnist/` |
+| ISIC 2019 (CSV, images du routeur) | `scripts/download_isic.py` |
+| Imagenette (routeur) | `imagenette2-320` de fast.ai, dans `data/raw/modality/imagenette/` |
+| SLICE-3D Permissive | [ISIC Challenge Datasets](https://challenge.isic-archive.com/data/), trois fichiers `ISIC_2024_Permissive_Training_*` |
+| DDR (gradation, confirmation) | [Google Drive des auteurs](https://github.com/nkicsl/DDR-dataset), 10 morceaux réunis en `DDR-dataset.zip` ; SHA-256 attendu dans `data/raw/ddr/DDR-dataset.zip.sha256` (`a50cf62c…`) ; extraire `DDR-dataset/DR_grading/` dans `data/raw/ddr/` |
+| RETFound | `scripts/download_retfound_checkpoint.py` (jeton Hugging Face) |
+| RETFound-Green | release v0.1 du [dépôt de l'auteur](https://github.com/justinengelmann/RETFound_Green) (SHA-256 vérifié par les notebooks) |
+| DINOv2, PanDerm | [DINOv2](https://github.com/facebookresearch/dinov2), [PanDerm](https://github.com/SiyuanYan1/PanDerm) ; noms de fichiers attendus dans `third_party/` |
+
+Les poids DINOv2-B locaux ont l'empreinte `ba7954cb2db99604` : un fichier retéléchargé
+peut en avoir une autre (voir `DERMATOLOGIE.md`).
+
 ## Tests
 
 ```bash
