@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Corrigé
+- Notebooks (audit du 9 nov., constat 11) : chaque zip de sortie de 9 notebooks contient
+  `run_manifest.json` (commit réellement utilisé, révision demandée, plateforme, GPU,
+  versions, empreinte de chaque fichier) ; le notebook échoue si le manifeste ne peut pas
+  être écrit. `scripts/run_manifest.py`, 2 tests.
 - IDRiD (audit du 9 nov., constat 8) : le manifeste des cartes inventorie désormais
   chaque image et chaque masque lus (empreinte SHA-256), masques HE/SE absents listés ;
   l'analyse vérifie cet inventaire contre les fichiers présents et refuse un écart.
