@@ -6,6 +6,11 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Routeur de modalité (11 nov.) : test de résistance sur les 3 200 fonds d'œil de RFMiD,
+  plan fixé avant le calcul. 2 envois en dermoscopie sur 2 531 images malades
+  (0,08 % [0,01 % ; 0,29 %], critère « rare » atteint), tous deux sur la hyalose
+  astéroïde (2 images AH sur 25). `scripts/modality_router_pathology_stress.py`,
+  [détails](docs/MODALITE.md#test-de-résistance--fonds-dœil-pathologiques-de-rfmid-11-novembre-2026).
 - Dermatologie (11 nov.) : faisabilité sur SLICE-3D Permissive (CC BY / CC0), DINOv2-B,
   découpage par centre : AUROC 0,836 dans les centres d'apprentissage, 0,758
   [0,662 ; 0,842] sur deux centres jamais vus (39 cas malins).

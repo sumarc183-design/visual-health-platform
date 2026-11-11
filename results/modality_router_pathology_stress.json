@@ -1,0 +1,319 @@
+{
+  "run": {
+    "git_commit": "0adecc0",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.30"
+    }
+  },
+  "plan": "fixé le 11 novembre 2026 avant ce calcul (docstring du script)",
+  "backbone": {
+    "model": "dinov2_vitb14",
+    "checkpoint_sha256": "ba7954cb2db99604"
+  },
+  "images": {
+    "total": 3200,
+    "by_split": {
+      "train": 1920,
+      "val": 640,
+      "test": 640
+    }
+  },
+  "heads": {
+    "protocol_1": {
+      "all": {
+        "n": 3200,
+        "decisions": {
+          "fundus": 3196,
+          "dermoscopy": 2,
+          "unknown": 2
+        },
+        "to_dermoscopy": {
+          "count": 2,
+          "value": 0.000625,
+          "ci": [
+            7.569936367570264e-05,
+            0.002255872545406998
+          ]
+        }
+      },
+      "disease_risk": {
+        "0": {
+          "n": 669,
+          "decisions": {
+            "fundus": 669,
+            "dermoscopy": 0,
+            "unknown": 0
+          },
+          "to_dermoscopy": {
+            "count": 0,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.005498845805178532
+            ]
+          }
+        },
+        "1": {
+          "n": 2531,
+          "decisions": {
+            "fundus": 2527,
+            "dermoscopy": 2,
+            "unknown": 2
+          },
+          "to_dermoscopy": {
+            "count": 2,
+            "value": 0.0007902015013828526,
+            "ci": [
+              9.571139789541293e-05,
+              0.002851534820275055
+            ]
+          }
+        }
+      },
+      "n_labels": {
+        "0": {
+          "n": 669,
+          "decisions": {
+            "fundus": 669,
+            "dermoscopy": 0,
+            "unknown": 0
+          },
+          "to_dermoscopy": {
+            "count": 0,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.005498845805178532
+            ]
+          }
+        },
+        "1": {
+          "n": 1782,
+          "decisions": {
+            "fundus": 1778,
+            "dermoscopy": 2,
+            "unknown": 2
+          },
+          "to_dermoscopy": {
+            "count": 2,
+            "value": 0.001122334455667789,
+            "ci": [
+              0.00013594882090768934,
+              0.0040483189146442574
+            ]
+          }
+        },
+        "2": {
+          "n": 606,
+          "decisions": {
+            "fundus": 606,
+            "dermoscopy": 0,
+            "unknown": 0
+          },
+          "to_dermoscopy": {
+            "count": 0,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.006068769995669799
+            ]
+          }
+        },
+        "3+": {
+          "n": 143,
+          "decisions": {
+            "fundus": 143,
+            "dermoscopy": 0,
+            "unknown": 0
+          },
+          "to_dermoscopy": {
+            "count": 0,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.02546647641334737
+            ]
+          }
+        }
+      },
+      "pathologies_of_errors": {
+        "AH": {
+          "to_dermoscopy": 2,
+          "n": 25
+        }
+      },
+      "errors": [
+        {
+          "key": "train/1547",
+          "p_dermoscopy": 0.9808032512664795,
+          "pathologies": [
+            "AH"
+          ]
+        },
+        {
+          "key": "test/443",
+          "p_dermoscopy": 0.92188560962677,
+          "pathologies": [
+            "AH"
+          ]
+        }
+      ],
+      "max_dermoscopy_probability_not_sent": 0.09899232536554337,
+      "criterion_rare": {
+        "upper_bound": 0.002851534820275055,
+        "threshold": 0.005,
+        "met": true
+      }
+    },
+    "protocol_2": {
+      "all": {
+        "n": 3200,
+        "decisions": {
+          "fundus": 3197,
+          "dermoscopy": 2,
+          "unknown": 1
+        },
+        "to_dermoscopy": {
+          "count": 2,
+          "value": 0.000625,
+          "ci": [
+            7.569936367570264e-05,
+            0.002255872545406998
+          ]
+        }
+      },
+      "disease_risk": {
+        "0": {
+          "n": 669,
+          "decisions": {
+            "fundus": 669,
+            "dermoscopy": 0,
+            "unknown": 0
+          },
+          "to_dermoscopy": {
+            "count": 0,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.005498845805178532
+            ]
+          }
+        },
+        "1": {
+          "n": 2531,
+          "decisions": {
+            "fundus": 2528,
+            "dermoscopy": 2,
+            "unknown": 1
+          },
+          "to_dermoscopy": {
+            "count": 2,
+            "value": 0.0007902015013828526,
+            "ci": [
+              9.571139789541293e-05,
+              0.002851534820275055
+            ]
+          }
+        }
+      },
+      "n_labels": {
+        "0": {
+          "n": 669,
+          "decisions": {
+            "fundus": 669,
+            "dermoscopy": 0,
+            "unknown": 0
+          },
+          "to_dermoscopy": {
+            "count": 0,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.005498845805178532
+            ]
+          }
+        },
+        "1": {
+          "n": 1782,
+          "decisions": {
+            "fundus": 1779,
+            "dermoscopy": 2,
+            "unknown": 1
+          },
+          "to_dermoscopy": {
+            "count": 2,
+            "value": 0.001122334455667789,
+            "ci": [
+              0.00013594882090768934,
+              0.0040483189146442574
+            ]
+          }
+        },
+        "2": {
+          "n": 606,
+          "decisions": {
+            "fundus": 606,
+            "dermoscopy": 0,
+            "unknown": 0
+          },
+          "to_dermoscopy": {
+            "count": 0,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.006068769995669799
+            ]
+          }
+        },
+        "3+": {
+          "n": 143,
+          "decisions": {
+            "fundus": 143,
+            "dermoscopy": 0,
+            "unknown": 0
+          },
+          "to_dermoscopy": {
+            "count": 0,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.02546647641334737
+            ]
+          }
+        }
+      },
+      "pathologies_of_errors": {
+        "AH": {
+          "to_dermoscopy": 2,
+          "n": 25
+        }
+      },
+      "errors": [
+        {
+          "key": "train/1547",
+          "p_dermoscopy": 0.982285737991333,
+          "pathologies": [
+            "AH"
+          ]
+        },
+        {
+          "key": "test/443",
+          "p_dermoscopy": 0.9553957581520081,
+          "pathologies": [
+            "AH"
+          ]
+        }
+      ],
+      "max_dermoscopy_probability_not_sent": 0.09795048087835312,
+      "criterion_rare": {
+        "upper_bound": 0.002851534820275055,
+        "threshold": 0.005,
+        "met": true
+      }
+    }
+  }
+}

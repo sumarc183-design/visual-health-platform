@@ -125,3 +125,46 @@ L'erreur résiduelle des protocoles 1 et 2 (RFMiD 443) ne vient donc pas de la q
 d'image : c'est une rétine très pathologique, jaunâtre et couverte de lésions, un cas
 rare plutôt qu'un défaut de prise de vue. Limite : DeepDRiD vient surtout d'un site,
 et sa rétinopathie diabétique ne couvre pas toutes les pathologies sévères.
+
+## Test de résistance : fonds d'œil pathologiques de RFMiD (11 novembre 2026)
+
+**Résultat : l'erreur restante n'est pas liée à la gravité, mais à une seule pathologie,
+la hyalose astéroïde (AH).** Les deux seules rétines envoyées en dermoscopie sur 3 200
+portent cette seule annotation : 2 des 25 images AH de RFMiD (8 % [1 % ; 26 %]). Aucune
+autre pathologie, et aucune image à plusieurs pathologies, n'est mal routée.
+
+Plan fixé avant le calcul (`scripts/modality_router_pathology_stress.py`, commit
+`0adecc0`) : têtes des protocoles 1 et 2 inchangées, seuil 0,9, appliquées aux 3 200
+photos de RFMiD (le routeur n'a jamais été ajusté sur RFMiD ; 500 images du test avaient
+servi à son évaluation). Critère fixé : erreur « rare » si la borne haute de l'IC à 95 %
+du taux d'envoi en dermoscopie chez les images malades est au plus 0,5 %.
+
+| RFMiD | Images | Protocole 1 : dermoscopie / inconnu | Protocole 2 : dermoscopie / inconnu |
+|---|---|---|---|
+| Sans pathologie (`Disease_Risk` = 0) | 669 | 0 / 0 | 0 / 0 |
+| Une pathologie | 1 782 | 2 / 2 | 2 / 1 |
+| Deux pathologies | 606 | 0 / 0 | 0 / 0 |
+| Trois ou plus | 143 | 0 / 0 | 0 / 0 |
+| **Malades, taux en dermoscopie** | 2 531 | 0,08 % [0,01 % ; 0,29 %] | 0,08 % [0,01 % ; 0,29 %] |
+
+- **Critère atteint** pour les deux têtes : borne haute 0,29 %, sous 0,5 %.
+- **Images en cause** : `test/443` (probabilité de dermoscopie 0,92 puis 0,96) et
+  `train/1547` (0,98 dans les deux têtes), toutes deux annotées AH seulement.
+- **Séparation nette** : hors ces deux images, la probabilité de dermoscopie ne dépasse
+  jamais 0,10.
+
+**Lecture** : la hyalose astéroïde est une affection du vitré, souvent bénigne : de
+nombreux dépôts blanc-jaune flottent devant la rétine. Leur texture ponctuée ressemble
+à de la peau sous dermoscope. La description antérieure de `test/443` (« rétine très
+pathologique ») est donc à corriger : c'est un aspect particulier, pas une gravité.
+Conséquence : un routeur bloquant écarterait environ 1 image AH sur 12 ; en
+avertissement, avec la modalité déclarée, ces images restent analysables.
+
+Limites : une seule source (RFMiD, Inde) ; seulement 25 images AH, d'où un intervalle
+large ; les images n'ont pas été revues par un ophtalmologiste ; pas de correction pour
+comparaisons multiples entre pathologies (lecture descriptive). Piste, sans engagement :
+ajouter des images AH d'autres sources, ou en ajouter à l'ajustement d'un protocole 3,
+avec un plan fixé avant.
+
+Traçabilité : `results/modality_router_pathology_stress.json`, code `0adecc0`,
+DINOv2-B (empreinte locale `ba7954cb2db99604`), run CPU d'environ 21 minutes.
