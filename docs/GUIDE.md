@@ -423,13 +423,13 @@ c'est Grad-CAM qui se trompe sur ce modèle, pas le modèle.
 `git clone` ne suffit pas : données, poids, caches et plusieurs fichiers de résultats
 restent hors de Git (taille ou licence). État au 11 novembre 2026, environ 33 Go.
 
-**Le plus simple** : copier le dossier du projet entier (disque externe, ou Assistant
+Les têtes `heads/*.pt` sont dans Git depuis le 11 novembre : `predict.py` marche dès le
+clone, avec les poids de base. **Le plus simple** : copier le dossier du projet entier (disque externe, ou Assistant
 de migration si le nouvel ordinateur est un Mac), puis vérifier avec `pytest`. À défaut,
 copier au moins ce qui coûte cher à refaire :
 
 | Élément local | Taille | Si on ne le copie pas |
 |---|---|---|
-| `heads/*.pt` (têtes servies par `predict.py`, routeur) | 0,5 Mo | Réentraîner (commandes plus haut) ; **indispensable à `predict.py`** |
 | `embeddings/`, `embeddings_derm/` (caches) | 0,3 Go | Recalcul : plusieurs heures CPU, ou Kaggle pour APTOS/EyePACS |
 | Résultats ignorés : `results/*.npz` listés dans `.gitignore`, `results/finetune*/`, `results/localization/localization_*.npz` | 0,4 Go | Relancer les scripts ou notebooks correspondants |
 | `docs/AUDIT.md`, `AGENTS.md` (jamais commités) | < 1 Mo | Perdus : à copier |

@@ -100,6 +100,13 @@ SLICE-3D Permissive est le seul grand jeu ISIC compatible a priori avec un usage
 commercial. Ce sont des recadrages de photos du corps entier, pas des images de
 dermoscopie : la tâche et la qualité d'image diffèrent des autres jeux ISIC.
 
+## Têtes publiées dans le dépôt (11 novembre 2026)
+
+Les têtes `heads/*.pt` (couches linéaires et routeur, 0,5 Mo) sont suivies par Git
+depuis le 11 novembre, à la demande de Marc, pour qu'un clone soit utilisable. Elles
+sont entraînées sur RFMiD et ODIR (licence d'ODIR non vérifiée) au-dessus de RETFound,
+RETFound-Green et DINOv2 : usage non commercial seulement, comme les modèles de base.
+
 ## Cohorte de confirmation : candidates (11 novembre 2026)
 
 **Le lot EyePACS prévu pour la confirmation n'est probablement pas utilisable** : son

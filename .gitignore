@@ -2,6 +2,8 @@
 third_party/
 checkpoints/
 *.pt
+# Têtes linéaires servies par predict.py (0,5 Mo) : suivies pour qu'un clone soit utilisable
+!heads/*.pt
 *.ckpt
 __pycache__/
 *.pyc
