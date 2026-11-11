@@ -44,6 +44,17 @@ un abonnement requis : à vérifier sur la page de téléchargement.
 licence reste non vérifiée. À faire : consulter ces pages depuis un navigateur
 connecté, ou demander les conditions à ODIR@sgex.cn. Aucun message n'a été envoyé.
 
+**ODIR, nouvelle vérification du 11 novembre 2026 (navigateur) :** l'accueil et la
+page [dataset](https://odir2019.grand-challenge.org/dataset/) sont lisibles. Elles
+décrivent le jeu (5 000 patients, données collectées par Shanggong Medical Technology,
+publication « conforme aux règles éthiques et de confidentialité chinoises ») mais
+**n'indiquent aucune licence ni condition d'usage**. La page
+[Download](https://odir2019.grand-challenge.org/Download/) renvoie toujours
+« Forbidden » : elle n'est accessible qu'aux participants inscrits au challenge
+(bouton « Join »). Licence toujours non vérifiée. Pistes : s'inscrire au challenge
+pour lire la page de téléchargement et ses conditions, ou écrire à ODIR@sgex.cn.
+Aucune inscription ni aucun message n'a été fait.
+
 ### Règlements APTOS et EyePACS (lus le 8 novembre 2026)
 
 **APTOS 2019**, section 7 A : « You may access and use the Competition Data for
