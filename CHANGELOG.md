@@ -9,11 +9,6 @@ selon [SemVer](https://semver.org/lang/fr/).
 - Dermatologie (11 nov.) : faisabilité sur SLICE-3D Permissive (CC BY / CC0), DINOv2-B,
   découpage par centre : AUROC 0,836 dans les centres d'apprentissage, 0,758
   [0,662 ; 0,842] sur deux centres jamais vus (39 cas malins).
-- Dermatologie (11 nov.) : faisabilité sur SLICE-3D Permissive (ISIC 2024, CC BY / CC0),
-  découpage par centre, plan fixé avant le run. DINOv2-B figé : AUROC 0,836 dans les
-  centres d'apprentissage, 0,758 [0,662 ; 0,842] sur deux centres jamais vus (39 malins).
-  `scripts/slice3d_feasibility.py`, `results/slice3d_feasibility.json`,
-  [détails](docs/DERMATOLOGIE.md#faisabilité-sur-slice-3d-permissive-11-novembre).
 
 ### Corrigé
 - Notebooks (audit du 9 nov., constat 11) : chaque zip de sortie de 9 notebooks contient

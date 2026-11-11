@@ -207,42 +207,6 @@ Nos chiffres ne se comparent donc pas directement au classement officiel.
 - Le fichier local `results/dermatology_isic2019.npz` reste ignoré par Git ; son
   éventuel partage nécessite l'accord de Marc.
 
-## Faisabilité sur SLICE-3D Permissive (11 novembre)
-
-**Résultat : le cancer cutané se détecte aussi sur des centres jamais vus, avec une
-baisse attendue.** AUROC 0,758 [0,662 ; 0,842] sur les centres de test, contre 0,836
-[0,809 ; 0,862] dans les centres d'apprentissage. SLICE-3D Permissive (ISIC 2024) est
-la seule grande base de peau compatible a priori avec un usage commercial (CC BY / CC0).
-
-Plan fixé avant le run (docstring de `scripts/slice3d_feasibility.py`, commit `46765c9`) :
-recadrages de photos du corps entier (pas de dermoscopie), cible « malin » ; découpage
-par centre faute d'identifiant patient ; DINOv2 ViT-B/14 figé et régression logistique
-à classes équilibrées, sans réglage. PanDerm est écarté car son préentraînement inclut
-une partie d'ISIC 2024.
-
-| Évaluation | Malins / bénins | AUROC [IC 95 %] | AUC partielle > 80 % de sensibilité (0 à 0,2) |
-| --- | --- | --- | --- |
-| Centres d'apprentissage (MSK, Queensland), validation croisée à 5 plis | 255 / 4 000 | 0,836 [0,809 ; 0,862] | 0,089 [0,074 ; 0,108] |
-| Centres de test jamais vus (ACEMID MIA, Athènes) | 39 / 2 000 | 0,758 [0,662 ; 0,842] | 0,057 [0,025 ; 0,108] |
-
-Lecture et réserves :
-
-- Seulement 39 cas malins au test : l'intervalle est large (près de 0,18 d'AUROC).
-  La baisse entre les deux lignes est plausible mais n'est pas testée formellement.
-- Avec une AUC partielle de 0,057 sur 0,2, la sensibilité élevée qu'exige un dépistage
-  du cancer cutané se paie de nombreuses fausses alertes. Le taux de fausses alertes
-  n'est pas rapporté : il dépend de la proportion de malades, fixée ici par l'échantillon.
-- La validation croisée est optimiste : plusieurs images d'un même patient peuvent être
-  dans des plis différents d'un même centre. Ce n'est pas le cas entre centres.
-- Sonde linéaire sur un modèle généraliste figé ; pas de comparaison avec un modèle de
-  peau, ni avec le classement officiel d'ISIC 2024 (autre échantillon, autre découpage).
-- Traçabilité : `results/slice3d_feasibility.json`, bootstrap par image (1 000 tirages),
-  graine 0. Le JSON indique le commit `1875905`, lu en fin de run ; il ne diffère de
-  `46765c9`, version lancée, que par `docs/DROITS_DONNEES.md`. Empreinte locale des
-  poids DINOv2-B `ba7954cb2db99604`. Python 3.12.7, NumPy 1.26.4, scikit-learn 1.9.1,
-  torch 2.2.2, timm 1.0.30. Run CPU d'environ 33 minutes.
-
-
 ## Faisabilité sur SLICE-3D Permissive (11 novembre 2026)
 
 Plan fixé avant le run (`scripts/slice3d_feasibility.py`, commit `46765c9`) : seule grande
