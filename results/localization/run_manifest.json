@@ -1,0 +1,30 @@
+{
+  "created_utc": "2026-11-11T09:21:55+00:00",
+  "requested_revision": "main",
+  "git": {
+    "commit": "9aebbfdaf01a6a699e5d613971c6853290efc46f",
+    "modified_tracked_files": []
+  },
+  "platform": "kaggle",
+  "gpu": "Tesla T4",
+  "versions": {
+    "python": "3.13.16",
+    "numpy": "2.1.3",
+    "torch": "2.11.0+cu130",
+    "timm": "1.0.30",
+    "scikit-learn": "1.6.1",
+    "pandas": "2.3.3",
+    "Pillow": "13.0.0",
+    "opencv-python-headless": "4.14.0.94"
+  },
+  "files": {
+    "localization/localization_green.npz": {
+      "sha256": "e03f94bb51015ad2933e04ac3390ddb5423eb11fdfe20f66e7e78b6f6689e7b0",
+      "bytes": 90624117
+    },
+    "localization/localization_retfound.npz": {
+      "sha256": "40b83caf3425bf92391dabf0b4dfaeaef74aa8c763e0cc441ea5c91137eee5fd",
+      "bytes": 60137960
+    }
+  }
+}
