@@ -288,6 +288,21 @@ python scripts/finetune_analysis.py --finetune-dir results/finetune_eyepacs --rf
     --embeddings embeddings --out results/finetune_eyepacs_analysis.json
 ```
 
+## Confirmation sur DDR
+
+Protocole fixé avant tout calcul : `scripts/confirmation_ddr.py`. DDR (gradation,
+données officielles des auteurs, voir « Reprendre sur un autre ordinateur ») est envoyé
+comme dataset Kaggle privé (`ddr_dr_grading.zip`, images non recompressées).
+`notebooks/kaggle_confirmation_ddr.ipynb` (titre Kaggle : « Visual Health — confirmation
+sur DDR (Kaggle) ») vérifie que le dataset est identique à l'archive officielle
+(`inventory_digest`), puis calcule les embeddings RETFound et Green. En local :
+
+```bash
+# visual_health_ddr_embeddings.zip : le contenu dans embeddings/
+python scripts/confirmation_ddr.py --rfmid-root data/raw/rfmid --embeddings embeddings \
+    --out results/confirmation_ddr.json
+```
+
 ## Localisation des lésions (IDRiD)
 
 Les modèles regardent-ils les lésions ? `notebooks/kaggle_localization_idrid.ipynb`

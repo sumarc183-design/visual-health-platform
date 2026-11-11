@@ -106,3 +106,23 @@ class DDRDataset(Dataset):
         image = load_fundus_image(self.image_path(idx), self.image_size, self.preprocess)
         labels = torch.tensor(self.df.iloc[idx][self.class_names].to_numpy(dtype="float32"))
         return image, labels
+
+
+def inventory_digest(root: str | Path) -> tuple[str, int]:
+    """Empreinte SHA-256 de l'inventaire officiel : fichiers de stades et toutes les images listées.
+
+    Sert à vérifier qu'une copie (dataset Kaggle privé) est identique à l'archive des
+    auteurs, image par image, sans comparer les fichiers eux-mêmes.
+    """
+    import hashlib
+
+    root = Path(root)
+    df = read_grades(root)
+    lines = []
+    for split in SPLITS:
+        txt = root / "DR_grading" / f"{split}.txt"
+        lines.append(f"{split}.txt {hashlib.sha256(txt.read_bytes()).hexdigest()}")
+    for split, name in sorted(zip(df["split"], df["image"], strict=True)):
+        data = (root / "DR_grading" / split / name).read_bytes()
+        lines.append(f"{split}/{name} {hashlib.sha256(data).hexdigest()}")
+    return hashlib.sha256("\n".join(lines).encode()).hexdigest(), len(lines)

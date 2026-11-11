@@ -34,7 +34,10 @@ Contrôle de regroupement : DDR ne publie pas d'identifiant patient. Les deux ye
 patient pouvant tomber de part et d'autre d'un tirage, l'écart principal est recalculé en
 regroupant les images prises à moins de deux minutes d'intervalle (`time_groups`,
 heure lue dans le nom de fichier : 9 320 groupes pour 12 522 images, l'article annonce
-9 598 patients).
+9 598 patients). Précision ajoutée le même jour, toujours avant
+tout calcul : seules 5 423 images ont un nom horodaté ; les 7 099 autres
+(`007-NNNN-NNN.jpg`, un seul centre, aucun préfixe répété) restent chacune seule, faute
+d'information sur le patient.
 
 Conséquence prévue : confirmé → Green est le meilleur candidat « modèle par défaut »
 pour la rétinopathie diabétique (sous réserve de sa licence) ; non confirmé → aucun
