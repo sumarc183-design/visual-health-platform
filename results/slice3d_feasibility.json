@@ -1,0 +1,59 @@
+{
+  "run": {
+    "git_commit": "1875905",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.30"
+    }
+  },
+  "plan": "fixé le 11 novembre 2026 avant tout run (docstring du script)",
+  "backbone": {
+    "model": "dinov2_vitb14",
+    "checkpoint_sha256": "ba7954cb2db99604"
+  },
+  "sample": {
+    "train_sites": {
+      "malignant": 255,
+      "benign": 4000
+    },
+    "test_sites": {
+      "malignant": 39,
+      "benign": 2000
+    }
+  },
+  "in_domain_5fold": {
+    "auroc": {
+      "value": 0.835683823529412,
+      "ci": [
+        0.8093633479354269,
+        0.8624338943846714
+      ]
+    },
+    "pauc_tpr80": {
+      "value": 0.08913039215686272,
+      "ci": [
+        0.07438722749851723,
+        0.10775874627461607
+      ]
+    }
+  },
+  "external_sites": {
+    "auroc": {
+      "value": 0.7584487179487178,
+      "ci": [
+        0.6619043834878203,
+        0.842166701984278
+      ]
+    },
+    "pauc_tpr80": {
+      "value": 0.056805128205128175,
+      "ci": [
+        0.02472803247048497,
+        0.10769336551511915
+      ]
+    }
+  }
+}
