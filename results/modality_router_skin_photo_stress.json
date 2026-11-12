@@ -1,0 +1,281 @@
+{
+  "run": {
+    "git_commit": "8db6e67",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.31"
+    }
+  },
+  "plan": "fixé le 12 novembre 2026 avant ce calcul (docstring du script)",
+  "backbone": {
+    "model": "dinov2_vitb14",
+    "checkpoint_sha256": "ba7954cb2db99604"
+  },
+  "images": {
+    "total": 6294,
+    "malignant": 294
+  },
+  "heads": {
+    "protocol_1": {
+      "all": {
+        "n": 6294,
+        "decisions": {
+          "fundus": 0,
+          "dermoscopy": 5790,
+          "unknown": 504
+        },
+        "to_dermoscopy": {
+          "count": 5790,
+          "value": 0.9199237368922784,
+          "ci": [
+            0.9129426817285248,
+            0.9265126446018256
+          ]
+        }
+      },
+      "by_site": {
+        "ACEMID MIA": {
+          "n": 1595,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 1505,
+            "unknown": 90
+          },
+          "to_dermoscopy": {
+            "count": 1505,
+            "value": 0.9435736677115988,
+            "ci": [
+              0.9310952165610215,
+              0.9543856545763272
+            ]
+          }
+        },
+        "Department of Dermatology, University of Athens, Andreas Syggros Hospital of Skin and Venereal Diseases, Alexander Stratigos, Konstantinos Liopyris": {
+          "n": 444,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 425,
+            "unknown": 19
+          },
+          "to_dermoscopy": {
+            "count": 425,
+            "value": 0.9572072072072072,
+            "ci": [
+              0.9339784956041417,
+              0.9740424590847303
+            ]
+          }
+        },
+        "Frazer Institute, The University of Queensland, Dermatology Research Centre": {
+          "n": 1277,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 1169,
+            "unknown": 108
+          },
+          "to_dermoscopy": {
+            "count": 1169,
+            "value": 0.9154267815191856,
+            "ci": [
+              0.8988003896561307,
+              0.9301091251892825
+            ]
+          }
+        },
+        "Memorial Sloan Kettering Cancer Center": {
+          "n": 2978,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 2691,
+            "unknown": 287
+          },
+          "to_dermoscopy": {
+            "count": 2691,
+            "value": 0.9036265950302216,
+            "ci": [
+              0.8924597366073805,
+              0.9139929307438572
+            ]
+          }
+        }
+      },
+      "malignant": {
+        "0": {
+          "n": 6000,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 5515,
+            "unknown": 485
+          },
+          "to_dermoscopy": {
+            "count": 5515,
+            "value": 0.9191666666666667,
+            "ci": [
+              0.9119805577822656,
+              0.9259420348776032
+            ]
+          }
+        },
+        "1": {
+          "n": 294,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 275,
+            "unknown": 19
+          },
+          "to_dermoscopy": {
+            "count": 275,
+            "value": 0.935374149659864,
+            "ci": [
+              0.9009162699614939,
+              0.9606459592056869
+            ]
+          }
+        }
+      },
+      "max_fundus_probability": 0.08234948664903641,
+      "criterion_safe": {
+        "count": 0,
+        "n": 6294,
+        "ci": [
+          0.0,
+          0.0005859228867332857
+        ],
+        "threshold": 0.005,
+        "met": true
+      }
+    },
+    "protocol_2": {
+      "all": {
+        "n": 6294,
+        "decisions": {
+          "fundus": 0,
+          "dermoscopy": 5745,
+          "unknown": 549
+        },
+        "to_dermoscopy": {
+          "count": 5745,
+          "value": 0.9127740705433747,
+          "ci": [
+            0.9055309409315713,
+            0.9196319537961897
+          ]
+        }
+      },
+      "by_site": {
+        "ACEMID MIA": {
+          "n": 1595,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 1488,
+            "unknown": 107
+          },
+          "to_dermoscopy": {
+            "count": 1488,
+            "value": 0.9329153605015674,
+            "ci": [
+              0.9195085581329845,
+              0.9447000648475835
+            ]
+          }
+        },
+        "Department of Dermatology, University of Athens, Andreas Syggros Hospital of Skin and Venereal Diseases, Alexander Stratigos, Konstantinos Liopyris": {
+          "n": 444,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 422,
+            "unknown": 22
+          },
+          "to_dermoscopy": {
+            "count": 422,
+            "value": 0.9504504504504504,
+            "ci": [
+              0.9259398883383578,
+              0.968690592930566
+            ]
+          }
+        },
+        "Frazer Institute, The University of Queensland, Dermatology Research Centre": {
+          "n": 1277,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 1174,
+            "unknown": 103
+          },
+          "to_dermoscopy": {
+            "count": 1174,
+            "value": 0.9193422083007048,
+            "ci": [
+              0.9030305669659674,
+              0.9336901163545316
+            ]
+          }
+        },
+        "Memorial Sloan Kettering Cancer Center": {
+          "n": 2978,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 2661,
+            "unknown": 317
+          },
+          "to_dermoscopy": {
+            "count": 2661,
+            "value": 0.8935527199462726,
+            "ci": [
+              0.8819188585148029,
+              0.9044067190048725
+            ]
+          }
+        }
+      },
+      "malignant": {
+        "0": {
+          "n": 6000,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 5467,
+            "unknown": 533
+          },
+          "to_dermoscopy": {
+            "count": 5467,
+            "value": 0.9111666666666667,
+            "ci": [
+              0.9036830931431968,
+              0.918247601520946
+            ]
+          }
+        },
+        "1": {
+          "n": 294,
+          "decisions": {
+            "fundus": 0,
+            "dermoscopy": 278,
+            "unknown": 16
+          },
+          "to_dermoscopy": {
+            "count": 278,
+            "value": 0.9455782312925171,
+            "ci": [
+              0.9131252441817685,
+              0.9685768856900518
+            ]
+          }
+        }
+      },
+      "max_fundus_probability": 0.09144904464483261,
+      "criterion_safe": {
+        "count": 0,
+        "n": 6294,
+        "ci": [
+          0.0,
+          0.0005859228867332857
+        ],
+        "threshold": 0.005,
+        "met": true
+      }
+    }
+  }
+}

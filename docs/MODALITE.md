@@ -168,3 +168,31 @@ avec un plan fixé avant.
 
 Traçabilité : `results/modality_router_pathology_stress.json`, code `0adecc0`,
 DINOv2-B (empreinte locale `ba7954cb2db99604`), run CPU d'environ 21 minutes.
+
+## Test de résistance : photos de peau sans dermatoscope (12 novembre 2026)
+
+Plan fixé avant le calcul (`scripts/modality_router_skin_photo_stress.py`, commit
+`8db6e67`) : têtes des protocoles 1 et 2 inchangées, appliquées aux 6 294 recadrages
+SLICE-3D de l'étude de faisabilité (photos du corps entier prises par une caméra 3D, pas
+de dermoscopie ; quatre centres ; jamais utilisés pour ajuster le routeur). Embeddings
+DINOv2-B repris du cache de cette étude (même transformation, empreinte du modèle
+vérifiée). [Résultats](../results/modality_router_skin_photo_stress.json).
+
+| SLICE-3D, 6 294 images | Fond d'œil | Dermoscopie | Inconnu | Probabilité de fond d'œil maximale |
+|---|---|---|---|---|
+| Protocole 1 | 0 | 5 790 (92 %) | 504 (8 %) | 0,08 |
+| Protocole 2 | 0 | 5 745 (91 %) | 549 (9 %) | 0,09 |
+
+**Critère de sécurité atteint** : aucune photo de peau envoyée en fond d'œil (borne haute
+de l'IC exact 0,06 %, seuil 0,5 %), dans les quatre centres et pour les lésions malignes
+comme bénignes.
+
+**Lecture fixée à l'avance** : la grande majorité part en « dermoscopie ». Le routeur
+reconnaît la peau, mais **ne distingue pas une photo ordinaire d'une dermoscopie**. Le
+modèle de peau ayant appris sur des dermoscopies (ISIC 2019), il recevrait ces photos sans
+avertissement : le type de photo doit rester déclaré par l'utilisateur, ou être appris
+par le routeur avec une classe dédiée (non fait).
+
+Réserves : photos recadrées d'une caméra de cabinet, pas de vraies photos de téléphone ;
+une seule source.
+

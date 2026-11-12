@@ -6,6 +6,11 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Routeur de modalité (12 nov.) : test sur 6 294 photos de peau sans dermatoscope
+  (SLICE-3D), plan fixé avant le calcul. Aucune envoyée en fond d'œil (critère de
+  sécurité atteint), mais 91-92 % classées « dermoscopie » : le routeur ne distingue pas
+  une photo de peau d'une dermoscopie. `scripts/modality_router_skin_photo_stress.py`,
+  [détails](docs/MODALITE.md#test-de-résistance--photos-de-peau-sans-dermatoscope-12-novembre-2026).
 - Confirmation sur DDR (12 nov.) : plan fixé le 11 avant tout calcul, 12 522 images
   jamais vues. Green 0,794 contre RETFound 0,654 (tête RFMiD, toute rétinopathie),
   +0,139 [+0,130 ; +0,149], +0,139 [+0,118 ; +0,161] en regroupant par heure de prise :
