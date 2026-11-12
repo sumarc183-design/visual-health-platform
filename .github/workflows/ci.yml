@@ -59,3 +59,21 @@ jobs:
               exit 1
             fi
           done
+
+  test-windows:
+    # Nouvel ordinateur de Marc : Windows 11, sans GPU NVIDIA. Tests rapides seulement.
+    runs-on: windows-latest
+    needs: lint
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Installer les dépendances
+        run: pip install -r requirements-dev.txt
+      - name: Tests unitaires (rapides)
+        run: pytest tests/ -m "not slow" -rfE --tb=short --basetemp="$RUNNER_TEMP/pytest"
