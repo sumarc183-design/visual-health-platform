@@ -196,3 +196,10 @@ par le routeur avec une classe dédiée (non fait).
 Réserves : photos recadrées d'une caméra de cabinet, pas de vraies photos de téléphone ;
 une seule source.
 
+
+**Vues externes de l'œil : non testées.** Recherche du 12 novembre 2026 : aucune base
+ouverte et vérifiable trouvée. CP-AnemiC (conjonctives au téléphone, Mendeley) a été
+retirée par ses auteurs ; Eyes-defy-anemia (IEEE DataPort) n'affiche aucune licence ;
+les jeux Roboflow ou Kaggle « cataracte » ont une licence ou un contenu non vérifiés. Le
+test ne vaut la peine que si le routeur doit décider seul ; avec un type de photo
+déclaré et un routeur qui avertit, cette limite reste acceptable.

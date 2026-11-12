@@ -221,6 +221,6 @@ def test_input_inventory_detects_a_modified_mask_and_lists_absent_ones(idrid):
     mask = idrid / "A" / "2. All Segmentation Groundtruths" / "a. Training Set" / "3. Hard Exudates" / "IDRiD_01_EX.tif"
     Image.fromarray(np.ones((H, W), np.uint8)).save(mask)
     after = input_inventory(idrid, {"train": ["IDRiD_01"]})
-    assert compare_inventories(before, after) == [str(mask.relative_to(idrid / "A"))]
+    assert compare_inventories(before, after) == [mask.relative_to(idrid / "A").as_posix()]
     with np.load(archive_path) as archive, pytest.raises(ValueError, match="différentes"):
         check_inputs(archive, idrid)
