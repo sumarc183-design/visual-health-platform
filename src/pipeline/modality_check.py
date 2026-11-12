@@ -1,6 +1,6 @@
 """Contrôle du type d'image par le routeur, en mode avertissement (jamais bloquant).
 
-L'utilisateur déclare le type d'image (ici : fond d'œil). Le routeur de modalité
+L'utilisateur déclare le type d'image (celui de la tête : fond d'œil ou peau). Le routeur de modalité
 (DINOv2-B figé + tête linéaire, `heads/modality_router_v2.pt`) donne son avis ; s'il
 n'est pas d'accord, la prédiction est faite quand même, avec un avertissement.
 

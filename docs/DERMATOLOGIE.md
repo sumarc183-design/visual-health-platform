@@ -228,3 +228,23 @@ l'autre (0,836 → 0,758), avec un intervalle large faute de cas malins (39). Su
 tâche, la mesure officielle à haute sensibilité reste basse : on est loin d'un outil de
 tri. Exploratoire : sonde linéaire, plusieurs images d'un même patient possibles dans un
 centre (validation croisée optimiste).
+
+## Tête « peau » du socle (12 novembre 2026)
+
+`heads/isic2019_dinov2b_head.pt` : DINOv2-B figé, même tête et mêmes réglages que
+l'analyse du 9 novembre, entraînée sur le découpage d'entraînement d'ISIC 2019
+(`scripts/save_skin_head.py`). Elle redonne les scores archivés de validation et de test
+à 2×10⁻⁷ près : aucune nouvelle mesure. Utilisable dans `predict.py` (probabilités
+seules ; aucun seuil n'a été choisi pour la peau).
+
+**Pourquoi DINOv2-B et pas PanDerm**, meilleur de +0,046 d'AUROC macro : c'est le même
+modèle que le routeur de modalité (un seul calcul d'embedding par image), sous licence
+Apache 2.0 ; PanDerm (CC BY-NC-ND, 1,4 Go) reste l'option de recherche. Les données
+ISIC 2019 étant CC BY-NC, la tête reste non commerciale.
+
+**Poids DINOv2-B locaux et poids Kaggle : équivalents.** Sur les 2 659 images ISIC 2019
+présentes dans les deux caches (routeur calculé sur le Mac, dermatologie sur Kaggle),
+les embeddings ont un cosinus médian de 1,0 (1er centile 0,9999998), contre 0,58 entre
+images différentes. La réserve ci-dessus sur les deux empreintes est levée : ce sont
+les mêmes poids, sérialisés différemment.
+

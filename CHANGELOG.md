@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Socle à deux modalités (12 nov.) : `predict.py` accepte une tête peau
+  (`heads/isic2019_dinov2b_head.pt`, DINOv2-B, ISIC 2019, redonne les scores du 9 nov.) ;
+  le routeur vérifie le type de la tête. Poids DINOv2-B locaux et Kaggle vérifiés
+  équivalents (embeddings identiques). `scripts/save_skin_head.py`.
 - `predict.py --modality-check` (12 nov., désactivé par défaut) : le routeur de modalité
   avertit si une image déclarée fond d'œil n'en a pas l'air, sans jamais bloquer
   (proposition au tuteur). `src/pipeline/modality_check.py`, 5 tests.
@@ -34,6 +38,8 @@ selon [SemVer](https://semver.org/lang/fr/).
   [0,662 ; 0,842] sur deux centres jamais vus (39 cas malins).
 
 ### Corrigé
+- `predict.py` sans fichier de seuils : affiche « probabilité seule (pas de seuil) » au
+  lieu de « preuve insuffisante ».
 - Windows (12 nov.) : CI étendue aux tests rapides sous Windows (nouvel ordinateur) ; un
   seul test en échec, qui comparait un chemin avec le séparateur du système (corrigé,
   le code écrivait déjà des `/`). Installation sous Windows ajoutée au guide.

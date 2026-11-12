@@ -62,5 +62,6 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
 
 ## J90 — Modularité démontrée (30 janvier 2027)
 - [ ] Socle modulaire validé sur 2 modalités (rétine + dermato)
+  Amorcé le 12 nov. : `predict.py` accepte une tête peau (DINOv2-B, ISIC 2019, même modèle que le routeur) ; type d'image déclaré par la tête, routeur en avertissement. Restent : seuils peau, contrôle qualité peau, validation sur une base externe.
 - [ ] Dossier d'accès AI-Hub (étude TSA/rétine) avancé
 - [ ] Note de synthèse pour arbitrage de la 3e indication

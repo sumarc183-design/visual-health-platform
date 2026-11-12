@@ -9,6 +9,10 @@ décision par maladie avec les seuils choisis sur la validation
 Outil de recherche : les décisions ne sont pas un diagnostic. Les maladies
 marquées « preuve insuffisante » (moins de 10 cas en validation ou en test)
 reçoivent une probabilité mais aucune décision.
+
+Peau (tête `modality = "dermoscopy"`, DINOv2-B, `scripts/save_skin_head.py`) : image au
+petit côté 256 px puis recadrage 224 px, sans contrôle qualité (celui du projet est
+conçu pour le fond d'œil).
 """
 
 from __future__ import annotations
@@ -21,14 +25,16 @@ from pathlib import Path
 import torch
 
 from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image
+from src.data.isic_dataset import load_skin_image
 from src.models.classifier_head import MultiLabelHead, head_contract, head_sha256
 from src.models.embedding_cache import file_fingerprint
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone
 from src.models.retfound_green import RETFoundGreenBackbone
+from src.models.timm_backbones import DINOv2Backbone
 from src.pipeline.quality_control import DEFAULT_BLUR_THRESHOLD, check_fundus_file
 
 THRESHOLD_POLICIES = ("f1", "sensitivity")
-BACKBONES = ("retfound", "green")
+BACKBONES = ("retfound", "green", "dinov2")
 DISCLAIMER = "Outil de recherche, non validé cliniquement : ces décisions ne sont pas un diagnostic."
 
 
@@ -127,6 +133,7 @@ class Predictor:
         self.class_names = list(head_ckpt["class_names"])
         self.image_size = head_ckpt["image_size"]
         self.preprocess = head_ckpt.get("preprocess", "none")
+        self.modality = head_ckpt.get("modality", "fundus")
         self.device = device
         self.blur_threshold = blur_threshold
         self.warnings: list[str] = []
@@ -163,6 +170,8 @@ class Predictor:
 
         if self.backbone_name == "green":
             backbone = RETFoundGreenBackbone(checkpoint_path, img_size=self.image_size)
+        elif self.backbone_name == "dinov2":
+            backbone = DINOv2Backbone(checkpoint_path, img_size=self.image_size)
         else:
             backbone = RETFoundBackbone(
                 checkpoint_path, img_size=self.image_size, embedding_dim=1024, trust_checkpoint=trust_checkpoint
@@ -176,13 +185,20 @@ class Predictor:
 
     @torch.no_grad()
     def probabilities(self, image_path: str | Path) -> torch.Tensor:
-        image = load_fundus_image(image_path, self.image_size, self.preprocess).unsqueeze(0).to(self.device)
+        if self.modality == "dermoscopy":
+            image = load_skin_image(image_path, self.image_size)
+        else:
+            image = load_fundus_image(image_path, self.image_size, self.preprocess)
+        image = image.unsqueeze(0).to(self.device)
         image = (image - self.input_mean) / self.input_std
         return torch.sigmoid(self.head(self.backbone(image)))[0].cpu()
 
     def predict(self, image_path: str | Path, reject_unusable: bool = False) -> Prediction:
         """Contrôle qualité d'abord ; avec `reject_unusable`, une image qui
-        échoue n'est pas passée dans le modèle (`rejected`, aucune décision)."""
+        échoue n'est pas passée dans le modèle (`rejected`, aucune décision).
+        Peau : pas de contrôle qualité (non conçu pour ces images)."""
+        if self.modality == "dermoscopy":
+            return self._decide(image_path, {"checked": False}, list(self.warnings))
         report = check_fundus_file(image_path, blur_threshold=self.blur_threshold)
         quality = {"usable": report.is_usable, "blur_score": report.blur_score, "reasons": report.reasons}
         warnings = list(self.warnings)
@@ -191,6 +207,9 @@ class Predictor:
                 return Prediction(image=str(image_path), quality=quality, findings={}, warnings=warnings, rejected=True)
             reasons = " ; ".join(report.reasons)
             warnings.append(f"Contrôle qualité : {reasons}. Résultat à interpréter avec prudence.")
+        return self._decide(image_path, quality, warnings)
+
+    def _decide(self, image_path: str | Path, quality: dict, warnings: list[str]) -> Prediction:
         probabilities = self.probabilities(image_path)
         findings = {}
         for name, probability in zip(self.class_names, probabilities.tolist(), strict=True):

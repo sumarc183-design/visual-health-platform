@@ -19,8 +19,11 @@ et ODIR) ou RETFound-Green (tête RFMiD : meilleure généralisation externe sur
 la rétinopathie diabétique, moins bon sur la DMLA ; voir README). Le
 checkpoint doit être celui de la tête, sinon la prédiction est refusée.
 
+Peau : tête `heads/isic2019_dinov2b_head.pt` (DINOv2-B, ISIC 2019, 8 classes,
+probabilités seules) avec `--checkpoint third_party/dinov2/dinov2_vitb14_timm.pth`.
+
 `--modality-check` (désactivé par défaut) : le routeur de modalité vérifie que
-l'image ressemble à un fond d'œil et avertit sinon, sans jamais bloquer
+l'image ressemble au type de la tête (fond d'œil ou peau) et avertit sinon, sans jamais bloquer
 (`src/pipeline/modality_check.py`). Demande les poids DINOv2-B du routeur.
 
 Outil de recherche, non validé cliniquement : les décisions ne sont pas un
@@ -53,7 +56,7 @@ from src.pipeline.inference import DISCLAIMER, THRESHOLD_POLICIES, Predictor  # 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("images", type=Path, nargs="+", help="Images de fond d'œil")
+    parser.add_argument("images", type=Path, nargs="+", help="Images (fond d'œil, ou peau avec une tête peau)")
     parser.add_argument("--head", type=Path, required=True, help="Tête sauvegardée par run_baseline.py --save-head")
     parser.add_argument("--checkpoint", type=Path, required=True, help="Checkpoint du modèle (celui de la tête)")
     parser.add_argument("--thresholds", type=Path, default=None, help="results/decision_<dataset>.json")
@@ -69,7 +72,7 @@ def main() -> None:
         help="Accepte un fichier de seuils sans identité de tête (historique) : compatibilité non vérifiée",
     )
     parser.add_argument(
-        "--modality-check", action="store_true", help="Avertit si le routeur ne voit pas un fond d'œil (non bloquant)"
+        "--modality-check", action="store_true", help="Avertit si le routeur ne voit pas le type de la tête"
     )
     parser.add_argument("--router-head", type=Path, default=Path("heads/modality_router_v2.pt"))
     parser.add_argument("--router-checkpoint", type=Path, default=Path("third_party/dinov2/dinov2_vitb14_timm.pth"))
@@ -94,7 +97,7 @@ def main() -> None:
     for image in args.images:
         prediction = predictor.predict(image, reject_unusable=args.reject_unusable)
         if check is not None:
-            seen = check(image)
+            seen = check(image, declared=predictor.modality)
             prediction.modality = seen.to_dict()
             if seen.warning:
                 prediction.warnings.append(seen.warning)
@@ -107,7 +110,12 @@ def main() -> None:
         for warning in prediction.warnings:
             print(f"  ⚠ {warning}")
         for name, finding in sorted(prediction.findings.items(), key=lambda kv: -kv[1]["probability"]):
-            decision = finding["decision"] or "pas de décision (preuve insuffisante)"
+            missing = (
+                "probabilité seule (pas de seuil)"
+                if args.thresholds is None
+                else "pas de décision (preuve insuffisante)"
+            )
+            decision = finding["decision"] or missing
             print(f"  {name:>6s} : {finding['probability']:.3f}  {decision}")
     print(f"\n{DISCLAIMER}")
     if args.out is not None:

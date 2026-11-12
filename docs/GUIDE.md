@@ -345,6 +345,16 @@ python predict.py image1.jpg --head heads/rfmid_green_head.pt \
     --thresholds results/decision_rfmid_green.json
 ```
 
+Peau (dermoscopie, 8 classes ISIC 2019, probabilités seules, sans seuil ni contrôle
+qualité ; tête DINOv2-B enregistrée par `scripts/save_skin_head.py`, qui vérifie
+qu'elle redonne les scores de l'analyse du 9 novembre). Avec `--modality-check`, le
+routeur avertit si l'image ne ressemble pas au type de la tête :
+
+```bash
+python predict.py lesion.jpg --head heads/isic2019_dinov2b_head.pt \
+    --checkpoint third_party/dinov2/dinov2_vitb14_timm.pth --modality-check
+```
+
 Même chaîne que l'entraînement (`src/pipeline/inference.py`, testé pour
 redonner exactement les probabilités de `run_baseline.py` ; Green : écart
 ≤ 6×10⁻⁶ sur 20 images avec les vrais poids,
