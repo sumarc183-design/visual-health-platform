@@ -6,6 +6,9 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Dépistage RD (12 nov., plan fixé avant calcul) : tête Green apprise sur RFMiD + EyePACS,
+  seuil sur validation EyePACS : sensibilité sur DDR 0,87 [0,86 ; 0,88] (contre 0,27),
+  spécificité 0,52 ; critère atteint. `scripts/dr_screening_sensitivity.py`.
 - Décisions du tuteur (12 nov.) : RETFound-Green modèle par défaut (RETFound gardé tant
   qu'il est meilleur quelque part) ; routeur actif par défaut dans `predict.py`, en
   avertissement (`--no-modality-check`) ; DDR cohorte de confirmation, EyePACS gardé en

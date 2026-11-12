@@ -211,6 +211,26 @@ par heure de prise ; +0,108 à format égal). La résolution n'ajoute que +0,036
 viennent donc du modèle, contrairement à EyePACS (+0,019 [−0,001 ; +0,038] à 224 px).
 Scores RETFound recalculés identiques à ceux de la confirmation.
 
+**Dépistage : la sensibilité se relève avec une tête apprise aussi sur EyePACS**
+(12 novembre, après la décision du tuteur ; plan fixé avant calcul,
+[script](scripts/dr_screening_sensitivity.py), [résultats](results/dr_screening_sensitivity.json)).
+Tête Green « rétinopathie » apprise sur RFMiD et 80 % d'EyePACS (par patient), seuil
+choisi sur les 20 % restants d'EyePACS pour 90 % de sensibilité, mesure unique sur DDR :
+
+| DDR, toute rétinopathie | Seuil choisi sur | Sensibilité [IC 95 %] | Spécificité | VPP | AUROC |
+|---|---|---|---|---|---|
+| Tête RFMiD (actuelle) | validation RFMiD | 0,27 [0,26 ; 0,29] | 0,99 | 0,98 | 0,794 |
+| **Tête RFMiD + EyePACS** | validation EyePACS | **0,87 [0,86 ; 0,88]** | 0,52 | 0,65 | 0,833 |
+| Tête EyePACS seule (secondaire) | validation EyePACS | 0,90 [0,89 ; 0,91] | 0,48 | 0,63 | 0,860 |
+
+**Critère atteint** (borne basse ≥ 0,80, aussi avec les groupes horaires). Sensibilité
+« à adresser » (stade ≥ 2) 0,89 ; stade 1 : 0,64. AUROC +0,039 [+0,033 ; +0,045] par
+rapport à la tête RFMiD. Le prix : environ une fausse alerte sur deux personnes saines,
+acceptable en dépistage large (choix du tuteur), à réduire ensuite. Le seuil choisi sur
+EyePACS se transpose à DDR (0,90 visé, 0,87 obtenu), contrairement à celui de RFMiD.
+Réserve : la licence d'EyePACS limite son usage à la compétition (gardé en complément par
+décision du tuteur).
+
 **RETFound ne gagne pas à monter en résolution** (384 px, encodages de position
 interpolés ; [résultats](results/green_analysis_retfound384.json),
 [écart apparié](results/retfound_384_vs_224.json)) : EyePACS 0,651 contre 0,661 à
