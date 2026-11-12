@@ -53,8 +53,9 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
 - [ ] Score de confiance calibré (avancé le 4 nov. : probabilités déjà bien calibrées, ECE ≈ 0,02-0,03, seuils par maladie choisis sur la validation ; reste la validation clinique du compromis)
   Compromis par maladie préparés le 10 nov. pour aider ce choix ([CONFIANCE.md](CONFIANCE.md)).
 
-- [ ] Protocole de confirmation daté avant toute nouvelle lecture (audit du 6 nov.) : variantes figées, et lot de patients EyePACS encore jamais examinés. Les bases actuelles sont exploratoires.
+- [x] Protocole de confirmation daté avant toute nouvelle lecture (audit du 6 nov.) : variantes figées, et lot de patients EyePACS encore jamais examinés. Les bases actuelles sont exploratoires.
   EyePACS limité à sa compétition : cohortes de remplacement comparées le 11 nov. (DDR proposée, BRSET en second ; [droits](DROITS_DONNEES.md#cohorte-de-confirmation--candidates-11-novembre-2026)).
+  Fait le 12 nov. sur DDR (plan du 11) : Green − RETFound +0,139 [+0,130 ; +0,149], confirmé ([README](../README.md#résultats)). BRSET reste possible en seconde confirmation.
 
 ## J90 — Modularité démontrée (30 janvier 2027)
 - [ ] Socle modulaire validé sur 2 modalités (rétine + dermato)

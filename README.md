@@ -28,6 +28,9 @@ transfert sur APTOS et EyePACS.
 - **Transfert de rétinopathie diabétique** : Green atteint une AUROC de
   **0,726 sur EyePACS**, contre 0,661 pour RETFound, avec les têtes RFMiD
   comparées dans l'expérience.
+- **Confirmation sur DDR** (12 nov., plan fixé avant calcul, 12 522 images jamais
+  vues) : Green **0,794** contre 0,654 pour RETFound, **+0,139 [+0,130 ; +0,149]** ;
+  critère pré-enregistré **confirmé**.
 
 [![Occlusion de RETFound et de RETFound-Green comparée aux masques d'experts, sur quatre images tirées au hasard](results/localization_examples.png)](#localisation-des-lésions)
 
@@ -173,6 +176,28 @@ EyePACS 0,680 contre 0,661, soit +0,019 [−0,001 ; +0,038] ; APTOS à format é
 +0,014 [−0,004 ; +0,030] ; test RFMiD +0,002. Aucun gain n'est démontré à 224 px :
 l'avantage observé à 392 px tient donc en grande partie à la résolution, ou à une
 perte due à l'adaptation, Green n'ayant pas été entraîné à 224 px.
+
+**Confirmation sur DDR** (12 novembre ; plan fixé le 11 avant tout calcul,
+[script](scripts/confirmation_ddr.py), [résultats](results/confirmation_ddr.json)).
+12 522 images gradables de DDR (Chine), jamais vues par le projet, chaque modèle à sa
+résolution d'origine, têtes et seuils RFMiD inchangés :
+
+| DDR | RETFound | RETFound-Green | Différence [IC 95 %] |
+|---|---|---|---|
+| **Toute rétinopathie, tête RFMiD** (critère) | 0,654 | **0,794** | **+0,139 [+0,130 ; +0,149]** |
+| Idem, regroupement par heure de prise (9 320 groupes) | | | +0,139 [+0,118 ; +0,161] |
+| À format égal | | | +0,154 [+0,142 ; +0,167] |
+| À adresser (stade ≥ 2) | 0,668 | 0,811 | non calculée |
+| Tête entraînée dans la base (5 plis groupés) | 0,938 | 0,938 | +0,000 [−0,004 ; +0,004] |
+| Sensibilité au seuil « dépistage » (visée 0,90) | 0,10 | 0,27 | non calculée |
+
+**Critère confirmé** (borne basse > 0 avec les deux regroupements). Le schéma
+d'EyePACS se reproduit : Green transfère bien mieux la tête RFMiD, mais, entraînés
+dans la base, les deux modèles se valent ; les seuils RFMiD ne se transposent pas.
+Conséquence prévue au plan : Green devient le meilleur candidat « modèle par défaut »
+pour la rétinopathie diabétique, sous réserve de sa licence (non commerciale, voir
+[droits](docs/DROITS_DONNEES.md)). Réserves : une seule cohorte, gradation par
+lecteurs formés, et la question de la résolution (ci-dessus) reste ouverte.
 
 **RETFound ne gagne pas à monter en résolution** (384 px, encodages de position
 interpolés ; [résultats](results/green_analysis_retfound384.json),

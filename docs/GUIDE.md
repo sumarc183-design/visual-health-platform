@@ -303,6 +303,9 @@ python scripts/confirmation_ddr.py --rfmid-root data/raw/rfmid --embeddings embe
     --out results/confirmation_ddr.json
 ```
 
+Exécuté le 12 novembre (deux runs Kaggle, embeddings identiques ; ~11 min d'analyse
+sur CPU) : critère confirmé, voir le README.
+
 ## Localisation des lésions (IDRiD)
 
 Les modèles regardent-ils les lésions ? `notebooks/kaggle_localization_idrid.ipynb`

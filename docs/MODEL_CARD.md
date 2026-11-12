@@ -132,6 +132,10 @@ avec Green. Résultats détaillés :
   EyePACS (sans étiquette, d'après l'article de RETFound-Green) : cette base
   n'est pas totalement indépendante du backbone. Ce modèle ne doit pas servir à dépister la
   rétinopathie diabétique, y compris avec les seuils fournis.
+- **Confirmation (DDR, 12 522 images, Chine, 12 nov.) : même constat.** Tête RFMiD
+  0,654 [0,644 ; 0,663] pour RETFound contre 0,794 [0,786 ; 0,802] pour RETFound-Green
+  (+0,139 [+0,130 ; +0,149], critère fixé à l'avance confirmé) ; sensibilité au seuil
+  « dépistage » 0,10 et 0,27. Entraînés dans DDR, les deux atteignent 0,938.
 - **Localisation (IDRiD, 81 images) : les cartes d'occlusion ne prouvent pas que
   RETFound regarde les lésions** (0,598, +0,016 [−0,004 ; +0,039] par rapport à la
   seule position), et elles recouvrent davantage le disque optique. Green les suit

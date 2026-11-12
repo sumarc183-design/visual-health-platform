@@ -6,6 +6,12 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Confirmation sur DDR (12 nov.) : plan fixé le 11 avant tout calcul, 12 522 images
+  jamais vues. Green 0,794 contre RETFound 0,654 (tête RFMiD, toute rétinopathie),
+  +0,139 [+0,130 ; +0,149], +0,139 [+0,118 ; +0,161] en regroupant par heure de prise :
+  critère **confirmé**. Embeddings calculés deux fois sur Kaggle, identiques ; dataset
+  vérifié contre l'archive officielle. `scripts/confirmation_ddr.py`,
+  `results/confirmation_ddr.json`.
 - Routeur de modalité (11 nov.) : test de résistance sur les 3 200 fonds d'œil de RFMiD,
   plan fixé avant le calcul. 2 envois en dermoscopie sur 2 531 images malades
   (0,08 % [0,01 % ; 0,29 %], critère « rare » atteint), tous deux sur la hyalose
