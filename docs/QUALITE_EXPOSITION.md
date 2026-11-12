@@ -317,3 +317,23 @@ l'évaluation, contre 5 % pour le détecteur actuel (à 3 % de fausses alertes).
 tient sur l'évaluation DeepDRiD, mais pas tout à fait sur ODIR (21 % de fausses alertes) :
 un seuil se transfère mal d'une base à l'autre, comme pour les maladies. Pour un usage
 réel, il faudrait le recalibrer sur le site concerné.
+
+## Bases annotées en qualité : EyeQ écartée, BRSET candidate (12 novembre 2026)
+
+**Pour réunir plus de vrais défauts annotés, BRSET est la meilleure piste ; EyeQ ne
+l'est pas.**
+
+| Base | Annotations de qualité | Droits et accès | Verdict |
+|---|---|---|---|
+| [EyeQ](https://github.com/HzFu/EyeQ) | 28 792 images, trois niveaux (bonne 16 817, utilisable 6 435, à rejeter 5 540) | Images à télécharger depuis EyePACS (règlement limité à la compétition) ; étiquettes et code CC BY-NC-SA 4.0 | Écartée : mêmes limites qu'EyePACS |
+| [BRSET](https://physionet.org/content/brazilian-ophthalmological/1.0.2/) | 16 266 images, quatre défauts notés par un ophtalmologiste spécialiste de la rétine : mise au point, éclairage, champ, artefacts (normal ou anormal) | PhysioNet Credentialed Health Data License 1.5.0 : recherche seulement ; compte accrédité, formation CITI, accord signé | **Candidate** : défauts séparés, comme ceux qu'on veut détecter |
+
+D'après l'article de BRSET : mise au point insuffisante sur 542 images (3,3 %), champ
+inadéquat sur 1 401 (8,6 %), éclairage sur 84 (0,5 %), artefacts sur 57 (0,3 %). Ces
+chiffres viennent de l'article et d'une recherche, pas des fichiers ; ils seront vérifiés
+au téléchargement.
+
+Intérêt double : la même accréditation PhysioNet ouvre aussi BRSET comme seconde cohorte
+de confirmation (voir `DROITS_DONNEES.md`). Démarches à faire par Marc : formation CITI
+« Data or Specimens Only Research », puis demande d'accréditation sur PhysioNet (une
+référence est demandée, par exemple le tuteur). Rien n'a été demandé ni téléchargé.
