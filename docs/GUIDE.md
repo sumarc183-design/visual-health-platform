@@ -452,7 +452,7 @@ copier au moins ce qui coûte cher à refaire :
 | Résultats ignorés : `results/*.npz` listés dans `.gitignore`, `results/finetune*/`, `results/localization/localization_*.npz` | 0,4 Go | Relancer les scripts ou notebooks correspondants |
 | `docs/AUDIT.md`, `AGENTS.md` (jamais commités) | < 1 Mo | Perdus : à copier |
 | `third_party/` (DINOv2-B, PanDerm, RETFound-Green) | 1,7 Go | Retélécharger (ci-dessous) |
-| `data/raw/` | 31 Go | Retélécharger (ci-dessous) |
+| `data/raw/` | 18 Go | Retélécharger (ci-dessous) |
 
 Sources pour retélécharger :
 
@@ -465,7 +465,7 @@ Sources pour retélécharger :
 | Imagenette (routeur) | `imagenette2-320` de fast.ai, dans `data/raw/modality/imagenette/` |
 | SLICE-3D Permissive | [ISIC Challenge Datasets](https://challenge.isic-archive.com/data/), trois fichiers `ISIC_2024_Permissive_Training_*` |
 | IDRiD (localisation) | Kaggle `aaryapatel98/indian-diabetic-retinopathy-image-dataset` via `kagglehub` ; sur le Mac actuel, dans `~/.cache/kagglehub` (hors du dossier du projet : à copier aussi, ou retélécharger) |
-| DDR (gradation, confirmation) | [Google Drive des auteurs](https://github.com/nkicsl/DDR-dataset), 10 morceaux réunis en `DDR-dataset.zip` ; SHA-256 attendu dans `data/raw/ddr/DDR-dataset.zip.sha256` (`a50cf62c…`) ; extraire `DDR-dataset/DR_grading/` dans `data/raw/ddr/` |
+| DDR (gradation, confirmation) | [Google Drive des auteurs](https://github.com/nkicsl/DDR-dataset), 10 morceaux réunis en `DDR-dataset.zip`, SHA-256 attendu `a50cf62cf68031e7ebde6312e17a3c65ce5f7aa2294f7f4c3484bf1ac54e9178` ; extraire `DDR-dataset/DR_grading/` dans `data/raw/ddr/`. Copie vérifiée : dataset Kaggle privé `marco865/ddr-grading-officiels` (empreinte d'inventaire `b05f6d17…`, contrôlée par le notebook). Images locales supprimées le 12 nov. après l'analyse ; les embeddings restent dans `embeddings/` |
 | RETFound | `scripts/download_retfound_checkpoint.py` (jeton Hugging Face) |
 | RETFound-Green | release v0.1 du [dépôt de l'auteur](https://github.com/justinengelmann/RETFound_Green) (SHA-256 vérifié par les notebooks) |
 | DINOv2, PanDerm | [DINOv2](https://github.com/facebookresearch/dinov2), [PanDerm](https://github.com/SiyuanYan1/PanDerm) ; noms de fichiers attendus dans `third_party/` |
