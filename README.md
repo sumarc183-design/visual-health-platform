@@ -60,6 +60,15 @@ python predict.py mon_fond_d_oeil.jpg --head heads/rfmid_green_head.pt \
     --thresholds results/decision_rfmid_green.json --policy f1
 ```
 
+Dépistage de la rétinopathie diabétique (tête Green RFMiD + EyePACS, seuil « sensibilité ») :
+
+```bash
+python predict.py mon_fond_d_oeil.jpg --dr-screening
+```
+
+Sur DDR, base jamais utilisée pour régler : 87 % des rétinopathies repérées (contre 27 %
+avec la tête RFMiD), au prix d'une fausse alerte pour deux personnes saines environ.
+
 Green est le modèle par défaut depuis le 12 novembre (décision du tuteur) ; RETFound
 reste disponible (`heads/odir_crop-mask_head.pt`, meilleur sur la DMLA).
 

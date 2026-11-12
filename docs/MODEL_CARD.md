@@ -140,7 +140,8 @@ avec Green. Résultats détaillés :
   « dépistage » 0,10 et 0,27. Entraînés dans DDR, les deux atteignent 0,938.
 - **Dépistage (12 nov.)** : une tête Green apprise sur RFMiD + EyePACS, seuil choisi sur
   une validation EyePACS, atteint une sensibilité de 0,87 [0,86 ; 0,88] sur DDR
-  (spécificité 0,52), contre 0,27 avec la tête RFMiD. Pas encore servie par `predict.py`.
+  (spécificité 0,52), contre 0,27 avec la tête RFMiD. Servie par `predict.py --dr-screening`
+  (`heads/dr_screening_green_head.pt`, `results/decision_dr_screening.json`).
 - **Localisation (IDRiD, 81 images) : les cartes d'occlusion ne prouvent pas que
   RETFound regarde les lésions** (0,598, +0,016 [−0,004 ; +0,039] par rapport à la
   seule position), et elles recouvrent davantage le disque optique. Green les suit

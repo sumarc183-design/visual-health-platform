@@ -30,6 +30,12 @@ peau) et avertit sinon, sans jamais bloquer (`src/pipeline/modality_check.py`). 
 poids DINOv2-B du routeur, la prédiction se fait avec un avertissement ;
 `--no-modality-check` le désactive.
 
+Dépistage de la rétinopathie diabétique : `--dr-screening` charge la tête Green
+apprise sur RFMiD + EyePACS (`heads/dr_screening_green_head.pt`) et son seuil choisi sur
+la validation EyePACS (politique `sensitivity`). Sur DDR (Chine, jamais utilisée pour
+régler) : 87 % des rétinopathies repérées, mais une fausse alerte pour deux personnes
+saines environ (spécificité 0,52). La tête RFMiD seule n'en repérait que 27 %.
+
 Outil de recherche, non validé cliniquement : les décisions ne sont pas un
 diagnostic.
 
@@ -42,6 +48,7 @@ Exemple :
         --head heads/rfmid_green_head.pt \\
         --checkpoint third_party/retfound_green/retfoundgreen_statedict.pth \\
         --thresholds results/decision_rfmid_green.json
+    python predict.py image1.jpg --dr-screening
 """
 
 from __future__ import annotations
@@ -57,14 +64,28 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from src.pipeline.inference import DISCLAIMER, THRESHOLD_POLICIES, Predictor  # noqa: E402
 
+# Réglage « dépistage » de la rétinopathie diabétique (scripts/dr_screening_sensitivity.py,
+# critère atteint le 12 novembre 2026 : sensibilité sur DDR 0,87 [0,86 ; 0,88], spécificité 0,52).
+DR_SCREENING = {
+    "head": Path("heads/dr_screening_green_head.pt"),
+    "checkpoint": Path("third_party/retfound_green/retfoundgreen_statedict.pth"),
+    "thresholds": Path("results/decision_dr_screening.json"),
+    "policy": "sensitivity",
+}
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("images", type=Path, nargs="+", help="Images (fond d'œil, ou peau avec une tête peau)")
-    parser.add_argument("--head", type=Path, required=True, help="Tête sauvegardée par run_baseline.py --save-head")
-    parser.add_argument("--checkpoint", type=Path, required=True, help="Checkpoint du modèle (celui de la tête)")
+    parser.add_argument("--head", type=Path, default=None, help="Tête sauvegardée par run_baseline.py --save-head")
+    parser.add_argument("--checkpoint", type=Path, default=None, help="Checkpoint du modèle (celui de la tête)")
     parser.add_argument("--thresholds", type=Path, default=None, help="results/decision_<dataset>.json")
-    parser.add_argument("--policy", choices=THRESHOLD_POLICIES, default="f1")
+    parser.add_argument("--policy", choices=THRESHOLD_POLICIES, default=None, help="f1 par défaut")
+    parser.add_argument(
+        "--dr-screening",
+        action="store_true",
+        help="Réglage dépistage de la rétinopathie diabétique (tête Green RFMiD + EyePACS, seuil sensibilité)",
+    )
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--trust-checkpoint", action="store_true", help="Voir run_baseline.py --trust-checkpoint")
     parser.add_argument(
@@ -85,6 +106,15 @@ def main() -> None:
     parser.add_argument("--router-checkpoint", type=Path, default=Path("third_party/dinov2/dinov2_vitb14_timm.pth"))
     parser.add_argument("--out", type=Path, default=None, help="Résultats JSON")
     args = parser.parse_args()
+    if args.dr_screening:
+        if args.policy == "f1":
+            parser.error("--dr-screening utilise la politique sensitivity (seule évaluée pour cette tête)")
+        for name, value in DR_SCREENING.items():
+            if getattr(args, name) is None:
+                setattr(args, name, value)
+    args.policy = args.policy or "f1"
+    if args.head is None or args.checkpoint is None:
+        parser.error("--head et --checkpoint sont requis (ou --dr-screening)")
 
     predictor = Predictor(
         args.head,

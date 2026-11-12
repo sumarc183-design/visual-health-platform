@@ -6,6 +6,9 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- `predict.py --dr-screening` : réglage dépistage RD (tête Green RFMiD + EyePACS et son
+  seuil, politique sensitivity), enregistré par `scripts/save_dr_screening_head.py`, qui
+  vérifie qu'il redonne exactement le seuil et les mesures sur DDR de l'analyse.
 - Dépistage RD (12 nov., plan fixé avant calcul) : tête Green apprise sur RFMiD + EyePACS,
   seuil sur validation EyePACS : sensibilité sur DDR 0,87 [0,86 ; 0,88] (contre 0,27),
   spécificité 0,52 ; critère atteint. `scripts/dr_screening_sensitivity.py`.

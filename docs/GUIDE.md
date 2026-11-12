@@ -345,6 +345,15 @@ python predict.py image1.jpg --head heads/rfmid_green_head.pt \
     --thresholds results/decision_rfmid_green.json
 ```
 
+Dépistage RD (tête Green RFMiD + EyePACS ; le script vérifie qu'elle redonne exactement
+le seuil et les mesures sur DDR de `results/dr_screening_sensitivity.json`) :
+
+```bash
+python scripts/save_dr_screening_head.py --rfmid-root data/raw/rfmid --embeddings embeddings \
+    --checkpoint third_party/retfound_green/retfoundgreen_statedict.pth
+python predict.py image1.jpg --dr-screening
+```
+
 Peau (dermoscopie, 8 classes ISIC 2019, probabilités seules, sans seuil ni contrôle
 qualité ; tête DINOv2-B enregistrée par `scripts/save_skin_head.py`, qui vérifie
 qu'elle redonne les scores de l'analyse du 9 novembre). Le routeur, actif par défaut,
