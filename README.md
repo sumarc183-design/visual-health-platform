@@ -30,7 +30,7 @@ transfert sur APTOS et EyePACS.
   comparées dans l'expérience.
 - **Confirmation sur DDR** (12 nov., plan fixé avant calcul, 12 522 images jamais
   vues) : Green **0,794** contre 0,654 pour RETFound, **+0,139 [+0,130 ; +0,149]** ;
-  critère pré-enregistré **confirmé**.
+  critère pré-enregistré **confirmé** ; encore +0,104 à résolution égale (exploratoire).
 
 [![Occlusion de RETFound et de RETFound-Green comparée aux masques d'experts, sur quatre images tirées au hasard](results/localization_examples.png)](#localisation-des-lésions)
 
@@ -197,7 +197,16 @@ dans la base, les deux modèles se valent ; les seuils RFMiD ne se transposent p
 Conséquence prévue au plan : Green devient le meilleur candidat « modèle par défaut »
 pour la rétinopathie diabétique, sous réserve de sa licence (non commerciale, voir
 [droits](docs/DROITS_DONNEES.md)). Réserves : une seule cohorte, gradation par
-lecteurs formés, et la question de la résolution (ci-dessus) reste ouverte.
+lecteurs formés.
+
+**À résolution égale sur DDR, l'avance de Green tient** (12 novembre, exploratoire, plan
+fixé avant le calcul de Green en 224 px ; [script](scripts/ddr_resolution.py),
+[résultats](results/ddr_resolution.json)). Green en 224 px : 0,758 [0,750 ; 0,767],
+contre 0,654 pour RETFound, soit **+0,104 [+0,095 ; +0,113]** (+0,104 [+0,078 ; +0,131]
+par heure de prise ; +0,108 à format égal). La résolution n'ajoute que +0,036
+[+0,031 ; +0,040] (Green 392 − 224 px). Sur DDR, environ les trois quarts de l'avance
+viennent donc du modèle, contrairement à EyePACS (+0,019 [−0,001 ; +0,038] à 224 px).
+Scores RETFound recalculés identiques à ceux de la confirmation.
 
 **RETFound ne gagne pas à monter en résolution** (384 px, encodages de position
 interpolés ; [résultats](results/green_analysis_retfound384.json),

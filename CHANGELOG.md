@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- DDR à résolution égale (12 nov., exploratoire, plan fixé avant calcul) : Green en
+  224 px 0,758 contre RETFound 0,654, +0,104 [+0,095 ; +0,113] ; la résolution n'ajoute
+  que +0,036. L'avance de Green ne tient pas qu'à la résolution sur DDR (contrairement à
+  EyePACS). `scripts/ddr_resolution.py`, `notebooks/kaggle_ddr_green224.ipynb`.
 - Routeur de modalité (12 nov.) : test sur 6 294 photos de peau sans dermatoscope
   (SLICE-3D), plan fixé avant le calcul. Aucune envoyée en fond d'œil (critère de
   sécurité atteint), mais 91-92 % classées « dermoscopie » : le routeur ne distingue pas
