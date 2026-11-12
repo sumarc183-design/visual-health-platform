@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- PAD-UFES-20 (12 nov., plan fixé avant calcul, 2 298 photos de smartphone) : routeur
+  jamais vers le fond d'œil (critère atteint) mais 98-99 % en « dermoscopie » ; tête peau
+  ISIC 2019 en transfert 0,667 contre 0,881 apprise sur place (−0,214 [−0,235 ; −0,196]) :
+  ne se transpose pas aux photos de téléphone. `scripts/pad_ufes20_skin.py`.
 - Socle à deux modalités (12 nov.) : `predict.py` accepte une tête peau
   (`heads/isic2019_dinov2b_head.pt`, DINOv2-B, ISIC 2019, redonne les scores du 9 nov.) ;
   le routeur vérifie le type de la tête. Poids DINOv2-B locaux et Kaggle vérifiés

@@ -214,3 +214,18 @@ du routeur (empreinte vérifiée). Essai sur deux images réelles : un fond d'œ
 (fond d'œil, 1,00, aucun avertissement) et un recadrage SLICE-3D (dermoscopie, 0,95,
 avertissement). `src/pipeline/modality_check.py`, 5 tests.
 
+## Test de résistance : vraies photos de smartphone (PAD-UFES-20, 12 novembre 2026)
+
+Même plan que pour SLICE-3D (`scripts/pad_ufes20_skin.py`, commit `0eee4a0`), sur 2 298
+photos de peau prises au smartphone :
+
+| PAD-UFES-20 | Fond d'œil | Dermoscopie | Inconnu |
+|---|---|---|---|
+| Protocole 1 | 0 | 2 260 (98 %) | 38 (2 %) |
+| Protocole 2 | 0 | 2 282 (99 %) | 16 (1 %) |
+
+Critère de sécurité atteint (borne haute 0,16 %). Comme sur SLICE-3D, le routeur prend
+presque toutes ces photos pour des dermoscopies ; or la tête peau perd 0,21 d'AUROC sur
+ces photos (`DERMATOLOGIE.md`). Le type de photo doit être déclaré par l'utilisateur :
+le routeur ne peut pas faire ce tri.
+

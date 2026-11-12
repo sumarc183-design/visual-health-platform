@@ -21,6 +21,8 @@ checkpoint doit être celui de la tête, sinon la prédiction est refusée.
 
 Peau : tête `heads/isic2019_dinov2b_head.pt` (DINOv2-B, ISIC 2019, 8 classes,
 probabilités seules) avec `--checkpoint third_party/dinov2/dinov2_vitb14_timm.pth`.
+Dermoscopie uniquement : sur des photos de smartphone, elle perd 0,21 d'AUROC
+(PAD-UFES-20, docs/DERMATOLOGIE.md) ; le routeur ne sait pas faire ce tri.
 
 `--modality-check` (désactivé par défaut) : le routeur de modalité vérifie que
 l'image ressemble au type de la tête (fond d'œil ou peau) et avertit sinon, sans jamais bloquer

@@ -248,3 +248,29 @@ les embeddings ont un cosinus médian de 1,0 (1er centile 0,9999998), contre 0,5
 images différentes. La réserve ci-dessus sur les deux empreintes est levée : ce sont
 les mêmes poids, sérialisés différemment.
 
+## Photos de smartphone : PAD-UFES-20 (12 novembre 2026)
+
+Plan fixé avant tout calcul (`scripts/pad_ufes20_skin.py`, commit `0eee4a0`). PAD-UFES-20
+(Brésil, CC BY 4.0) : 2 298 photos cliniques prises au smartphone, 1 373 patients, six
+diagnostics (BCC, SCC, MEL confirmés par biopsie). La tête peau du socle, apprise sur des
+dermoscopies, est appliquée telle quelle ; référence : même tête entraînée dans
+PAD-UFES-20 (5 plis groupés par patient). IC par bootstrap sur les patients.
+[Résultats](../results/pad_ufes20_skin.json).
+
+| PAD-UFES-20 | Tête ISIC 2019 (transfert) | Tête apprise dans la base (référence) |
+|---|---|---|
+| AUROC macro, 6 classes | 0,667 [0,648 ; 0,684] | 0,881 [0,866 ; 0,895] |
+| AUROC « cancer » (BCC, SCC, MEL) | 0,666 [0,641 ; 0,689] | 0,877 [0,861 ; 0,892] |
+| Images biopsiées seulement (1 342), AUROC macro | 0,624 | 0,804 |
+
+Écart transfert − référence : **−0,214 [−0,235 ; −0,196]** (−0,180 [−0,221 ; −0,135] sur
+les images biopsiées). Seuls les nævus restent bien reconnus en transfert (0,912) ; BKL
+tombe à 0,53, le hasard.
+
+**Lecture fixée à l'avance : la tête apprise sur dermoscopie ne se transpose pas aux
+photos de téléphone.** Les embeddings DINOv2-B contiennent pourtant l'information (0,881
+avec une tête apprise sur place, estimation optimiste) : c'est la tête qui est liée au
+type de photo. L'outil peau doit donc être réservé à la dermoscopie, type déclaré ; un
+usage au téléphone demanderait une tête apprise sur des photos de téléphone, puis une
+validation sur une autre base.
+
