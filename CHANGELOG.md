@@ -24,6 +24,9 @@ selon [SemVer](https://semver.org/lang/fr/).
   chaque image et chaque masque lus (empreinte SHA-256), masques HE/SE absents listés ;
   l'analyse vérifie cet inventaire contre les fichiers présents et refuse un écart.
   Archives antérieures signalées « non vérifiées ». Prendra effet au prochain run Kaggle.
+- IDRiD (12 nov.) : archives du run Kaggle du 11 nov. vérifiées contre les fichiers
+  d'origine (inventaire identique, 42 masques absents attendus, `inputs_check` dans
+  `results/localization_idrid.json`) ; scores inchangés.
 - IDRiD (10 nov.) : localisation relancée sur Kaggle pour obtenir le manifeste des
   archives (modèle, empreintes du checkpoint et des têtes, prétraitement, commit
   `93aa9d5`) ; cartes, tokens et logits identiques au bit près aux archives précédentes.

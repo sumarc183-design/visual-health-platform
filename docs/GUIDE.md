@@ -461,6 +461,7 @@ Sources pour retélécharger :
 | ISIC 2019 (CSV, images du routeur) | `scripts/download_isic.py` |
 | Imagenette (routeur) | `imagenette2-320` de fast.ai, dans `data/raw/modality/imagenette/` |
 | SLICE-3D Permissive | [ISIC Challenge Datasets](https://challenge.isic-archive.com/data/), trois fichiers `ISIC_2024_Permissive_Training_*` |
+| IDRiD (localisation) | Kaggle `aaryapatel98/indian-diabetic-retinopathy-image-dataset` via `kagglehub` ; sur le Mac actuel, dans `~/.cache/kagglehub` (hors du dossier du projet : à copier aussi, ou retélécharger) |
 | DDR (gradation, confirmation) | [Google Drive des auteurs](https://github.com/nkicsl/DDR-dataset), 10 morceaux réunis en `DDR-dataset.zip` ; SHA-256 attendu dans `data/raw/ddr/DDR-dataset.zip.sha256` (`a50cf62c…`) ; extraire `DDR-dataset/DR_grading/` dans `data/raw/ddr/` |
 | RETFound | `scripts/download_retfound_checkpoint.py` (jeton Hugging Face) |
 | RETFound-Green | release v0.1 du [dépôt de l'auteur](https://github.com/justinengelmann/RETFound_Green) (SHA-256 vérifié par les notebooks) |
