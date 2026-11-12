@@ -203,3 +203,14 @@ retirée par ses auteurs ; Eyes-defy-anemia (IEEE DataPort) n'affiche aucune lic
 les jeux Roboflow ou Kaggle « cataracte » ont une licence ou un contenu non vérifiés. Le
 test ne vaut la peine que si le routeur doit décider seul ; avec un type de photo
 déclaré et un routeur qui avertit, cette limite reste acceptable.
+
+## Mode avertissement dans `predict.py` (12 novembre 2026)
+
+Option `--modality-check`, **désactivée par défaut** en attendant la décision du tuteur :
+le routeur (protocole 2, seuil 0,9) donne son avis sur chaque image déclarée « fond
+d'œil » ; en cas de désaccord, la prédiction est faite quand même avec un avertissement,
+et l'avis figure dans le JSON de sortie (`modality`). Le checkpoint DINOv2 doit être celui
+du routeur (empreinte vérifiée). Essai sur deux images réelles : un fond d'œil de RFMiD
+(fond d'œil, 1,00, aucun avertissement) et un recadrage SLICE-3D (dermoscopie, 0,95,
+avertissement). `src/pipeline/modality_check.py`, 5 tests.
+

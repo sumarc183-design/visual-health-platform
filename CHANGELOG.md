@@ -6,6 +6,9 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- `predict.py --modality-check` (12 nov., désactivé par défaut) : le routeur de modalité
+  avertit si une image déclarée fond d'œil n'en a pas l'air, sans jamais bloquer
+  (proposition au tuteur). `src/pipeline/modality_check.py`, 5 tests.
 - DDR à résolution égale (12 nov., exploratoire, plan fixé avant calcul) : Green en
   224 px 0,758 contre RETFound 0,654, +0,104 [+0,095 ; +0,113] ; la résolution n'ajoute
   que +0,036. L'avance de Green ne tient pas qu'à la résolution sur DDR (contrairement à

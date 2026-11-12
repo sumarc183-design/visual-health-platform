@@ -39,9 +39,10 @@ class Prediction:
     findings: dict  # maladie -> {"probability", "threshold", "decision"}
     warnings: list[str] = field(default_factory=list)
     rejected: bool = False
+    modality: dict | None = None  # avis du routeur (predict.py --modality-check)
 
     def to_dict(self) -> dict:
-        return {
+        out = {
             "image": self.image,
             "rejected": self.rejected,
             "quality": self.quality,
@@ -49,6 +50,9 @@ class Prediction:
             "warnings": self.warnings,
             "disclaimer": DISCLAIMER,
         }
+        if self.modality is not None:
+            out["modality"] = self.modality
+        return out
 
 
 def load_thresholds(

@@ -19,6 +19,10 @@ et ODIR) ou RETFound-Green (tête RFMiD : meilleure généralisation externe sur
 la rétinopathie diabétique, moins bon sur la DMLA ; voir README). Le
 checkpoint doit être celui de la tête, sinon la prédiction est refusée.
 
+`--modality-check` (désactivé par défaut) : le routeur de modalité vérifie que
+l'image ressemble à un fond d'œil et avertit sinon, sans jamais bloquer
+(`src/pipeline/modality_check.py`). Demande les poids DINOv2-B du routeur.
+
 Outil de recherche, non validé cliniquement : les décisions ne sont pas un
 diagnostic.
 
@@ -64,6 +68,11 @@ def main() -> None:
         action="store_true",
         help="Accepte un fichier de seuils sans identité de tête (historique) : compatibilité non vérifiée",
     )
+    parser.add_argument(
+        "--modality-check", action="store_true", help="Avertit si le routeur ne voit pas un fond d'œil (non bloquant)"
+    )
+    parser.add_argument("--router-head", type=Path, default=Path("heads/modality_router_v2.pt"))
+    parser.add_argument("--router-checkpoint", type=Path, default=Path("third_party/dinov2/dinov2_vitb14_timm.pth"))
     parser.add_argument("--out", type=Path, default=None, help="Résultats JSON")
     args = parser.parse_args()
 
@@ -76,9 +85,19 @@ def main() -> None:
         trust_checkpoint=True if args.trust_checkpoint else None,
         allow_unverified_thresholds=args.allow_unverified_thresholds,
     )
+    check = None
+    if args.modality_check:
+        from src.pipeline.modality_check import ModalityCheck
+
+        check = ModalityCheck(args.router_head, args.router_checkpoint)
     results = []
     for image in args.images:
         prediction = predictor.predict(image, reject_unusable=args.reject_unusable)
+        if check is not None:
+            seen = check(image)
+            prediction.modality = seen.to_dict()
+            if seen.warning:
+                prediction.warnings.append(seen.warning)
         if prediction.rejected:  # contrôle qualité échoué : pas passée dans le modèle
             print(f"\n{image} : refusée par le contrôle qualité ({' ; '.join(prediction.quality['reasons'])})")
             results.append(prediction.to_dict())

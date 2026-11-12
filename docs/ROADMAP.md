@@ -45,6 +45,7 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
   malades) et concentrée sur la hyalose astéroïde (2 images AH sur 25).
   Photos de peau sans dermatoscope (12 nov., SLICE-3D, 6 294 images) : aucune envoyée en
   fond d'œil, mais 91-92 % prises pour des dermoscopies : le type de photo doit rester déclaré.
+  Mode avertissement prêt dans `predict.py` (`--modality-check`, désactivé par défaut) : à activer si le tuteur le valide.
 
 ## J60 — Localisation (31 décembre 2026)
 - [x] Localisation/segmentation des zones suspectes (6 nov., première mesure sur IDRiD) : occlusion contre masques d'experts, segmentation par case sur tokens de patch, RETFound et Green ; disque optique AP 0,919, exsudats durs 0,651 (Green, 27 images de test). Pas de validation externe ni d'intégration à `predict.py`.
