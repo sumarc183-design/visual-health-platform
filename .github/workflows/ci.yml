@@ -76,4 +76,13 @@ jobs:
       - name: Installer les dépendances
         run: pip install -r requirements-dev.txt
       - name: Tests unitaires (rapides)
-        run: pytest tests/ -m "not slow" -rfE --tb=short --basetemp="$RUNNER_TEMP/pytest"
+        # Échecs recopiés en annotations (lisibles sans compte sur la page du run).
+        run: |
+          set +e
+          pytest tests/ -m "not slow" -rfE --tb=line -p no:cacheprovider --basetemp="$RUNNER_TEMP/pytest" 2>&1 | tee win.log
+          status=${PIPESTATUS[0]}
+          set -e
+          if [ "$status" -ne 0 ]; then
+            grep -E "^(FAILED|ERROR) |^[A-Za-z]:.*: [A-Za-z]*(Error|Exception)" win.log | head -40 | while IFS= read -r line; do echo "::error title=windows::$line"; done
+            exit 1
+          fi
