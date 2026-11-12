@@ -27,6 +27,9 @@ selon [SemVer](https://semver.org/lang/fr/).
   [0,662 ; 0,842] sur deux centres jamais vus (39 cas malins).
 
 ### Corrigé
+- Windows (12 nov.) : CI étendue aux tests rapides sous Windows (nouvel ordinateur) ; un
+  seul test en échec, qui comparait un chemin avec le séparateur du système (corrigé,
+  le code écrivait déjà des `/`). Installation sous Windows ajoutée au guide.
 - Notebooks (audit du 9 nov., constat 11) : chaque zip de sortie de 9 notebooks contient
   `run_manifest.json` (commit réellement utilisé, révision demandée, plateforme, GPU,
   versions, empreinte de chaque fichier) ; le notebook échoue si le manifeste ne peut pas

@@ -473,6 +473,28 @@ Sources pour retélécharger :
 Les poids DINOv2-B locaux ont l'empreinte `ba7954cb2db99604` : un fichier retéléchargé
 peut en avoir une autre (voir `DERMATOLOGIE.md`).
 
+### Installation sous Windows 11 (sans GPU NVIDIA)
+
+Testé par la CI depuis le 12 novembre (job `test-windows`, Python 3.12, tests rapides).
+Dans PowerShell, après avoir installé [Python 3.12](https://www.python.org/downloads/)
+(case « Add python.exe to PATH ») et [Git](https://git-scm.com/download/win) :
+
+```powershell
+git clone https://github.com/sumarc183-design/visual-health-platform.git
+cd visual-health-platform
+python -m venv .venv
+.venv\Scripts\Activate.ps1     # si refusé : Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+pip install -r requirements-dev.txt
+pytest -m "not slow"
+```
+
+Puis recopier depuis le disque externe les éléments hors Git du tableau ci-dessus
+(`data/raw/`, `embeddings*/`, `third_party/`, résultats ignorés, `docs/AUDIT.md`,
+`AGENTS.md`). Sans GPU, tout ce qui part d'embeddings en cache tourne sur le
+processeur ; les extractions lourdes (RETFound sur une nouvelle base, fine-tuning)
+restent sur Kaggle, comme sur le Mac. `scripts/setup_retfound.sh` se lance depuis Git
+Bash (installé avec Git).
+
 ## Tests
 
 ```bash
