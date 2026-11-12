@@ -347,12 +347,13 @@ python predict.py image1.jpg --head heads/rfmid_green_head.pt \
 
 Peau (dermoscopie, 8 classes ISIC 2019, probabilités seules, sans seuil ni contrôle
 qualité ; tête DINOv2-B enregistrée par `scripts/save_skin_head.py`, qui vérifie
-qu'elle redonne les scores de l'analyse du 9 novembre). Avec `--modality-check`, le
-routeur avertit si l'image ne ressemble pas au type de la tête :
+qu'elle redonne les scores de l'analyse du 9 novembre). Le routeur, actif par défaut,
+avertit si l'image ne ressemble pas au type de la tête (`--no-modality-check` pour le
+désactiver) :
 
 ```bash
 python predict.py lesion.jpg --head heads/isic2019_dinov2b_head.pt \
-    --checkpoint third_party/dinov2/dinov2_vitb14_timm.pth --modality-check
+    --checkpoint third_party/dinov2/dinov2_vitb14_timm.pth
 ```
 
 Même chaîne que l'entraînement (`src/pipeline/inference.py`, testé pour

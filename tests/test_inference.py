@@ -213,6 +213,7 @@ def test_cli_rejects_unusable_images_on_request(setup, monkeypatch, capsys):
             "--thresholds",
             str(setup["thresholds"]),
             "--reject-unusable",
+            "--no-modality-check",
             "--device",
             "cpu",
             "--out",

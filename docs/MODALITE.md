@@ -206,7 +206,9 @@ déclaré et un routeur qui avertit, cette limite reste acceptable.
 
 ## Mode avertissement dans `predict.py` (12 novembre 2026)
 
-Option `--modality-check`, **désactivée par défaut** en attendant la décision du tuteur :
+**Actif par défaut depuis le 12 novembre (décision du tuteur : avertir, ne pas bloquer)** ;
+`--no-modality-check` le désactive, et sans les poids du routeur la prédiction se fait
+avec un avertissement. Conçu d'abord comme option `--modality-check` :
 le routeur (protocole 2, seuil 0,9) donne son avis sur chaque image déclarée « fond
 d'œil » ; en cas de désaccord, la prédiction est faite quand même avec un avertissement,
 et l'avis figure dans le JSON de sortie (`modality`). Le checkpoint DINOv2 doit être celui

@@ -126,6 +126,11 @@ commercial sans accord.
 Sources consultées le 11 novembre 2026 (pages ci-dessus). Les tailles de DDR et de
 Messidor-2 viennent des articles, pas de fichiers téléchargés.
 
+**Décision du tuteur (12 novembre 2026)** : DDR reste la cohorte de confirmation ;
+EyePACS est gardé en complément tant qu'il apporte quelque chose, et ne sera retiré que
+s'il devient inutile. Les réserves de son règlement (usage limité à la compétition, voir
+plus haut) restent à garder en tête pour toute diffusion.
+
 **Proposition, à valider avec le tuteur** : DDR comme cohorte de confirmation principale
 (grande, téléchargement libre, aucune image vue par le projet), BRSET en seconde
 confirmation si l'accréditation PhysioNet est obtenue. Les deux licences sont non

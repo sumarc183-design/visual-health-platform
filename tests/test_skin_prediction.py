@@ -86,7 +86,11 @@ def test_cli_prints_probabilities_without_thresholds(skin, monkeypatch, capsys, 
 
     out = tmp_path / "pred.json"
     argv = ["predict.py", str(skin["image"]), "--head", str(skin["head_path"])]
-    monkeypatch.setattr(sys, "argv", [*argv, "--checkpoint", str(skin["checkpoint"]), "--out", str(out)])
+    absent = tmp_path / "absent.pth"
+    argv += ["--checkpoint", str(skin["checkpoint"]), "--router-checkpoint", str(absent), "--out", str(out)]
+    monkeypatch.setattr(sys, "argv", argv)
     predict.main()
     assert "probabilité seule (pas de seuil)" in capsys.readouterr().out
-    assert json.loads(out.read_text())[0]["quality"] == {"checked": False}
+    result = json.loads(out.read_text())[0]
+    assert result["quality"] == {"checked": False}
+    assert any("Type d'image non vérifié" in w for w in result["warnings"])  # contrôle actif par défaut

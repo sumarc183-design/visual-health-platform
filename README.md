@@ -55,10 +55,13 @@ choisir un GPU T4, ajouter `HF_TOKEN` aux Secrets Colab, puis exécuter les cell
 **En local, avec les poids, la tête et les seuils préparés** :
 
 ```bash
-python predict.py mon_fond_d_oeil.jpg --head heads/odir_crop-mask_head.pt \
-    --checkpoint third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth \
-    --thresholds results/decision_odir.json --policy f1
+python predict.py mon_fond_d_oeil.jpg --head heads/rfmid_green_head.pt \
+    --checkpoint third_party/retfound_green/retfoundgreen_statedict.pth \
+    --thresholds results/decision_rfmid_green.json --policy f1
 ```
+
+Green est le modèle par défaut depuis le 12 novembre (décision du tuteur) ; RETFound
+reste disponible (`heads/odir_crop-mask_head.pt`, meilleur sur la DMLA).
 
 Installation, préparation des données, entraînement des têtes et exemple Green :
 [guide d'utilisation](docs/GUIDE.md). Les poids et les têtes sont à préparer
@@ -217,10 +220,9 @@ avance sur RETFound à 384 px : +0,075 [+0,053 ; +0,095] sur EyePACS, +0,068 à 
 l'ensemble modèle et résolution, pas à la seule résolution.
 Limites : le pré-entraînement de Green inclut ODIR, d'où l'absence de cette base.
 
-**Choix du modèle** : `predict.py` accepte les deux, RETFound restant l'exemple
-par défaut. Le compromis dépend de l'usage : Green pour la généralisation sur
-la rétinopathie diabétique, RETFound pour la DMLA ; seul RETFound a une tête
-ODIR. Aux seuils de validation, les deux se valent en moyenne sur le test RFMiD
+**Choix du modèle** (décision du tuteur, 12 novembre) : **Green par défaut**, confirmé
+sur DDR ; RETFound est gardé tant qu'il reste meilleur quelque part (DMLA, tête ODIR),
+et sera retiré quand Green fera au moins aussi bien partout. Aux seuils de validation, les deux se valent en moyenne sur le test RFMiD
 (F1 0,54 contre 0,50 ; [seuils Green](results/decision_rfmid_green.json)).
 
 - **Très bien reconnues** (AUROC test > 0,94) : rétinopathie diabétique,
@@ -667,7 +669,7 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 | Étape | État |
 |---|---|
 | 1. Contrôle qualité (flou, résolution) | 🟡 Seuil de flou calibré ([résultats](results/quality_calibration.json)) : détecte le flou franc, pas les autres défauts de qualité ; signale sans filtrer par défaut |
-| 2. Identification de la modalité | 🟡 Routeur entraîné et évalué (9 nov.) : 998/1 000 images bien routées sur d'autres sources, un critère non atteint ; non branché dans `predict.py` ([détails](docs/MODALITE.md)) |
+| 2. Identification de la modalité | 🟡 Routeur entraîné et évalué (9 nov.) : 998/1 000 images bien routées sur d'autres sources ; actif par défaut dans `predict.py` en avertissement, jamais bloquant (décision du tuteur, 12 nov. ; [détails](docs/MODALITE.md)) ; ne distingue pas photo de peau et dermoscopie |
 | 3. Prétraitement fond d'œil | ✅ `crop-mask` (recadrage + masque commun), normalisation ImageNet, 224×224 |
 | 4. Classification multi-label | ✅ RFMiD et ODIR, AUROC mesurée |
 | 5. Localisation des zones suspectes | 🟡 Mesurée sur IDRiD (81 images, [détails](#localisation-des-lésions)) ; pas de validation externe ni d'intégration à `predict.py` |

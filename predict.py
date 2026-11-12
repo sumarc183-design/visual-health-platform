@@ -24,9 +24,11 @@ probabilités seules) avec `--checkpoint third_party/dinov2/dinov2_vitb14_timm.p
 Dermoscopie uniquement : sur des photos de smartphone, elle perd 0,21 d'AUROC
 (PAD-UFES-20, docs/DERMATOLOGIE.md) ; le routeur ne sait pas faire ce tri.
 
-`--modality-check` (désactivé par défaut) : le routeur de modalité vérifie que
-l'image ressemble au type de la tête (fond d'œil ou peau) et avertit sinon, sans jamais bloquer
-(`src/pipeline/modality_check.py`). Demande les poids DINOv2-B du routeur.
+Contrôle du type d'image (actif par défaut depuis le 12 novembre, décision du tuteur) :
+le routeur de modalité vérifie que l'image ressemble au type de la tête (fond d'œil ou
+peau) et avertit sinon, sans jamais bloquer (`src/pipeline/modality_check.py`). Sans les
+poids DINOv2-B du routeur, la prédiction se fait avec un avertissement ;
+`--no-modality-check` le désactive.
 
 Outil de recherche, non validé cliniquement : les décisions ne sont pas un
 diagnostic.
@@ -74,7 +76,10 @@ def main() -> None:
         help="Accepte un fichier de seuils sans identité de tête (historique) : compatibilité non vérifiée",
     )
     parser.add_argument(
-        "--modality-check", action="store_true", help="Avertit si le routeur ne voit pas le type de la tête"
+        "--no-modality-check",
+        dest="modality_check",
+        action="store_false",
+        help="Désactive l'avertissement du routeur (actif par défaut)",
     )
     parser.add_argument("--router-head", type=Path, default=Path("heads/modality_router_v2.pt"))
     parser.add_argument("--router-checkpoint", type=Path, default=Path("third_party/dinov2/dinov2_vitb14_timm.pth"))
@@ -90,14 +95,18 @@ def main() -> None:
         trust_checkpoint=True if args.trust_checkpoint else None,
         allow_unverified_thresholds=args.allow_unverified_thresholds,
     )
-    check = None
+    check, extra = None, []
     if args.modality_check:
         from src.pipeline.modality_check import ModalityCheck
 
-        check = ModalityCheck(args.router_head, args.router_checkpoint)
+        if args.router_checkpoint.exists() and args.router_head.exists():
+            check = ModalityCheck(args.router_head, args.router_checkpoint)
+        else:
+            extra.append(f"Type d'image non vérifié : poids du routeur absents ({args.router_checkpoint}).")
     results = []
     for image in args.images:
         prediction = predictor.predict(image, reject_unusable=args.reject_unusable)
+        prediction.warnings.extend(extra)
         if check is not None:
             seen = check(image, declared=predictor.modality)
             prediction.modality = seen.to_dict()

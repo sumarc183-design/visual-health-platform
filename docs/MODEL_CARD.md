@@ -5,7 +5,9 @@ Format inspiré des *Model Cards* (Mitchell et al., 2019).
 ## Description
 
 Deux modèles de base au choix, indiqués par la tête passée à `predict.py`. Ils
-restent figés et seule une tête linéaire est servie.
+restent figés et seule une tête linéaire est servie. **RETFound-Green est le modèle par
+défaut** depuis le 12 novembre 2026 (décision du tuteur, après la confirmation sur DDR) ;
+RETFound est gardé tant qu'il reste meilleur sur une tâche (DMLA, tête ODIR).
 
 | | RETFound (`RETFound_mae_natureCFP`) | RETFound-Green |
 |---|---|---|

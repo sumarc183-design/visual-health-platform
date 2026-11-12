@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Décisions du tuteur (12 nov.) : RETFound-Green modèle par défaut (RETFound gardé tant
+  qu'il est meilleur quelque part) ; routeur actif par défaut dans `predict.py`, en
+  avertissement (`--no-modality-check`) ; DDR cohorte de confirmation, EyePACS gardé en
+  complément ; outil visé : tous les utilisateurs, sensibilité à améliorer.
 - PAD-UFES-20 (12 nov., plan fixé avant calcul, 2 298 photos de smartphone) : routeur
   jamais vers le fond d'œil (critère atteint) mais 98-99 % en « dermoscopie » ; tête peau
   ISIC 2019 en transfert 0,667 contre 0,881 apprise sur place (−0,214 [−0,235 ; −0,196]) :
