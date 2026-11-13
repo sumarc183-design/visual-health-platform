@@ -113,7 +113,7 @@ def scores(head: MultiLabelHead, X: np.ndarray) -> np.ndarray:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--milk-root", type=Path, required=True, help="milk10k.csv, training_gt.csv et images")
+    parser.add_argument("--milk-root", type=Path, required=True, help="archive MILK10k extraite (metadata.csv, supplements/, images/)")
     parser.add_argument("--isic2019-root", type=Path, required=True)
     parser.add_argument("--isic2019-embeddings", type=Path, required=True)
     parser.add_argument("--isic2020-root", type=Path, required=True)
@@ -128,9 +128,9 @@ def main() -> None:
     meta = {"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE}
 
     # MILK10k : une dermoscopie par lésion
-    images = pd.read_csv(args.milk_root / "milk10k.csv")
+    images = pd.read_csv(args.milk_root / "metadata.csv")
     derm = images[images["image_type"] == "dermoscopic"].drop_duplicates("lesion_id")
-    gt = pd.read_csv(args.milk_root / "training_gt.csv").merge(derm[["lesion_id", "isic_id"]], on="lesion_id")
+    gt = pd.read_csv(args.milk_root / "supplements" / "training_gt.csv").merge(derm[["lesion_id", "isic_id"]], on="lesion_id")
     paths = {p.stem: p for p in args.milk_root.rglob("*.jpg")}
     missing = set(gt["isic_id"]) - set(paths)
     if missing:
