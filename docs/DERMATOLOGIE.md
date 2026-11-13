@@ -287,6 +287,14 @@ des mélanomes sont signalés, mais 3 signalements sur 100 seulement en sont (pr
 Réserves : images redimensionnées à 256 × 256 sans garder les proportions (version
 Kaggle), ce qui peut aussi masquer des quasi-doublons ; seule la classe MEL est évaluée.
 
+**Contrôle du format (13 novembre 2026)** : la déformation n'explique pas la baisse. Sur
+le test ISIC 2019 (6 191 images sans « UNK », recadrées en 3:2), écraser en 256 × 256
+comme la version Kaggle ne change pas l'AUROC du mélanome : 0,869 dans les deux cas, écart
++0,000 [−0,007 ; +0,007] (macro −0,003 [−0,009 ; +0,003]). Lecture fixée avant calcul
+(`scripts/skin_aspect_control.py`, `results/skin_aspect_control.json`) : la baisse sur
+ISIC 2020 est un vrai défaut de transfert (autres patients, autre période), pas un
+artefact de format.
+
 **Pourquoi DINOv2-B et pas PanDerm**, meilleur de +0,046 d'AUROC macro : c'est le même
 modèle que le routeur de modalité (un seul calcul d'embedding par image), sous licence
 Apache 2.0 ; PanDerm (CC BY-NC-ND, 1,4 Go) reste l'option de recherche. Les données

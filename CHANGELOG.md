@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Contrôle du format ISIC 2020 (13 nov., plan fixé avant calcul) : écraser les images en
+  256 × 256 ne change pas l'AUROC du mélanome sur le test ISIC 2019 (+0,000
+  [−0,007 ; +0,007]) ; la baisse sur ISIC 2020 n'est pas un artefact de format.
+  `scripts/skin_aspect_control.py`.
 - Validation externe de la tête peau sur ISIC 2020 (13 nov., plan fixé avant
   téléchargement) : AUROC mélanome 0,788 [0,765 ; 0,808] contre 0,874 en interne ;
   critère (≥ 0,80) non atteint. Au seuil dépistage : sensibilité 0,85, VPP 0,03.
