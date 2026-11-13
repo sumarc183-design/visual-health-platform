@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Validation externe de la tête peau sur ISIC 2020 (13 nov., plan fixé avant
+  téléchargement) : AUROC mélanome 0,788 [0,765 ; 0,808] contre 0,874 en interne ;
+  critère (≥ 0,80) non atteint. Au seuil dépistage : sensibilité 0,85, VPP 0,03.
+  Routeur : 0 image envoyée en fond d'œil. `scripts/isic2020_external.py`.
 - Contrôle qualité de la peau (13 nov., plan fixé avant calcul) : flou au centre de
   l'image, seuil 6,33 (2e percentile ISIC 2019) ; 100 % du flou sigma 4 détecté, 3,2 % de
   fausses alertes ; actif dans `predict.py` pour la peau. Le flou coûte 0,05 d'AUROC au

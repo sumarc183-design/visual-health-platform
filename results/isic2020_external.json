@@ -1,0 +1,137 @@
+{
+ "run": {
+  "git_commit": "8026f83",
+  "python": "3.12.7",
+  "versions": {
+   "numpy": "1.26.4",
+   "scikit-learn": "1.9.1",
+   "torch": "2.2.2",
+   "timm": "1.0.31"
+  }
+ },
+ "plan": "fixé le 13 novembre 2026 avant tout téléchargement d'ISIC 2020 (docstring du script)",
+ "backbone": {
+  "model": "dinov2_vitb14",
+  "checkpoint_sha256": "ba7954cb2db99604"
+ },
+ "images": {
+  "total": 33126,
+  "near_duplicates_of_isic2019_train": 0,
+  "evaluated": 33126,
+  "patients": 2056,
+  "melanomas": 584
+ },
+ "melanoma": {
+  "auroc": 0.7881041823296006,
+  "ci": [
+   0.7646028531846201,
+   0.8082223698991425
+  ]
+ },
+ "thresholds": {
+  "f1": {
+   "threshold": 0.16217714548110962,
+   "tp": 300,
+   "fp": 3897,
+   "fn": 284,
+   "tn": 28645,
+   "sensitivity": 0.5136986301369864,
+   "specificity": 0.8802470653309569,
+   "ppv": 0.07147962830593281,
+   "npv": 0.9901828614884718,
+   "f1": 0.12549675800041835,
+   "sensitivity_ci": [
+    0.46895873172537167,
+    0.5555726759116589
+   ],
+   "specificity_ci": [
+    0.8721553872484665,
+    0.88785464698068
+   ]
+  },
+  "sensitivity": {
+   "threshold": 0.024877961724996567,
+   "tp": 497,
+   "fp": 16265,
+   "fn": 87,
+   "tn": 16277,
+   "sensitivity": 0.851027397260274,
+   "specificity": 0.5001843771126544,
+   "ppv": 0.02965039971363799,
+   "npv": 0.9946834514788561,
+   "f1": 0.057304277643260695,
+   "sensitivity_ci": [
+    0.8174193217862361,
+    0.8824536521040423
+   ],
+   "specificity_ci": [
+    0.486109430997677,
+    0.5128301604153338
+   ]
+  }
+ },
+ "router": {
+  "protocol_1": {
+   "all": {
+    "n": 33126,
+    "decisions": {
+     "fundus": 0,
+     "dermoscopy": 33075,
+     "unknown": 51
+    },
+    "to_dermoscopy": {
+     "count": 33075,
+     "value": 0.9984604238362615,
+     "ci": [
+      0.9979762323346654,
+      0.9988534762157941
+     ]
+    }
+   },
+   "criterion_safe": {
+    "count": 0,
+    "n": 33126,
+    "ci": [
+     0.0,
+     0.00011135283664512528
+    ],
+    "threshold": 0.005,
+    "met": true
+   }
+  },
+  "protocol_2": {
+   "all": {
+    "n": 33126,
+    "decisions": {
+     "fundus": 0,
+     "dermoscopy": 33088,
+     "unknown": 38
+    },
+    "to_dermoscopy": {
+     "count": 33088,
+     "value": 0.9988528648191752,
+     "ci": [
+      0.9984258038589662,
+      0.9991880949584152
+     ]
+    }
+   },
+   "criterion_safe": {
+    "count": 0,
+    "n": 33126,
+    "ci": [
+     0.0,
+     0.00011135283664512528
+    ],
+    "threshold": 0.005,
+    "met": true
+   }
+  }
+ },
+ "criterion": {
+  "auroc": 0.7881041823296006,
+  "lower_bound": 0.7646028531846201,
+  "threshold": 0.8,
+  "met": false
+ }
+}

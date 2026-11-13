@@ -268,6 +268,25 @@ fait perdre à la tête de 0,02 (NV) à 0,10 (AK) d'AUROC, 0,05 pour le mélanom
 (0,890 → 0,841) : le contrôle est actif dans `predict.py` pour la peau (avertissement ;
 refus avec `--reject-unusable`). Limites : flou synthétique, exposition non contrôlée.
 
+**Validation externe sur ISIC 2020 (13 novembre 2026)** : 33 126 dermoscopies, 2 056
+patients, 584 mélanomes (1,8 %), tête inchangée (`scripts/isic2020_external.py`, plan
+fixé avant téléchargement, `results/isic2020_external.json`). Aucun quasi-doublon des
+images d'apprentissage ISIC 2019 détecté.
+
+| Mélanome | Résultat |
+|---|---|
+| AUROC [IC 95 %, patients] | 0,788 [0,765 ; 0,808] (0,874 au test ISIC 2019) |
+| Seuil F1 : sensibilité / spécificité / VPP | 0,51 [0,47 ; 0,56] / 0,88 / 0,07 |
+| Seuil dépistage : sensibilité / spécificité / VPP | 0,85 [0,82 ; 0,88] / 0,50 / 0,03 |
+
+Critère (borne basse ≥ 0,80) **non atteint** : le classement du mélanome se transpose
+moins bien à une autre période et d'autres patients, même en dermoscopie et dans des
+centres en partie communs. La tête peau reste limitée à sa source ; en dépistage, 85 %
+des mélanomes sont signalés, mais 3 signalements sur 100 seulement en sont (prévalence
+1,8 %). Routeur : aucune image envoyée en fond d'œil (IC exact ≤ 0,011 %).
+Réserves : images redimensionnées à 256 × 256 sans garder les proportions (version
+Kaggle), ce qui peut aussi masquer des quasi-doublons ; seule la classe MEL est évaluée.
+
 **Pourquoi DINOv2-B et pas PanDerm**, meilleur de +0,046 d'AUROC macro : c'est le même
 modèle que le routeur de modalité (un seul calcul d'embedding par image), sous licence
 Apache 2.0 ; PanDerm (CC BY-NC-ND, 1,4 Go) reste l'option de recherche. Les données
