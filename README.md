@@ -214,6 +214,22 @@ de Green : biais contre Green, qui gagne quand même) et APTOS (vu par aucun des
 format lié au diagnostic ; +0,035 à format égal). Une nouvelle confirmation sur une base
 vue par aucun des deux modèles (IDRiD, Messidor-2 ou BRSET) est nécessaire.
 
+**IDRiD, base vue par aucun des deux modèles** (13 nov., plan fixé avant tout embedding,
+[script](scripts/confirmation_external.py), [résultats](results/confirmation_idrid.json) ;
+516 images, Inde ; seconde confirmation, Messidor-2 étant la principale) :
+
+| IDRiD | RETFound | RETFound-Green | Différence [IC 95 %] |
+|---|---|---|---|
+| Toute rétinopathie, tête RFMiD | 0,934 | 0,933 | **−0,001 [−0,017 ; +0,014]** |
+| À adresser (stade ≥ 2) | 0,946 | 0,957 | non calculée |
+| Dépistage `--dr-screening` : sensibilité | | **0,957 [0,934 ; 0,976]** | spécificité 0,48, VPP 0,79 |
+
+Sur IDRiD, **Green ne fait pas mieux que RETFound** (critère non confirmé) ; le réglage
+dépistage garde sa sensibilité (critère ≥ 0,80 atteint), avec la même spécificité
+d'environ 0,5. Messidor-2 (principal, 1 744 images) reste à mesurer. Un premier calcul
+avait donné les mêmes clés aux images d'apprentissage et de test d'IDRiD (mêmes noms) ;
+il a été écarté avant correction (`eb65994`), sans changer la méthode.
+
 **Critère confirmé** (borne basse > 0 avec les deux regroupements). Le schéma
 d'EyePACS se reproduit : Green transfère bien mieux la tête RFMiD, mais, entraînés
 dans la base, les deux modèles se valent ; les seuils RFMiD ne se transposent pas.

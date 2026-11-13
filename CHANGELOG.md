@@ -12,6 +12,11 @@ selon [SemVer](https://semver.org/lang/fr/).
   documenté dans README, fiche modèle et feuille de route, confirmation à refaire.
 
 ### Ajouté
+- Confirmation sur IDRiD (13 nov., vue par aucun des deux modèles, plan fixé avant tout
+  embedding) : Green − RETFound −0,001 [−0,017 ; +0,014], non confirmé ; dépistage
+  `--dr-screening` : sensibilité 0,957 [0,934 ; 0,976], spécificité 0,48 (critère
+  atteint). Poids RETFound utilisés en local, vérifiés identiques au cache.
+  `scripts/confirmation_external.py` ; Messidor-2 à venir.
 - Tête peau sans les « unknown » d'ISIC 2020 (13 nov., plan fixé avant calcul) : sur
   MILK10k, mélanome −0,008, BCC −0,022, macro −0,005 face à la tête servie ; critère non
   atteint, hypothèse réfutée. `scripts/skin_transfer_labeled.py`.

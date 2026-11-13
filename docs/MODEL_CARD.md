@@ -141,7 +141,9 @@ avec Green. Résultats détaillés :
   **Correction du 13 nov. :** DDR fait partie du pré-entraînement de Green (pas de
   RETFound) ; cette confirmation est biaisée en faveur de Green et les mesures du
   dépistage sur DDR peuvent être optimistes. Nouvelle confirmation à faire sur une base
-  vue par aucun des deux modèles.
+  vue par aucun des deux modèles. **IDRiD (13 nov., vue par aucun des deux)** : Green
+  0,933 contre RETFound 0,934, écart −0,001 [−0,017 ; +0,014] : pas d'avance de Green ;
+  dépistage : sensibilité 0,957 [0,934 ; 0,976], spécificité 0,48. Messidor-2 à venir.
 - **Dépistage (12 nov.)** : une tête Green apprise sur RFMiD + EyePACS, seuil choisi sur
   une validation EyePACS, atteint une sensibilité de 0,87 [0,86 ; 0,88] sur DDR
   (spécificité 0,52), contre 0,27 avec la tête RFMiD. Servie par `predict.py --dr-screening`
