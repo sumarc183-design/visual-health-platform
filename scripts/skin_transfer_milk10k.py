@@ -177,7 +177,7 @@ def main() -> None:
     cols = [CLASS_NAMES.index(c) for c in present]
     diff = paired_bootstrap_diff(y_eval[:, cols], p_a[:, cols], p_b[:, cols], present, groups)
     t_a, t_b = scores(head_a, X19_test), scores(head_b, X19_test)
-    test19_diff = paired_bootstrap_diff(test19.targets, t_a, t_b, list(CLASS_NAMES), list(test19.groups))
+    test19_diff = paired_bootstrap_diff(test19.targets, t_a, t_b, list(CLASS_NAMES), list(test19.lesions))
 
     report = {
         "run": run_info(),
