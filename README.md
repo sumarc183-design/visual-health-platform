@@ -697,7 +697,7 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 
 | Étape | État |
 |---|---|
-| 1. Contrôle qualité (flou, résolution) | 🟡 Seuil de flou calibré ([résultats](results/quality_calibration.json)) : détecte le flou franc, pas les autres défauts de qualité ; signale sans filtrer par défaut |
+| 1. Contrôle qualité (flou, résolution) | 🟡 Seuil de flou calibré ([résultats](results/quality_calibration.json)) : détecte le flou franc, pas les autres défauts de qualité ; signale sans filtrer par défaut. Peau : contrôle de flou propre, calibré sur ISIC 2019 (100 % du flou σ 4 repéré, 3,2 % de fausses alertes, [détails](docs/DERMATOLOGIE.md)) |
 | 2. Identification de la modalité | 🟡 Routeur entraîné et évalué (9 nov.) : 998/1 000 images bien routées sur d'autres sources ; actif par défaut dans `predict.py` en avertissement, jamais bloquant (décision du tuteur, 12 nov. ; [détails](docs/MODALITE.md)) ; ne distingue pas photo de peau et dermoscopie |
 | 3. Prétraitement fond d'œil | ✅ `crop-mask` (recadrage + masque commun), normalisation ImageNet, 224×224 |
 | 4. Classification multi-label | ✅ RFMiD et ODIR, AUROC mesurée |
@@ -715,7 +715,10 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 | APTOS 2019 | Transfert de la rétinopathie diabétique |
 | EyePACS | Transfert de la rétinopathie diabétique (2 500 patients) |
 | IDRiD | Localisation : 81 images avec masques d'experts |
-| ISIC 2019 | Dermatologie, seconde indication : run réalisé ; PanDerm − DINOv2-L, AUROC macro +0,037 [+0,030 ; +0,043] sur le test ([résultats](docs/DERMATOLOGIE.md#résultats)) |
+| DDR | Confirmation externe de la rétinopathie diabétique (12 522 images) et mesure du réglage `--dr-screening` |
+| ISIC 2019 | Dermatologie, seconde indication : tête peau servie (DINOv2-B, seuils et contrôle qualité) ; PanDerm − DINOv2-L, AUROC macro +0,037 [+0,030 ; +0,043] sur le test ([résultats](docs/DERMATOLOGIE.md#résultats)) |
+| ISIC 2020 | Validation externe de la tête peau : AUROC mélanome 0,788 [0,765 ; 0,808], critère (≥ 0,80) non atteint |
+| PAD-UFES-20 | Photos de smartphone : la tête peau ne s'y transpose pas (AUROC macro −0,21) |
 | AI-Hub | Dépistage TSA depuis la rétine (à venir, accès à négocier) |
 
 Arbitrage des cas d'usage : [docs/USE_CASES.md](docs/USE_CASES.md).
