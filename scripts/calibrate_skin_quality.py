@@ -111,7 +111,9 @@ def main() -> None:
     false_alerts = float(flagged[:, 0].mean())
 
     artifact = torch.load(SKIN_HEAD, map_location="cpu", weights_only=True)
-    if artifact["checkpoint_sha256"] != file_fingerprint(args.checkpoint):
+    # Poids local ou poids Kaggle (vérifiés équivalents, cosinus médian 1,0 ; les deux sont dans la tête)
+    known = {artifact["checkpoint_sha256"], artifact.get("embeddings_checkpoint_sha256")}
+    if file_fingerprint(args.checkpoint) not in known:
         raise ValueError("tête peau calculée avec un autre DINOv2-B")
     backbone = DINOv2Backbone(args.checkpoint).eval()
     head = MultiLabelHead(backbone.embedding_dim, len(CLASS_NAMES))
