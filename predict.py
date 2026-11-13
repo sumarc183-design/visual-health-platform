@@ -24,8 +24,9 @@ Peau : tête `heads/isic2019_dinov2b_head.pt` (DINOv2-B, ISIC 2019, 8 classes) a
 `--thresholds results/decision_isic2019_dinov2b.json` (seuils choisis sur la validation
 ISIC ; `--policy sensitivity` : mélanome repéré à 94 % au test, VPP 0,32).
 Contrôle qualité propre à la peau (flou au centre de l'image, seuil calibré sur ISIC
-2019 ; `--reject-unusable` refuse les images floues). Dermoscopie uniquement : sur des photos de smartphone, elle perd 0,21 d'AUROC
-(PAD-UFES-20, docs/DERMATOLOGIE.md) ; le routeur ne sait pas faire ce tri.
+2019 ; `--reject-unusable` refuse les images floues). Dermoscopie uniquement : sur des
+photos de smartphone, elle perd 0,21 d'AUROC (PAD-UFES-20, docs/DERMATOLOGIE.md) ; le
+routeur ne sait pas faire ce tri.
 
 Contrôle du type d'image (actif par défaut depuis le 12 novembre, décision du tuteur) :
 le routeur de modalité vérifie que l'image ressemble au type de la tête (fond d'œil ou
