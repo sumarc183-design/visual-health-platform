@@ -28,8 +28,8 @@ transfert sur APTOS et EyePACS.
 - **Transfert de rétinopathie diabétique** : Green atteint une AUROC de
   **0,726 sur EyePACS**, contre 0,661 pour RETFound, avec les têtes RFMiD
   comparées dans l'expérience.
-- **Confirmation sur DDR** (12 nov., plan fixé avant calcul, 12 522 images jamais
-  vues) : Green **0,794** contre 0,654 pour RETFound, **+0,139 [+0,130 ; +0,149]** ;
+- **Confirmation sur DDR** (12 nov., plan fixé avant calcul ; **DDR fait partie du
+  pré-entraînement de Green**, voir la correction du 13 nov. plus bas) : Green **0,794** contre 0,654 pour RETFound, **+0,139 [+0,130 ; +0,149]** ;
   critère pré-enregistré **confirmé** ; encore +0,104 à résolution égale (exploratoire).
 
 [![Occlusion de RETFound et de RETFound-Green comparée aux masques d'experts, sur quatre images tirées au hasard](results/localization_examples.png)](#localisation-des-lésions)
@@ -66,7 +66,7 @@ Dépistage de la rétinopathie diabétique (tête Green RFMiD + EyePACS, seuil �
 python predict.py mon_fond_d_oeil.jpg --dr-screening
 ```
 
-Sur DDR, base jamais utilisée pour régler : 87 % des rétinopathies repérées (contre 27 %
+Sur DDR, base jamais utilisée pour régler (mais vue par Green pendant son pré-entraînement, mesure peut-être optimiste) : 87 % des rétinopathies repérées (contre 27 %
 avec la tête RFMiD), au prix d'une fausse alerte pour deux personnes saines environ.
 
 Green est le modèle par défaut depuis le 12 novembre (décision du tuteur) ; RETFound
@@ -202,6 +202,17 @@ résolution d'origine, têtes et seuils RFMiD inchangés :
 | À adresser (stade ≥ 2) | 0,668 | 0,811 | non calculée |
 | Tête entraînée dans la base (5 plis groupés) | 0,938 | 0,938 | +0,000 [−0,004 ; +0,004] |
 | Sensibilité au seuil « dépistage » (visée 0,90) | 0,10 | 0,27 | non calculée |
+
+**⚠ Correction (13 novembre 2026) : DDR n'est pas externe pour Green.** D'après son
+article (Engelmann et Bernabeu, *Nature Communications* 2025, méthodes et tableau S1),
+RETFound-Green a été pré-entraîné, sans étiquettes, sur trois bases publiques : AIROGS
+(sous-échantillon), **DDR en entier** et ODIR. RETFound ne l'a pas vue. La confirmation
+sur DDR est donc biaisée en faveur de Green et ne compte plus comme confirmation
+indépendante ; les mesures du dépistage sur DDR (`--dr-screening`) sont peut-être
+optimistes. Restent valables : EyePACS (inclus dans le pré-entraînement de RETFound, pas
+de Green : biais contre Green, qui gagne quand même) et APTOS (vu par aucun des deux, mais
+format lié au diagnostic ; +0,035 à format égal). Une nouvelle confirmation sur une base
+vue par aucun des deux modèles (IDRiD, Messidor-2 ou BRSET) est nécessaire.
 
 **Critère confirmé** (borne basse > 0 avec les deux regroupements). Le schéma
 d'EyePACS se reproduit : Green transfère bien mieux la tête RFMiD, mais, entraînés

@@ -5,6 +5,12 @@ selon [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Corrigé
+- DDR n'est pas une base externe pour RETFound-Green : son pré-entraînement (article,
+  tableau S1) inclut AIROGS, DDR en entier et ODIR. La confirmation sur DDR du 12 nov. est
+  biaisée en faveur de Green et les mesures du dépistage sur DDR peuvent être optimistes ;
+  documenté dans README, fiche modèle et feuille de route, confirmation à refaire.
+
 ### Ajouté
 - Tête peau sans les « unknown » d'ISIC 2020 (13 nov., plan fixé avant calcul) : sur
   MILK10k, mélanome −0,008, BCC −0,022, macro −0,005 face à la tête servie ; critère non

@@ -138,6 +138,10 @@ avec Green. Résultats détaillés :
   0,654 [0,644 ; 0,663] pour RETFound contre 0,794 [0,786 ; 0,802] pour RETFound-Green
   (+0,139 [+0,130 ; +0,149], critère fixé à l'avance confirmé) ; sensibilité au seuil
   « dépistage » 0,10 et 0,27. Entraînés dans DDR, les deux atteignent 0,938.
+  **Correction du 13 nov. :** DDR fait partie du pré-entraînement de Green (pas de
+  RETFound) ; cette confirmation est biaisée en faveur de Green et les mesures du
+  dépistage sur DDR peuvent être optimistes. Nouvelle confirmation à faire sur une base
+  vue par aucun des deux modèles.
 - **Dépistage (12 nov.)** : une tête Green apprise sur RFMiD + EyePACS, seuil choisi sur
   une validation EyePACS, atteint une sensibilité de 0,87 [0,86 ; 0,88] sur DDR
   (spécificité 0,52), contre 0,27 avec la tête RFMiD. Servie par `predict.py --dr-screening`

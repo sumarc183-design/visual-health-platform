@@ -58,7 +58,7 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
 
 - [x] Protocole de confirmation daté avant toute nouvelle lecture (audit du 6 nov.) : variantes figées, et lot de patients EyePACS encore jamais examinés. Les bases actuelles sont exploratoires.
   EyePACS limité à sa compétition : cohortes de remplacement comparées le 11 nov. (DDR proposée, BRSET en second ; [droits](DROITS_DONNEES.md#cohorte-de-confirmation--candidates-11-novembre-2026)).
-  Fait le 12 nov. sur DDR (plan du 11) : Green − RETFound +0,139 [+0,130 ; +0,149], confirmé ([README](../README.md#résultats)). BRSET reste possible en seconde confirmation.
+  Fait le 12 nov. sur DDR (plan du 11) : Green − RETFound +0,139 [+0,130 ; +0,149], confirmé ([README](../README.md#résultats)). BRSET reste possible en seconde confirmation. **13 nov. : DDR fait partie du pré-entraînement de Green, confirmation à refaire sur une base vue par aucun des deux modèles (IDRiD, Messidor-2, BRSET).**
 
 ## J90 — Modularité démontrée (30 janvier 2027)
 - [ ] Socle modulaire validé sur 2 modalités (rétine + dermato)
