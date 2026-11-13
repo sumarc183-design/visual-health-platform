@@ -70,6 +70,23 @@ def check_quality(image: np.ndarray, blur_threshold: float = 100.0) -> QualityRe
     return _report(compute_blur_score(image), blur_threshold, w, h)
 
 
+SKIN_ANALYSIS_SIZE = 512  # petit côté ramené à cette taille avant le calcul de flou
+SKIN_CENTER_FRACTION = 0.5  # carré central (côté = moitié du petit côté) : évite le vignettage du dermatoscope
+
+
+def skin_blur_score(image: Image.Image) -> float:
+    """Flou d'une image de peau : variance du Laplacien à échelle fixe (petit côté
+    SKIN_ANALYSIS_SIZE), dans le carré central, loin du bord noir circulaire de
+    nombreuses dermoscopies (son contour net gonflerait le score)."""
+    image = image.convert("RGB")
+    scale = SKIN_ANALYSIS_SIZE / min(image.size)
+    w, h = max(SKIN_ANALYSIS_SIZE, round(image.width * scale)), max(SKIN_ANALYSIS_SIZE, round(image.height * scale))
+    array = np.asarray(image.resize((w, h), Image.BILINEAR))
+    side = round(SKIN_ANALYSIS_SIZE * SKIN_CENTER_FRACTION)
+    top, left = (h - side) // 2, (w - side) // 2
+    return compute_blur_score(array[top : top + side, left : left + side])
+
+
 def retina_blur_mask(size: int = BLUR_ANALYSIS_SIZE) -> np.ndarray:
     """Intérieur du masque commun, sans son bord (cercle plus petit)."""
     yy, xx = np.mgrid[:size, :size]
