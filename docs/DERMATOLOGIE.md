@@ -318,6 +318,15 @@ cancer le plus fréquent de MILK10k), décision soumise au tuteur. À noter : su
 tête A dépasse déjà 0,80 pour le mélanome (0,842), contrairement à ISIC 2020. Routeur :
 aucune image envoyée en fond d'œil.
 
+**Contrôle de la cause : sans les « unknown » (13 novembre 2026)** : tête C apprise sur
+ISIC 2019 + les 6 000 images d'ISIC 2020 à diagnostic connu
+(`scripts/skin_transfer_labeled.py`, plan fixé avant calcul, deuxième utilisation de
+MILK10k, `results/skin_transfer_labeled.json`). Hypothèse **réfutée** : sur MILK10k,
+C − A donne mélanome −0,008 [−0,017 ; −0,000], BCC −0,022, NV −0,018, macro −0,005
+[−0,007 ; −0,002] ; critère non atteint. Le gain sur le mélanome venait justement des
+images « unknown », et la perte sur le BCC et les nævus demeure sans elles. Ajouter
+ISIC 2020 reste un compromis entre classes ; la tête A reste servie.
+
 **Pourquoi DINOv2-B et pas PanDerm**, meilleur de +0,046 d'AUROC macro : c'est le même
 modèle que le routeur de modalité (un seul calcul d'embedding par image), sous licence
 Apache 2.0 ; PanDerm (CC BY-NC-ND, 1,4 Go) reste l'option de recherche. Les données

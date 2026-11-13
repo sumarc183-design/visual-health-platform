@@ -6,6 +6,9 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Tête peau sans les « unknown » d'ISIC 2020 (13 nov., plan fixé avant calcul) : sur
+  MILK10k, mélanome −0,008, BCC −0,022, macro −0,005 face à la tête servie ; critère non
+  atteint, hypothèse réfutée. `scripts/skin_transfer_labeled.py`.
 - Tête peau ISIC 2019 + ISIC 2020, mesure sur MILK10k (13 nov., plan fixé avant
   téléchargement) : mélanome +0,017 [+0,008 ; +0,025] (critère atteint) et SCC +0,038,
   mais BCC −0,025, NV −0,039, macro −0,007. Remplacement de la tête servie suspendu à la
