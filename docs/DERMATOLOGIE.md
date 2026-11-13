@@ -234,8 +234,28 @@ centre (validation croisée optimiste).
 `heads/isic2019_dinov2b_head.pt` : DINOv2-B figé, même tête et mêmes réglages que
 l'analyse du 9 novembre, entraînée sur le découpage d'entraînement d'ISIC 2019
 (`scripts/save_skin_head.py`). Elle redonne les scores archivés de validation et de test
-à 2×10⁻⁷ près : aucune nouvelle mesure. Utilisable dans `predict.py` (probabilités
-seules ; aucun seuil n'a été choisi pour la peau).
+à 2×10⁻⁷ près : aucune nouvelle mesure. Utilisable dans `predict.py`.
+
+**Seuils (13 novembre 2026)** : choisis sur la validation ISIC 2019 et appliqués une seule
+fois au test (`scripts/skin_decision_thresholds.py`, plan fixé avant calcul,
+`results/decision_isic2019_dinov2b.json`, liés à la tête). Au test (même source que
+l'apprentissage, pas de validation externe en dermoscopie) :
+
+| Classe | F1 : sensibilité / spécificité / VPP | Dépistage : sensibilité / spécificité / VPP |
+|---|---|---|
+| MEL (mélanome) | 0,75 / 0,84 / 0,56 | 0,94 / 0,45 / 0,32 |
+| BCC | 0,69 / 0,89 / 0,54 | 0,85 / 0,79 / 0,43 |
+| SCC | 0,27 / 0,99 / 0,38 | 0,93 / 0,50 / 0,05 |
+| NV | 0,83 / 0,85 / 0,79 | 0,83 / 0,85 / 0,79 |
+| AK | 0,17 / 0,98 / 0,33 | 0,87 / 0,68 / 0,15 |
+| BKL | 0,37 / 0,92 / 0,37 | 0,87 / 0,46 / 0,16 |
+| DF | 0,25 / 1,00 / 0,79 | 0,89 / 0,78 / 0,06 |
+| VASC | 0,26 / 0,99 / 0,39 | 0,87 / 0,71 / 0,05 |
+
+Lecture : en dépistage, 94 % des mélanomes sont signalés, mais seuls 32 % des
+signalements sont des mélanomes. Pour les classes rares (SCC, DF, VASC), le seuil F1 en
+rate la plupart et le seuil dépistage donne surtout des fausses alertes (VPP ≤ 0,06) :
+ces décisions ne sont utiles qu'en tri vers un dermatologue.
 
 **Pourquoi DINOv2-B et pas PanDerm**, meilleur de +0,046 d'AUROC macro : c'est le même
 modèle que le routeur de modalité (un seul calcul d'embedding par image), sous licence

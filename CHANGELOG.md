@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Seuils de la tête peau (13 nov., plan fixé avant calcul) : choisis sur la validation
+  ISIC 2019, liés à la tête (`results/decision_isic2019_dinov2b.json`) ; au test,
+  mélanome 0,75 de sensibilité (F1) ou 0,94 (dépistage, VPP 0,32).
+  `scripts/skin_decision_thresholds.py`.
 - Dépistage RD, fausses alertes (13 nov., plan fixé avant calcul) : RETFound, fusion et
   moyenne Green + RETFound ne réduisent pas les fausses alertes sur DDR. La moyenne,
   sélectionnée en validation EyePACS (spécificité 0,41 contre 0,34), donne sur DDR un écart

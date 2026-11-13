@@ -354,15 +354,16 @@ python scripts/save_dr_screening_head.py --rfmid-root data/raw/rfmid --embedding
 python predict.py image1.jpg --dr-screening
 ```
 
-Peau (dermoscopie, 8 classes ISIC 2019, probabilités seules, sans seuil ni contrôle
-qualité ; tête DINOv2-B enregistrée par `scripts/save_skin_head.py`, qui vérifie
+Peau (dermoscopie, 8 classes ISIC 2019, sans contrôle qualité ; seuils choisis sur la
+validation ISIC par `scripts/skin_decision_thresholds.py` ; tête DINOv2-B enregistrée par `scripts/save_skin_head.py`, qui vérifie
 qu'elle redonne les scores de l'analyse du 9 novembre). Le routeur, actif par défaut,
 avertit si l'image ne ressemble pas au type de la tête (`--no-modality-check` pour le
 désactiver) :
 
 ```bash
 python predict.py lesion.jpg --head heads/isic2019_dinov2b_head.pt \
-    --checkpoint third_party/dinov2/dinov2_vitb14_timm.pth
+    --checkpoint third_party/dinov2/dinov2_vitb14_timm.pth \
+    --thresholds results/decision_isic2019_dinov2b.json --policy sensitivity
 ```
 
 Même chaîne que l'entraînement (`src/pipeline/inference.py`, testé pour
