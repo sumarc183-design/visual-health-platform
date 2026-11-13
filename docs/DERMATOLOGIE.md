@@ -257,6 +257,17 @@ signalements sont des mélanomes. Pour les classes rares (SCC, DF, VASC), le seu
 rate la plupart et le seuil dépistage donne surtout des fausses alertes (VPP ≤ 0,06) :
 ces décisions ne sont utiles qu'en tri vers un dermatologue.
 
+**Contrôle qualité (13 novembre 2026)** : flou mesuré au centre de l'image (variance du
+Laplacien, petit côté ramené à 512 px, carré central de 256 px pour éviter le bord noir du
+dermatoscope), seuil au 2e percentile de l'apprentissage ISIC 2019 (6,33 ;
+`scripts/calibrate_skin_quality.py`, plan fixé avant calcul,
+`results/skin_quality_calibration.json`). Sur 500 images du test : 3,2 % d'images
+d'origine signalées, 98,6 % / 100 % / 100 % des images floutées à sigma 2 / 4 / 8 px
+détectées : critère atteint (≥ 0,80 à sigma 4, fausses alertes ≤ 5 %). Le flou sigma 4
+fait perdre à la tête de 0,02 (NV) à 0,10 (AK) d'AUROC, 0,05 pour le mélanome
+(0,890 → 0,841) : le contrôle est actif dans `predict.py` pour la peau (avertissement ;
+refus avec `--reject-unusable`). Limites : flou synthétique, exposition non contrôlée.
+
 **Pourquoi DINOv2-B et pas PanDerm**, meilleur de +0,046 d'AUROC macro : c'est le même
 modèle que le routeur de modalité (un seul calcul d'embedding par image), sous licence
 Apache 2.0 ; PanDerm (CC BY-NC-ND, 1,4 Go) reste l'option de recherche. Les données

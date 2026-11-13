@@ -31,7 +31,12 @@ from src.models.embedding_cache import file_fingerprint
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone
 from src.models.retfound_green import RETFoundGreenBackbone
 from src.models.timm_backbones import DINOv2Backbone
-from src.pipeline.quality_control import DEFAULT_BLUR_THRESHOLD, check_fundus_file
+from src.pipeline.quality_control import (
+    DEFAULT_BLUR_THRESHOLD,
+    DEFAULT_SKIN_BLUR_THRESHOLD,
+    check_fundus_file,
+    check_skin_file,
+)
 
 THRESHOLD_POLICIES = ("f1", "sensitivity")
 BACKBONES = ("retfound", "green", "dinov2")
@@ -123,7 +128,7 @@ class Predictor:
         policy: str = "f1",
         device: str = "cpu",
         trust_checkpoint: bool | None = None,
-        blur_threshold: float = DEFAULT_BLUR_THRESHOLD,
+        blur_threshold: float | None = None,
         allow_unverified_thresholds: bool = False,
     ):
         head_ckpt = torch.load(head_path, map_location="cpu", weights_only=True)
@@ -134,8 +139,10 @@ class Predictor:
         self.image_size = head_ckpt["image_size"]
         self.preprocess = head_ckpt.get("preprocess", "none")
         self.modality = head_ckpt.get("modality", "fundus")
-        self.device = device
+        if blur_threshold is None:  # seuil calibré pour le type d'image de la tête
+            blur_threshold = DEFAULT_SKIN_BLUR_THRESHOLD if self.modality == "dermoscopy" else DEFAULT_BLUR_THRESHOLD
         self.blur_threshold = blur_threshold
+        self.device = device
         self.warnings: list[str] = []
 
         expected_version = head_ckpt.get("preprocess_version")
@@ -196,10 +203,9 @@ class Predictor:
     def predict(self, image_path: str | Path, reject_unusable: bool = False) -> Prediction:
         """Contrôle qualité d'abord ; avec `reject_unusable`, une image qui
         échoue n'est pas passée dans le modèle (`rejected`, aucune décision).
-        Peau : pas de contrôle qualité (non conçu pour ces images)."""
-        if self.modality == "dermoscopy":
-            return self._decide(image_path, {"checked": False}, list(self.warnings))
-        report = check_fundus_file(image_path, blur_threshold=self.blur_threshold)
+        Peau : contrôle propre à la peau (flou au centre, résolution)."""
+        check = check_skin_file if self.modality == "dermoscopy" else check_fundus_file
+        report = check(image_path, blur_threshold=self.blur_threshold)
         quality = {"usable": report.is_usable, "blur_score": report.blur_score, "reasons": report.reasons}
         warnings = list(self.warnings)
         if not report.is_usable:

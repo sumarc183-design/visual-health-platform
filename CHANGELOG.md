@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Contrôle qualité de la peau (13 nov., plan fixé avant calcul) : flou au centre de
+  l'image, seuil 6,33 (2e percentile ISIC 2019) ; 100 % du flou sigma 4 détecté, 3,2 % de
+  fausses alertes ; actif dans `predict.py` pour la peau. Le flou coûte 0,05 d'AUROC au
+  mélanome. `scripts/calibrate_skin_quality.py`, `check_skin_file`.
 - Seuils de la tête peau (13 nov., plan fixé avant calcul) : choisis sur la validation
   ISIC 2019, liés à la tête (`results/decision_isic2019_dinov2b.json`) ; au test,
   mélanome 0,75 de sensibilité (F1) ou 0,94 (dépistage, VPP 0,32).

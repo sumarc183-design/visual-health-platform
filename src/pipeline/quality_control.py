@@ -35,6 +35,9 @@ MIN_RESOLUTION = 224  # entrée de RETFound
 BLUR_ANALYSIS_SIZE = 512  # échelle fixe du calcul de flou
 BLUR_MASK_MARGIN = 0.9  # rayon du masque de flou / rayon du masque commun : écarte le bord du disque
 DEFAULT_BLUR_THRESHOLD = 4.16  # calibré : voir l'en-tête et results/quality_calibration.json
+# Peau : 2e percentile sur l'apprentissage ISIC 2019 (13 nov., scripts/calibrate_skin_quality.py,
+# results/skin_quality_calibration.json) : 100 % du flou sigma 4 détecté, 3,2 % de fausses alertes.
+DEFAULT_SKIN_BLUR_THRESHOLD = 6.33
 
 
 @dataclass
@@ -85,6 +88,13 @@ def skin_blur_score(image: Image.Image) -> float:
     side = round(SKIN_ANALYSIS_SIZE * SKIN_CENTER_FRACTION)
     top, left = (h - side) // 2, (w - side) // 2
     return compute_blur_score(array[top : top + side, left : left + side])
+
+
+def check_skin_file(path: str | Path, blur_threshold: float = DEFAULT_SKIN_BLUR_THRESHOLD) -> QualityReport:
+    """Contrôle d'un fichier de peau d'origine : résolution d'origine et flou
+    (`skin_blur_score`)."""
+    image = Image.open(path).convert("RGB")
+    return _report(skin_blur_score(image), blur_threshold, image.width, image.height)
 
 
 def retina_blur_mask(size: int = BLUR_ANALYSIS_SIZE) -> np.ndarray:

@@ -58,7 +58,7 @@ def skin(tmp_path, monkeypatch):
     return {"head": head, "head_path": head_path, "checkpoint": checkpoint, "image": image}
 
 
-def test_skin_head_uses_skin_preprocessing_and_skips_fundus_quality(skin, monkeypatch):
+def test_skin_head_uses_skin_preprocessing_and_skin_quality(skin, monkeypatch):
     def forbidden(*args, **kwargs):
         raise AssertionError("contrôle qualité fond d'œil appelé sur une image de peau")
 
@@ -66,7 +66,8 @@ def test_skin_head_uses_skin_preprocessing_and_skips_fundus_quality(skin, monkey
     predictor = inference.Predictor(skin["head_path"], skin["checkpoint"])
     assert predictor.modality == "dermoscopy"
     prediction = predictor.predict(skin["image"])
-    assert prediction.quality == {"checked": False} and not prediction.rejected
+    assert prediction.quality["usable"] and not prediction.rejected
+    assert predictor.blur_threshold == inference.DEFAULT_SKIN_BLUR_THRESHOLD
     x = load_skin_image(skin["image"], 224).unsqueeze(0)
     expected = torch.sigmoid(skin["head"](FakeDINOv2(None)((x - inference.IMAGENET_MEAN) / inference.IMAGENET_STD)))[0]
     got = [prediction.findings[c]["probability"] for c in CLASS_NAMES]
@@ -92,5 +93,16 @@ def test_cli_prints_probabilities_without_thresholds(skin, monkeypatch, capsys, 
     predict.main()
     assert "probabilité seule (pas de seuil)" in capsys.readouterr().out
     result = json.loads(out.read_text())[0]
-    assert result["quality"] == {"checked": False}
+    assert result["quality"]["usable"]
     assert any("Type d'image non vérifié" in w for w in result["warnings"])  # contrôle actif par défaut
+
+
+def test_blurred_skin_image_is_flagged_and_can_be_rejected(skin, tmp_path):
+    from PIL import ImageFilter
+
+    blurry = tmp_path / "floue.png"
+    Image.open(skin["image"]).filter(ImageFilter.GaussianBlur(8)).save(blurry)
+    predictor = inference.Predictor(skin["head_path"], skin["checkpoint"])
+    flagged = predictor.predict(blurry)
+    assert not flagged.quality["usable"] and any("flou" in w for w in flagged.warnings)
+    assert predictor.predict(blurry, reject_unusable=True).rejected

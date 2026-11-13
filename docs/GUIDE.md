@@ -354,7 +354,8 @@ python scripts/save_dr_screening_head.py --rfmid-root data/raw/rfmid --embedding
 python predict.py image1.jpg --dr-screening
 ```
 
-Peau (dermoscopie, 8 classes ISIC 2019, sans contrôle qualité ; seuils choisis sur la
+Peau (dermoscopie, 8 classes ISIC 2019 ; contrôle de flou propre à la peau, calibré par
+`scripts/calibrate_skin_quality.py` ; seuils choisis sur la
 validation ISIC par `scripts/skin_decision_thresholds.py` ; tête DINOv2-B enregistrée par `scripts/save_skin_head.py`, qui vérifie
 qu'elle redonne les scores de l'analyse du 9 novembre). Le routeur, actif par défaut,
 avertit si l'image ne ressemble pas au type de la tête (`--no-modality-check` pour le

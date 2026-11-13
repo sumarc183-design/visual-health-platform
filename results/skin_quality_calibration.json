@@ -1,0 +1,60 @@
+{
+ "run": {
+  "git_commit": "fc86532",
+  "python": "3.12.7",
+  "versions": {
+   "numpy": "1.26.4",
+   "scikit-learn": "1.9.1",
+   "torch": "2.2.2",
+   "timm": "1.0.31"
+  }
+ },
+ "plan": "fixé le 13 novembre 2026 avant tout calcul (docstring du script)",
+ "train_images": 21712,
+ "threshold": 6.327970072650351,
+ "threshold_rule": "2e percentile du score sur l'apprentissage ISIC 2019",
+ "test_sample": 500,
+ "false_alerts": 0.032,
+ "detection_by_sigma": {
+  "2": 0.986,
+  "4": 1.0,
+  "8": 1.0
+ },
+ "criterion": {
+  "detection_sigma4": 1.0,
+  "false_alerts": 0.032,
+  "met": true
+ },
+ "head_auroc_effect": {
+  "MEL": {
+   "positives": 121,
+   "original": 0.8899452670141085,
+   "blur_sigma4": 0.8405329379184021
+  },
+  "NV": {
+   "positives": 199,
+   "original": 0.9182290188483948,
+   "blur_sigma4": 0.8982787692615904
+  },
+  "BCC": {
+   "positives": 76,
+   "original": 0.9041708043694141,
+   "blur_sigma4": 0.8788170307845085
+  },
+  "AK": {
+   "positives": 31,
+   "original": 0.8334823577962721,
+   "blur_sigma4": 0.7277666964715592
+  },
+  "BKL": {
+   "positives": 54,
+   "original": 0.788863976083707,
+   "blur_sigma4": 0.750539777445607
+  },
+  "SCC": {
+   "positives": 10,
+   "original": 0.9522448979591837,
+   "blur_sigma4": 0.9022448979591837
+  }
+ }
+}
