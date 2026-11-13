@@ -100,9 +100,11 @@ def idrid_table(root: Path) -> pd.DataFrame:
         df = pd.read_csv(base / "2. Groundtruths" / labels).iloc[:, :2]
         df.columns = ["name", "grade"]
         df["path"] = [base / "1. Original Images" / images / f"{n}.jpg" for n in df["name"]]
+        df["key"] = f"idrid/{images[:1]}/" + df["name"]  # mêmes noms dans les deux découpages
         frames.append(df)
     df = pd.concat(frames, ignore_index=True)
-    df["key"] = "idrid/" + df["name"]
+    if df["key"].duplicated().any():
+        raise ValueError("clés IDRiD en double")
     df["group"] = df["key"]
     return df[["key", "path", "grade", "group"]]
 
