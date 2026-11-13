@@ -6,6 +6,12 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Dépistage RD, fausses alertes (13 nov., plan fixé avant calcul) : RETFound, fusion et
+  moyenne Green + RETFound ne réduisent pas les fausses alertes sur DDR. La moyenne,
+  sélectionnée en validation EyePACS (spécificité 0,41 contre 0,34), donne sur DDR un écart
+  de spécificité de −0,008 [−0,020 ; +0,006] : critère non atteint, la tête Green servie
+  reste. RETFound seul est moins bon partout (AUROC DDR 0,741 contre 0,833).
+  `scripts/dr_screening_specificity.py`.
 - `predict.py --dr-screening` : réglage dépistage RD (tête Green RFMiD + EyePACS et son
   seuil, politique sensitivity), enregistré par `scripts/save_dr_screening_head.py`, qui
   vérifie qu'il redonne exactement le seuil et les mesures sur DDR de l'analyse.

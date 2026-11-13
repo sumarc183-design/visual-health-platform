@@ -142,6 +142,9 @@ avec Green. Résultats détaillés :
   une validation EyePACS, atteint une sensibilité de 0,87 [0,86 ; 0,88] sur DDR
   (spécificité 0,52), contre 0,27 avec la tête RFMiD. Servie par `predict.py --dr-screening`
   (`heads/dr_screening_green_head.pt`, `results/decision_dr_screening.json`).
+  Réduire les fausses alertes en ajoutant RETFound (fusion ou moyenne des scores) ne
+  marche pas : écart de spécificité sur DDR −0,008 [−0,020 ; +0,006] pour le candidat
+  sélectionné en validation (13 nov., `results/dr_screening_specificity.json`).
 - **Localisation (IDRiD, 81 images) : les cartes d'occlusion ne prouvent pas que
   RETFound regarde les lésions** (0,598, +0,016 [−0,004 ; +0,039] par rapport à la
   seule position), et elles recouvrent davantage le disque optique. Green les suit
