@@ -194,6 +194,7 @@ Détails et chiffres : [DERMATOLOGIE.md](DERMATOLOGIE.md).
 | Seuils (validation ISIC 2019) | mélanome au test : sensibilité 0,75 / VPP 0,56 (F1), 0,94 / 0,32 (dépistage) |
 | Contrôle qualité | flou au centre de l'image : 100 % du flou σ 4 repéré, 3,2 % de fausses alertes |
 | **ISIC 2020 (externe)** | **mélanome 0,788 [0,765 ; 0,808]** : critère (≥ 0,80) non atteint ; pas dû au format 256 × 256 de la version Kaggle (contrôle : écart +0,000) |
+| MILK10k (externe, 2025) | mélanome 0,842 [0,821 ; 0,862] ; une tête apprise aussi sur ISIC 2020 gagne +0,017 sur le mélanome mais perd sur le BCC et les nævus (décision du tuteur attendue) |
 | PAD-UFES-20 (photos de smartphone) | AUROC macro −0,21 par rapport à une tête apprise sur place |
 
 Limites : dermoscopie seulement (le routeur ne distingue pas photo et dermoscopie, le type

@@ -6,6 +6,11 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- Tête peau ISIC 2019 + ISIC 2020, mesure sur MILK10k (13 nov., plan fixé avant
+  téléchargement) : mélanome +0,017 [+0,008 ; +0,025] (critère atteint) et SCC +0,038,
+  mais BCC −0,025, NV −0,039, macro −0,007. Remplacement de la tête servie suspendu à la
+  décision du tuteur. Tête actuelle sur MILK10k : mélanome 0,842.
+  `scripts/skin_transfer_milk10k.py`.
 - Contrôle du format ISIC 2020 (13 nov., plan fixé avant calcul) : écraser les images en
   256 × 256 ne change pas l'AUROC du mélanome sur le test ISIC 2019 (+0,000
   [−0,007 ; +0,007]) ; la baisse sur ISIC 2020 n'est pas un artefact de format.

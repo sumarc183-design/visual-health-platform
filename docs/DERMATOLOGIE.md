@@ -295,6 +295,29 @@ comme la version Kaggle ne change pas l'AUROC du mélanome : 0,869 dans les deux
 ISIC 2020 est un vrai défaut de transfert (autres patients, autre période), pas un
 artefact de format.
 
+**Apprendre aussi sur ISIC 2020, mesure sur MILK10k (13 novembre 2026)** : tête B
+apprise sur ISIC 2019 + ISIC 2020, comparée à la tête servie A, sur les 5 240 dermoscopies
+de MILK10k (2025, 96 % confirmées par histologie, jamais utilisées ; aucun quasi-doublon).
+Plan fixé avant téléchargement (`scripts/skin_transfer_milk10k.py`,
+`results/skin_transfer_milk10k.json`).
+
+| MILK10k | A (ISIC 2019) | B (+ ISIC 2020) | B − A [IC 95 %] |
+|---|---|---|---|
+| **Mélanome (critère)** | 0,842 [0,821 ; 0,862] | 0,859 [0,838 ; 0,878] | **+0,017 [+0,008 ; +0,025]** |
+| Carcinome épidermoïde (SCC) | | | +0,038 [+0,026 ; +0,051] |
+| Carcinome basocellulaire (BCC) | | | −0,025 [−0,028 ; −0,021] |
+| Nævus (NV) | | | −0,039 [−0,047 ; −0,032] |
+| Macro, 8 classes | | | −0,007 [−0,012 ; −0,003] |
+
+Critère atteint pour le mélanome, mais au prix des autres classes : BCC, NV, BKL et DF
+reculent, et le macro baisse aussi au test ISIC 2019 (−0,007 [−0,010 ; −0,003] ; mélanome
++0,002 [−0,003 ; +0,007]). Cause probable : les 27 124 images « unknown » d'ISIC 2020,
+apprises comme négatives pour toutes les classes. Le remplacement prévu au plan n'est pas
+appliqué : il échange un gain sur le mélanome et le SCC contre une perte sur le BCC (le
+cancer le plus fréquent de MILK10k), décision soumise au tuteur. À noter : sur MILK10k, la
+tête A dépasse déjà 0,80 pour le mélanome (0,842), contrairement à ISIC 2020. Routeur :
+aucune image envoyée en fond d'œil.
+
 **Pourquoi DINOv2-B et pas PanDerm**, meilleur de +0,046 d'AUROC macro : c'est le même
 modèle que le routeur de modalité (un seul calcul d'embedding par image), sous licence
 Apache 2.0 ; PanDerm (CC BY-NC-ND, 1,4 Go) reste l'option de recherche. Les données
