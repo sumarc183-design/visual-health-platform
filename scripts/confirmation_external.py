@@ -53,6 +53,7 @@ Exemple :
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 import time
@@ -192,6 +193,11 @@ def screening(y: np.ndarray, p: np.ndarray, threshold: float, groups: list[str],
     }
 
 
+def file_fingerprint_text(text: str) -> str:
+    """Empreinte courte d'une liste ordonnée (clés et groupes) : détecte une permutation ou un ajout."""
+    return hashlib.sha256(text.encode()).hexdigest()[:16]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dataset", choices=["messidor2", "idrid"], required=True)
@@ -199,8 +205,12 @@ def main() -> None:
     parser.add_argument("--rfmid-root", type=Path, required=True)
     parser.add_argument("--embeddings", type=Path, default=Path("embeddings"))
     parser.add_argument("--out", type=Path, default=None)
+    parser.add_argument(
+        "--snapshot", type=Path, default=None, help="instantané local (scores, clés, groupes), non versionné"
+    )
     args = parser.parse_args()
     out = args.out or Path(f"results/confirmation_{args.dataset}.json")
+    snapshot = args.snapshot or Path(f"results/confirmation_{args.dataset}.npz")
 
     table = idrid_table(args.root) if args.dataset == "idrid" else messidor_table(args.root)
     grade = table["grade"].to_numpy()
@@ -252,8 +262,26 @@ def main() -> None:
             "met": bool(report["dr_screening"]["sensitivity_ci"][0] >= CRITERION_SENSITIVITY),
         },
     }
+    report["inputs"] = {
+        "annotations_fingerprint": {
+            p.name: file_fingerprint(p) for p in sorted(args.root.rglob("*.csv")) if "IMAGES" not in p.parts
+        },
+        "images_list_fingerprint": file_fingerprint_text(
+            "\n".join(f"{k}\t{g}" for k, g in zip(table["key"], groups, strict=True))
+        ),
+    }
+    report["local_snapshot"] = f"{snapshot.name} (clés, groupes, stades, scores ; local, non versionné)"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=1, ensure_ascii=False, allow_nan=False))
+    np.savez(
+        snapshot,
+        keys=table["key"].to_numpy(str),
+        groups=np.array(groups),
+        grade=grade,
+        p_retfound=transfer["retfound"],
+        p_green=transfer["green"],
+        p_dr_screening=p_screen,
+    )
     print({k: report[k] for k in ("dataset", "images", "groups", "by_grade")})
     for model, m in report["models"].items():
         print(f"{model:8s} AUROC toute RD {m['auroc_any_dr']}, à adresser {m['auroc_referable']['auroc']:.3f}")

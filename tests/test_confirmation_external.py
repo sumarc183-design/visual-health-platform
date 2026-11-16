@@ -57,3 +57,10 @@ def test_messidor_table_refuses_ambiguous_file_names(tmp_path):
     ).to_csv(tmp_path / "messidor_data.csv", index=False)
     with pytest.raises(ValueError, match="ambigu"):
         messidor_table(tmp_path)
+
+
+def test_images_list_fingerprint_detects_permutation():
+    from scripts.confirmation_external import file_fingerprint_text
+
+    assert file_fingerprint_text("a\t1\nb\t2") != file_fingerprint_text("b\t2\na\t1")
+    assert len(file_fingerprint_text("a\t1")) == 16
