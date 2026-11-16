@@ -110,7 +110,7 @@ def main() -> None:
         report["criterion"]["duplicate_groups"]["confirmed"] and report["criterion"]["time_groups"]["confirmed"]
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
     np.savez_compressed(args.out.with_suffix(".npz"), **archive)
     for model, m in report["ddr"]["models"].items():
         t, s = m["transfer_any_dr"], m["screening_threshold"]["any_dr"]

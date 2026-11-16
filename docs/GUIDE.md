@@ -519,11 +519,17 @@ Dans PowerShell, après avoir installé [Python 3.12](https://www.python.org/dow
 ```powershell
 git clone https://github.com/sumarc183-design/visual-health-platform.git
 cd visual-health-platform
+[Environment]::SetEnvironmentVariable('PYTHONUTF8', '1', 'User')   # une fois, puis rouvrir le terminal
 python -m venv .venv
 .venv\Scripts\Activate.ps1     # si refusé : Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 pip install -r requirements-dev.txt
 pytest -m "not slow"
 ```
+
+`PYTHONUTF8=1` : sans lui, Python écrit la console en cp1252 sous Windows et les scripts
+s'arrêtent sur « − » ou « ≥ » quand la sortie est redirigée (`> log.txt`, `| tee`). Les
+fichiers, eux, sont toujours lus et écrits en UTF-8 (`encoding="utf-8"` imposé par la
+règle ruff `PLW1514`) et en fins de ligne LF (`.gitattributes`).
 
 Puis recopier depuis le disque externe les éléments hors Git du tableau ci-dessus
 (`data/raw/`, `embeddings*/`, `third_party/`, résultats ignorés, `docs/AUDIT.md`,

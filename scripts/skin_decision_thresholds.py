@@ -95,7 +95,7 @@ def main() -> None:
     )
     report["summary"] = summarize(report)
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False, allow_nan=False))
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False, allow_nan=False), encoding="utf-8")
     print(f"Tête vérifiée (écart max {max(gaps.values()):.1e})")
     for name, entry in report["classes"].items():
         if entry["insufficient_evidence"]:

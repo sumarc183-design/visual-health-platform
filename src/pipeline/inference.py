@@ -87,7 +87,7 @@ def load_thresholds(
     Renvoie (seuils, compatibilité vérifiée)."""
     if policy not in THRESHOLD_POLICIES:
         raise ValueError(f"politique de seuil {policy!r} inconnue, choisir parmi {THRESHOLD_POLICIES}")
-    report = json.loads(Path(path).read_text())
+    report = json.loads(Path(path).read_text(encoding="utf-8"))
     classes = report["classes"]
     if list(classes) != list(class_names):
         raise ValueError(

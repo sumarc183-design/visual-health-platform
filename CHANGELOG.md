@@ -6,6 +6,11 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Corrigé
+- Passage sous Windows (16 nov.) : les 105 lectures/écritures de fichiers texte sans
+  `encoding=` (dont les seuils lus par `predict.py`) passent en UTF-8 explicite ; Windows
+  prenait cp1252 et pouvait planter sur « − » ou abîmer les accents des JSON. Règle ruff
+  `PLW1514` pour l'imposer, `.gitattributes` (fins de ligne LF), `PYTHONUTF8=1` dans le
+  GUIDE pour la console. Test IDRiD rendu indépendant du séparateur de chemin (`bc11964`).
 - Audit du 15 nov., constats 5 (reste) et 10 : le seuil qualité DeepDRiD vérifie que la
   relecture et le manifeste n'ont pas changé depuis le run principal, et les prochaines
   archives gardent les clés (`f80663c`). Notebooks : installation `pip` vérifiée (arrêt si

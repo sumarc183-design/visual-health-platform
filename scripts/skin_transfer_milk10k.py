@@ -202,7 +202,7 @@ def main() -> None:
         report["router"][name] = {"all": rates(decisions), "criterion_safe": to_fundus(decisions)}
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
     print(report["milk10k"])
     print("Mélanome A :", report["head_a"]["melanoma"], "| B :", report["head_b"]["melanoma"])
     print("B − A :", diff["MEL"], "| macro :", diff["macro"], "| critère :", report["criterion"]["met"])

@@ -233,9 +233,9 @@ def main() -> None:
     # Les tirages contiennent des identifiants APTOS (règlement Kaggle) : fichier local
     # séparé, ignoré par git ; le rapport versionné ne garde que les agrégats.
     draws_path = args.out.with_name(args.out.stem + "_draws.json")
-    draws_path.write_text(json.dumps(result.pop("few_shot_draws"), ensure_ascii=False))
+    draws_path.write_text(json.dumps(result.pop("few_shot_draws"), ensure_ascii=False), encoding="utf-8")
     result["few_shot_draws_file"] = f"{draws_path.name} (local, non versionné)"
-    args.out.write_text(json.dumps(result, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(result, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"Résultats : {args.out} ; tirages : {draws_path}")
 
 

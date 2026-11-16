@@ -47,7 +47,7 @@ def main() -> None:
     parser.add_argument("--results", type=Path, default=Path("results"))
     args = parser.parse_args()
 
-    original = json.loads((args.results / f"operating_points_odir_{args.variant}.json").read_text())
+    original = json.loads((args.results / f"operating_points_odir_{args.variant}.json").read_text(encoding="utf-8"))
     test = load(args.results / f"pred_odir_{args.variant}_test.npz")
     classes = [str(c) for c in test["class_names"]]
     groups = [odir_patient(str(k)) for k in test["keys"]]
@@ -92,7 +92,7 @@ def main() -> None:
         report["classes"][name] = points
 
     out = args.results / f"operating_points_odir_{args.variant}_grouped_ci.json"
-    out.write_text(json.dumps(report, indent=2, ensure_ascii=False, allow_nan=False) + "\n")
+    out.write_text(json.dumps(report, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
     for name, points in report["classes"].items():
         q = points[1]  # sensibilité visée 0,90
         print(

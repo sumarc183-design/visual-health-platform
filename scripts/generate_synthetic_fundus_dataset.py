@@ -62,7 +62,7 @@ def generate_dataset(out_dir: str, dataset: str, num_images: int, image_size: in
         rows.append([image_id] + labels.tolist())
 
     labels_path = os.path.join(out_dir, "labels.csv")
-    with open(labels_path, "w", newline="") as f:
+    with open(labels_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["ID"] + classes)
         writer.writerows(rows)

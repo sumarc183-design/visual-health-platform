@@ -157,7 +157,7 @@ def main() -> None:
         "rows": rows,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(summary, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(summary, indent=1, ensure_ascii=False), encoding="utf-8")
     print(
         f"Base (30 epochs) : {baseline['auroc_val']:.4f} | meilleur : {best['auroc_val']:.4f} "
         f"({best['mode']} {best['strength']:g}, pos_weight={best['pos_weight']}, std={best['standardize']}, "

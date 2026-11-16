@@ -89,7 +89,7 @@ def main() -> None:
     threshold = choose_threshold(y_eye[held], p_val, "sensitivity", TARGET)
     ddr_metrics = decision_metrics(y_ddr, p_ddr, threshold)
 
-    archived = json.loads(args.reference.read_text())["heads"]["rfmid_eyepacs"]
+    archived = json.loads(args.reference.read_text(encoding="utf-8"))["heads"]["rfmid_eyepacs"]
     checks = {
         "threshold": abs(threshold - archived["eyepacs_validation"]["threshold"]),
         "ddr_sensitivity": abs(ddr_metrics["sensitivity"] - archived["ddr"]["sensitivity"]),
@@ -139,7 +139,7 @@ def main() -> None:
             }
         },
     }
-    args.thresholds_out.write_text(json.dumps(report, indent=1, ensure_ascii=False, allow_nan=False))
+    args.thresholds_out.write_text(json.dumps(report, indent=1, ensure_ascii=False, allow_nan=False), encoding="utf-8")
     print(
         f"seuil {threshold:.4f} ; DDR sensibilité {ddr_metrics['sensitivity']:.3f}, "
         f"spécificité {ddr_metrics['specificity']:.3f}"

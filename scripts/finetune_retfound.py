@@ -97,7 +97,9 @@ def save_predictions(path: Path, keys, groups, y, probs, class_names) -> None:
 
 
 def write_report(out_dir: Path, report: dict) -> None:
-    (out_dir / "finetune_rfmid.json").write_text(json.dumps(report, indent=1, ensure_ascii=False, default=str))
+    (out_dir / "finetune_rfmid.json").write_text(
+        json.dumps(report, indent=1, ensure_ascii=False, default=str), encoding="utf-8"
+    )
 
 
 def external_sets(args) -> dict:
@@ -154,7 +156,7 @@ def external_only(args) -> None:
     model = PartialFinetune(vit, len(artifact["class_names"]), artifact["trainable_blocks"])
     model = load_finetuned_state(model, artifact).to(args.device)
     report_path = args.out_dir / "finetune_rfmid.json"
-    report = json.loads(report_path.read_text()) if report_path.exists() else {}
+    report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.exists() else {}
     external_run = run_info()
     for name, (dataset_cls, root) in external_sets(args).items():
         evaluate_external(model, list(artifact["class_names"]), name, dataset_cls, root, args, report)

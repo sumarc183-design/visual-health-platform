@@ -57,7 +57,7 @@ def rates(y: np.ndarray, flags: np.ndarray) -> dict:
 
 def check_inputs(args, archive) -> str:
     """Relecture et manifeste identiques au run principal ; clés identiques si archivées."""
-    recorded = json.loads(args.principal.read_text())["inputs_sha256"]
+    recorded = json.loads(args.principal.read_text(encoding="utf-8"))["inputs_sha256"]
     current = {
         "review": sha256_file(args.review_dir / "review.csv"),
         "study_manifest": sha256_file(args.study_dir / "source_manifest.json"),
@@ -87,15 +87,16 @@ def main() -> None:
     y = {s: (load_split(args.deepdrid_root, s)["Overall quality"] == 0).astype(int).to_numpy() for s in ("val", "eval")}
     threshold = threshold_for_specificity(archive["val_scores"], y["val"], TARGET_SPECIFICITY)
 
-    study = json.loads((args.study_dir / "source_manifest.json").read_text())["records"]
+    study = json.loads((args.study_dir / "source_manifest.json").read_text(encoding="utf-8"))["records"]
     val = [r for r in study if r["split"] == "val"]
     y_odir = np.array([bool(r["tags"]) for r in val])
     flags_odir = archive["odir_val_scores"] >= threshold
-    mapping = json.loads((args.review_dir / "review_mapping.json").read_text())
+    mapping = json.loads((args.review_dir / "review_mapping.json").read_text(encoding="utf-8"))
     groups = {
-        r["filename"]: r["group"] for r in json.loads((args.review_dir / "source_manifest.json").read_text())["records"]
+        r["filename"]: r["group"]
+        for r in json.loads((args.review_dir / "source_manifest.json").read_text(encoding="utf-8"))["records"]
     }
-    reviews = list(csv.DictReader((args.review_dir / "review.csv").open()))
+    reviews = list(csv.DictReader((args.review_dir / "review.csv").open(encoding="utf-8")))
     rows = [{"filename": mapping[r["code"]], "group": groups[mapping[r["code"]]]} for r in reviews]
     states = np.array([review_state(r) for r in reviews])
     flags_rev = archive["review_scores"] >= threshold
@@ -124,7 +125,7 @@ def main() -> None:
         },
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"seuil {threshold:.3f}")
     for key in ("deepdrid_val", "deepdrid_eval", "odir_validation", "human_review"):
         print(key, {k: (v["detected"], v["patients"]) for k, v in report[key].items()})

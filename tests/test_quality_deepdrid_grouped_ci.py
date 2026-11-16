@@ -35,18 +35,18 @@ def test_threshold_script_refuses_modified_review(tmp_path):
 
     (tmp_path / "review").mkdir()
     (tmp_path / "study").mkdir()
-    (tmp_path / "review" / "review.csv").write_text("code,defect\n1,oui\n")
-    (tmp_path / "study" / "source_manifest.json").write_text("{}")
+    (tmp_path / "review" / "review.csv").write_text("code,defect\n1,oui\n", encoding="utf-8")
+    (tmp_path / "study" / "source_manifest.json").write_text("{}", encoding="utf-8")
     recorded = {
         "review": sha256_file(tmp_path / "review" / "review.csv"),
         "study_manifest": sha256_file(tmp_path / "study" / "source_manifest.json"),
     }
-    (tmp_path / "principal.json").write_text(json.dumps({"inputs_sha256": recorded}))
+    (tmp_path / "principal.json").write_text(json.dumps({"inputs_sha256": recorded}), encoding="utf-8")
     args = SimpleNamespace(
         principal=tmp_path / "principal.json", review_dir=tmp_path / "review", study_dir=tmp_path / "study"
     )
     archive = SimpleNamespace(files=["val_scores"])
     assert check_inputs(args, archive).startswith("par position")
-    (tmp_path / "review" / "review.csv").write_text("code,defect\n1,non\n")
+    (tmp_path / "review" / "review.csv").write_text("code,defect\n1,non\n", encoding="utf-8")
     with pytest.raises(ValueError, match="modifiées"):
         check_inputs(args, archive)

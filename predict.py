@@ -168,7 +168,7 @@ def main() -> None:
     print(f"\n{DISCLAIMER}")
     if args.out is not None:
         args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text(json.dumps(results, indent=2, ensure_ascii=False, allow_nan=False))
+        args.out.write_text(json.dumps(results, indent=2, ensure_ascii=False, allow_nan=False), encoding="utf-8")
         print(f"Résultats : {args.out}")
 
 

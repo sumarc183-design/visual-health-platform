@@ -79,7 +79,8 @@ def main() -> None:
     if args.json is not None:
         args.json.parent.mkdir(parents=True, exist_ok=True)
         args.json.write_text(
-            json.dumps({"run": run_info(), "a": str(args.run_a), "b": str(args.run_b), **diff}, indent=2)
+            json.dumps({"run": run_info(), "a": str(args.run_a), "b": str(args.run_b), **diff}, indent=2),
+            encoding="utf-8",
         )
         print(f"Comparaison JSON : {args.json}")
 

@@ -155,7 +155,7 @@ def main() -> None:
             }
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     archive = {f"{s}_keys": np.array(d.keys) for s, d in sets.items() if s != "train"}
     archive.update({f"{s}_groups": np.array(groups[s]) for s in groups})
     archive.update({f"{m}_{s}": scores[m][s].astype(np.float32) for m in MODELS for s in ("val", "test")})

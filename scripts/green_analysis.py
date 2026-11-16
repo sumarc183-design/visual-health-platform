@@ -224,7 +224,7 @@ def main() -> None:
             for kind, d in report[name][f"{label}_green_minus_retfound"].items():
                 print(f"  Green − RETFound, {label}, {kind} : {d['diff']:+.3f} [{d['ci'][0]:+.3f} ; {d['ci'][1]:+.3f}]")
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
     suffix = "" if args.green_size == GREEN_IMAGE_SIZE else f"_{args.green_size}"
     suffix += "" if args.retfound_size == 224 else f"_retfound{args.retfound_size}"
     np.savez_compressed(args.out.parent / f"green_predictions{suffix}.npz", **archive)

@@ -188,7 +188,7 @@ def main() -> None:
         else "perte de transfert non démontrée"
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
     for name, r in report["router"].items():
         print(name, r["all"]["decisions"], "fond d'œil :", r["criterion_safe"])
     a = report["skin_head"]["all"]

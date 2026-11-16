@@ -143,7 +143,7 @@ def main() -> None:
     print(f"Planche d'occlusion : {args.out}")
     if args.json is not None:
         args.json.parent.mkdir(parents=True, exist_ok=True)
-        args.json.write_text(json.dumps(records, indent=2, ensure_ascii=False))
+        args.json.write_text(json.dumps(records, indent=2, ensure_ascii=False), encoding="utf-8")
         print(f"Mesures JSON : {args.json}")
 
 

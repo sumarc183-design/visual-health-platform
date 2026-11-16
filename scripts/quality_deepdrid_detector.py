@@ -166,8 +166,11 @@ def main() -> None:
         }
 
     print("Transfert vers ODIR", flush=True)
-    study = json.loads((args.study_dir / "source_manifest.json").read_text())["records"]
-    measures = {r["filename"]: r["scores"] for r in json.loads((args.study_dir / "measurements.json").read_text())}
+    study = json.loads((args.study_dir / "source_manifest.json").read_text(encoding="utf-8"))["records"]
+    measures = {
+        r["filename"]: r["scores"]
+        for r in json.loads((args.study_dir / "measurements.json").read_text(encoding="utf-8"))
+    }
     val = [r for r in study if r["split"] == "val"]
     y_val = np.array([bool(r["tags"]) for r in val])
     p_val = proba(embed_keys([f"real/{r['filename']}" for r in val], make, backbone, cache))
@@ -187,11 +190,12 @@ def main() -> None:
     odir["detectors"]["learned_deepdrid"]["auroc_image"] = auc_with_groups(val, y_val.astype(int), p_val)
     report["results"]["odir_validation_transfer"] = odir
 
-    mapping = json.loads((args.review_dir / "review_mapping.json").read_text())
+    mapping = json.loads((args.review_dir / "review_mapping.json").read_text(encoding="utf-8"))
     groups = {
-        r["filename"]: r["group"] for r in json.loads((args.review_dir / "source_manifest.json").read_text())["records"]
+        r["filename"]: r["group"]
+        for r in json.loads((args.review_dir / "source_manifest.json").read_text(encoding="utf-8"))["records"]
     }
-    reviews = list(csv.DictReader((args.review_dir / "review.csv").open()))
+    reviews = list(csv.DictReader((args.review_dir / "review.csv").open(encoding="utf-8")))
     rows = [{"filename": mapping[r["code"]], "group": groups[mapping[r["code"]]]} for r in reviews]
     states = np.array([review_state(r) for r in reviews])
     p_rev = proba(embed_keys([f"real/{r['filename']}" for r in rows], make, backbone, cache))
@@ -211,7 +215,7 @@ def main() -> None:
     report["local_archive"] = f"{args.out.with_suffix('.npz').name} (scores, modèle ; local, non versionné)"
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     np.savez(
         args.out.with_suffix(".npz"),
         val_scores=scores["val"],

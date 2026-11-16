@@ -102,7 +102,7 @@ def main() -> None:
             entry["points"] = [operating_point(yv, val["probs"][:, i], yt, test["probs"][:, i], t) for t in TARGETS]
         report["classes"][name] = entry
     out = args.out or args.results / f"operating_points_{args.dataset}_{args.variant}.json"
-    out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for name, e in report["classes"].items():
         if e["status"] != "ok":
             continue

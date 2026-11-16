@@ -144,7 +144,7 @@ def main() -> None:
             f"paires comparables {g['comparable_pairs']:.0%}"
         )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"Résultats : {args.out}")
 
 

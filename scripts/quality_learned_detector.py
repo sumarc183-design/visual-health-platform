@@ -166,8 +166,11 @@ def main() -> None:
     args = parser.parse_args()
 
     images = args.odir_root / "ODIR-5K" / "ODIR-5K" / "Training Images"
-    study = json.loads((args.study_dir / "source_manifest.json").read_text())["records"]
-    measures = {r["filename"]: r["scores"] for r in json.loads((args.study_dir / "measurements.json").read_text())}
+    study = json.loads((args.study_dir / "source_manifest.json").read_text(encoding="utf-8"))["records"]
+    measures = {
+        r["filename"]: r["scores"]
+        for r in json.loads((args.study_dir / "measurements.json").read_text(encoding="utf-8"))
+    }
     study_patients = {r["group"] for r in study}
     records, _ = source_records(args.odir_root)
     clean = [r for r in records if r["split"] == "train" and not r["tags"] and r["group"] not in study_patients]
@@ -228,10 +231,11 @@ def main() -> None:
     test_a["detectors"]["learned"]["auroc_image"] = auc_with_groups(val, y_val.astype(int), p_val)
 
     print("Test B : relecture de Marc", flush=True)
-    mapping = json.loads((args.review_dir / "review_mapping.json").read_text())
-    reviews = list(csv.DictReader((args.review_dir / "review.csv").open()))
+    mapping = json.loads((args.review_dir / "review_mapping.json").read_text(encoding="utf-8"))
+    reviews = list(csv.DictReader((args.review_dir / "review.csv").open(encoding="utf-8")))
     groups = {
-        r["filename"]: r["group"] for r in json.loads((args.review_dir / "source_manifest.json").read_text())["records"]
+        r["filename"]: r["group"]
+        for r in json.loads((args.review_dir / "source_manifest.json").read_text(encoding="utf-8"))["records"]
     }
     rows = [{"filename": mapping[r["code"]], "group": groups[mapping[r["code"]]]} for r in reviews]
     states = np.array([review_state(r) for r in reviews])
@@ -272,7 +276,7 @@ def main() -> None:
         "local_archive": f"{args.out.with_suffix('.npz').name} (scores, modèle ; local, non versionné)",
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     np.savez(
         args.out.with_suffix(".npz"),
         val_files=np.array([r["filename"] for r in val]),

@@ -71,7 +71,8 @@ def setup(tmp_path_factory):
                     "RARE": {"insufficient_evidence": True, "threshold_f1": {"threshold": 0.5}},
                 },
             }
-        )
+        ),
+        encoding="utf-8",
     )
     predictor = Predictor(head_path, checkpoint, thresholds_path, policy="f1")
     yield dict(
@@ -133,7 +134,7 @@ def test_inconsistent_artifacts_are_refused(setup, tmp_path):
 def test_thresholds_are_bound_to_the_exact_head(setup, tmp_path):
     """Seuils d'une autre tête de mêmes classes, seuil hors [0, 1], fichier
     historique sans identité : refusés (sauf accord explicite pour le dernier)."""
-    report = json.loads(setup["thresholds"].read_text())
+    report = json.loads(setup["thresholds"].read_text(encoding="utf-8"))
     head = torch.load(setup["head_path"], weights_only=True)
     assert load_thresholds(setup["thresholds"], CLASSES, "f1", head)[1] is True
 
@@ -151,13 +152,14 @@ def test_thresholds_are_bound_to_the_exact_head(setup, tmp_path):
                     "DR": {"insufficient_evidence": False, "threshold_f1": {"threshold": 1.5}},
                 },
             }
-        )
+        ),
+        encoding="utf-8",
     )
     with pytest.raises(ValueError, match="invalide"):
         load_thresholds(bad, CLASSES, "f1", head)
 
     legacy = tmp_path / "legacy.json"
-    legacy.write_text(json.dumps({"classes": report["classes"], "head_probe": report["head_probe"]}))
+    legacy.write_text(json.dumps({"classes": report["classes"], "head_probe": report["head_probe"]}), encoding="utf-8")
     with pytest.raises(ValueError, match="head_sha256"):
         load_thresholds(legacy, CLASSES, "f1", head)
     assert load_thresholds(legacy, CLASSES, "f1", head, allow_unverified=True)[1] is False
@@ -221,7 +223,7 @@ def test_cli_rejects_unusable_images_on_request(setup, monkeypatch, capsys):
         ],
     )
     predict.main()
-    results = json.loads(out.read_text())
+    results = json.loads(out.read_text(encoding="utf-8"))
     assert "findings" in results[0] and results[1]["rejected"]
     assert "résolution" in " ".join(results[1]["quality"]["reasons"])
 

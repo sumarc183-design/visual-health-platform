@@ -141,7 +141,7 @@ def test_external_evaluation_preserves_training_provenance(tmp_path, monkeypatch
     if training_run is not None:
         original["run"] = training_run
     report_path = tmp_path / "finetune_rfmid.json"
-    report_path.write_text(json.dumps(original))
+    report_path.write_text(json.dumps(original), encoding="utf-8")
     current_run = {"git_commit": "evaluation-commit", "versions": {"torch": "test"}}
     monkeypatch.setattr(script, "run_info", lambda: current_run)
     monkeypatch.setattr(script, "load_pretrained_backbone", lambda *a, **kw: tiny_vit())
@@ -161,7 +161,7 @@ def test_external_evaluation_preserves_training_provenance(tmp_path, monkeypatch
             eyepacs_root=None,
         )
     )
-    report = json.loads(report_path.read_text())
+    report = json.loads(report_path.read_text(encoding="utf-8"))
     assert report.get("run") == training_run
     assert report["val"] == original["val"]
     assert report["aptos_any_dr_auroc"] == 0.8

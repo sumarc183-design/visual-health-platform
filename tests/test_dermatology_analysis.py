@@ -37,7 +37,7 @@ def test_analysis_compares_the_three_models_on_the_same_images(tmp_path, monkeyp
     monkeypatch.setattr(sys, "argv", argv)
     dermatology_analysis.main()
 
-    report = json.loads(out.read_text())
+    report = json.loads(out.read_text(encoding="utf-8"))
     n_val = len(ISIC2019Dataset(tmp_path, "val"))
     assert report["images"] == {"train": 140 - n_val, "val": n_val, "test": 40}
     test_auroc = {m: report["models"][m]["test"]["auroc_macro"] for m in dermatology_analysis.MODELS}

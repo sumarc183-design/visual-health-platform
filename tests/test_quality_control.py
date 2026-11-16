@@ -84,7 +84,9 @@ def test_calibrated_threshold_is_the_default_and_matches_the_calibration_file():
 
     from src.pipeline.quality_control import DEFAULT_BLUR_THRESHOLD
 
-    calibration = json.loads((Path(__file__).resolve().parents[1] / "results/quality_calibration.json").read_text())
+    calibration = json.loads(
+        (Path(__file__).resolve().parents[1] / "results/quality_calibration.json").read_text(encoding="utf-8")
+    )
     assert DEFAULT_BLUR_THRESHOLD == round(calibration["threshold"], 2)
 
 

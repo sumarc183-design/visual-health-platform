@@ -17,9 +17,9 @@ def test_time_groups_chain_close_shots_only():
 def test_read_grades_rejects_duplicates(tmp_path):
     d = tmp_path / "DR_grading"
     d.mkdir()
-    (d / "train.txt").write_text("a.jpg 0\nb.jpg 5\n")
-    (d / "valid.txt").write_text("c.jpg 2\n")
-    (d / "test.txt").write_text("a.jpg 1\n")
+    (d / "train.txt").write_text("a.jpg 0\nb.jpg 5\n", encoding="utf-8")
+    (d / "valid.txt").write_text("c.jpg 2\n", encoding="utf-8")
+    (d / "test.txt").write_text("a.jpg 1\n", encoding="utf-8")
     try:
         read_grades(tmp_path)
     except ValueError:

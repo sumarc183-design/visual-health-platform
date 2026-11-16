@@ -138,7 +138,7 @@ def main() -> None:
         else "la baisse sur ISIC 2020 ne s'explique pas par le format",
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
     print("Mélanome gardé :", report["kept"]["melanoma"], "| écrasé :", report["squashed"]["melanoma"])
     print("Écart mélanome :", diff["MEL"], "| macro :", diff["macro"])
     print("Lecture :", report["reading"]["text"])

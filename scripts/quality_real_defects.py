@@ -142,12 +142,12 @@ def prepare_review(records: list[dict], images: Path, directory: Path, seed: int
     chosen = review_selection(records, seed)
     mapping = {f"Q{i + 1:02d}": r["filename"] for i, r in enumerate(chosen)}
     mapping_path = directory / "review_mapping.json"
-    if mapping_path.exists() and json.loads(mapping_path.read_text()) != mapping:
+    if mapping_path.exists() and json.loads(mapping_path.read_text(encoding="utf-8")) != mapping:
         raise ValueError("sélection de revue différente : utiliser un autre dossier pour préserver les annotations")
-    mapping_path.write_text(json.dumps(mapping, indent=2) + "\n")
+    mapping_path.write_text(json.dumps(mapping, indent=2) + "\n", encoding="utf-8")
     path = directory / "review.csv"
     if not path.exists():
-        with path.open("w", newline="") as f:
+        with path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=REVIEW_FIELDS)
             writer.writeheader()
             writer.writerows({"code": code, "status": "pending"} for code in mapping)
@@ -183,9 +183,9 @@ def main() -> None:
     args.local_dir.mkdir(parents=True, exist_ok=True)
     manifest = {"records": records, "seed": args.seed, "controls_per_split": args.controls}
     manifest_path = args.local_dir / "source_manifest.json"
-    if manifest_path.exists() and json.loads(manifest_path.read_text()) != manifest:
+    if manifest_path.exists() and json.loads(manifest_path.read_text(encoding="utf-8")) != manifest:
         raise ValueError("manifeste local différent : choisir un autre --local-dir")
-    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     if args.prepare_only:
         prepare_review(records, images, args.local_dir, args.seed)
         return
@@ -202,11 +202,11 @@ def main() -> None:
     controls_train = [r["scores"]["mean_luminance"] for r in records if r["split"] == "train" and not r["tags"]]
     threshold = float(np.percentile(controls_train, 2))
     local_scores = args.local_dir / "measurements.json"
-    local_scores.write_text(json.dumps(records, indent=2) + "\n")
+    local_scores.write_text(json.dumps(records, indent=2) + "\n", encoding="utf-8")
     review_path = args.local_dir / "review.csv"
     review = None
     if review_path.exists():
-        with review_path.open(newline="") as f:
+        with review_path.open(newline="", encoding="utf-8") as f:
             reviews = list(csv.DictReader(f))
         review = {
             "sha256": sha256(review_path),
@@ -251,7 +251,7 @@ def main() -> None:
         ],
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Rapport agrégé : {args.out}")
 
 

@@ -149,7 +149,7 @@ def main() -> None:
             },
         }
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for name, r in report["heads"].items():
         print(name, r["all"]["decisions"], "malades :", r["disease_risk"]["1"]["to_dermoscopy"], r["criterion_rare"])
         for e in r["errors"]:

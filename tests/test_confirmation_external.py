@@ -34,7 +34,7 @@ def test_messidor_table_groups_by_exam_ignoring_case(tmp_path):
             "adjudicated_gradable": [1, 1, 1, 0],
         }
     ).to_csv(tmp_path / "messidor_data.csv", index=False)
-    (tmp_path / "messidor-2.csv").write_text("left;right \na.JPG;b.JPG\nc.png;d.png\n")
+    (tmp_path / "messidor-2.csv").write_text("left;right \na.JPG;b.JPG\nc.png;d.png\n", encoding="utf-8")
     table = messidor_table(tmp_path)
     assert len(table) == 3 and table["grade"].tolist() == [0, 2, 1]
     assert table["group"].tolist() == ["messidor2/a.jpg", "messidor2/a.jpg", "messidor2/c.png"]

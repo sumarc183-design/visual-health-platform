@@ -184,7 +184,7 @@ def main() -> None:
         quintiles = " ".join(f"{v:.3f}" for v in m["loss_by_quintile_least_to_most_sharp"])
         print(f"  Perte du modèle {name} par quintile de netteté : {quintiles}")
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"Résultats : {args.out}")
 
 

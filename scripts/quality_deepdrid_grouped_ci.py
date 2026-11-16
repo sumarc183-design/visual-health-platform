@@ -61,8 +61,8 @@ def main() -> None:
     args = parser.parse_args()
 
     archive = np.load(args.scores)
-    principal = json.loads(args.principal.read_text())
-    secondary = json.loads(args.secondary.read_text())
+    principal = json.loads(args.principal.read_text(encoding="utf-8"))
+    secondary = json.loads(args.secondary.read_text(encoding="utf-8"))
     thresholds = {"principal_0.5": PRINCIPAL_THRESHOLD, "secondary_specificity_0.90": secondary["threshold"]}
 
     report = {
@@ -98,7 +98,7 @@ def main() -> None:
         raise ValueError("points différents de l'analyse secondaire : association des scores à revoir")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False, allow_nan=False) + "\n")
+    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
     for split, by_threshold in report["splits"].items():
         for name, r in by_threshold.items():
             print(

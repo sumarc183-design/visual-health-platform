@@ -32,7 +32,7 @@ def _thresholds(tmp_path, artifact):
         "head_contract": head_contract(artifact),
     }
     path = tmp_path / "seuils.json"
-    path.write_text(json.dumps(report))
+    path.write_text(json.dumps(report), encoding="utf-8")
     return path
 
 

@@ -148,7 +148,7 @@ def main() -> None:
         "head_auroc_effect": effect,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"seuil {threshold:.2f} ; fausses alertes {false_alerts:.3f} ; détection {detection}")
     print("critère :", report["criterion"])
     for c, e in effect.items():

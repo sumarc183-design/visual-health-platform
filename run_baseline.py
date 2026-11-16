@@ -70,7 +70,7 @@ class SyntheticFundusDataset(torch.utils.data.Dataset):
 
         self.Image = Image
         self.data_dir = data_dir
-        with open(data_dir / "labels.csv") as f:
+        with open(data_dir / "labels.csv", encoding="utf-8") as f:
             reader = csv.reader(f)
             self.class_names = next(reader)[1:]
             self.rows = list(reader)
@@ -438,7 +438,8 @@ def main() -> None:
                 },
                 indent=2,
                 ensure_ascii=False,
-            )
+            ),
+            encoding="utf-8",
         )
         print(f"Résultats JSON : {args.results_json}")
     if is_synthetic or is_random_checkpoint:

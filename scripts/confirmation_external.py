@@ -273,7 +273,7 @@ def main() -> None:
     }
     report["local_snapshot"] = f"{snapshot.name} (clés, groupes, stades, scores ; local, non versionné)"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(report, indent=1, ensure_ascii=False, allow_nan=False))
+    out.write_text(json.dumps(report, indent=1, ensure_ascii=False, allow_nan=False), encoding="utf-8")
     np.savez(
         snapshot,
         keys=table["key"].to_numpy(str),

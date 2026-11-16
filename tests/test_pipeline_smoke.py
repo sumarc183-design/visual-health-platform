@@ -25,7 +25,7 @@ def test_full_pipeline_end_to_end(tmp_path):
     data_dir = tmp_path / "synthetic_rfmid"
     generate_dataset(str(data_dir), dataset="rfmid", num_images=16, image_size=224, seed=1)
 
-    with open(data_dir / "labels.csv") as f:
+    with open(data_dir / "labels.csv", encoding="utf-8") as f:
         reader = csv.reader(f)
         class_names = next(reader)[1:]
         rows = list(reader)

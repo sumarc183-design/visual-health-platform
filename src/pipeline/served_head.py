@@ -55,7 +55,7 @@ def load_served_head(head_path: Path, checkpoint_fingerprint: str, thresholds_pa
         _, verified = load_thresholds(thresholds_path, list(artifact["class_names"]), "sensitivity", head=artifact)
         if not verified:
             raise ValueError(f"{thresholds_path} : seuils non liés à {head_path}")
-        report = json.loads(Path(thresholds_path).read_text())
+        report = json.loads(Path(thresholds_path).read_text(encoding="utf-8"))
         identity["thresholds_file"] = Path(thresholds_path).name
         identity["thresholds_fingerprint"] = file_fingerprint(thresholds_path)
     return ServedHead(artifact, head, report, identity)

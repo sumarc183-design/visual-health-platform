@@ -92,7 +92,7 @@ def test_cli_prints_probabilities_without_thresholds(skin, monkeypatch, capsys, 
     monkeypatch.setattr(sys, "argv", argv)
     predict.main()
     assert "probabilité seule (pas de seuil)" in capsys.readouterr().out
-    result = json.loads(out.read_text())[0]
+    result = json.loads(out.read_text(encoding="utf-8"))[0]
     assert result["quality"]["usable"]
     assert any("Type d'image non vérifié" in w for w in result["warnings"])  # contrôle actif par défaut
 
