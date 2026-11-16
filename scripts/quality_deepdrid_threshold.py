@@ -10,6 +10,11 @@ Seconde lecture de l'évaluation, annoncée comme telle : le résultat principal
 celui du seuil 0,5. Aucun réentraînement : scores archivés localement par le run
 principal (`results/quality_deepdrid_detector.npz`).
 
+Association des scores (ajout du 16 novembre, audit du 15 nov., constat 5) : par clé si
+l'archive les contient (runs postérieurs au 16 nov.) ; sinon par position, dans l'ordre
+du run principal, après vérification que la relecture et le manifeste n'ont pas changé
+(empreintes SHA-256 enregistrées par le run principal).
+
 Exemple :
     python scripts/quality_deepdrid_threshold.py --deepdrid-root data/raw/deepdrid/regular_fundus_images
 """
@@ -26,7 +31,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.quality_learned_detector import review_state  # noqa: E402
+from scripts.quality_learned_detector import review_state, sha256_file  # noqa: E402
 from scripts.quality_real_defects import exact_rate, patient_rate  # noqa: E402
 from src.data.deepdrid import load_split  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
@@ -50,6 +55,23 @@ def rates(y: np.ndarray, flags: np.ndarray) -> dict:
     }
 
 
+def check_inputs(args, archive) -> str:
+    """Relecture et manifeste identiques au run principal ; clés identiques si archivées."""
+    recorded = json.loads(args.principal.read_text())["inputs_sha256"]
+    current = {
+        "review": sha256_file(args.review_dir / "review.csv"),
+        "study_manifest": sha256_file(args.study_dir / "source_manifest.json"),
+    }
+    if current != recorded:
+        raise ValueError(f"entrées modifiées depuis le run principal : {current} contre {recorded}")
+    if "val_keys" not in archive.files:
+        return "par position (archive sans clés, antérieure au 16 nov.) ; entrées vérifiées par empreinte"
+    for split in ("val", "eval"):
+        if list(archive[f"{split}_keys"]) != list(load_split(args.deepdrid_root, split)["image_id"]):
+            raise ValueError(f"{split} : clés archivées différentes de l'ordre actuel")
+    return "par clé ; entrées vérifiées par empreinte"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--deepdrid-root", type=Path, required=True)
@@ -57,9 +79,11 @@ def main() -> None:
     parser.add_argument("--study-dir", type=Path, default=Path("data/quality_review"))
     parser.add_argument("--review-dir", type=Path, default=Path("data/quality_review_v2"))
     parser.add_argument("--out", type=Path, default=Path("results/quality_deepdrid_threshold.json"))
+    parser.add_argument("--principal", type=Path, default=Path("results/quality_deepdrid_detector.json"))
     args = parser.parse_args()
 
     archive = np.load(args.scores)
+    association = check_inputs(args, archive)
     y = {s: (load_split(args.deepdrid_root, s)["Overall quality"] == 0).astype(int).to_numpy() for s in ("val", "eval")}
     threshold = threshold_for_specificity(archive["val_scores"], y["val"], TARGET_SPECIFICITY)
 
@@ -84,6 +108,7 @@ def main() -> None:
         "plan": "fixé le 10 novembre 2026 après le run principal, avant ce calcul (docstring)",
         "rule": f"plus petit seuil de spécificité >= {TARGET_SPECIFICITY} sur la validation DeepDRiD",
         "threshold": threshold,
+        "score_association": association,
         "deepdrid_val": rates(y["val"], archive["val_scores"] >= threshold),
         "deepdrid_eval": rates(y["eval"], archive["eval_scores"] >= threshold),
         "odir_validation": {

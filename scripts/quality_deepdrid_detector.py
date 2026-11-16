@@ -218,6 +218,11 @@ def main() -> None:
         eval_scores=scores["eval"],
         odir_val_scores=p_val,
         review_scores=p_rev,
+        # clés dans l'ordre des scores : les analyses secondaires associent par clé, pas par position
+        val_keys=splits["val"]["image_id"].to_numpy(str),
+        eval_keys=splits["eval"]["image_id"].to_numpy(str),
+        odir_val_keys=np.array([r["filename"] for r in val]),
+        review_keys=np.array([r["filename"] for r in rows]),
         coef=model.coef_,
         intercept=model.intercept_,
         scaler_mean=scaler.mean_,

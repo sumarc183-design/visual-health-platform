@@ -22,3 +22,31 @@ def test_odir_patient_from_key():
     assert odir_patient("40_right.jpg") == "40" and odir_patient("odir/7_left.jpg") == "7"
     with pytest.raises(ValueError):
         odir_patient("image.jpg")
+
+
+def test_threshold_script_refuses_modified_review(tmp_path):
+    import json
+    from types import SimpleNamespace
+
+    import pytest
+
+    from scripts.quality_deepdrid_threshold import check_inputs
+    from scripts.quality_learned_detector import sha256_file
+
+    (tmp_path / "review").mkdir()
+    (tmp_path / "study").mkdir()
+    (tmp_path / "review" / "review.csv").write_text("code,defect\n1,oui\n")
+    (tmp_path / "study" / "source_manifest.json").write_text("{}")
+    recorded = {
+        "review": sha256_file(tmp_path / "review" / "review.csv"),
+        "study_manifest": sha256_file(tmp_path / "study" / "source_manifest.json"),
+    }
+    (tmp_path / "principal.json").write_text(json.dumps({"inputs_sha256": recorded}))
+    args = SimpleNamespace(
+        principal=tmp_path / "principal.json", review_dir=tmp_path / "review", study_dir=tmp_path / "study"
+    )
+    archive = SimpleNamespace(files=["val_scores"])
+    assert check_inputs(args, archive).startswith("par position")
+    (tmp_path / "review" / "review.csv").write_text("code,defect\n1,non\n")
+    with pytest.raises(ValueError, match="modifiées"):
+        check_inputs(args, archive)
