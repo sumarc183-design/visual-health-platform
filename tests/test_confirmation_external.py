@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
@@ -17,7 +19,7 @@ def test_idrid_table_reads_both_official_splits(tmp_path):
     table = idrid_table(tmp_path)
     assert len(table) == 2 and table["grade"].tolist() == [2, 2]
     assert table["key"].is_unique and table["group"].is_unique  # mêmes noms dans les deux découpages
-    assert str(table["path"][1]).endswith("b. Testing Set/IDRiD_001.jpg")
+    assert Path(table["path"][1]).as_posix().endswith("b. Testing Set/IDRiD_001.jpg")
 
 
 def test_messidor_table_groups_by_exam_ignoring_case(tmp_path):
