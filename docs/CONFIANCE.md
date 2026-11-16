@@ -7,7 +7,11 @@ Cette page donne les compromis possibles pour aider ce choix.
 
 Méthode (`scripts/operating_points.py`, plan fixé avant le calcul, commit `ee9c3b6`) :
 seuil choisi sur la validation pour viser une sensibilité de 80, 90 ou 95 %, appliqué au
-test ; résultats ramenés à **1 000 personnes**, avec la proportion de malades du test.
+test ; résultats ramenés à **1 000 images (yeux)**, avec la proportion de malades du test.
+L'unité est l'image : un patient peut compter pour deux yeux, et les intervalles de
+confiance de `results/operating_points_*.json` (binomiaux, par image) ignorent cette
+dépendance ; ils sont un peu trop étroits (audit du 15 nov.). Les nombres du tableau ne
+changent pas.
 Le test a déjà servi : chiffres descriptifs, pas une confirmation. Proportions de malades
 bien plus élevées que dans une population dépistée : dans la vraie vie, à sensibilité
 égale, les fausses alertes pèseraient davantage. Résultats complets :
@@ -15,7 +19,7 @@ bien plus élevées que dans une population dépistée : dans la vraie vie, à s
 
 ## ODIR (RETFound, 965 images de test)
 
-| Maladie | Malades / 1 000 | Sensibilité visée 80 % : manqués / fausses alertes | 90 % | 95 % |
+| Maladie | Malades / 1 000 images | Sensibilité visée 80 % : manqués / fausses alertes | 90 % | 95 % |
 |---|---|---|---|---|
 | Rétinopathie diabétique (D) | 276 | 56 / 304 | 20 / 442 | 3 / 540 |
 | Glaucome (G) | 35 | 6 / 134 | 1 / 309 | 0 / 478 |
@@ -26,7 +30,7 @@ bien plus élevées que dans une population dépistée : dans la vraie vie, à s
 
 ## RFMiD (Green, 640 images de test), principales maladies
 
-| Maladie | Malades / 1 000 | 80 % : manqués / fausses alertes | 90 % | 95 % |
+| Maladie | Malades / 1 000 images | 80 % : manqués / fausses alertes | 90 % | 95 % |
 |---|---|---|---|---|
 | Rétinopathie diabétique (DR) | 194 | 48 / 33 | 20 / 98 | 8 / 209 |
 | DMLA (ARMD) | 48 | 17 / 53 | 14 / 77 | 11 / 216 |

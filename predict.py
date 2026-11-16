@@ -38,7 +38,7 @@ Dépistage de la rétinopathie diabétique : `--dr-screening` charge la tête Gr
 apprise sur RFMiD + EyePACS (`heads/dr_screening_green_head.pt`) et son seuil choisi sur
 la validation EyePACS (politique `sensitivity`). Sur Messidor-2 (France, vue par aucun
 des modèles, 16 nov.) : 83 % des rétinopathies repérées [80 % ; 86 %], 94 % des cas à
-adresser, mais spécificité 0,41 (plus d'une fausse alerte pour deux personnes saines) ;
+adresser, mais spécificité 0,41 (plus d'une fausse alerte pour deux images saines) ;
 IDRiD (Inde) : 96 %, spécificité 0,48. Sur DDR : 87 %, spécificité 0,52, chiffres
 peut-être optimistes (DDR fait partie du pré-entraînement de Green, découvert le 13 nov.).
 
