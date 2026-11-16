@@ -21,6 +21,9 @@ selon [SemVer](https://semver.org/lang/fr/).
   examens) : Green − RETFound +0,080 [+0,048 ; +0,111], confirmé ; dépistage
   `--dr-screening` : sensibilité 0,832 [0,802 ; 0,859], spécificité 0,41 (critère
   atteint). Lecture de la liste officielle des examens et noms sans casse (`6ef54df`).
+- Contrôle exploratoire des formats sur Messidor-2 (16 nov.) : à format égal, AUROC Green
+  0,791 contre 0,747 (écart −0,044 [−0,066 ; −0,024]) ; décalage partiel entre formats,
+  l'essentiel de la baisse reste. `scripts/messidor_format_check.py`.
 - GUIDE : sources pour retélécharger IDRiD gradation, Messidor-2, ISIC 2020 et MILK10k.
 - Tête peau sans les « unknown » d'ISIC 2020 (13 nov., plan fixé avant calcul) : sur
   MILK10k, mélanome −0,008, BCC −0,022, macro −0,005 face à la tête servie ; critère non

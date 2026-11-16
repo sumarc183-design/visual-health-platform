@@ -248,6 +248,16 @@ RFMiD transfère mal les stades légers de Messidor-2 ; au seuil RFMiD, Green ne
 que 36 % des rétinopathies (RETFound 12 %). IDRiD, plus petite, ne montrait pas
 d'écart : la confirmation tient sur la base principale, pas sur les deux.
 
+*Contrôle exploratoire des formats* (16 nov., sans critère, plan écrit avant le calcul,
+[script](scripts/messidor_format_check.py), [résultats](results/messidor_format_check.json)) :
+Messidor-2 mêle cinq formats d'image dont la prévalence va de 17 % à 62 %. À format égal,
+l'AUROC monte un peu (RETFound 0,703, écart −0,036 [−0,056 ; −0,015] ; Green 0,791,
+−0,044 [−0,066 ; −0,024] ; dépistage 0,783, −0,032 [−0,051 ; −0,012]) : une partie de
+la baisse vient d'un décalage des scores d'un format à l'autre, mais l'essentiel reste
+dans les formats eux-mêmes (Green de 0,68 en 2304×1536 jpg à 0,90 en 2240×1488 png).
+Avec des prévalences si différentes, un recentrage par appareil effacerait du vrai
+signal ; il n'est pas testé.
+
 **DDR (12 nov.) : critère confirmé** (borne basse > 0 avec les deux regroupements). Le schéma
 d'EyePACS se reproduit : Green transfère bien mieux la tête RFMiD, mais, entraînés
 dans la base, les deux modèles se valent ; les seuils RFMiD ne se transposent pas.
@@ -736,7 +746,7 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
   le test.
 - Sur APTOS, où le décalage par appareil existe (contrôle 7), ce remède ne
   peut pas être évalué : malades et sains n'y partagent presque aucun
-  appareil. Il reste une hypothèse ; Messidor-2 est désormais en local pour la tester.
+  appareil. Il reste une hypothèse : Messidor-2 ne s'y prête pas non plus (prévalence de 17 à 62 % selon le format).
 
 ## État du socle
 
