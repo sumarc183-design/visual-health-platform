@@ -44,6 +44,7 @@ from scripts.green_analysis import cached, external_labels  # noqa: E402
 from scripts.robustness_checks import fit_head, load  # noqa: E402
 from src.data.fundus_preprocess import PREPROCESS_VERSION  # noqa: E402
 from src.eval.decision import choose_threshold, decision_metrics  # noqa: E402
+from src.eval.predictions import check_gap  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.models.classifier_head import head_contract, head_sha256  # noqa: E402
 from src.models.embedding_cache import file_fingerprint  # noqa: E402
@@ -91,8 +92,10 @@ def main() -> None:
         "ddr_specificity": abs(ddr_metrics["specificity"] - archived["ddr"]["specificity"]),
     }
     print("écarts à l'analyse archivée :", {k: f"{v:.1e}" for k, v in checks.items()})
-    if max(checks.values()) > TOLERANCE:
-        raise ValueError("la tête ne redonne pas le seuil et les mesures de l'analyse du 12 novembre")
+    for name, gap in checks.items():
+        check_gap(
+            gap, TOLERANCE, f"la tête ne redonne pas le seuil et les mesures de l'analyse du 12 novembre ({name})"
+        )
 
     artifact = {
         "state_dict": head.cpu().state_dict(),
@@ -132,7 +135,7 @@ def main() -> None:
             }
         },
     }
-    args.thresholds_out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    args.thresholds_out.write_text(json.dumps(report, indent=1, ensure_ascii=False, allow_nan=False))
     print(
         f"seuil {threshold:.4f} ; DDR sensibilité {ddr_metrics['sensitivity']:.3f}, "
         f"spécificité {ddr_metrics['specificity']:.3f}"

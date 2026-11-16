@@ -106,3 +106,22 @@ def test_blurred_skin_image_is_flagged_and_can_be_rejected(skin, tmp_path):
     flagged = predictor.predict(blurry)
     assert not flagged.quality["usable"] and any("flou" in w for w in flagged.warnings)
     assert predictor.predict(blurry, reject_unusable=True).rejected
+
+
+def test_non_finite_probability_gives_no_decision(skin, monkeypatch):
+    """Audit du 15 nov. : NaN >= seuil vaut faux ; la sortie doit être refusée, pas « négative »."""
+    predictor = inference.Predictor(skin["head_path"], skin["checkpoint"])
+    predictor.thresholds = dict.fromkeys(CLASS_NAMES, 0.5)
+    nan = torch.full((len(CLASS_NAMES),), float("nan"))
+    monkeypatch.setattr(predictor, "probabilities", lambda path: nan)
+    with pytest.raises(ValueError, match="non finies"):
+        predictor.predict(skin["image"])
+
+
+def test_head_with_non_finite_weights_is_refused(skin, tmp_path):
+    artifact = torch.load(skin["head_path"], weights_only=True)
+    artifact["state_dict"]["fc.bias"][0] = float("inf")
+    corrupt = tmp_path / "corrompue.pt"
+    torch.save(artifact, corrupt)
+    with pytest.raises(ValueError, match="non finis"):
+        inference.Predictor(corrupt, skin["checkpoint"])

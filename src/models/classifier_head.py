@@ -49,6 +49,15 @@ def train_head(
 PROBE_TOLERANCE = 1e-3
 
 
+def check_finite_state_dict(state_dict: dict, name: str = "tête") -> None:
+    """Poids tous finis, sinon ValueError (une tête corrompue donnerait des scores NaN)."""
+    bad = [
+        k for k, v in state_dict.items() if torch.is_tensor(v) and v.is_floating_point() and not torch.isfinite(v).all()
+    ]
+    if bad:
+        raise ValueError(f"{name} : poids non finis dans {bad}")
+
+
 def head_probe(state_dict: dict) -> list[float]:
     """Signature d'une tête : ses logits pour un vecteur de référence fixe
     (graine 0). Deux entraînements identiques sur CPU et GPU diffèrent de

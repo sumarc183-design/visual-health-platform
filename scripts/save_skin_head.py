@@ -33,6 +33,7 @@ from scripts.dermatology_analysis import ImageList  # noqa: E402
 from scripts.robustness_checks import fit_head  # noqa: E402
 from src.data.fundus_preprocess import PREPROCESS_VERSION  # noqa: E402
 from src.data.isic_dataset import CLASS_NAMES  # noqa: E402
+from src.eval.predictions import check_gap, require_finite  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import file_fingerprint, load_embeddings  # noqa: E402
 
@@ -57,10 +58,10 @@ def main() -> None:
             if list(ref[f"{split}_keys"]) != sets[split].keys:
                 raise ValueError(f"clés {split} différentes de l'archive")
             scores = torch.sigmoid(head(torch.from_numpy(X[split]))).numpy()
-            gap = float(np.abs(scores - ref[f"DINOv2-B_{split}"]).max())
+            archived = require_finite(ref[f"DINOv2-B_{split}"], f"scores archivés {split}")
+            gap = float(np.abs(require_finite(scores, f"scores {split}") - archived).max())
             print(f"{split} : écart maximal aux scores archivés {gap:.2e}")
-            if gap > 1e-5:
-                raise ValueError("la tête ne redonne pas les scores de l'analyse du 9 novembre")
+            check_gap(gap, 1e-5, "la tête ne redonne pas les scores de l'analyse du 9 novembre")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     torch.save(

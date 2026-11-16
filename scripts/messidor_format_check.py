@@ -101,7 +101,7 @@ def main() -> None:
         print(name, {k: gap[k] for k in gap if k != "per_stratum"})
         print("  par format :", {f: round(v["auroc"], 3) for f, v in per_format.items()})
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False, allow_nan=False))
     print(f"-> {args.out}")
 
 

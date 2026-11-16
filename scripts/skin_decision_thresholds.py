@@ -43,8 +43,9 @@ from scripts.decision_metrics import summarize  # noqa: E402
 from scripts.dermatology_analysis import ImageList  # noqa: E402
 from src.data.isic_dataset import CLASS_NAMES  # noqa: E402
 from src.eval.decision import per_class_report  # noqa: E402
+from src.eval.predictions import check_gap, require_finite  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
-from src.models.classifier_head import head_contract, head_probe, head_sha256  # noqa: E402
+from src.models.classifier_head import check_finite_state_dict, head_contract, head_probe, head_sha256  # noqa: E402
 from src.models.embedding_cache import load_embeddings  # noqa: E402
 
 MAX_GAP = 1e-5
@@ -61,6 +62,7 @@ def main() -> None:
     args = parser.parse_args()
 
     head = torch.load(args.head, map_location="cpu", weights_only=True)
+    check_finite_state_dict(head["state_dict"], str(args.head))
     if list(head["class_names"]) != list(CLASS_NAMES):
         raise ValueError("classes de la tête différentes d'ISIC 2019")
     weight = head["state_dict"]["fc.weight"].double().numpy()
@@ -72,11 +74,10 @@ def main() -> None:
             if list(ref[f"{split}_keys"]) != images.keys:
                 raise ValueError(f"clés {split} différentes de l'archive")
             X = load_embeddings(args.embeddings, "isic2019", images.keys, "dinov2", preprocess="none")
-            probs = ref[f"DINOv2-B_{split}"]
+            probs = require_finite(ref[f"DINOv2-B_{split}"], f"scores archivés {split}")
             recomputed = 1 / (1 + np.exp(-(X @ weight.T + bias)))
             gaps[split] = float(np.abs(recomputed - probs).max())
-            if gaps[split] > MAX_GAP:
-                raise ValueError(f"la tête ne redonne pas les scores archivés ({split}, écart {gaps[split]:.1e})")
+            check_gap(gaps[split], MAX_GAP, f"la tête ne redonne pas les scores archivés ({split})")
             data[split] = (images.targets, probs)
 
     report = per_class_report(*data["val"], *data["test"], list(CLASS_NAMES), TARGET)
@@ -94,7 +95,7 @@ def main() -> None:
     )
     report["summary"] = summarize(report)
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    args.out.write_text(json.dumps(report, indent=1, ensure_ascii=False, allow_nan=False))
     print(f"Tête vérifiée (écart max {max(gaps.values()):.1e})")
     for name, entry in report["classes"].items():
         if entry["insufficient_evidence"]:

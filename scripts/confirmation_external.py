@@ -250,7 +250,7 @@ def main() -> None:
         },
     }
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    out.write_text(json.dumps(report, indent=1, ensure_ascii=False, allow_nan=False))
     print({k: report[k] for k in ("dataset", "images", "groups", "by_grade")})
     for model, m in report["models"].items():
         print(f"{model:8s} AUROC toute RD {m['auroc_any_dr']}, à adresser {m['auroc_referable']['auroc']:.3f}")

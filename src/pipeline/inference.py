@@ -11,8 +11,11 @@ marquées « preuve insuffisante » (moins de 10 cas en validation ou en test)
 reçoivent une probabilité mais aucune décision.
 
 Peau (tête `modality = "dermoscopy"`, DINOv2-B, `scripts/save_skin_head.py`) : image au
-petit côté 256 px puis recadrage 224 px, sans contrôle qualité (celui du projet est
-conçu pour le fond d'œil).
+petit côté 256 px puis recadrage 224 px ; contrôle qualité propre à la peau (flou au
+centre, résolution : `check_skin_file`).
+
+Une probabilité non finie ou hors de [0, 1], ou une tête aux poids non finis, arrête la
+prédiction : aucune décision n'est rendue.
 """
 
 from __future__ import annotations
@@ -26,7 +29,7 @@ import torch
 
 from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image
 from src.data.isic_dataset import load_skin_image
-from src.models.classifier_head import MultiLabelHead, head_contract, head_sha256
+from src.models.classifier_head import MultiLabelHead, check_finite_state_dict, head_contract, head_sha256
 from src.models.embedding_cache import file_fingerprint
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone
 from src.models.retfound_green import RETFoundGreenBackbone
@@ -187,6 +190,7 @@ class Predictor:
         self.input_mean = getattr(backbone, "input_mean", IMAGENET_MEAN).to(device)
         self.input_std = getattr(backbone, "input_std", IMAGENET_STD).to(device)
         self.head = MultiLabelHead(embedding_dim=backbone.embedding_dim, num_classes=len(self.class_names))
+        check_finite_state_dict(head_ckpt["state_dict"], str(head_path))
         self.head.load_state_dict(head_ckpt["state_dict"])
         self.head.to(device).eval()
 
@@ -217,6 +221,11 @@ class Predictor:
 
     def _decide(self, image_path: str | Path, quality: dict, warnings: list[str]) -> Prediction:
         probabilities = self.probabilities(image_path)
+        if probabilities.shape != (len(self.class_names),) or not torch.isfinite(probabilities).all():
+            # NaN >= seuil vaut faux : sans ce contrôle, une sortie invalide deviendrait « négatif »
+            raise ValueError(f"{image_path} : probabilités non finies ou de forme {tuple(probabilities.shape)}")
+        if probabilities.min() < 0 or probabilities.max() > 1:
+            raise ValueError(f"{image_path} : probabilités hors de [0, 1]")
         findings = {}
         for name, probability in zip(self.class_names, probabilities.tolist(), strict=True):
             threshold = self.thresholds[name]

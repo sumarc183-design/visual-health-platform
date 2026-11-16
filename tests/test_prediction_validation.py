@@ -57,3 +57,14 @@ def test_head_link_refuses_nan_predictions(tmp_path, monkeypatch):
     ok = _pred(probs=np.full((3, 2), 0.5))
     decision_metrics.link_head(report, tmp_path / "head.pt", tmp_path, "rfmid", {"val": ok, "test": ok}, ["X", "Y"])
     assert report["head_check_max_abs_diff"] == {"val": 0.0, "test": 0.0}
+
+
+def test_check_gap_refuses_nan_and_large_gaps():
+    from src.eval.predictions import check_gap, require_finite
+
+    check_gap(1e-7, 1e-6, "ok")
+    for gap in (float("nan"), float("inf"), 1e-3):
+        with pytest.raises(ValueError):
+            check_gap(gap, 1e-6, "écart")
+    with pytest.raises(ValueError, match="non finie"):
+        require_finite([0.1, float("nan")], "scores")
