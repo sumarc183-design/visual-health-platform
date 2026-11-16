@@ -6,6 +6,11 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Corrigé
+- Audit du 15 nov., constats 5 et 6 : la confirmation externe garde un instantané local
+  (clés, groupes, stades, scores ; `results/confirmation_*.npz`, non versionné) et les
+  empreintes des annotations (`8ee9b68`) ; les caches d'embeddings enregistrent la
+  transformation (`SKIN_TRANSFORM`) et la version du prétraitement, adoptées comme
+  « supposées » par les caches existants (`15df3bb`).
 - Audit du 15 nov., constats 4 et 9 : IC du détecteur de qualité DeepDRiD groupés par
   patient (400 images pour 100 patients ; points inchangés, IC à peine plus larges,
   `scripts/quality_deepdrid_grouped_ci.py`) et des points de fonctionnement ODIR (965 images,
