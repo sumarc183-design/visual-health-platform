@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from scripts.confirmation_external import idrid_table, messidor_table
 
@@ -45,3 +46,14 @@ def test_image_format_reads_size_and_lowercase_suffix(tmp_path):
 
     Image.new("RGB", (30, 20)).save(tmp_path / "x.JPG", format="JPEG")
     assert image_format(tmp_path / "x.JPG") == "30x20.jpg"
+
+
+def test_messidor_table_refuses_ambiguous_file_names(tmp_path):
+    for sub in ("IMAGES", "copie"):
+        (tmp_path / sub).mkdir()
+        (tmp_path / sub / "a.png").touch()
+    pd.DataFrame(
+        {"image_id": ["a.png"], "adjudicated_dr_grade": [0], "adjudicated_dme": [0], "adjudicated_gradable": [1]}
+    ).to_csv(tmp_path / "messidor_data.csv", index=False)
+    with pytest.raises(ValueError, match="ambigu"):
+        messidor_table(tmp_path)

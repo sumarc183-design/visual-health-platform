@@ -118,8 +118,13 @@ def messidor_table(root: Path) -> pd.DataFrame:
     """
     grades = pd.read_csv(root / "messidor_data.csv")
     grades = grades[grades["adjudicated_gradable"] == 1].reset_index(drop=True)
-    paths = {p.name.lower(): p for p in root.rglob("*") if p.suffix.lower() in (".png", ".jpg", ".jpeg", ".tif")}
+    files = [p for p in root.rglob("*") if p.suffix.lower() in (".png", ".jpg", ".jpeg", ".tif")]
+    paths = {p.name.lower(): p for p in files}
+    if len(paths) != len(files):
+        raise ValueError("noms d'images Messidor-2 en double (sans la casse) : fichier ambigu")
     ids = grades["image_id"].str.lower()
+    if ids.duplicated().any():
+        raise ValueError(f"{int(ids.duplicated().sum())} image(s) en double dans messidor_data.csv")
     missing = set(ids) - set(paths)
     if missing:
         raise FileNotFoundError(f"{len(missing)} images Messidor-2 absentes, ex. {sorted(missing)[:3]}")
