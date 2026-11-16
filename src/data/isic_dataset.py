@@ -35,6 +35,11 @@ VALIDATION_FOLDS = 7
 RESIZE_RATIO = 256 / 224
 
 
+# Identité de la transformation peau/routeur, enregistrée dans les caches d'embeddings :
+# à changer si `skin_tensor` change (les caches existants seront alors refusés).
+SKIN_TRANSFORM = "short256-bilinear/center224/imagenet-v1"
+
+
 def load_skin_image(path: str | Path, image_size: int) -> torch.Tensor:
     """Image (3, size, size) dans [0, 1] : petit côté à round(size × 256/224)
     (bilinéaire), puis recadrage central, comme `Resize(256), CenterCrop(224)`."""

@@ -48,6 +48,7 @@ from sklearn.preprocessing import StandardScaler
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.train_modality_router_v2 import Item, embed  # noqa: E402
+from src.data.isic_dataset import SKIN_TRANSFORM  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, file_fingerprint  # noqa: E402
 from src.models.timm_backbones import DINOV2_IMAGE_SIZE, DINOv2Backbone  # noqa: E402
@@ -114,7 +115,10 @@ def main() -> None:
     names = {Path(n).stem: n for n in archive.namelist() if n.endswith(".jpg")}
     items = [Item(f"slice3d/{i}", i, lambda n=names[i]: Image.open(io.BytesIO(archive.read(n)))) for i in d["isic_id"]]
     fingerprint = file_fingerprint(args.checkpoint)
-    cache = EmbeddingCache(args.cache, meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE})
+    cache = EmbeddingCache(
+        args.cache,
+        meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE, "transform": SKIN_TRANSFORM},
+    )
     X = embed(items, DINOv2Backbone(args.checkpoint), cache)
     y = d["malignant"].astype(int).to_numpy()
     tr, te = (d["part"] == "train").to_numpy(), (d["part"] == "test").to_numpy()

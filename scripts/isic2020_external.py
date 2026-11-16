@@ -60,7 +60,7 @@ from scripts.modality_router_pathology_stress import HEADS, rates  # noqa: E402
 from scripts.modality_router_skin_photo_stress import to_fundus  # noqa: E402
 from scripts.pad_ufes20_skin import auroc_ci  # noqa: E402
 from scripts.train_modality_router_v2 import Item, embed  # noqa: E402
-from src.data.isic_dataset import CLASS_NAMES  # noqa: E402
+from src.data.isic_dataset import CLASS_NAMES, SKIN_TRANSFORM  # noqa: E402
 from src.eval.decision import decision_metrics  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, file_fingerprint, load_embeddings  # noqa: E402
@@ -102,7 +102,10 @@ def main() -> None:
         for n, g in zip(meta["image_name"], meta["patient_id"], strict=True)
     ]
     fingerprint = file_fingerprint(args.checkpoint)
-    cache = EmbeddingCache(args.cache, meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE})
+    cache = EmbeddingCache(
+        args.cache,
+        meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE, "transform": SKIN_TRANSFORM},
+    )
     X = embed(items, DINOv2Backbone(args.checkpoint), cache)
 
     train_2019 = ImageList(args.isic2019_root, "train")

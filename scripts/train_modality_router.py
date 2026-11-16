@@ -46,7 +46,7 @@ from sklearn.preprocessing import StandardScaler
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.robustness_checks import load  # noqa: E402
-from src.data.isic_dataset import load_skin_image  # noqa: E402
+from src.data.isic_dataset import SKIN_TRANSFORM, load_skin_image  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, file_fingerprint  # noqa: E402
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD  # noqa: E402
@@ -149,7 +149,10 @@ def main() -> None:
 
     lists = image_lists(args)
     fingerprint = file_fingerprint(args.checkpoint)
-    cache = EmbeddingCache(args.cache, meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE})
+    cache = EmbeddingCache(
+        args.cache,
+        meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE, "transform": SKIN_TRANSFORM},
+    )
     backbone = DINOv2Backbone(args.checkpoint)
     X = {}
     for part, by_modality in lists.items():
@@ -170,7 +173,12 @@ def main() -> None:
     report = {
         "run": run_info(),
         "plan": "fixé le 9 novembre 2026 avant tout run (docstring du script)",
-        "backbone": {"model": "dinov2_vitb14", "checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE},
+        "backbone": {
+            "model": "dinov2_vitb14",
+            "checkpoint_sha256": fingerprint,
+            "image_size": DINOV2_IMAGE_SIZE,
+            "transform": SKIN_TRANSFORM,
+        },
         "threshold": CONFIDENCE_THRESHOLD,
         "sizes": SIZES,
         "sources": {
@@ -183,7 +191,15 @@ def main() -> None:
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
     args.head.parent.mkdir(parents=True, exist_ok=True)
-    head.save(args.head, {"backbone": "dinov2", "checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE})
+    head.save(
+        args.head,
+        {
+            "backbone": "dinov2",
+            "checkpoint_sha256": fingerprint,
+            "image_size": DINOV2_IMAGE_SIZE,
+            "transform": SKIN_TRANSFORM,
+        },
+    )
     for truth, row in report["test"]["confusion"].items():
         print(f"test {truth:10s} -> {row}")
     print("critères :", report["test"]["criteria"])

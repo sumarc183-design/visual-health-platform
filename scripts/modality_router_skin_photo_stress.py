@@ -49,6 +49,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.modality_router_pathology_stress import HEADS, rates  # noqa: E402
 from scripts.slice3d_feasibility import select  # noqa: E402
 from scripts.train_modality_router import exact_ci  # noqa: E402
+from src.data.isic_dataset import SKIN_TRANSFORM  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, file_fingerprint  # noqa: E402
 from src.models.timm_backbones import DINOV2_IMAGE_SIZE  # noqa: E402
@@ -77,7 +78,10 @@ def main() -> None:
     if not args.cache.exists():
         raise FileNotFoundError(f"{args.cache} absent : lancer d'abord scripts/slice3d_feasibility.py")
     fingerprint = file_fingerprint(args.checkpoint)
-    cache = EmbeddingCache(args.cache, meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE})
+    cache = EmbeddingCache(
+        args.cache,
+        meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE, "transform": SKIN_TRANSFORM},
+    )
     if cache.missing(keys):
         raise ValueError(f"{len(cache.missing(keys))} images absentes du cache : sélection différente")
     X = cache.get(keys)

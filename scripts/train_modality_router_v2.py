@@ -57,7 +57,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.robustness_checks import load  # noqa: E402
 from scripts.train_modality_router import SPECIALISTS, exact_ci  # noqa: E402
-from src.data.isic_dataset import skin_tensor  # noqa: E402
+from src.data.isic_dataset import SKIN_TRANSFORM, skin_tensor  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, file_fingerprint  # noqa: E402
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD  # noqa: E402
@@ -219,7 +219,10 @@ def main() -> None:
     if any(shared.values()):
         raise ValueError(f"groupes communs entre ajustement et contrôle : {shared}")
     fingerprint = file_fingerprint(args.checkpoint)
-    cache = EmbeddingCache(args.cache, meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE})
+    cache = EmbeddingCache(
+        args.cache,
+        meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE, "transform": SKIN_TRANSFORM},
+    )
     backbone = DINOv2Backbone(args.checkpoint)
     X = {}
     for part, sets in (("fit", fit), ("control", control), ("test", test)):
@@ -240,7 +243,12 @@ def main() -> None:
     report = {
         "run": run_info(),
         "plan": "fixé le 10 novembre 2026 avant tout run (docstring du script)",
-        "backbone": {"model": "dinov2_vitb14", "checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE},
+        "backbone": {
+            "model": "dinov2_vitb14",
+            "checkpoint_sha256": fingerprint,
+            "image_size": DINOV2_IMAGE_SIZE,
+            "transform": SKIN_TRANSFORM,
+        },
         "threshold": CONFIDENCE_THRESHOLD,
         "sizes": {
             part: {k: len(v) for k, v in sets.items()}
@@ -269,7 +277,15 @@ def main() -> None:
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
-    head.save(args.head, {"backbone": "dinov2", "checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE})
+    head.save(
+        args.head,
+        {
+            "backbone": "dinov2",
+            "checkpoint_sha256": fingerprint,
+            "image_size": DINOV2_IMAGE_SIZE,
+            "transform": SKIN_TRANSFORM,
+        },
+    )
     for name in test:
         print(f"{name:24s} v2 {report['test'][name]['decisions']}   v1 {report['test_v1_head'][name]['decisions']}")
     print("critères :", report["criteria"])

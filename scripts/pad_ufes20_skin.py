@@ -66,7 +66,7 @@ from scripts.modality_router_pathology_stress import HEADS, rates  # noqa: E402
 from scripts.modality_router_skin_photo_stress import to_fundus  # noqa: E402
 from scripts.robustness_checks import fit_head  # noqa: E402
 from scripts.train_modality_router_v2 import Item, embed  # noqa: E402
-from src.data.isic_dataset import CLASS_NAMES  # noqa: E402
+from src.data.isic_dataset import CLASS_NAMES, SKIN_TRANSFORM  # noqa: E402
 from src.eval.metrics import _group_resamples, bootstrap_auroc_ci, paired_bootstrap_diff  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.models.classifier_head import MultiLabelHead  # noqa: E402
@@ -129,7 +129,10 @@ def main() -> None:
         for i, g in zip(meta["img_id"], meta["patient_id"], strict=True)
     ]
     fingerprint = file_fingerprint(args.checkpoint)
-    cache = EmbeddingCache(args.cache, meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE})
+    cache = EmbeddingCache(
+        args.cache,
+        meta={"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE, "transform": SKIN_TRANSFORM},
+    )
     X = embed(items, DINOv2Backbone(args.checkpoint), cache)
     diagnostic = meta["diagnostic"].to_numpy()
     groups = list(meta["patient_id"])

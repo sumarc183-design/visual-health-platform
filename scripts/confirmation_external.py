@@ -70,7 +70,7 @@ from scripts.external_validation import quiet_scores  # noqa: E402
 from scripts.green_analysis import cached  # noqa: E402
 from scripts.pad_ufes20_skin import auroc_ci  # noqa: E402
 from scripts.robustness_checks import load  # noqa: E402
-from src.data.fundus_preprocess import load_fundus_image  # noqa: E402
+from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image  # noqa: E402
 from src.eval.decision import choose_threshold, decision_metrics  # noqa: E402
 from src.eval.metrics import paired_bootstrap_diff  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
@@ -164,6 +164,7 @@ def embeddings(table: pd.DataFrame, model: str, cache_path: Path) -> np.ndarray:
         "checkpoint_sha256": file_fingerprint(CHECKPOINTS[model]),
         "image_size": SIZES[model],
         "preprocess": "crop-mask",
+        "preprocess_version": PREPROCESS_VERSION,
     }
     cache = EmbeddingCache(cache_path, meta=meta)
     keys = list(table["key"])

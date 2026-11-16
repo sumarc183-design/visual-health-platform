@@ -69,7 +69,7 @@ from scripts.modality_router_skin_photo_stress import to_fundus  # noqa: E402
 from scripts.pad_ufes20_skin import auroc_ci  # noqa: E402
 from scripts.robustness_checks import fit_head  # noqa: E402
 from scripts.train_modality_router_v2 import Item, embed  # noqa: E402
-from src.data.isic_dataset import CLASS_NAMES  # noqa: E402
+from src.data.isic_dataset import CLASS_NAMES, SKIN_TRANSFORM  # noqa: E402
 from src.eval.metrics import bootstrap_auroc_ci, paired_bootstrap_diff  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
 from src.models.classifier_head import MultiLabelHead  # noqa: E402
@@ -128,7 +128,7 @@ def main() -> None:
 
     fingerprint = file_fingerprint(args.checkpoint)
     backbone = DINOv2Backbone(args.checkpoint)
-    meta = {"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE}
+    meta = {"checkpoint_sha256": fingerprint, "image_size": DINOV2_IMAGE_SIZE, "transform": SKIN_TRANSFORM}
 
     # MILK10k : une dermoscopie par lésion
     images = pd.read_csv(args.milk_root / "metadata.csv")
