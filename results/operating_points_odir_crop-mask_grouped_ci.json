@@ -1,0 +1,564 @@
+{
+  "run": {
+    "git_commit": "64abe9b",
+    "python": "3.12.7",
+    "versions": {
+      "numpy": "1.26.4",
+      "scikit-learn": "1.9.1",
+      "torch": "2.2.2",
+      "timm": "1.0.31"
+    }
+  },
+  "plan": "correctif d'unité, écrit le 16 novembre 2026 avant ce calcul (docstring) ; points inchangés",
+  "dataset": "odir",
+  "variant": "crop-mask",
+  "unit": "image (œil)",
+  "images_test": 965,
+  "patients_test": 504,
+  "classes": {
+    "N": [
+      {
+        "target_sensitivity_on_validation": 0.8,
+        "threshold": 0.5088716745376587,
+        "test_sensitivity": 0.8116279069767441,
+        "sensitivity_ci_binomial_image": [
+          0.7714081087906449,
+          0.8474954977862001
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.7735274303698523,
+          0.8512600903259087
+        ],
+        "test_specificity": 0.6299065420560748,
+        "specificity_ci_binomial_image": [
+          0.5874306582481514,
+          0.6709387207461189
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.581568279103068,
+          0.6751848385272174
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.9,
+        "threshold": 0.37813687324523926,
+        "test_sensitivity": 0.9209302325581395,
+        "sensitivity_ci_binomial_image": [
+          0.8912591304665824,
+          0.9446224328215319
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.8921517917511833,
+          0.9452380952380952
+        ],
+        "test_specificity": 0.48785046728971965,
+        "specificity_ci_binomial_image": [
+          0.4447282229521193,
+          0.5311076029703047
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.43571442772222113,
+          0.53348559771808
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.95,
+        "threshold": 0.30361485481262207,
+        "test_sensitivity": 0.9441860465116279,
+        "sensitivity_ci_binomial_image": [
+          0.9180889050000788,
+          0.9639152957067001
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.9185171862509992,
+          0.966428866476197
+        ],
+        "test_specificity": 0.411214953271028,
+        "specificity_ci_binomial_image": [
+          0.3691760503138283,
+          0.45424003255773543
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.3584878394590468,
+          0.45920944663828916
+        ]
+      }
+    ],
+    "D": [
+      {
+        "target_sensitivity_on_validation": 0.8,
+        "threshold": 0.20400406420230865,
+        "test_sensitivity": 0.7969924812030075,
+        "sensitivity_ci_binomial_image": [
+          0.7435748319987059,
+          0.8436586630813918
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.7442576825210413,
+          0.8467500857780066
+        ],
+        "test_specificity": 0.580829756795422,
+        "specificity_ci_binomial_image": [
+          0.5432584223714697,
+          0.6177159571609091
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.5374427186186642,
+          0.6221567322874751
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.9,
+        "threshold": 0.11544723808765411,
+        "test_sensitivity": 0.9285714285714286,
+        "sensitivity_ci_binomial_image": [
+          0.8907010370537465,
+          0.9564501896518578
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.8909644916177369,
+          0.9610905253605753
+        ],
+        "test_specificity": 0.38912732474964234,
+        "specificity_ci_binomial_image": [
+          0.35280224806336974,
+          0.42639246632726363
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.34319096601073346,
+          0.4362338468393914
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.95,
+        "threshold": 0.06748129427433014,
+        "test_sensitivity": 0.9887218045112782,
+        "sensitivity_ci_binomial_image": [
+          0.9673959496565642,
+          0.9976680985362127
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.9744502152348867,
+          1.0
+        ],
+        "test_specificity": 0.25464949928469244,
+        "specificity_ci_binomial_image": [
+          0.22272983036289937,
+          0.28865561467546097
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.21448917399532452,
+          0.29587591081951986
+        ]
+      }
+    ],
+    "G": [
+      {
+        "target_sensitivity_on_validation": 0.8,
+        "threshold": 0.06988539546728134,
+        "test_sensitivity": 0.8235294117647058,
+        "sensitivity_ci_binomial_image": [
+          0.6546848689318661,
+          0.9323593473172429
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.6666666666666666,
+          0.9512485481997677
+        ],
+        "test_specificity": 0.8614393125671321,
+        "specificity_ci_binomial_image": [
+          0.837565985896118,
+          0.8829978043986962
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.8333288482238967,
+          0.8852883880825058
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.9,
+        "threshold": 0.020813049748539925,
+        "test_sensitivity": 0.9705882352941176,
+        "sensitivity_ci_binomial_image": [
+          0.8467323304396823,
+          0.9992556357653097
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.9032258064516129,
+          1.0
+        ],
+        "test_specificity": 0.6799140708915145,
+        "specificity_ci_binomial_image": [
+          0.6488765777413339,
+          0.7098083638550359
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.6436135522664199,
+          0.7159896358131945
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.95,
+        "threshold": 0.009530547074973583,
+        "test_sensitivity": 1.0,
+        "sensitivity_ci_binomial_image": [
+          0.8971820757409874,
+          1.0
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          1.0,
+          1.0
+        ],
+        "test_specificity": 0.5048335123523093,
+        "specificity_ci_binomial_image": [
+          0.47220839354253746,
+          0.5374279650686762
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.4667106682613947,
+          0.545364774872147
+        ]
+      }
+    ],
+    "C": [
+      {
+        "target_sensitivity_on_validation": 0.8,
+        "threshold": 0.12917795777320862,
+        "test_sensitivity": 0.6739130434782609,
+        "sensitivity_ci_binomial_image": [
+          0.5198279593624653,
+          0.8046745633261057
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.5,
+          0.8292812662169174
+        ],
+        "test_specificity": 0.9836779107725789,
+        "specificity_ci_binomial_image": [
+          0.9732218993368741,
+          0.9908366172866688
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.9752668162995441,
+          0.9913702432764201
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.9,
+        "threshold": 0.07193344831466675,
+        "test_sensitivity": 0.6956521739130435,
+        "sensitivity_ci_binomial_image": [
+          0.5424513485698682,
+          0.8225731847040552
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.5277777777777778,
+          0.8529591104734576
+        ],
+        "test_specificity": 0.9771490750816104,
+        "specificity_ci_binomial_image": [
+          0.9652811866634355,
+          0.985800577421139
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.9668818984547461,
+          0.9869848156182213
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.95,
+        "threshold": 0.005968176294118166,
+        "test_sensitivity": 0.8260869565217391,
+        "sensitivity_ci_binomial_image": [
+          0.6858093499247006,
+          0.9217965761936471
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.6922727272727273,
+          0.9428706199460916
+        ],
+        "test_specificity": 0.9390642002176278,
+        "specificity_ci_binomial_image": [
+          0.921596046474273,
+          0.9536450595107588
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.9206487589314902,
+          0.9565725206138341
+        ]
+      }
+    ],
+    "A": [
+      {
+        "target_sensitivity_on_validation": 0.8,
+        "threshold": 0.05777826905250549,
+        "test_sensitivity": 0.6304347826086957,
+        "sensitivity_ci_binomial_image": [
+          0.47548451740916303,
+          0.7679342812000558
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.47360681114551084,
+          0.7804878048780488
+        ],
+        "test_specificity": 0.8726877040261154,
+        "specificity_ci_binomial_image": [
+          0.8493937877526607,
+          0.8935604756934493
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.8483802449212076,
+          0.8981380065717415
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.9,
+        "threshold": 0.02854670211672783,
+        "test_sensitivity": 0.8695652173913043,
+        "sensitivity_ci_binomial_image": [
+          0.737434983812373,
+          0.95059265342629
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.7599393939393939,
+          0.9583545918367347
+        ],
+        "test_specificity": 0.7029379760609358,
+        "specificity_ci_binomial_image": [
+          0.6722326167340735,
+          0.7323362096125576
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.6662907191332301,
+          0.7390923816829931
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.95,
+        "threshold": 0.015556465834379196,
+        "test_sensitivity": 0.9130434782608695,
+        "sensitivity_ci_binomial_image": [
+          0.7920826751160522,
+          0.9757969291970654
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.822202380952381,
+          0.9800283018867925
+        ],
+        "test_specificity": 0.514689880304679,
+        "specificity_ci_binomial_image": [
+          0.4818301401473378,
+          0.5474551919877824
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.4741365345944738,
+          0.5521747320634623
+        ]
+      }
+    ],
+    "H": [
+      {
+        "target_sensitivity_on_validation": 0.8,
+        "threshold": 0.020910393446683884,
+        "test_sensitivity": 0.6470588235294118,
+        "sensitivity_ci_binomial_image": [
+          0.3832836634434029,
+          0.857902516889779
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.26666666666666666,
+          0.9230769230769231
+        ],
+        "test_specificity": 0.6497890295358649,
+        "specificity_ci_binomial_image": [
+          0.6184663465691282,
+          0.6801776290954523
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.6114590642880277,
+          0.6888303388055894
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.9,
+        "threshold": 0.0015979785239323974,
+        "test_sensitivity": 1.0,
+        "sensitivity_ci_binomial_image": [
+          0.8049356770309067,
+          1.0
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          1.0,
+          1.0
+        ],
+        "test_specificity": 0.18354430379746836,
+        "specificity_ci_binomial_image": [
+          0.15938815932941547,
+          0.20968394388606942
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.1515685434516524,
+          0.21475589451335345
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.95,
+        "threshold": 0.0014575835084542632,
+        "test_sensitivity": 1.0,
+        "sensitivity_ci_binomial_image": [
+          0.8049356770309067,
+          1.0
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          1.0,
+          1.0
+        ],
+        "test_specificity": 0.18037974683544303,
+        "specificity_ci_binomial_image": [
+          0.15639924698214633,
+          0.20636394259677843
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.1487331002717211,
+          0.21265227738115003
+        ]
+      }
+    ],
+    "M": [
+      {
+        "target_sensitivity_on_validation": 0.8,
+        "threshold": 0.7428165078163147,
+        "test_sensitivity": 0.918918918918919,
+        "sensitivity_ci_binomial_image": [
+          0.7809037937619998,
+          0.9829564693041812
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.7931034482758621,
+          1.0
+        ],
+        "test_specificity": 0.9946120689655172,
+        "specificity_ci_binomial_image": [
+          0.9874714881461959,
+          0.9982483083645879
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.9883474576271186,
+          0.9989361702127659
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.9,
+        "threshold": 0.3165406584739685,
+        "test_sensitivity": 0.972972972972973,
+        "sensitivity_ci_binomial_image": [
+          0.858396904388842,
+          0.9993159689753053
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.9142857142857143,
+          1.0
+        ],
+        "test_specificity": 0.9892241379310345,
+        "specificity_ci_binomial_image": [
+          0.9802723456052662,
+          0.9948207980239048
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.980476162406866,
+          0.9957447939041761
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.95,
+        "threshold": 0.2591981291770935,
+        "test_sensitivity": 0.972972972972973,
+        "sensitivity_ci_binomial_image": [
+          0.858396904388842,
+          0.9993159689753053
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.9142857142857143,
+          1.0
+        ],
+        "test_specificity": 0.9881465517241379,
+        "specificity_ci_binomial_image": [
+          0.9788900818896968,
+          0.9940683583340195
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.9794361143195199,
+          0.9956429383347543
+        ]
+      }
+    ],
+    "O": [
+      {
+        "target_sensitivity_on_validation": 0.8,
+        "threshold": 0.11442535370588303,
+        "test_sensitivity": 0.7642857142857142,
+        "sensitivity_ci_binomial_image": [
+          0.6852001461050137,
+          0.8318523169819809
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.6917277568922305,
+          0.8333928571428572
+        ],
+        "test_specificity": 0.5709090909090909,
+        "specificity_ci_binomial_image": [
+          0.5363261784480221,
+          0.6049836318919768
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.5315514880462634,
+          0.6081835471360382
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.9,
+        "threshold": 0.08371005952358246,
+        "test_sensitivity": 0.8571428571428571,
+        "sensitivity_ci_binomial_image": [
+          0.7880251271999381,
+          0.9105029395295094
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.7944908675799086,
+          0.9111224489795918
+        ],
+        "test_specificity": 0.3987878787878788,
+        "specificity_ci_binomial_image": [
+          0.3651824272345965,
+          0.4331191331276686
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.35966616127583106,
+          0.43927023254105285
+        ]
+      },
+      {
+        "target_sensitivity_on_validation": 0.95,
+        "threshold": 0.04474037140607834,
+        "test_sensitivity": 0.9357142857142857,
+        "sensitivity_ci_binomial_image": [
+          0.8814742371044579,
+          0.970185685094348
+        ],
+        "sensitivity_ci_patient_bootstrap": [
+          0.8918814163000209,
+          0.9732387672811059
+        ],
+        "test_specificity": 0.15636363636363637,
+        "specificity_ci_binomial_image": [
+          0.13223684280274814,
+          0.18297430966754302
+        ],
+        "specificity_ci_patient_bootstrap": [
+          0.12837331649831651,
+          0.18536245572609208
+        ]
+      }
+    ]
+  }
+}

@@ -10,8 +10,13 @@ seuil choisi sur la validation pour viser une sensibilité de 80, 90 ou 95 %, ap
 test ; résultats ramenés à **1 000 images (yeux)**, avec la proportion de malades du test.
 L'unité est l'image : un patient peut compter pour deux yeux, et les intervalles de
 confiance de `results/operating_points_*.json` (binomiaux, par image) ignorent cette
-dépendance ; ils sont un peu trop étroits (audit du 15 nov.). Les nombres du tableau ne
-changent pas.
+dépendance (audit du 15 nov.). Pour ODIR (965 images, 504 patients), les IC recalculés
+par bootstrap sur les patients ([résultats](../results/operating_points_odir_crop-mask_grouped_ci.json),
+`scripts/operating_points_grouped_ci.py`) changent peu : à 90 % visés, rétinopathie
+diabétique [0,89 ; 0,96] dans les deux cas, cataracte [0,53 ; 0,85] contre [0,54 ; 0,82].
+Quand la sensibilité vaut 1 ou presque (hypertension, glaucome, myopie), le bootstrap
+s'écrase sur 1 et sous-estime l'incertitude : garder alors l'IC binomial, plus prudent.
+RFMiD n'a pas d'identifiant patient : IC par image. Les nombres du tableau ne changent pas.
 Le test a déjà servi : chiffres descriptifs, pas une confirmation. Proportions de malades
 bien plus élevées que dans une population dépistée : dans la vraie vie, à sensibilité
 égale, les fausses alertes pèseraient davantage. Résultats complets :
