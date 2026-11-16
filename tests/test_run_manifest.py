@@ -26,6 +26,7 @@ def test_manifest_lists_each_file_with_its_hash(tmp_path):
     assert manifest["requested_revision"] == "main"
     assert manifest["files"]["embeddings/a.npz"]["sha256"] == hashlib.sha256(b"abc").hexdigest()
     assert "python" in manifest["versions"]
+    assert any(line.lower().startswith("numpy==") for line in manifest["pip_freeze"])  # environnement complet
     assert run(archive).returncode != 0  # pas de second manifeste
 
 

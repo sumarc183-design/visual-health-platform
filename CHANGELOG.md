@@ -6,6 +6,11 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Corrigé
+- Audit du 15 nov., constats 5 (reste) et 10 : le seuil qualité DeepDRiD vérifie que la
+  relecture et le manifeste n'ont pas changé depuis le run principal, et les prochaines
+  archives gardent les clés (`f80663c`). Notebooks : installation `pip` vérifiée (arrêt si
+  échec), copie du dépôt protégée avant `reset --hard` ; manifeste avec `pip freeze`
+  complet ; trois notebooks historiques sans manifeste signalés dans le GUIDE.
 - Audit du 15 nov., constats 5 et 6 : la confirmation externe garde un instantané local
   (clés, groupes, stades, scores ; `results/confirmation_*.npz`, non versionné) et les
   empreintes des annotations (`8ee9b68`) ; les caches d'embeddings enregistrent la

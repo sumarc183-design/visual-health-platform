@@ -213,6 +213,16 @@ l'ajouter aux Secrets Colab ou Kaggle sous le nom `GITHUB_TOKEN`. Le jeton n'est
 affiché, même si le clonage échoue. Pour rejouer un run à l'identique, remplacer
 `REVISION = "main"` par le commit voulu.
 
+Traçabilité (audit du 15 nov., constat 10) : le zip de sortie contient
+`run_manifest.json` (commit réellement utilisé, fichiers suivis modifiés, plateforme, GPU,
+versions principales et `pip freeze` complet, empreinte de chaque fichier). Avec
+`REVISION = "main"`, c'est ce commit enregistré qui permet de rejouer le run. Une
+installation `pip` qui échoue arrête le notebook, et la copie du dépôt n'est pas
+réinitialisée (`reset --hard`) si elle contient des modifications locales. Trois notebooks
+historiques n'ont pas de manifeste : `colab_baseline_retfound` (baseline du 4 nov.),
+`colab_aptos_formats` et `kaggle_gpu_checks` ; leurs résultats sont antérieurs au
+manifeste et ils ne servent plus aux analyses en cours.
+
 ## Validation externe (APTOS 2019)
 
 Pour savoir si la détection de la rétinopathie diabétique tient sur une

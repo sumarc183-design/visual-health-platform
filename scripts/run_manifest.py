@@ -3,8 +3,9 @@
 
 Le manifeste relie les fichiers produits à leur exécution : commit réellement utilisé
 (et fichiers suivis modifiés éventuels), révision demandée, plateforme, GPU, versions
-des bibliothèques, empreinte SHA-256 et taille de chaque fichier du zip. Échec explicite
-(code de retour non nul) si le zip est absent, vide ou déjà muni d'un manifeste.
+des bibliothèques et environnement complet (`pip freeze`), empreinte SHA-256 et taille
+de chaque fichier du zip. Échec explicite (code de retour non nul) si le zip est absent,
+vide ou déjà muni d'un manifeste.
 
 Exemple (dernière cellule d'un notebook) :
     subprocess.run(["python", "scripts/run_manifest.py", "--archive", archive,
@@ -52,6 +53,15 @@ def versions() -> dict:
     return out
 
 
+def pip_freeze() -> list[str] | None:
+    """Environnement résolu complet (audit du 15 nov., constat 10) ; None si pip est indisponible."""
+    try:
+        out = subprocess.run([sys.executable, "-m", "pip", "freeze"], capture_output=True, text=True, check=True)
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return sorted(line for line in out.stdout.splitlines() if line.strip())
+
+
 def gpu() -> str | None:
     try:
         import torch
@@ -77,6 +87,7 @@ def build_manifest(archive: Path, requested_revision: str | None) -> dict:
         "platform": platform_name,
         "gpu": gpu(),
         "versions": versions(),
+        "pip_freeze": pip_freeze(),
         "files": files,
     }
 
