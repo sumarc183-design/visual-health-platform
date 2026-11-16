@@ -16,7 +16,12 @@ selon [SemVer](https://semver.org/lang/fr/).
   embedding) : Green − RETFound −0,001 [−0,017 ; +0,014], non confirmé ; dépistage
   `--dr-screening` : sensibilité 0,957 [0,934 ; 0,976], spécificité 0,48 (critère
   atteint). Poids RETFound utilisés en local, vérifiés identiques au cache.
-  `scripts/confirmation_external.py` ; Messidor-2 à venir.
+  `scripts/confirmation_external.py`.
+- Confirmation principale sur Messidor-2 (16 nov., même plan ; 1 744 images, 874
+  examens) : Green − RETFound +0,080 [+0,048 ; +0,111], confirmé ; dépistage
+  `--dr-screening` : sensibilité 0,832 [0,802 ; 0,859], spécificité 0,41 (critère
+  atteint). Lecture de la liste officielle des examens et noms sans casse (`6ef54df`).
+- GUIDE : sources pour retélécharger IDRiD gradation, Messidor-2, ISIC 2020 et MILK10k.
 - Tête peau sans les « unknown » d'ISIC 2020 (13 nov., plan fixé avant calcul) : sur
   MILK10k, mélanome −0,008, BCC −0,022, macro −0,005 face à la tête servie ; critère non
   atteint, hypothèse réfutée. `scripts/skin_transfer_labeled.py`.

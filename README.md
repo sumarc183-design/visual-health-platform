@@ -226,11 +226,29 @@ vue par aucun des deux modèles (IDRiD, Messidor-2 ou BRSET) est nécessaire.
 
 Sur IDRiD, **Green ne fait pas mieux que RETFound** (critère non confirmé) ; le réglage
 dépistage garde sa sensibilité (critère ≥ 0,80 atteint), avec la même spécificité
-d'environ 0,5. Messidor-2 (principal, 1 744 images) reste à mesurer. Un premier calcul
+d'environ 0,5. Un premier calcul
 avait donné les mêmes clés aux images d'apprentissage et de test d'IDRiD (mêmes noms) ;
 il a été écarté avant correction (`eb65994`), sans changer la méthode.
 
-**Critère confirmé** (borne basse > 0 avec les deux regroupements). Le schéma
+**Messidor-2, confirmation principale** (16 nov., même plan,
+[résultats](results/confirmation_messidor2.json) ; 1 744 images gradables, 874 examens
+regroupés par patient, France, 2004-2010) :
+
+| Messidor-2 | RETFound | RETFound-Green | Différence [IC 95 %] |
+|---|---|---|---|
+| Toute rétinopathie, tête RFMiD | 0,667 | 0,747 | **+0,080 [+0,048 ; +0,111]** |
+| À adresser (stade ≥ 2) | 0,738 | 0,857 | non calculée |
+| Dépistage `--dr-screening` : sensibilité | | **0,832 [0,802 ; 0,859]** | spécificité 0,41, VPP 0,50 ; à adresser 0,937 |
+
+Les deux critères sont atteints : **Green fait mieux que RETFound sur une base vue par
+aucun des deux** (le choix de Green par défaut repose désormais sur une confirmation
+indépendante) et le réglage dépistage garde une sensibilité ≥ 0,80, de justesse (borne
+basse 0,802), avec une spécificité faible (0,41). Les AUROC absolus sont bas : la tête
+RFMiD transfère mal les stades légers de Messidor-2 ; au seuil RFMiD, Green ne détecte
+que 36 % des rétinopathies (RETFound 12 %). IDRiD, plus petite, ne montrait pas
+d'écart : la confirmation tient sur la base principale, pas sur les deux.
+
+**DDR (12 nov.) : critère confirmé** (borne basse > 0 avec les deux regroupements). Le schéma
 d'EyePACS se reproduit : Green transfère bien mieux la tête RFMiD, mais, entraînés
 dans la base, les deux modèles se valent ; les seuils RFMiD ne se transposent pas.
 Conséquence prévue au plan : Green devient le meilleur candidat « modèle par défaut »
@@ -718,7 +736,7 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
   le test.
 - Sur APTOS, où le décalage par appareil existe (contrôle 7), ce remède ne
   peut pas être évalué : malades et sains n'y partagent presque aucun
-  appareil. Il reste une hypothèse, à tester sur une base comme Messidor-2.
+  appareil. Il reste une hypothèse ; Messidor-2 est désormais en local pour la tester.
 
 ## État du socle
 
@@ -741,7 +759,8 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 | ODIR-5K | Entraînement et test : 8 classes, volume complémentaire |
 | APTOS 2019 | Transfert de la rétinopathie diabétique |
 | EyePACS | Transfert de la rétinopathie diabétique (2 500 patients) |
-| IDRiD | Localisation : 81 images avec masques d'experts |
+| IDRiD | Localisation : 81 images avec masques d'experts ; gradation (516 images) : confirmation externe, base vue par aucun des deux modèles |
+| Messidor-2 | Confirmation externe principale (1 744 images, 874 examens), base vue par aucun des deux modèles |
 | DDR | Confirmation externe de la rétinopathie diabétique (12 522 images) et mesure du réglage `--dr-screening` |
 | ISIC 2019 | Dermatologie, seconde indication : tête peau servie (DINOv2-B, seuils et contrôle qualité) ; PanDerm − DINOv2-L, AUROC macro +0,037 [+0,030 ; +0,043] sur le test ([résultats](docs/DERMATOLOGIE.md#résultats)) |
 | ISIC 2020 | Validation externe de la tête peau : AUROC mélanome 0,788 [0,765 ; 0,808], critère (≥ 0,80) non atteint |
