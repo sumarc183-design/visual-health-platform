@@ -36,3 +36,12 @@ def test_messidor_table_groups_by_exam_ignoring_case(tmp_path):
     assert len(table) == 3 and table["grade"].tolist() == [0, 2, 1]
     assert table["group"].tolist() == ["messidor2/a.jpg", "messidor2/a.jpg", "messidor2/c.png"]
     assert table["path"][0].name == "a.JPG"
+
+
+def test_image_format_reads_size_and_lowercase_suffix(tmp_path):
+    from PIL import Image
+
+    from scripts.messidor_format_check import image_format
+
+    Image.new("RGB", (30, 20)).save(tmp_path / "x.JPG", format="JPEG")
+    assert image_format(tmp_path / "x.JPG") == "30x20.jpg"
