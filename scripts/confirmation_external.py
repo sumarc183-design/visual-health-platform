@@ -110,24 +110,37 @@ def idrid_table(root: Path) -> pd.DataFrame:
 
 
 def messidor_table(root: Path) -> pd.DataFrame:
-    """Images gradables de Messidor-2 ; groupe = examen si une liste de paires est fournie."""
+    """Images gradables de Messidor-2 ; groupe = examen si la liste officielle des paires est fournie.
+
+    Les noms sont comparés sans la casse : les notes Kaggle écrivent « .jpg », les fichiers
+    ADCIS « .JPG ». La liste ADCIS (`messidor-2.csv`, colonnes `left;right`) donne un examen
+    par ligne ; l'examen prend le nom de l'image gauche.
+    """
     grades = pd.read_csv(root / "messidor_data.csv")
     grades = grades[grades["adjudicated_gradable"] == 1].reset_index(drop=True)
-    paths = {p.name: p for p in root.rglob("*") if p.suffix.lower() in (".png", ".jpg", ".jpeg", ".tif")}
-    missing = set(grades["image_id"]) - set(paths)
+    paths = {p.name.lower(): p for p in root.rglob("*") if p.suffix.lower() in (".png", ".jpg", ".jpeg", ".tif")}
+    ids = grades["image_id"].str.lower()
+    missing = set(ids) - set(paths)
     if missing:
         raise FileNotFoundError(f"{len(missing)} images Messidor-2 absentes, ex. {sorted(missing)[:3]}")
     df = pd.DataFrame(
         {
-            "key": "messidor2/" + grades["image_id"],
-            "path": [paths[i] for i in grades["image_id"]],
+            "key": "messidor2/" + ids,
+            "path": [paths[i] for i in ids],
             "grade": grades["adjudicated_dr_grade"].astype(int),
         }
     )
-    pairs = sorted(root.rglob("*pairs*.csv"))
-    if pairs:
-        exam = pd.read_csv(pairs[0])  # colonnes attendues : image_id, exam_id
-        df["group"] = df["key"].map(dict(zip("messidor2/" + exam.iloc[:, 0], exam.iloc[:, 1], strict=True)))
+    pairs = root / "messidor-2.csv"
+    if pairs.exists():
+        exam = pd.read_csv(pairs, sep=";")
+        exam.columns = [c.strip() for c in exam.columns]
+        left, right = exam["left"].str.strip().str.lower(), exam["right"].str.strip().str.lower()
+        group = {**dict(zip(left, left, strict=True)), **dict(zip(right, left, strict=True))}
+        if len(group) != 2 * len(exam):
+            raise ValueError("image présente dans plusieurs examens Messidor-2")
+        df["group"] = "messidor2/" + ids.map(group)
+        if df["group"].isna().any():
+            raise ValueError("image Messidor-2 sans examen dans messidor-2.csv")
     else:
         df["group"] = df["key"]
     return df

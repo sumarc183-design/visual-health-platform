@@ -1,6 +1,6 @@
 import pandas as pd
 
-from scripts.confirmation_external import idrid_table
+from scripts.confirmation_external import idrid_table, messidor_table
 
 
 def test_idrid_table_reads_both_official_splits(tmp_path):
@@ -17,3 +17,22 @@ def test_idrid_table_reads_both_official_splits(tmp_path):
     assert len(table) == 2 and table["grade"].tolist() == [2, 2]
     assert table["key"].is_unique and table["group"].is_unique  # mêmes noms dans les deux découpages
     assert str(table["path"][1]).endswith("b. Testing Set/IDRiD_001.jpg")
+
+
+def test_messidor_table_groups_by_exam_ignoring_case(tmp_path):
+    (tmp_path / "IMAGES").mkdir()
+    for name in ("a.JPG", "b.JPG", "c.png", "d.png"):
+        (tmp_path / "IMAGES" / name).touch()
+    pd.DataFrame(
+        {
+            "image_id": ["a.jpg", "b.jpg", "c.png", "d.png"],
+            "adjudicated_dr_grade": [0, 2, 1, 0],
+            "adjudicated_dme": [0, 0, 0, 0],
+            "adjudicated_gradable": [1, 1, 1, 0],
+        }
+    ).to_csv(tmp_path / "messidor_data.csv", index=False)
+    (tmp_path / "messidor-2.csv").write_text("left;right \na.JPG;b.JPG\nc.png;d.png\n")
+    table = messidor_table(tmp_path)
+    assert len(table) == 3 and table["grade"].tolist() == [0, 2, 1]
+    assert table["group"].tolist() == ["messidor2/a.jpg", "messidor2/a.jpg", "messidor2/c.png"]
+    assert table["path"][0].name == "a.JPG"
