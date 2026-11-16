@@ -264,11 +264,18 @@ modifiés pendant le run, pas le code.
 
 | DeepDRiD, évaluation (220 insuffisantes, 180 suffisantes) | Détecteur appris | Détecteur actuel |
 |---|---|---|
-| Sensibilité (images insuffisantes signalées) | 148 / 220 (0,67) | 11 / 220 (0,05) |
-| Spécificité (images suffisantes non signalées) | 103 / 180 (0,57) | 175 / 180 (0,97) |
+| Sensibilité (images insuffisantes signalées) | 148 / 220 (0,67 [0,60 ; 0,75]) | 11 / 220 (0,05) |
+| Spécificité (images suffisantes non signalées) | 103 / 180 (0,57 [0,48 ; 0,66]) | 175 / 180 (0,97) |
 | AUROC (bootstrap par patient) | 0,69 [0,62 ; 0,75] | — |
 
 Validation : AUROC 0,72 [0,67 ; 0,77], sensibilité 0,65, spécificité 0,69.
+
+*Unité (correctif du 16 nov., audit du 15 nov.)* : sensibilité et spécificité sont des
+taux par image ; chaque découpage compte 400 images pour 100 patients. Les IC entre
+crochets sont groupés par patient (bootstrap, `scripts/quality_deepdrid_grouped_ci.py`,
+[résultats](../results/quality_deepdrid_grouped_ci.json)) ; les IC binomiaux des résultats
+d'origine, dont les champs `patients` comptent en fait des images, sont un peu trop
+étroits. Les points ne changent pas.
 
 **Les défauts graves sont bien repérés** (évaluation, détecteur appris) : netteté très
 basse (note ≤ 4) 40 sur 44, cadrage sans disque ni macula (≤ 4) 11 sur 11, artefacts
@@ -307,8 +314,8 @@ telle ; le résultat principal reste celui du seuil 0,5.
 
 | Seuil 0,989 | Défauts repérés | Images correctes signalées |
 |---|---|---|
-| DeepDRiD, validation | 81 / 218 (0,37) | 18 / 182 (0,10) |
-| DeepDRiD, évaluation | 89 / 220 (0,40) | 18 / 180 (0,10) |
+| DeepDRiD, validation (images) | 81 / 218 (0,37 [0,29 ; 0,46]) | 18 / 182 (0,10 [0,06 ; 0,14]) |
+| DeepDRiD, évaluation (images) | 89 / 220 (0,40 [0,33 ; 0,48]) | 18 / 180 (0,10 [0,06 ; 0,15]) |
 | ODIR, validation (patients) | 12 / 31 | 23 / 110 |
 | Relecture de Marc (patients) | 7 / 18 | 1 / 8 |
 

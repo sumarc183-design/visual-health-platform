@@ -6,6 +6,10 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Corrigé
+- Audit du 15 nov., constats 4 et 9 : IC du détecteur de qualité DeepDRiD groupés par
+  patient (400 images pour 100 patients ; points inchangés, IC à peine plus larges,
+  `scripts/quality_deepdrid_grouped_ci.py`) ; contrôle des données restreintes étendu aux
+  tableaux entiers et à tous les fichiers texte suivis (`8c2fd2f`).
 - Audit du 15 nov. : une probabilité ou un poids non fini arrête la prédiction au lieu
   de donner « négatif » ; écarts de reproduction NaN refusés ; JSON écrits sans NaN
   (`fe37476`). Liaison stricte tête/seuils dans les scripts d'analyse
