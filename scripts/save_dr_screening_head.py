@@ -17,7 +17,11 @@ Sorties :
 
 Réserves : licence d'EyePACS limitée à sa compétition (gardé en complément par décision
 du tuteur) ; spécificité mesurée sur DDR 0,52 (une fausse alerte pour deux personnes
-saines environ).
+saines environ). **Correction du 13 novembre :** DDR fait partie du pré-entraînement de
+Green, les mesures sur DDR peuvent être optimistes. Reconfirmé sur des bases vues par
+aucun des modèles (`confirmation_external.py`) : Messidor-2 sensibilité 0,832
+[0,802 ; 0,859], spécificité 0,41 ; IDRiD 0,957, spécificité 0,48. Ce script reste lié à
+l'analyse DDR du 12 novembre, qu'il reproduit à l'identique.
 
 Exemple :
     python scripts/save_dr_screening_head.py --rfmid-root data/raw/rfmid --embeddings embeddings \\

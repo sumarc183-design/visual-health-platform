@@ -36,9 +36,11 @@ poids DINOv2-B du routeur, la prédiction se fait avec un avertissement ;
 
 Dépistage de la rétinopathie diabétique : `--dr-screening` charge la tête Green
 apprise sur RFMiD + EyePACS (`heads/dr_screening_green_head.pt`) et son seuil choisi sur
-la validation EyePACS (politique `sensitivity`). Sur DDR (Chine, jamais utilisée pour
-régler) : 87 % des rétinopathies repérées, mais une fausse alerte pour deux personnes
-saines environ (spécificité 0,52). La tête RFMiD seule n'en repérait que 27 %.
+la validation EyePACS (politique `sensitivity`). Sur Messidor-2 (France, vue par aucun
+des modèles, 16 nov.) : 83 % des rétinopathies repérées [80 % ; 86 %], 94 % des cas à
+adresser, mais spécificité 0,41 (plus d'une fausse alerte pour deux personnes saines) ;
+IDRiD (Inde) : 96 %, spécificité 0,48. Sur DDR : 87 %, spécificité 0,52, chiffres
+peut-être optimistes (DDR fait partie du pré-entraînement de Green, découvert le 13 nov.).
 
 Outil de recherche, non validé cliniquement : les décisions ne sont pas un
 diagnostic.
@@ -69,7 +71,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from src.pipeline.inference import DISCLAIMER, THRESHOLD_POLICIES, Predictor  # noqa: E402
 
 # Réglage « dépistage » de la rétinopathie diabétique (scripts/dr_screening_sensitivity.py,
-# critère atteint le 12 novembre 2026 : sensibilité sur DDR 0,87 [0,86 ; 0,88], spécificité 0,52).
+# critère atteint le 12 novembre 2026 sur DDR, base du pré-entraînement de Green ; reconfirmé
+# le 16 novembre sur Messidor-2 : sensibilité 0,832 [0,802 ; 0,859], spécificité 0,41).
 DR_SCREENING = {
     "head": Path("heads/dr_screening_green_head.pt"),
     "checkpoint": Path("third_party/retfound_green/retfoundgreen_statedict.pth"),

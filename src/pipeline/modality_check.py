@@ -4,7 +4,7 @@ L'utilisateur déclare le type d'image (celui de la tête : fond d'œil ou peau)
 (DINOv2-B figé + tête linéaire, `heads/modality_router_v2.pt`) donne son avis ; s'il
 n'est pas d'accord, la prédiction est faite quand même, avec un avertissement.
 
-Pourquoi avertir plutôt que bloquer (proposition au tuteur, décision attendue) :
+Pourquoi avertir plutôt que bloquer (décision du tuteur du 12 novembre 2026) :
 - l'erreur restante est rare mais concentrée sur une affection (hyalose astéroïde :
   2 images sur 25 envoyées en dermoscopie, `docs/MODALITE.md`) ; bloquer écarterait ces
   patients ;

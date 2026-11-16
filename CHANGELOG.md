@@ -6,6 +6,14 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Corrigé
+- Audit du 15 nov. : une probabilité ou un poids non fini arrête la prédiction au lieu
+  de donner « négatif » ; écarts de reproduction NaN refusés ; JSON écrits sans NaN
+  (`fe37476`). Liaison stricte tête/seuils dans les scripts d'analyse
+  (`src/pipeline/served_head.py`, `0e10a80`), chiffres Messidor-2 inchangés à la
+  relance. Messidor-2 : fichiers homonymes et identifiants en double refusés
+  (`c6bad2f`). Aide CLI et docstrings : réserve DDR et chiffres Messidor-2 du dépistage,
+  décision « avertir » du tuteur ; feuille de route au 16 nov. ; mise à jour DDR dans
+  `DROITS_DONNEES.md`.
 - DDR n'est pas une base externe pour RETFound-Green : son pré-entraînement (article,
   tableau S1) inclut AIROGS, DDR en entier et ODIR. La confirmation sur DDR du 12 nov. est
   biaisée en faveur de Green et les mesures du dépistage sur DDR peuvent être optimistes ;

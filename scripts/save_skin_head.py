@@ -7,7 +7,8 @@ mesure : le script vérifie seulement que la tête enregistrée redonne exacteme
 scores archivés de validation et de test (`results/dermatology_isic2019.npz`).
 
 Pourquoi DINOv2-B plutôt que PanDerm (meilleur de +0,046 d'AUROC macro) : même modèle
-que le routeur de modalité (un seul calcul d'embedding par image), licence Apache 2.0,
+que le routeur de modalité (un seul modèle à installer ; la CLI calcule encore l'embedding
+deux fois, une pour la tête, une pour le contrôle de type d'image), licence Apache 2.0,
 poids locaux vérifiés équivalents à ceux du run Kaggle. PanDerm (CC BY-NC-ND, 1,4 Go)
 reste l'option de recherche. Les données ISIC 2019 sont CC BY-NC : tête non commerciale.
 

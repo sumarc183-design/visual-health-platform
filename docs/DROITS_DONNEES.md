@@ -126,6 +126,12 @@ commercial sans accord.
 Sources consultées le 11 novembre 2026 (pages ci-dessus). Les tailles de DDR et de
 Messidor-2 viennent des articles, pas de fichiers téléchargés.
 
+> **Mise à jour du 13 novembre 2026 :** DDR fait partie du pré-entraînement de
+> RETFound-Green ; elle ne compte plus comme confirmation indépendante (décision et
+> proposition ci-dessous gardées comme trace). Confirmations refaites sur des bases vues
+> par aucun des modèles : IDRiD (13 nov.) et Messidor-2 (16 nov., principale), voir le
+> [README](../README.md#résultats).
+
 **Décision du tuteur (12 novembre 2026)** : DDR reste la cohorte de confirmation ;
 EyePACS est gardé en complément tant qu'il apporte quelque chose, et ne sera retiré que
 s'il devient inutile. Les réserves de son règlement (usage limité à la compétition, voir
