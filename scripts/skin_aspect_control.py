@@ -51,10 +51,10 @@ from scripts.pad_ufes20_skin import auroc_ci  # noqa: E402
 from src.data.isic_dataset import CLASS_NAMES, ISIC2019Dataset, skin_tensor  # noqa: E402
 from src.eval.metrics import bootstrap_auroc_ci, paired_bootstrap_diff  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
-from src.models.classifier_head import MultiLabelHead  # noqa: E402
 from src.models.embedding_cache import file_fingerprint  # noqa: E402
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD  # noqa: E402
 from src.models.timm_backbones import DINOV2_IMAGE_SIZE, DINOv2Backbone  # noqa: E402
+from src.pipeline.served_head import load_served_head  # noqa: E402
 
 SKIN_HEAD = Path("heads/isic2019_dinov2b_head.pt")
 RATIO = 1.5  # 3:2 paysage
@@ -101,14 +101,8 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=Path("results/skin_aspect_control.json"))
     args = parser.parse_args()
 
-    artifact = torch.load(SKIN_HEAD, map_location="cpu", weights_only=True)
-    known = {artifact["checkpoint_sha256"], artifact.get("embeddings_checkpoint_sha256")}
-    if file_fingerprint(args.checkpoint) not in known:
-        raise ValueError("tête peau calculée avec un autre DINOv2-B")
+    head = load_served_head(SKIN_HEAD, file_fingerprint(args.checkpoint)).head
     backbone = DINOv2Backbone(args.checkpoint).eval()
-    head = MultiLabelHead(backbone.embedding_dim, len(CLASS_NAMES))
-    head.load_state_dict(artifact["state_dict"])
-    head.eval()
 
     test = ISIC2019Dataset(args.isic_root, "test")
     paths = [test.image_path(i) for i in range(len(test))]

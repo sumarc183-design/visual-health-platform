@@ -29,13 +29,13 @@ import sys
 from pathlib import Path
 
 import numpy as np
-import torch
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.confirmation_external import (  # noqa: E402
     CACHE_MODEL,
+    CHECKPOINTS,
     SCREENING_HEAD,
     SIZES,
     embeddings,
@@ -47,7 +47,8 @@ from scripts.pad_ufes20_skin import auroc_ci  # noqa: E402
 from scripts.robustness_checks import load  # noqa: E402
 from src.eval.metrics import stratification_gap  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
-from src.models.classifier_head import MultiLabelHead  # noqa: E402
+from src.models.embedding_cache import file_fingerprint  # noqa: E402
+from src.pipeline.served_head import load_served_head  # noqa: E402
 
 
 def image_format(path: Path) -> str:
@@ -76,14 +77,13 @@ def main() -> None:
         X_tr = cached(args.embeddings, CACHE_MODEL[model], "rfmid", train.image_keys)
         scores[model] = quiet_scores(X_tr, train.df["DR"].to_numpy(np.float32)[:, None], X)
         if model == "green":
-            head = MultiLabelHead(X.shape[1], 1)
-            head.load_state_dict(torch.load(SCREENING_HEAD, map_location="cpu", weights_only=True)["state_dict"])
-            with torch.no_grad():
-                scores["dr_screening"] = torch.sigmoid(head(torch.from_numpy(X))).numpy()[:, 0]
+            served = load_served_head(SCREENING_HEAD, file_fingerprint(CHECKPOINTS["green"]))
+            scores["dr_screening"] = served.probabilities(X)[:, 0]
 
     report = {
         "run": run_info(),
         "plan": "exploratoire, écrit le 16 novembre 2026 avant ce calcul (docstring)",
+        "dr_screening_identity": served.identity,
         "formats": {
             f: {"images": int((formats == f).sum()), "prevalence": float(y[formats == f].mean())}
             for f in sorted(set(formats))

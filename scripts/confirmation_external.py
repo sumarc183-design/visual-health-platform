@@ -73,10 +73,10 @@ from src.data.fundus_preprocess import load_fundus_image  # noqa: E402
 from src.eval.decision import choose_threshold, decision_metrics  # noqa: E402
 from src.eval.metrics import paired_bootstrap_diff  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
-from src.models.classifier_head import MultiLabelHead  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, file_fingerprint  # noqa: E402
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone  # noqa: E402
 from src.models.retfound_green import GREEN_IMAGE_SIZE, RETFoundGreenBackbone  # noqa: E402
+from src.pipeline.served_head import load_served_head  # noqa: E402
 
 CHECKPOINTS = {
     "retfound": Path("third_party/retfound/checkpoints/RETFound_mae_natureCFP.pth"),
@@ -232,13 +232,11 @@ def main() -> None:
     diff = paired_bootstrap_diff(y[:, None], transfer["retfound"][:, None], transfer["green"][:, None], ["DR"], groups)
     report["green_minus_retfound"] = diff["DR"]
 
-    head_ckpt = torch.load(SCREENING_HEAD, map_location="cpu", weights_only=True)
-    head = MultiLabelHead(X_green.shape[1], 1)
-    head.load_state_dict(head_ckpt["state_dict"])
-    with torch.no_grad():
-        p_screen = torch.sigmoid(head(torch.from_numpy(X_green))).numpy()[:, 0]
-    threshold = json.loads(SCREENING_THRESHOLDS.read_text())["classes"]["DR"]["threshold_sensitivity"]["threshold"]
+    served = load_served_head(SCREENING_HEAD, file_fingerprint(CHECKPOINTS["green"]), SCREENING_THRESHOLDS)
+    p_screen = served.probabilities(X_green)[:, 0]
+    threshold = served.thresholds["classes"]["DR"]["threshold_sensitivity"]["threshold"]
     report["dr_screening"] = screening(y, p_screen, threshold, groups, grade)
+    report["dr_screening_identity"] = served.identity
 
     report["criteria"] = {
         "default_model": {"diff": diff["DR"], "confirmed": bool(diff["DR"]["ci"][0] > 0)},

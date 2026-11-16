@@ -50,7 +50,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import torch
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -64,10 +63,10 @@ from scripts.train_modality_router_v2 import Item, embed  # noqa: E402
 from src.data.isic_dataset import CLASS_NAMES  # noqa: E402
 from src.eval.decision import decision_metrics  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
-from src.models.classifier_head import MultiLabelHead  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, file_fingerprint, load_embeddings  # noqa: E402
 from src.models.timm_backbones import DINOV2_IMAGE_SIZE, DINOv2Backbone  # noqa: E402
 from src.pipeline.modality_classifier import ModalityHead  # noqa: E402
+from src.pipeline.served_head import load_served_head  # noqa: E402
 
 SKIN_HEAD = Path("heads/isic2019_dinov2b_head.pt")
 THRESHOLDS = Path("results/decision_isic2019_dinov2b.json")
@@ -113,19 +112,14 @@ def main() -> None:
     y = meta["target"].to_numpy()[keep]
     groups = list(meta["patient_id"].to_numpy()[keep])
 
-    artifact = torch.load(SKIN_HEAD, map_location="cpu", weights_only=True)
-    if artifact["checkpoint_sha256"] != fingerprint:
-        raise ValueError("tête peau calculée avec un autre DINOv2-B")
-    head = MultiLabelHead(X.shape[1], len(CLASS_NAMES))
-    head.load_state_dict(artifact["state_dict"])
-    with torch.no_grad():
-        p_mel = torch.sigmoid(head(torch.from_numpy(X[keep]))).numpy()[:, CLASS_NAMES.index("MEL")]
-
-    mel = json.loads(THRESHOLDS.read_text())["classes"]["MEL"]
+    served = load_served_head(SKIN_HEAD, fingerprint, THRESHOLDS)
+    p_mel = served.probabilities(X[keep])[:, CLASS_NAMES.index("MEL")]
+    mel = served.thresholds["classes"]["MEL"]
     report = {
         "run": run_info(),
         "plan": "fixé le 13 novembre 2026 avant tout téléchargement d'ISIC 2020 (docstring du script)",
         "backbone": {"model": "dinov2_vitb14", "checkpoint_sha256": fingerprint},
+        "head_identity": served.identity,
         "images": {
             "total": len(meta),
             "near_duplicates_of_isic2019_train": int(duplicate.sum()),

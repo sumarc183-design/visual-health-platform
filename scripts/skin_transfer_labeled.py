@@ -40,7 +40,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import torch
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -53,9 +52,9 @@ from scripts.train_modality_router_v2 import Item, embed  # noqa: E402
 from src.data.isic_dataset import CLASS_NAMES  # noqa: E402
 from src.eval.metrics import paired_bootstrap_diff  # noqa: E402
 from src.eval.provenance import run_info  # noqa: E402
-from src.models.classifier_head import MultiLabelHead  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, file_fingerprint, load_embeddings  # noqa: E402
 from src.models.timm_backbones import DINOV2_IMAGE_SIZE, DINOv2Backbone  # noqa: E402
+from src.pipeline.served_head import load_served_head  # noqa: E402
 
 MACRO_MARGIN = -0.005
 
@@ -108,11 +107,7 @@ def main() -> None:
     y20 = isic2020_targets(m20["diagnosis"])
     sel = labeled(m20["diagnosis"])
 
-    artifact = torch.load(SKIN_HEAD, map_location="cpu", weights_only=True)
-    if fingerprint not in {artifact["checkpoint_sha256"], artifact.get("embeddings_checkpoint_sha256")}:
-        raise ValueError("tête peau calculée avec un autre DINOv2-B")
-    head_a = MultiLabelHead(X_eval.shape[1], len(CLASS_NAMES))
-    head_a.load_state_dict(artifact["state_dict"])
+    head_a = load_served_head(SKIN_HEAD, fingerprint).head
     with contextlib.redirect_stdout(io.StringIO()):
         head_b = fit_head(np.vstack([X19, X20]), np.vstack([train19.targets, y20]))
         head_c = fit_head(np.vstack([X19, X20[sel]]), np.vstack([train19.targets, y20[sel]]))

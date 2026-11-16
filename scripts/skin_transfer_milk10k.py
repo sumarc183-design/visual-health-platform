@@ -76,6 +76,7 @@ from src.models.classifier_head import MultiLabelHead  # noqa: E402
 from src.models.embedding_cache import EmbeddingCache, file_fingerprint, load_embeddings  # noqa: E402
 from src.models.timm_backbones import DINOV2_IMAGE_SIZE, DINOv2Backbone  # noqa: E402
 from src.pipeline.modality_classifier import ModalityHead  # noqa: E402
+from src.pipeline.served_head import load_served_head  # noqa: E402
 
 SKIN_HEAD = Path("heads/isic2019_dinov2b_head.pt")
 MILK_TO_ISIC = {"MEL": "MEL", "NV": "NV", "BCC": "BCC", "BKL": "BKL", "DF": "DF", "VASC": "VASC", "AKIEC": "AK"}
@@ -163,11 +164,7 @@ def main() -> None:
     X_eval, y_eval = X_milk[keep], milk_targets(gt)[keep]
     groups = list(gt["lesion_id"].to_numpy()[keep])
 
-    artifact = torch.load(SKIN_HEAD, map_location="cpu", weights_only=True)
-    if fingerprint not in {artifact["checkpoint_sha256"], artifact.get("embeddings_checkpoint_sha256")}:
-        raise ValueError("tête peau calculée avec un autre DINOv2-B")
-    head_a = MultiLabelHead(X_milk.shape[1], len(CLASS_NAMES))
-    head_a.load_state_dict(artifact["state_dict"])
+    head_a = load_served_head(SKIN_HEAD, fingerprint).head
     with contextlib.redirect_stdout(io.StringIO()):
         head_b = fit_head(np.vstack([X19, X20]), np.vstack([train19.targets, y20]))
 
