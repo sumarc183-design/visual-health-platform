@@ -98,7 +98,7 @@ def main() -> None:
     if missing:
         raise FileNotFoundError(f"{len(missing)} images absentes, ex. {sorted(missing)[:3]}")
     items = [
-        Item(f"isic2020/{n}", g, lambda p=paths[n]: Image.open(p))
+        Item(f"isic2020/{n}", g, lambda p=paths[n]: Image.open(p), lambda p=paths[n]: file_fingerprint(p))
         for n, g in zip(meta["image_name"], meta["patient_id"], strict=True)
     ]
     fingerprint = file_fingerprint(args.checkpoint)

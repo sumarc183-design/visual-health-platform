@@ -87,7 +87,7 @@ def main() -> None:
     )
     paths = {p.stem: p for p in args.milk_root.rglob("*.jpg")}
     items = [
-        Item(f"milk10k/{i}", g, lambda p=paths[i]: Image.open(p))
+        Item(f"milk10k/{i}", g, lambda p=paths[i]: Image.open(p), lambda p=paths[i]: file_fingerprint(p))
         for i, g in zip(gt["isic_id"], gt["lesion_id"], strict=True)
     ]
     X_eval = embed(items, backbone, EmbeddingCache(args.cache, meta=meta))
@@ -100,7 +100,7 @@ def main() -> None:
     m20 = pd.read_csv(args.isic2020_root / "train.csv")
     paths20 = {p.stem: p for p in args.isic2020_root.rglob("*.jpg")}
     items20 = [
-        Item(f"isic2020/{n}", g, lambda p=paths20[n]: Image.open(p))
+        Item(f"isic2020/{n}", g, lambda p=paths20[n]: Image.open(p), lambda p=paths20[n]: file_fingerprint(p))
         for n, g in zip(m20["image_name"], m20["patient_id"], strict=True)
     ]
     X20 = embed(items20, backbone, EmbeddingCache(args.isic2020_cache, meta=meta))

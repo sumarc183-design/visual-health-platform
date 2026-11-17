@@ -31,6 +31,7 @@ Exemple :
 from __future__ import annotations
 
 import argparse
+import hashlib
 import io
 import json
 import sys
@@ -113,7 +114,15 @@ def main() -> None:
     d = select(args.root)
     archive = zipfile.ZipFile(args.root / "ISIC_2024_Permissive_Training_Input.zip")
     names = {Path(n).stem: n for n in archive.namelist() if n.endswith(".jpg")}
-    items = [Item(f"slice3d/{i}", i, lambda n=names[i]: Image.open(io.BytesIO(archive.read(n)))) for i in d["isic_id"]]
+    items = [
+        Item(
+            f"slice3d/{i}",
+            i,
+            lambda n=names[i]: Image.open(io.BytesIO(archive.read(n))),
+            lambda n=names[i]: hashlib.sha256(archive.read(n)).hexdigest()[:16],  # comme verify_cache_sources
+        )
+        for i in d["isic_id"]
+    ]
     fingerprint = file_fingerprint(args.checkpoint)
     cache = EmbeddingCache(
         args.cache,

@@ -81,14 +81,28 @@ TEST_UNKNOWN = ("imagenette_val", "oct", "breast", "organc")
 
 
 class Item:
-    """Une image : clé de cache, groupe (patient, lésion ou image) et chargeur."""
+    """Une image : clé de cache, groupe (patient, lésion ou image) et chargeur.
 
-    def __init__(self, key: str, group: str, opener: Callable[[], Image.Image]):
-        self.key, self.group, self.opener = key, group, opener
+    `source` (facultatif) rend l'empreinte du fichier d'origine, enregistrée dans le cache
+    avec l'embedding (constat 6 de l'audit du 15 nov.)."""
+
+    def __init__(
+        self,
+        key: str,
+        group: str,
+        opener: Callable[[], Image.Image],
+        source: Callable[[], str] | None = None,
+    ):
+        self.key, self.group, self.opener, self.source = key, group, opener, source
 
 
 def file_item(path: Path, group: str | None = None) -> Item:
-    return Item(f"modality/{path.parent.name}/{path.name}", group or path.name, lambda: Image.open(path))
+    return Item(
+        f"modality/{path.parent.name}/{path.name}",
+        group or path.name,
+        lambda: Image.open(path),
+        lambda: file_fingerprint(path),
+    )
 
 
 def medmnist_items(root: Path, name: str, split: str) -> list[Item]:
@@ -179,7 +193,8 @@ def embed(items: list[Item], backbone, cache: EmbeddingCache, batch_size: int = 
     for b in range(0, len(todo), batch_size):
         part = todo[b : b + batch_size]
         x = torch.stack([skin_tensor(it.opener(), DINOV2_IMAGE_SIZE) for it in part])
-        cache.add([it.key for it in part], backbone((x - IMAGENET_MEAN) / IMAGENET_STD).numpy())
+        sources = [it.source() for it in part] if all(it.source for it in part) else None
+        cache.add([it.key for it in part], backbone((x - IMAGENET_MEAN) / IMAGENET_STD).numpy(), sources=sources)
         if (b // batch_size) % 20 == 0:
             cache.save()
             print(f"  {b + len(part)}/{len(todo)} en {time.time() - start:.0f} s", flush=True)

@@ -19,7 +19,11 @@ selon [SemVer](https://semver.org/lang/fr/).
   même clé. `scripts/verify_cache_sources.py` contrôle les caches dont les images sont
   locales (RFMiD, ODIR, ISIC 2019, Messidor-2, IDRiD) ; `--adopt` pose l'empreinte
   actuelle sur les embeddings historiques, marquée « supposée ». Appliqué le 17 nov. :
-  16 caches, toutes les clés présentes, embeddings inchangés.
+  14 caches, toutes les clés présentes, embeddings inchangés (le message du commit
+  `5f385eb` indique 16 par erreur). Étendu le même jour à ISIC 2020, MILK10k,
+  PAD-UFES-20 et SLICE-3D (lu dans son archive), dont les scripts enregistrent aussi
+  l'empreinte des nouveaux embeddings : 18 caches sur 31 couverts. Restent APTOS,
+  EyePACS, DDR (images absentes) ainsi que le routeur et la qualité (pas de fichier source unique).
 
 ### Documentation
 - GUIDE, reprise sur un autre ordinateur : bilan du passage effectif au PC Windows
