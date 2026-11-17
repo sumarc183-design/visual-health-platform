@@ -175,3 +175,56 @@ def test_shared_loader_checks_configuration_and_completeness(tmp_path):
         load_embeddings(tmp_path, "d", ["a"], "green")
     with pytest.raises(ValueError, match="inconnu"):
         load_embeddings(tmp_path, "d", ["a"], "autre")
+
+
+def test_source_fingerprints_detect_replaced_image(tmp_path):
+    cache = EmbeddingCache(tmp_path / "c.npz", meta={"preprocess": "p"})
+    cache.add(["a", "b"], np.ones((2, 3)), sources=["fa", "fb"])
+    cache.save()
+    reloaded = EmbeddingCache(tmp_path / "c.npz", meta={"preprocess": "p"})
+    assert reloaded.check_sources({"a": "fa", "b": "fb"}) == {
+        "verified": 2,
+        "assumed": 0,
+        "without_fingerprint": 0,
+        "not_checked": 0,
+    }
+    with pytest.raises(CacheMismatchError, match="modifiée"):
+        reloaded.check_sources({"a": "fa", "b": "autre"})
+
+
+def test_adopted_source_fingerprints_are_marked_assumed(tmp_path):
+    legacy = EmbeddingCache(tmp_path / "c.npz")
+    legacy.add(["a", "b"], np.ones((2, 3)))
+    legacy.save()
+    cache = EmbeddingCache(tmp_path / "c.npz")
+    assert cache.check_sources({"a": "fa"})["without_fingerprint"] == 1  # sans --adopt : rien d'écrit
+    assert not EmbeddingCache(tmp_path / "c.npz").sources
+    counts = cache.check_sources({"a": "fa"}, adopt=True)
+    assert counts == {"verified": 0, "assumed": 1, "without_fingerprint": 0, "not_checked": 1}
+    again = EmbeddingCache(tmp_path / "c.npz")
+    assert again.sources == {"a": "fa"} and again.assumed_sources == {"a"}
+    with pytest.raises(CacheMismatchError):
+        again.check_sources({"a": "changée"})
+    again.add(["a"], np.zeros((1, 3)), sources=["fa2"])  # recalcul : empreinte prouvée
+    again.save()
+    final = EmbeddingCache(tmp_path / "c.npz")
+    assert final.assumed_sources == set() and final.check_sources({"a": "fa2"})["verified"] == 1
+
+
+def test_dataset_embeddings_records_image_fingerprints(tmp_path):
+    from src.models.embedding_cache import file_fingerprint
+
+    files = []
+    for i in range(3):
+        f = tmp_path / f"im{i}.bin"
+        f.write_bytes(bytes([i]) * 10)
+        files.append(f)
+
+    class WithPaths(TinyDataset):
+        def image_path(self, idx):
+            return files[idx]
+
+    cache = EmbeddingCache(tmp_path / "c.npz")
+    dataset_embeddings(WithPaths(3), "train", lambda: torch.nn.Flatten(), cache, {"batch_size": 2})
+    stored = EmbeddingCache(tmp_path / "c.npz").sources
+    assert stored == {f"img{i}": file_fingerprint(files[i]) for i in range(3)}

@@ -135,7 +135,9 @@ def dataset_embeddings(dataset, label: str, get_backbone, cache: EmbeddingCache 
     print(f"Embeddings ({label}) : {len(keys) - len(todo)} en cache, {len(todo)} à extraire")
     if todo:
         X_new, _ = collect_embeddings(get_backbone(), Subset(dataset, todo), **embed_kwargs)
-        cache.add([keys[i] for i in todo], X_new)
+        # Empreinte de chaque image source : une image remplacée sous la même clé sera détectée
+        sources = [file_fingerprint(dataset.image_path(i)) for i in todo] if hasattr(dataset, "image_path") else None
+        cache.add([keys[i] for i in todo], X_new, sources=sources)
         cache.save()
     return cache.get(keys), dataset.df[dataset.class_names].to_numpy(dtype=np.float32)
 

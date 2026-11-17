@@ -16,6 +16,14 @@ configuration (`meta` : empreinte du contenu du checkpoint, prétraitement et
 sa version, taille d'image) et refuse de servir des embeddings calculés avec
 une autre. Un ancien cache sans empreinte est adopté une fois, avec un
 avertissement.
+
+Contenu des images source (constat 6 de l'audit du 15 novembre) : chaque
+embedding peut porter l'empreinte (`file_fingerprint`) du fichier image dont il
+vient (`add(..., sources=...)`). `check_sources` compare ces empreintes aux
+fichiers présents et refuse le cache si une image a changé sous la même clé.
+Une empreinte posée après coup sur un embedding plus ancien (`adopt=True`) est
+une déclaration, pas une preuve : elle est marquée « supposée » image par image
+et ne sert qu'à détecter les changements suivants.
 """
 
 from __future__ import annotations
@@ -48,11 +56,19 @@ class EmbeddingCache:
         self.path = Path(path)
         self.meta = meta
         self.embeddings: dict[str, np.ndarray] = {}
+        self.sources: dict[str, str] = {}  # clé -> empreinte du fichier image d'origine
+        self.assumed_sources: set[str] = set()  # empreintes posées après coup (non prouvées)
         if not self.path.exists():
             return
         with np.load(self.path) as data:
             keys, X = data["keys"].tolist(), data["X"]
             stored = json.loads(str(data["meta"])) if "meta" in data.files else None
+            if "source_sha256" in data.files:
+                src, assumed = data["source_sha256"].tolist(), data["source_assumed"].tolist()
+                if len(src) != len(keys) or len(assumed) != len(keys):
+                    raise CacheMismatchError(f"Cache {self.path} : empreintes des sources mal alignées")
+                self.sources = {k: s for k, s in zip(keys, src, strict=True) if s}
+                self.assumed_sources = {k for k, a in zip(keys, assumed, strict=True) if a and k in self.sources}
         if X.ndim != 2 or len(keys) != len(X):
             raise CacheMismatchError(f"Cache {self.path} mal formé : {len(keys)} clés pour un tableau {X.shape}")
         if len(set(keys)) != len(keys):
@@ -93,11 +109,43 @@ class EmbeddingCache:
     def missing(self, keys: list[str]) -> list[str]:
         return [k for k in keys if k not in self.embeddings]
 
-    def add(self, keys: list[str], X: np.ndarray) -> None:
+    def add(self, keys: list[str], X: np.ndarray, sources: list[str] | None = None) -> None:
+        """`sources` : empreintes (`file_fingerprint`) des images, dans l'ordre des clés."""
         self.embeddings.update(zip(keys, X.astype(np.float32), strict=True))
+        for k in keys:  # un embedding recalculé remplace l'ancienne empreinte
+            self.sources.pop(k, None)
+            self.assumed_sources.discard(k)
+        if sources is not None:
+            self.sources.update(zip(keys, sources, strict=True))
 
     def get(self, keys: list[str]) -> np.ndarray:
         return np.stack([self.embeddings[k] for k in keys])
+
+    def check_sources(self, fingerprints: dict[str, str], adopt: bool = False) -> dict[str, int]:
+        """Compare les empreintes enregistrées à celles des images présentes.
+
+        Refuse le cache si une image a changé. Avec `adopt`, pose l'empreinte actuelle
+        sur les embeddings qui n'en ont pas, marquée « supposée », et enregistre le cache.
+        Les clés du cache absentes de `fingerprints` ne sont pas contrôlées.
+        """
+        changed = [k for k, fp in fingerprints.items() if k in self.sources and self.sources[k] != fp]
+        if changed:
+            raise CacheMismatchError(
+                f"Cache {self.path} : {len(changed)} image(s) modifiée(s) depuis le calcul de leur embedding, "
+                f"dont {changed[:3]}. Supprimer ces embeddings (ou le cache) pour les recalculer."
+            )
+        new = [k for k in fingerprints if k in self.embeddings and k not in self.sources]
+        if adopt and new:
+            self.sources.update({k: fingerprints[k] for k in new})
+            self.assumed_sources.update(new)
+            self.save()
+        checked = [k for k in fingerprints if k in self.sources]
+        return {
+            "verified": sum(k not in self.assumed_sources for k in checked),
+            "assumed": sum(k in self.assumed_sources for k in checked),
+            "without_fingerprint": len(new) if not adopt else 0,
+            "not_checked": sum(k not in fingerprints for k in self.embeddings),
+        }
 
     def save(self) -> None:
         """Écriture dans un fichier temporaire puis renommage : un run coupé
@@ -106,6 +154,9 @@ class EmbeddingCache:
         tmp = self.path.with_name(self.path.name + ".tmp.npz")
         keys = list(self.embeddings)
         extra = {} if self.meta is None else {"meta": np.array(json.dumps(self.meta, sort_keys=True))}
+        if self.sources:
+            extra["source_sha256"] = np.array([self.sources.get(k, "") for k in keys])
+            extra["source_assumed"] = np.array([k in self.assumed_sources for k in keys])
         np.savez(tmp, keys=np.array(keys), X=np.stack([self.embeddings[k] for k in keys]), **extra)
         os.replace(tmp, self.path)
 

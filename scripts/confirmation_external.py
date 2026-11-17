@@ -178,7 +178,8 @@ def embeddings(table: pd.DataFrame, model: str, cache_path: Path) -> np.ndarray:
         for b in range(0, len(rows), 16):
             part = rows.iloc[b : b + 16]
             x = torch.stack([load_fundus_image(p, SIZES[model], "crop-mask") for p in part["path"]])
-            cache.add(list(part["key"]), net((x - mean) / std).numpy())
+            sources = [file_fingerprint(p) for p in part["path"]]
+            cache.add(list(part["key"]), net((x - mean) / std).numpy(), sources=sources)
             print(f"  {model} {b + len(part)}/{len(rows)} en {time.time() - start:.0f} s")
         cache.save()
     return cache.get(keys)

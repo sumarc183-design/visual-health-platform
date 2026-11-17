@@ -12,6 +12,15 @@ selon [SemVer](https://semver.org/lang/fr/).
   `PLW1514` pour l'imposer, `.gitattributes` (fins de ligne LF), `PYTHONUTF8=1` dans le
   GUIDE pour la console. Test IDRiD rendu indépendant du séparateur de chemin (`bc11964`).
 
+### Ajouté
+- Empreinte du contenu des images source dans les caches d'embeddings (constat 6 de
+  l'audit du 15 nov.). Chaque nouvel embedding porte l'empreinte de son image, et
+  `EmbeddingCache.check_sources` refuse un cache dont une image a été remplacée sous la
+  même clé. `scripts/verify_cache_sources.py` contrôle les caches dont les images sont
+  locales (RFMiD, ODIR, ISIC 2019, Messidor-2, IDRiD) ; `--adopt` pose l'empreinte
+  actuelle sur les embeddings historiques, marquée « supposée ». Appliqué le 17 nov. :
+  16 caches, toutes les clés présentes, embeddings inchangés.
+
 ### Documentation
 - GUIDE, reprise sur un autre ordinateur : bilan du passage effectif au PC Windows
   (17 nov. : 6 lots par Google Drive, 12 bases, 224 tests réussis) et mise en garde
