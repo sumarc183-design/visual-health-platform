@@ -508,7 +508,11 @@ Sources pour retélécharger :
 | DINOv2, PanDerm | [DINOv2](https://github.com/facebookresearch/dinov2), [PanDerm](https://github.com/SiyuanYan1/PanDerm) ; noms de fichiers attendus dans `third_party/` |
 
 Les poids DINOv2-B locaux ont l'empreinte `ba7954cb2db99604` : un fichier retéléchargé
-peut en avoir une autre (voir `DERMATOLOGIE.md`).
+peut en avoir une autre (voir `DERMATOLOGIE.md`). Constaté le 16 novembre : la version
+timm retéléchargée (`ed724e34e19dc3b6`) donne les mêmes embeddings (cosinus 1,0000 sur
+5 images officielles d'ISIC 2019), mais la tête peau et le routeur la refusent, car ils
+n'acceptent que l'empreinte enregistrée. **Recopier le fichier d'origine** plutôt que le
+retélécharger.
 
 ### Installation sous Windows 11 (sans GPU NVIDIA)
 
@@ -537,6 +541,16 @@ Puis recopier depuis le disque externe les éléments hors Git du tableau ci-des
 processeur ; les extractions lourdes (RETFound sur une nouvelle base, fine-tuning)
 restent sur Kaggle, comme sur le Mac. `scripts/setup_retfound.sh` se lance depuis Git
 Bash (installé avec Git).
+
+Passage effectif du Mac au PC Windows (16-17 novembre) : sans disque externe, les
+éléments hors Git sont passés par Google Drive en 6 lots de moins de 8 Go. Chaque lot
+porte la liste de ses fichiers avec leurs tailles ; il a été comparé à cette liste,
+fusionné sans rien écraser, puis effacé du Drive. Le cache Kaggle va dans
+`%USERPROFILE%\.cache\kagglehub` (IDRiD pour la localisation). Une base peut être
+répartie sur deux lots, et le cache Kaggle contient des chemins de plus de 260
+caractères (utiliser `robocopy` plutôt que l'Explorateur). Résultat : 12 bases dans
+`data/raw/` (37,5 Go), `pytest` complet à 224 tests réussis sur le processeur, et
+prédictions vérifiées pour le fond d'œil (RETFound, Green) et la peau (DINOv2-B).
 
 ## Tests
 

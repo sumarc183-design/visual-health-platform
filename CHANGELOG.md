@@ -11,6 +11,12 @@ selon [SemVer](https://semver.org/lang/fr/).
   prenait cp1252 et pouvait planter sur « − » ou abîmer les accents des JSON. Règle ruff
   `PLW1514` pour l'imposer, `.gitattributes` (fins de ligne LF), `PYTHONUTF8=1` dans le
   GUIDE pour la console. Test IDRiD rendu indépendant du séparateur de chemin (`bc11964`).
+
+### Documentation
+- GUIDE, reprise sur un autre ordinateur : bilan du passage effectif au PC Windows
+  (17 nov. : 6 lots par Google Drive, 12 bases, 224 tests réussis) et mise en garde
+  DINOv2-B. Le fichier retéléchargé (`ed724e34…`) donne les mêmes embeddings mais il
+  est refusé par la tête peau et le routeur : recopier l'original (`ba7954cb…`).
 - Audit du 15 nov., constats 5 (reste) et 10 : le seuil qualité DeepDRiD vérifie que la
   relecture et le manifeste n'ont pas changé depuis le run principal, et les prochaines
   archives gardent les clés (`f80663c`). Notebooks : installation `pip` vérifiée (arrêt si
