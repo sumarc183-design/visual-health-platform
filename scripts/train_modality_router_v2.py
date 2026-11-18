@@ -187,6 +187,9 @@ def build_sets(args) -> tuple[dict, dict, dict]:
 
 def embed(items: list[Item], backbone, cache: EmbeddingCache, batch_size: int = 32) -> np.ndarray:
     keys = [it.key for it in items]
+    # Normalisation propre au modèle (PanDerm : écart-type rouge 0,228) ; DINOv2 : ImageNet.
+    mean = getattr(backbone, "input_mean", IMAGENET_MEAN)
+    std = getattr(backbone, "input_std", IMAGENET_STD)
     missing = set(cache.missing(keys))
     todo = [it for it in items if it.key in missing]
     start = time.time()
@@ -194,7 +197,7 @@ def embed(items: list[Item], backbone, cache: EmbeddingCache, batch_size: int = 
         part = todo[b : b + batch_size]
         x = torch.stack([skin_tensor(it.opener(), DINOV2_IMAGE_SIZE) for it in part])
         sources = [it.source() for it in part] if all(it.source for it in part) else None
-        cache.add([it.key for it in part], backbone((x - IMAGENET_MEAN) / IMAGENET_STD).numpy(), sources=sources)
+        cache.add([it.key for it in part], backbone((x - mean) / std).numpy(), sources=sources)
         if (b // batch_size) % 20 == 0:
             cache.save()
             print(f"  {b + len(part)}/{len(todo)} en {time.time() - start:.0f} s", flush=True)

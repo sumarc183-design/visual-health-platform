@@ -13,6 +13,12 @@ selon [SemVer](https://semver.org/lang/fr/).
   GUIDE pour la console. Test IDRiD rendu indépendant du séparateur de chemin (`bc11964`).
 
 ### Ajouté
+- `scripts/panderm_external.py` : tête peau PanDerm (P) en validation externe, plan fixé
+  le 18 nov. avant tout calcul, après validation au Point du 18-11. Critère principal :
+  AUROC du mélanome de P sur ISIC 2020, borne basse ≥ 0,80 (critère de J90). Confirmation
+  sur MILK10k : écart P − A, borne basse > 0. SLICE-3D exclue (ISIC 2024 fait partie du
+  pré-entraînement de PanDerm). `embed` (scripts peau) utilise désormais la normalisation
+  propre au modèle (PanDerm : écart-type rouge 0,228) ; inchangé pour DINOv2.
 - Empreinte du contenu des images source dans les caches d'embeddings (constat 6 de
   l'audit du 15 nov.). Chaque nouvel embedding porte l'empreinte de son image, et
   `EmbeddingCache.check_sources` refuse un cache dont une image a été remplacée sous la
