@@ -367,6 +367,49 @@ prévalence d'ISIC 2020 (1,8 % de mélanomes).
 La tête A reste servie : PanDerm (CC BY-NC-ND) demande un second modèle d'embedding et ne
 passe pas non plus le critère de J90.
 
+## Tête PanDerm + ISIC 2020 sur DERM12345 (19 novembre 2026)
+
+Plan fixé le 19 nov. avant tout calcul (`scripts/panderm_derm12345.py`, commit `00883af`),
+option B choisie par Marc. Tête Q : même régression logistique sur PanDerm-Large figé,
+apprise sur ISIC 2019 + 80 % des patients d'ISIC 2020 (lésions sans diagnostic précis
+comptées négatives pour les huit classes) ; les 20 % de patients restants (6 877 images,
+113 mélanomes) servent à fixer les seuils (option C). Base externe : DERM12345 (Turquie,
+CC BY, 12 345 dermoscopies, 1 627 patients, 400 mélanomes), absente de l'article PanDerm
+et des deux bases ISIC. Critère principal (J90) : AUROC du mélanome de Q, borne basse
+≥ 0,80. Aucun quasi-doublon avec l'entraînement. [Résultats](../results/panderm_derm12345.json).
+
+| AUROC [IC 95 %] | Q (ISIC 2019 + 2020) | P (ISIC 2019) | Q − P |
+|---|---|---|---|
+| **DERM12345, mélanome** | **0,953 [0,937 ; 0,967]** | 0,947 [0,930 ; 0,962] | +0,006 [−0,000 ; +0,012] |
+| DERM12345, nævus | 0,68 [0,64 ; 0,71] | 0,94 [0,93 ; 0,95] | **−0,263 [−0,297 ; −0,230]** |
+| DERM12345, macro | | | −0,040 [−0,044 ; −0,036] |
+| MILK10k, mélanome | | | +0,003 [−0,002 ; +0,008] |
+| Test ISIC 2019, mélanome | | | +0,000 [−0,003 ; +0,003] |
+
+**Critère principal atteint** (borne basse 0,937), mais P l'aurait atteint aussi : l'ajout
+d'ISIC 2020 n'apporte rien de significatif au mélanome. Il **dégrade le nævus** (−0,26) et,
+plus faiblement, BCC, SCC et VASC : la plupart des lésions « sans diagnostic précis »
+d'ISIC 2020 sont des nævus, comptés négatifs pour cette classe.
+
+Limite : l'AUROC sur DERM12345 (0,95) est bien plus haute que sur ISIC 2020 (0,81). Seules
+1 167 lésions de DERM12345 sont confirmées par histologie (tous les cancers, une partie des
+lésions bénignes) ; la tâche y est probablement plus facile qu'en dépistage réel.
+
+Seuils du mélanome de Q sur DERM12345 (3,2 % de mélanomes) :
+
+| Seuil fixé sur | Règle | Sensibilité [IC 95 %] | Spécificité [IC 95 %] | VPP |
+|---|---|---|---|---|
+| ISIC 2020 (20 % tenus à l'écart) | F1 | 0,805 [0,741 ; 0,868] | 0,931 [0,921 ; 0,940] | 0,28 |
+| ISIC 2020 (20 % tenus à l'écart) | sensibilité 0,90 | 0,985 [0,968 ; 0,997] | 0,628 [0,604 ; 0,650] | 0,08 |
+| Validation ISIC 2019 | F1 | 0,615 [0,523 ; 0,707] | 0,975 [0,970 ; 0,980] | 0,45 |
+| Validation ISIC 2019 | sensibilité 0,90 | 0,910 [0,864 ; 0,950] | 0,859 [0,845 ; 0,873] | 0,18 |
+
+Des seuils fixés à la prévalence d'un dépistage (ISIC 2020) donnent une sensibilité plus
+haute qu'avec ISIC 2019, au prix de plus de fausses alertes.
+
+Tête servie : le plan prévoyait de servir Q si le critère était atteint. Vu la perte sur le
+nævus, la bascule est suspendue et soumise au tuteur ; la tête A reste servie d'ici là.
+
 ## Photos de smartphone : PAD-UFES-20 (12 novembre 2026)
 
 Plan fixé avant tout calcul (`scripts/pad_ufes20_skin.py`, commit `0eee4a0`). PAD-UFES-20

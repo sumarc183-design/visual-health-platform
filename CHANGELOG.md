@@ -18,7 +18,9 @@ selon [SemVer](https://semver.org/lang/fr/).
   Marc). Base externe DERM12345 (Turquie, CC BY, 12 345 dermoscopies, 400 mélanomes),
   absente de l'article PanDerm. Critère principal (J90) : AUROC du mélanome de Q, borne
   basse >= 0,80. Seuils du mélanome choisis sur les 20 % de patients d'ISIC 2020 tenus à
-  l'écart (option C).
+  l'écart (option C). Résultats (`results/panderm_derm12345.json`) : mélanome 0,953
+  [0,937 ; 0,967], critère atteint ; Q − P mélanome +0,006 (non significatif), nævus −0,263 ;
+  tête servie inchangée en attendant l'avis du tuteur.
 - `scripts/panderm_external.py` : tête peau PanDerm (P) en validation externe, plan fixé
   le 18 nov. avant tout calcul, après validation au Point du 18-11. Critère principal :
   AUROC du mélanome de P sur ISIC 2020, borne basse ≥ 0,80 (critère de J90). Confirmation
