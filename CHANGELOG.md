@@ -13,6 +13,12 @@ selon [SemVer](https://semver.org/lang/fr/).
   GUIDE pour la console. Test IDRiD rendu indépendant du séparateur de chemin (`bc11964`).
 
 ### Ajouté
+- `scripts/panderm_derm12345.py` : tête peau PanDerm apprise sur ISIC 2019 + 80 % des
+  patients d'ISIC 2020 (Q), plan fixé le 19 nov. avant tout calcul (option B, décision de
+  Marc). Base externe DERM12345 (Turquie, CC BY, 12 345 dermoscopies, 400 mélanomes),
+  absente de l'article PanDerm. Critère principal (J90) : AUROC du mélanome de Q, borne
+  basse >= 0,80. Seuils du mélanome choisis sur les 20 % de patients d'ISIC 2020 tenus à
+  l'écart (option C).
 - `scripts/panderm_external.py` : tête peau PanDerm (P) en validation externe, plan fixé
   le 18 nov. avant tout calcul, après validation au Point du 18-11. Critère principal :
   AUROC du mélanome de P sur ISIC 2020, borne basse ≥ 0,80 (critère de J90). Confirmation
