@@ -410,6 +410,28 @@ haute qu'avec ISIC 2019, au prix de plus de fausses alertes.
 Tête servie : le plan prévoyait de servir Q si le critère était atteint. Vu la perte sur le
 nævus, la bascule est suspendue et soumise au tuteur ; la tête A reste servie d'ici là.
 
+### Seuils de P à la prévalence d'ISIC 2020 (19 novembre 2026)
+
+Proposition retenue avec Marc : servir P (ISIC 2019 seul, qui atteint aussi la borne de
+0,80 sur DERM12345), décision prise après les résultats de Q. Plan fixé avant calcul
+(`scripts/panderm_p_thresholds.py`, commit `7f62d33`) : seuils du mélanome de P choisis sur
+les mêmes 20 % de patients d'ISIC 2020 que pour Q, mesures sans critère sur DERM12345 et
+sur les 80 % restants d'ISIC 2020 (26 249 images, jamais vues par P).
+[Résultats](../results/panderm_p_thresholds.json).
+
+| Seuil fixé sur | Règle | DERM12345 : sens. / spéc. | ISIC 2020 restant : sens. / spéc. |
+|---|---|---|---|
+| ISIC 2020 | F1 | 0,823 [0,763 ; 0,879] / 0,914 | 0,297 [0,256 ; 0,340] / 0,967 |
+| ISIC 2020 | sensibilité 0,90 | 0,998 / 0,322 [0,300 ; 0,343] | 0,860 [0,825 ; 0,893] / 0,511 |
+| Validation ISIC 2019 | F1 | 0,680 / 0,964 | 0,157 / 0,988 |
+| Validation ISIC 2019 | sensibilité 0,90 | 0,922 [0,885 ; 0,955] / 0,803 | 0,486 [0,435 ; 0,535] / 0,914 |
+
+Aucun seuil ne convient aux deux bases. Le seuil « sensibilité » fixé sur ISIC 2020
+garde sa promesse sur le reste d'ISIC 2020 (0,86), mais signale à tort la moitié des
+lésions bénignes, et deux sur trois sur DERM12345. En dépistage réel (ISIC 2020), P ne
+sépare pas assez bien les mélanomes (AUROC 0,81) pour un point de fonctionnement à la fois
+sensible et spécifique ; le seuil dépend de la population servie.
+
 ## Photos de smartphone : PAD-UFES-20 (12 novembre 2026)
 
 Plan fixé avant tout calcul (`scripts/pad_ufes20_skin.py`, commit `0eee4a0`). PAD-UFES-20

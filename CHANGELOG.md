@@ -16,7 +16,9 @@ selon [SemVer](https://semver.org/lang/fr/).
 - `scripts/panderm_p_thresholds.py` : seuils du mélanome de la tête PanDerm P (ISIC 2019
   seul) choisis sur les 20 % de patients d'ISIC 2020 tenus à l'écart ; plan fixé le 19 nov.
   avant calcul, après les résultats de Q (choix de P documenté comme décision a posteriori).
-  Mesures sans critère sur DERM12345 et sur les 80 % restants d'ISIC 2020.
+  Mesures sans critère sur DERM12345 et sur les 80 % restants d'ISIC 2020. Résultats
+  (`results/panderm_p_thresholds.json`) : au seuil « sensibilité » d'ISIC 2020, sensibilité
+  0,860 et spécificité 0,511 sur le reste d'ISIC 2020 ; aucun seuil ne convient aux deux bases.
 - `scripts/panderm_derm12345.py` : tête peau PanDerm apprise sur ISIC 2019 + 80 % des
   patients d'ISIC 2020 (Q), plan fixé le 19 nov. avant tout calcul (option B, décision de
   Marc). Base externe DERM12345 (Turquie, CC BY, 12 345 dermoscopies, 400 mélanomes),
