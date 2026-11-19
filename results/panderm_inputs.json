@@ -1,0 +1,199 @@
+{
+ "run": {
+  "git_commit": "e53082f-dirty",
+  "python": "3.12.10",
+  "versions": {
+   "numpy": "2.5.5",
+   "scikit-learn": "1.9.1",
+   "torch": "2.15.0+cpu",
+   "timm": "1.0.31"
+  }
+ },
+ "purpose": "constat E de l'audit du 19 novembre 2026 : entrées et scores des études PanDerm",
+ "argv": [
+  "--isic2019-root",
+  "data/raw/isic2019",
+  "--isic2020-root",
+  "data/raw/isic2020",
+  "--milk-root",
+  "data/raw/milk10k",
+  "--derm-root",
+  "data/raw/derm12345",
+  "--panderm",
+  "third_party/panderm/panderm_large.pth",
+  "--dinov2",
+  "third_party/dinov2/dinov2_vitb14_timm.pth"
+ ],
+ "environment": {
+  "pip_freeze_sha256": "4b3966c2ce79f454",
+  "packages": 82
+ },
+ "inputs": {
+  "annotations": {
+   "isic2019/ISIC_2019_Test_GroundTruth.csv": "2efa18419283a388",
+   "isic2019/ISIC_2019_Test_Metadata.csv": "1424022e92b6db4b",
+   "isic2019/ISIC_2019_Training_GroundTruth.csv": "aa88e9638fe4df9e",
+   "isic2019/ISIC_2019_Training_Metadata.csv": "d93994a8ed201d47",
+   "isic2020/train.csv": "20482a53d74dd1ec",
+   "milk10k/metadata.csv": "347c3a386331c1a8",
+   "milk10k/training_gt.csv": "1d85ce6087728cb9",
+   "derm12345/metadata.csv": "b251c37e28aaec85"
+  },
+  "bases": {
+   "isic2019_train": {
+    "keys": "ea6ef312ff4cbd3d",
+    "groups": "e36cd9ad7ea0c04f",
+    "targets": "ba7be323c2b142b1",
+    "n": 21712
+   },
+   "isic2019_val": {
+    "keys": "228965e213a54a9e",
+    "groups": "af066747e16d8c93",
+    "targets": "a2241fb4c894a839",
+    "n": 3619
+   },
+   "isic2019_test": {
+    "keys": "4bad79daf38982e3",
+    "groups": "6557a731a7a27391",
+    "targets": "13f1cb8e030cae4e",
+    "n": 6191
+   },
+   "isic2020": {
+    "keys": "ac5e6a289d756787",
+    "groups": "53d265fd96c40f3f",
+    "targets": "220b418e548d4962",
+    "melanoma": "d0ac7c0f11ab7bc8",
+    "threshold_split_held_out": "cf55ac5fedc7be86",
+    "n": 33126
+   },
+   "milk10k": {
+    "keys": "40575273c52e6e2a",
+    "groups": "3c799cf51d5d0994",
+    "targets": "bf7fc4ddc16005c1",
+    "n": 5240
+   },
+   "derm12345": {
+    "keys": "a31c7e446994d565",
+    "groups": "d91c6403eea5e3f2",
+    "targets": "e1f2774512aa5af0",
+    "n": 12345
+   }
+  },
+  "embeddings": {
+   "P_isic2019_train": "37ec303a3b866d78",
+   "P_isic2019_val": "671a28e81db320aa",
+   "P_isic2019_test": "89b036c0f3f71f9d",
+   "A_isic2019_train": "16224101af9a76d4",
+   "A_isic2019_test": "aaaef5ec308662d2",
+   "P_isic2020": "6d6ec7c1af4381a2",
+   "A_isic2020": "4f5c472860671d88",
+   "P_milk10k": "1db6fc6dd255a411",
+   "A_milk10k": "6dbe9cc66ae6b8a5",
+   "P_derm12345": "b22d8755f2df322a"
+  },
+  "exclusions": {
+   "isic2020": {
+    "count": 0,
+    "mask": "9ddbda15627fbaf8"
+   },
+   "milk10k": {
+    "count": 0,
+    "mask": "3ffcd89958286eda"
+   },
+   "derm12345": {
+    "count": 0,
+    "mask": "ea0cb848223d4b82"
+   }
+  }
+ },
+ "heads": {
+  "P": "c96e6b1e604aa1be58aa002fb292149bb0cacef2b1eb3bff5491780178e0df5f",
+  "Q": "0fe5359e29bbba69cf71207b4cbeddf1e3f37fbf25aa5ef664a7990bfc325378",
+  "A": "8d5cd74c3a6469ef0d89b6b3dc522f9e156cfbb507a5751a9cd8c51ed1b81b6e",
+  "P_matches_archive": true,
+  "Q_matches_archive": true
+ },
+ "reproduction": {
+  "tolerance": 0.0001,
+  "failed": [],
+  "checks": {
+   "isic2020_P": {
+    "recomputed": 0.8105020550891872,
+    "archived": 0.8105020550891872,
+    "gap": 0.0
+   },
+   "isic2020_A": {
+    "recomputed": 0.7881041823296007,
+    "archived": 0.7881041823296007,
+    "gap": 0.0
+   },
+   "milk10k_P": {
+    "recomputed": 0.886353050336349,
+    "archived": 0.886353050336349,
+    "gap": 0.0
+   },
+   "milk10k_A": {
+    "recomputed": 0.8422328926003247,
+    "archived": 0.8422328926003247,
+    "gap": 0.0
+   },
+   "derm12345_P": {
+    "recomputed": 0.9469129342821263,
+    "archived": 0.9469129342821263,
+    "gap": 0.0
+   },
+   "derm12345_Q": {
+    "recomputed": 0.9525121389702805,
+    "archived": 0.9525121389702805,
+    "gap": 0.0
+   },
+   "threshold_P_isic2020_val_f1": {
+    "recomputed": 0.16366253793239594,
+    "archived": 0.16366253793239594,
+    "gap": 0.0
+   },
+   "threshold_Q_isic2020_val_f1": {
+    "recomputed": 0.1773519515991211,
+    "archived": 0.1773519515991211,
+    "gap": 0.0
+   },
+   "threshold_P_isic2020_val_sensitivity": {
+    "recomputed": 0.006703459657728672,
+    "archived": 0.006703459657728672,
+    "gap": 0.0
+   },
+   "threshold_Q_isic2020_val_sensitivity": {
+    "recomputed": 0.01784522831439972,
+    "archived": 0.01784522831439972,
+    "gap": 0.0
+   },
+   "threshold_P_isic2019_val_f1": {
+    "recomputed": 0.37345096468925476,
+    "archived": 0.37345096468925476,
+    "gap": 0.0
+   },
+   "threshold_Q_isic2019_val_f1": {
+    "recomputed": 0.4305587112903595,
+    "archived": 0.4305587112903595,
+    "gap": 0.0
+   },
+   "threshold_P_isic2019_val_sensitivity": {
+    "recomputed": 0.061183370649814606,
+    "archived": 0.061183370649814606,
+    "gap": 0.0
+   },
+   "threshold_Q_isic2019_val_sensitivity": {
+    "recomputed": 0.0777629017829895,
+    "archived": 0.0777629017829895,
+    "gap": 0.0
+   }
+  }
+ },
+ "local_snapshots": {
+  "panderm_snapshot_isic2020.npz": "0b387f4b744521a5",
+  "panderm_snapshot_milk10k.npz": "1026dbe1001975d4",
+  "panderm_snapshot_derm12345.npz": "533b1a845278b910",
+  "panderm_snapshot_isic2019_val.npz": "f92685a3e584459f",
+  "panderm_snapshot_isic2019_test.npz": "d7ab6dc85b9e25ea"
+ }
+}

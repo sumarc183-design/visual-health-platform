@@ -52,7 +52,10 @@ def file_fingerprint(path: str | Path, chunk_size: int = 1 << 24) -> str:
 
 
 class EmbeddingCache:
-    def __init__(self, path: str | Path, meta: dict | None = None):
+    def __init__(self, path: str | Path, meta: dict | None = None, require: tuple[str, ...] = ()):
+        """`require` : champs de `meta` qui doivent déjà figurer dans le cache. Sans eux, le
+        cache est refusé au lieu d'être adopté implicitement (adoption explicite :
+        `scripts/adopt_skin_transform.py` pour la transformation peau)."""
         self.path = Path(path)
         self.meta = meta
         self.embeddings: dict[str, np.ndarray] = {}
@@ -85,6 +88,12 @@ class EmbeddingCache:
                 f"{meta}. Le supprimer en cas de doute."
             )
             stored = {}
+        absent = [k for k in require if meta.get(k) is not None and stored.get(k) is None]
+        if absent:
+            raise CacheMismatchError(
+                f"Cache {self.path} : {absent} absent(s) des métadonnées. Pas d'adoption implicite : "
+                "contrôler un échantillon puis adopter explicitement (scripts/adopt_skin_transform.py)."
+            )
         # Une valeur demandée à None (ex. checkpoint absent de la machine) n'est pas vérifiée.
         conflicts = {
             k: (stored[k], v) for k, v in meta.items() if v is not None and stored.get(k) is not None and stored[k] != v
@@ -176,6 +185,23 @@ CHECKPOINT_STEMS = {
 }
 KNOWN_CHECKPOINTS = {"green": "431de5dbc1bebbb3", "panderm": "23405e92f853c6f7"}  # PanDerm : fichier Google Drive
 NATIVE_SIZES = {"retfound": 224, "green": 392, "dinov2": 224, "dinov2-large": 224, "panderm": 224}
+# Modèles servis sur la peau : embeddings calculés avec `skin_tensor` (SKIN_TRANSFORM),
+# pas avec le prétraitement du fond d'œil.
+SKIN_BACKBONES = {"dinov2", "dinov2-large", "panderm"}
+
+
+def cache_meta(backbone: str, preprocess: str, size: int) -> tuple[dict, tuple[str, ...]]:
+    """Contrat d'un cache du chargeur commun, et champs à exiger sans adoption implicite."""
+    meta = {"checkpoint_sha256": KNOWN_CHECKPOINTS.get(backbone), "preprocess": preprocess, "image_size": size}
+    if backbone in SKIN_BACKBONES:
+        from src.data.isic_dataset import SKIN_TRANSFORM
+
+        if preprocess != "none":
+            raise ValueError(f"modèle peau {backbone!r} : prétraitement 'none' attendu, reçu {preprocess!r}")
+        return {**meta, "transform": SKIN_TRANSFORM}, ("transform",)
+    from src.data.fundus_preprocess import PREPROCESS_VERSION
+
+    return {**meta, "preprocess_version": PREPROCESS_VERSION}, ()
 
 
 def load_embeddings(
@@ -187,21 +213,15 @@ def load_embeddings(
     image_size: int | None = None,
 ) -> np.ndarray:
     """Chargeur commun des analyses : refuse un cache calculé avec une autre
-    configuration (prétraitement, sa version, taille, checkpoint quand il est
-    connu) ou auquel manquent des images."""
-    from src.data.fundus_preprocess import PREPROCESS_VERSION
-
+    configuration (taille, checkpoint quand il est connu ; fond d'œil : prétraitement
+    et sa version ; peau : transformation `SKIN_TRANSFORM`, exigée) ou auquel
+    manquent des images."""
     if backbone not in CHECKPOINT_STEMS:
         raise ValueError(f"modèle {backbone!r} inconnu, attendu parmi {sorted(CHECKPOINT_STEMS)}")
     size = image_size or NATIVE_SIZES[backbone]
-    meta = {
-        "checkpoint_sha256": KNOWN_CHECKPOINTS.get(backbone),
-        "preprocess": preprocess,
-        "preprocess_version": PREPROCESS_VERSION,
-        "image_size": size,
-    }
+    meta, require = cache_meta(backbone, preprocess, size)
     path = Path(directory) / f"{dataset}_{preprocess}_{size}_{CHECKPOINT_STEMS[backbone]}.npz"
-    cache = EmbeddingCache(path, meta=meta)
+    cache = EmbeddingCache(path, meta=meta, require=require)
     missing = cache.missing(keys)
     if missing:
         raise CacheMismatchError(f"{path.name} : {len(missing)} image(s) absente(s), dont {missing[:3]}")

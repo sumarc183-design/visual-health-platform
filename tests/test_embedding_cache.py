@@ -177,6 +177,29 @@ def test_shared_loader_checks_configuration_and_completeness(tmp_path):
         load_embeddings(tmp_path, "d", ["a"], "autre")
 
 
+def test_shared_loader_checks_skin_transform(tmp_path):
+    """Constat D (audit du 19 nov.) : la transformation peau est exigée, sans adoption implicite."""
+    from src.data.isic_dataset import SKIN_TRANSFORM
+    from src.models.embedding_cache import KNOWN_CHECKPOINTS, load_embeddings
+
+    name = "isic2019_none_224_panderm_large.npz"
+    base = {"checkpoint_sha256": KNOWN_CHECKPOINTS["panderm"], "preprocess": "none", "image_size": 224}
+    _cache(tmp_path, name, {**base, "transform": "WRONG-TRANSFORM"})
+    with pytest.raises(CacheMismatchError, match="transform"):
+        load_embeddings(tmp_path, "isic2019", ["a"], "panderm", preprocess="none")
+    (tmp_path / name).unlink()
+    _cache(tmp_path, name, {**base, "preprocess_version": 1})  # cache historique sans transformation
+    before = (tmp_path / name).read_bytes()
+    with pytest.raises(CacheMismatchError, match="adopter explicitement"):
+        load_embeddings(tmp_path, "isic2019", ["a"], "panderm", preprocess="none")
+    assert (tmp_path / name).read_bytes() == before  # refusé sans réécriture
+    (tmp_path / name).unlink()
+    _cache(tmp_path, name, {**base, "transform": SKIN_TRANSFORM})
+    assert load_embeddings(tmp_path, "isic2019", ["a", "b"], "panderm", preprocess="none").shape == (2, 3)
+    with pytest.raises(ValueError, match="none"):
+        load_embeddings(tmp_path, "isic2019", ["a"], "panderm", preprocess="crop-mask")
+
+
 def test_source_fingerprints_detect_replaced_image(tmp_path):
     cache = EmbeddingCache(tmp_path / "c.npz", meta={"preprocess": "p"})
     cache.add(["a", "b"], np.ones((2, 3)), sources=["fa", "fb"])

@@ -6,6 +6,22 @@ selon [SemVer](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Corrigé
+- Audit du 19 nov., constat D : le chargeur commun (`load_embeddings`) exige pour les
+  modèles peau (DINOv2-B/L, PanDerm) la transformation `SKIN_TRANSFORM`, sans adoption
+  implicite, et ne demande plus la version du prétraitement du fond d'œil. Les caches
+  ISIC 2019 DINOv2-B et PanDerm l'ont adoptée explicitement (`scripts/adopt_skin_transform.py`)
+  après recalcul de 16 images (cosinus ≥ 0,99999976), marquée « supposée » ; les poids
+  DINOv2-B locaux (`ba7954cb…`), autre fichier que celui du calcul Kaggle (`388c468b…`),
+  redonnent les mêmes embeddings. Le cache DINOv2-L reste refusé (poids absents de ce PC).
+  Embeddings, clés et empreintes des sources inchangés.
+- Audit du 19 nov., constat E : `scripts/panderm_snapshot.py` fige les entrées des trois
+  études PanDerm (empreintes des annotations, listes ordonnées clés/groupes/cibles,
+  exclusions, embeddings utilisés, arguments, `pip freeze`) dans `results/panderm_inputs.json`
+  et leurs scores dans `results/panderm_snapshot_*.npz` (local, non versionné). Reproduction
+  exacte des AUROC du mélanome et des seuils archivés, têtes P et Q identiques à l'archive.
+  `--check` signale toute entrée modifiée avant calcul.
+- Audit du 19 nov., constat H : synthèse des seuils de P corrigée (cible 0,90 atteinte en
+  sélection, non maintenue sur le reste d'ISIC 2020 ; quatre seuils évalués seulement).
 - Passage sous Windows (16 nov.) : les 105 lectures/écritures de fichiers texte sans
   `encoding=` (dont les seuils lus par `predict.py`) passent en UTF-8 explicite ; Windows
   prenait cp1252 et pouvait planter sur « − » ou abîmer les accents des JSON. Règle ruff
@@ -18,7 +34,8 @@ selon [SemVer](https://semver.org/lang/fr/).
   avant calcul, après les résultats de Q (choix de P documenté comme décision a posteriori).
   Mesures sans critère sur DERM12345 et sur les 80 % restants d'ISIC 2020. Résultats
   (`results/panderm_p_thresholds.json`) : au seuil « sensibilité » d'ISIC 2020, sensibilité
-  0,860 et spécificité 0,511 sur le reste d'ISIC 2020 ; aucun seuil ne convient aux deux bases.
+  0,860 [0,825 ; 0,893] (cible 0,90 non maintenue) et spécificité 0,511 sur le reste d'ISIC
+  2020 ; aucun des quatre seuils évalués ne donne de compromis retenu sur les deux bases.
 - `scripts/panderm_derm12345.py` : tête peau PanDerm apprise sur ISIC 2019 + 80 % des
   patients d'ISIC 2020 (Q), plan fixé le 19 nov. avant tout calcul (option B, décision de
   Marc). Base externe DERM12345 (Turquie, CC BY, 12 345 dermoscopies, 400 mélanomes),

@@ -7,7 +7,7 @@ import numpy as np
 
 from scripts import dermatology_analysis
 from src.data.fundus_preprocess import PREPROCESS_VERSION
-from src.data.isic_dataset import CLASS_NAMES, ISIC2019Dataset
+from src.data.isic_dataset import CLASS_NAMES, SKIN_TRANSFORM, ISIC2019Dataset
 from src.models.embedding_cache import CHECKPOINT_STEMS, KNOWN_CHECKPOINTS, EmbeddingCache
 from tests.test_isic_dataset import _write
 
@@ -26,6 +26,7 @@ def test_analysis_compares_the_three_models_on_the_same_images(tmp_path, monkeyp
             "preprocess": "none",
             "preprocess_version": PREPROCESS_VERSION,
             "image_size": 224,
+            "transform": SKIN_TRANSFORM,
         }
         cache = EmbeddingCache(tmp_path / "emb" / f"isic2019_none_224_{CHECKPOINT_STEMS[backbone]}.npz", meta)
         X = rng.normal(size=(len(keys), 16)).astype(np.float32)

@@ -426,11 +426,13 @@ sur les 80 % restants d'ISIC 2020 (26 249 images, jamais vues par P).
 | Validation ISIC 2019 | F1 | 0,680 / 0,964 | 0,157 / 0,988 |
 | Validation ISIC 2019 | sensibilité 0,90 | 0,922 [0,885 ; 0,955] / 0,803 | 0,486 [0,435 ; 0,535] / 0,914 |
 
-Aucun seuil ne convient aux deux bases. Le seuil « sensibilité » fixé sur ISIC 2020
-garde sa promesse sur le reste d'ISIC 2020 (0,86), mais signale à tort la moitié des
-lésions bénignes, et deux sur trois sur DERM12345. En dépistage réel (ISIC 2020), P ne
-sépare pas assez bien les mélanomes (AUROC 0,81) pour un point de fonctionnement à la fois
-sensible et spécifique ; le seuil dépend de la population servie.
+Parmi les quatre seuils évalués, aucun ne donne un compromis retenu sur les deux bases. Le
+seuil « sensibilité » atteint la cible de 0,90 sur les patients qui l'ont fixé, mais ne la
+maintient pas sur le reste d'ISIC 2020 : 0,860 [0,825 ; 0,893], borne haute sous 0,90. Il
+signale alors à tort la moitié des lésions bénignes (spécificité 0,511), et deux sur trois
+sur DERM12345. En dépistage réel (ISIC 2020), P ne sépare pas assez bien les mélanomes
+(AUROC 0,81) pour un point de fonctionnement à la fois sensible et spécifique ; le seuil
+dépend de la population servie. La VPP est donnée sans IC.
 
 ## Photos de smartphone : PAD-UFES-20 (12 novembre 2026)
 
