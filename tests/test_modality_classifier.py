@@ -49,3 +49,19 @@ def test_load_rejects_other_classes(tmp_path):
     torch.save({"state_dict": {}, "threshold": 0.9, "classes": ["a", "b"]}, tmp_path / "bad.pt")
     with pytest.raises(ValueError, match="classes"):
         ModalityHead.load(tmp_path / "bad.pt")
+
+
+def test_corrupted_router_is_refused(tmp_path):
+    """Constat G (audit du 19 nov.) : pas d'avis du routeur avec des probabilités NaN."""
+    head = ModalityHead(4)
+    with torch.no_grad():
+        head.linear.weight.fill_(float("nan"))
+    head.save(tmp_path / "nan.pt", {})
+    with pytest.raises(ValueError, match="non finis"):
+        ModalityHead.load(tmp_path / "nan.pt")
+    for bad in (float("nan"), 0.0, 1.5):
+        ModalityHead(4, bad).save(tmp_path / "seuil.pt", {})
+        with pytest.raises(ValueError, match="seuil"):
+            ModalityHead.load(tmp_path / "seuil.pt")
+    with pytest.raises(ValueError, match="non finies"):
+        ModalityHead(4).probabilities(np.full((1, 4), np.nan))

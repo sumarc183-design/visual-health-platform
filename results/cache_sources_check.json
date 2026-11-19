@@ -1,0 +1,188 @@
+{
+  "aptos_crop-mask_224_RETFound_mae_natureCFP.npz": {
+    "status": "non couvert"
+  },
+  "aptos_crop-mask_224_retfoundgreen_statedict.npz": {
+    "status": "non couvert"
+  },
+  "aptos_crop-mask_384_RETFound_mae_natureCFP.npz": {
+    "status": "non couvert"
+  },
+  "aptos_crop-mask_392_retfoundgreen_statedict.npz": {
+    "status": "non couvert"
+  },
+  "ddr_crop-mask_224_RETFound_mae_natureCFP.npz": {
+    "status": "non couvert"
+  },
+  "ddr_crop-mask_224_retfoundgreen_statedict.npz": {
+    "status": "non couvert"
+  },
+  "ddr_crop-mask_392_retfoundgreen_statedict.npz": {
+    "status": "non couvert"
+  },
+  "derm12345_panderm_large.npz": {
+    "status": "ok",
+    "verified": 12345,
+    "assumed": 0,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "eyepacs_crop-mask_224_RETFound_mae_natureCFP.npz": {
+    "status": "non couvert"
+  },
+  "eyepacs_crop-mask_224_retfoundgreen_statedict.npz": {
+    "status": "non couvert"
+  },
+  "eyepacs_crop-mask_384_RETFound_mae_natureCFP.npz": {
+    "status": "non couvert"
+  },
+  "eyepacs_crop-mask_392_retfoundgreen_statedict.npz": {
+    "status": "non couvert"
+  },
+  "idrid_crop-mask_224_retfound.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 516,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "idrid_crop-mask_392_green.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 516,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "isic2020_dinov2_vitb14.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 33126,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "isic2020_panderm_large.npz": {
+    "status": "ok",
+    "verified": 33126,
+    "assumed": 0,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "messidor2_crop-mask_224_retfound.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 1744,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "messidor2_crop-mask_392_green.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 1744,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "milk10k_dinov2_vitb14.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 5240,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "milk10k_panderm_large.npz": {
+    "status": "ok",
+    "verified": 5240,
+    "assumed": 0,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "modality_dinov2_vitb14.npz": {
+    "status": "non couvert"
+  },
+  "odir_crop-mask_224_RETFound_mae_natureCFP.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 6392,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "odir_none_224_RETFound_mae_natureCFP.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 5427,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "pad_ufes20_dinov2_vitb14.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 2298,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "quality_dinov2_vitb14.npz": {
+    "status": "non couvert"
+  },
+  "rfmid_crop-mask_224_RETFound_mae_natureCFP.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 3200,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "rfmid_crop-mask_224_retfoundgreen_statedict.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 3200,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "rfmid_crop-mask_384_RETFound_mae_natureCFP.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 3200,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "rfmid_crop-mask_392_retfoundgreen_statedict.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 3200,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "rfmid_none_224_RETFound_mae_natureCFP.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 2560,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "slice3d_dinov2_vitb14.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 6294,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "isic2019_none_224_dinov2_vitb14_timm.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 31522,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "isic2019_none_224_dinov2_vitl14_timm.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 31522,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  },
+  "isic2019_none_224_panderm_large.npz": {
+    "status": "ok",
+    "verified": 0,
+    "assumed": 31522,
+    "without_fingerprint": 0,
+    "not_checked": 0
+  }
+}

@@ -11,6 +11,9 @@ pip install -r requirements-dev.txt   # dépendances + pytest + ruff
 pre-commit install                    # optionnel : lint et format à chaque commit
 ```
 
+Commandes pour macOS/Linux (Bash). Sous Windows : voir
+[Installation sous Windows 11](#installation-sous-windows-11-sans-gpu-nvidia).
+
 Python 3.10 ou plus. `requirements.txt` borne chaque dépendance à la version
 majeure validée (Mac Intel et Colab).
 
@@ -22,7 +25,7 @@ conditions sur la page du modèle
 puis créer un token en lecture.
 
 ```bash
-huggingface-cli login --token VOTRE_TOKEN
+hf auth login   # colle le token quand il est demandé (pas dans l'historique du shell)
 python scripts/download_retfound_checkpoint.py \
     --repo-id YukunZhou/RETFound_mae_natureCFP \
     --out third_party/retfound/checkpoints
@@ -502,6 +505,7 @@ Sources pour retélécharger :
 | Messidor-2 (confirmation principale) | Images : formulaire [ADCIS](https://www.adcis.net/en/third-party/messidor2/), archive en 4 morceaux `IMAGES.zip.001`–`.004` (réunis par `cat`) et liste des examens `messidor-2.csv` ; notes : Kaggle `google-brain/messidor2-dr-grades` (`messidor_data.csv`) ; le tout dans `data/raw/messidor2/` |
 | ISIC 2020 (peau, validation externe) | Kaggle `cdeotte/jpeg-melanoma-256x256` via `kagglehub` ; dans `data/raw/isic2020/` |
 | MILK10k (peau, transfert) | [ISIC Challenge Datasets](https://challenge.isic-archive.com/data/), MILK10k : `metadata.csv`, `supplements/training_gt.csv` et images ; dans `data/raw/milk10k/` |
+| DERM12345 (peau, validation externe) | Archive ISIC, collection 399 (CC BY) : `metadata.csv` et `images/<isic_id>.jpg`, téléchargés par l'API `api.isic-archive.com/api/v2` ; dans `data/raw/derm12345/` |
 | PAD-UFES-20 (peau, smartphone) | [Mendeley Data](https://data.mendeley.com/datasets/zr7vgbcyr2/1), « Download All » : `zr7vgbcyr2-1.zip`, SHA-256 `e8c7e17bac1698c97e44d4096ec20ac1b91c135285c1446b7b2e7ebbc9be933c` ; dans `data/raw/pad_ufes20/`, extraire `metadata.csv` et les trois `imgs_part_*.zip` |
 | RETFound | `scripts/download_retfound_checkpoint.py` (jeton Hugging Face) |
 | RETFound-Green | release v0.1 du [dépôt de l'auteur](https://github.com/justinengelmann/RETFound_Green) (SHA-256 vérifié par les notebooks) |
@@ -513,6 +517,23 @@ timm retéléchargée (`ed724e34e19dc3b6`) donne les mêmes embeddings (cosinus 
 5 images officielles d'ISIC 2019), mais la tête peau et le routeur la refusent, car ils
 n'acceptent que l'empreinte enregistrée. **Recopier le fichier d'origine** plutôt que le
 retélécharger.
+
+### Contrôle des images avant une analyse de confirmation (obligatoire)
+
+Les caches gardent l'empreinte de chaque image source, mais ne la comparent pas à chaque
+lecture : tout recalculer coûterait environ 35 min sur ce PC (19 nov., 21 caches). Après
+toute copie ou tout nouveau téléchargement de données, et **avant chaque analyse de
+confirmation**, lancer :
+
+```bash
+python scripts/verify_cache_sources.py --only <bases utilisées> --out results/cache_sources_check.json
+python scripts/panderm_snapshot.py --check ...   # études PanDerm : mêmes arguments que l'instantané
+```
+
+Le premier échoue (code 1) si une image a changé, si une clé n'a pas pu être contrôlée ou
+si un dossier manque ; le second, si une annotation, une liste de patients ou un embedding
+des études PanDerm a changé. Garder le bilan avec les résultats de l'analyse. Non couverts
+(images absentes de ce PC ou fabriquées à la volée) : APTOS, EyePACS, DDR, routeur, qualité.
 
 ### Installation sous Windows 11 (sans GPU NVIDIA)
 

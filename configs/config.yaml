@@ -32,4 +32,5 @@ eval:
   comparison: différence appariée (scripts/compare_predictions.py), sur val
 
 quality_control:
-  blur_threshold: 1.0        # signale sans filtrer ; seuil à calibrer (classe déjà testée : 100)
+  blur_threshold: 4.16       # fond d'œil, signale sans filtrer (DEFAULT_BLUR_THRESHOLD, results/quality_calibration.json)
+  skin_blur_threshold: 6.33  # peau (DEFAULT_SKIN_BLUR_THRESHOLD) ; valeurs servies : src/pipeline/quality_control.py

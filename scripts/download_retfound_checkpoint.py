@@ -4,7 +4,7 @@ avec les conditions d'utilisation acceptées sur la page du modèle).
 
 huggingface.co est hors de la liste d'hôtes autorisés de certains sandboxs
 de développement (pare-feu d'entreprise ou politique d'environnement cloud) :
-si `huggingface-cli login` ou ce script échouent avec une erreur réseau/403
+si `hf auth login` ou ce script échouent avec une erreur réseau/403
 depuis un tel environnement, lancez-les depuis un poste avec accès internet
 normal.
 
@@ -15,7 +15,7 @@ normal.
      RETFound_MAE : https://huggingface.co/YukunZhou/RETFound_mae_natureCFP)
      et accepter les conditions d'accès (dépôt "gated")
   3. pip install huggingface_hub
-  4. huggingface-cli login --token VOTRE_TOKEN
+  4. hf auth login   (saisie interactive du token ; remplace `huggingface-cli login`)
 
 Exemple :
     python scripts/download_retfound_checkpoint.py \\

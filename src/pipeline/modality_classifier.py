@@ -9,11 +9,14 @@ spécialisé. Le seuil est fixé à l'avance, pas réglé sur les données.
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 import numpy as np
 import torch
 import torch.nn as nn
+
+from src.models.classifier_head import check_finite_state_dict
 
 MODALITIES = ["fundus", "dermoscopy", "unknown"]
 CONFIDENCE_THRESHOLD = 0.9
@@ -30,7 +33,10 @@ class ModalityHead(nn.Module):
     @torch.no_grad()
     def probabilities(self, X: torch.Tensor | np.ndarray) -> np.ndarray:
         X = torch.as_tensor(np.asarray(X, dtype=np.float32))
-        return torch.softmax(self.linear(X), dim=-1).numpy()
+        probs = torch.softmax(self.linear(X), dim=-1).numpy()
+        if not np.isfinite(probs).all():  # constat G (audit du 19 nov.) : jamais d'avis avec NaN
+            raise ValueError("routeur : probabilités non finies (embedding ou poids invalides)")
+        return probs
 
     def decide(self, probs: np.ndarray) -> list[str]:
         """Classe la plus probable, ou « unknown » si sa probabilité est sous le seuil."""
@@ -49,8 +55,12 @@ class ModalityHead(nn.Module):
         artifact = torch.load(path, map_location="cpu", weights_only=True)
         if artifact["classes"] != MODALITIES:
             raise ValueError(f"classes inattendues : {artifact['classes']}")
+        check_finite_state_dict(artifact["state_dict"], "routeur")
+        threshold = float(artifact["threshold"])
+        if not (math.isfinite(threshold) and 0 < threshold <= 1):
+            raise ValueError(f"routeur : seuil de confiance invalide ({threshold})")
         weight = artifact["state_dict"]["weight"]
-        head = cls(weight.shape[1], artifact["threshold"])
+        head = cls(weight.shape[1], threshold)
         head.linear.load_state_dict(artifact["state_dict"])
         return head, artifact
 

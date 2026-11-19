@@ -20,6 +20,25 @@ selon [SemVer](https://semver.org/lang/fr/).
   et leurs scores dans `results/panderm_snapshot_*.npz` (local, non versionné). Reproduction
   exacte des AUROC du mélanome et des seuils archivés, têtes P et Q identiques à l'archive.
   `--check` signale toute entrée modifiée avant calcul.
+- Audit du 19 nov., constat C : `verify_cache_sources.py` est strict. Un dossier de caches
+  absent, une clé non contrôlée ou un cache sans aucune empreinte comparée donnent le
+  statut « incomplet » et le code de sortie 1 (`--allow-partial` pour un contrôle partiel
+  explicite). DERM12345 est couvert. Tests du programme complet.
+- Audit du 19 nov., constat B : contrôle des images avant toute analyse de confirmation
+  rendu obligatoire et documenté (GUIDE), plutôt qu'à chaque lecture (environ 35 min pour
+  tous les caches). Bilan du 19 nov. conservé (`results/cache_sources_check.json`) :
+  21 caches contrôlés, 0 image modifiée, 0 clé non contrôlée ; 13 non couverts.
+- Audit du 19 nov., constat F : tests des études PanDerm (correspondance des diagnostics
+  DERM12345, séparation par patient, critère) ; `panderm_snapshot.py` refuse un diagnostic
+  DERM12345 inattendu, un identifiant en double, un patient manquant ou un nom d'image en
+  double. Constat noté : 12 lésions DERM12345 « malignes » sans diagnostic précis sont
+  comptées négatives pour toutes les classes, mélanome compris, comme le prévoyait le plan.
+- Audit du 19 nov., constat G : le routeur refuse au chargement des poids non finis ou un
+  seuil hors de ]0 ; 1], et ne rend jamais d'avis avec des probabilités non finies.
+- Audit du 19 nov., documentation : `hf auth login` (saisie interactive) remplace
+  `huggingface-cli login` dans le GUIDE et l'aide du téléchargement RETFound ; renvoi vers
+  l'installation Windows ; seuils de flou de `configs/config.yaml` alignés sur ceux servis
+  (4,16 fond d'œil, 6,33 peau).
 - Audit du 19 nov., constat H : synthèse des seuils de P corrigée (cible 0,90 atteinte en
   sélection, non maintenue sur le reste d'ISIC 2020 ; quatre seuils évalués seulement).
 - Passage sous Windows (16 nov.) : les 105 lectures/écritures de fichiers texte sans

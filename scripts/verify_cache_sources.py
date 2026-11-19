@@ -13,10 +13,16 @@ de leur image (`EmbeddingCache.add(..., sources=...)`). Ce script :
   vient bien de ce fichier, mais tout changement ultérieur sera détecté.
 
 Bases couvertes (images locales) : RFMiD, ODIR, ISIC 2019, Messidor-2, IDRiD (gradation),
-ISIC 2020, MILK10k, PAD-UFES-20 (clé = nom du fichier, comme dans leurs scripts) et
+ISIC 2020, MILK10k, DERM12345, PAD-UFES-20 (clé = nom du fichier, comme dans leurs scripts) et
 SLICE-3D (octets de chaque image dans l'archive d'origine). Non couverts : images absentes
 de la machine (APTOS, EyePACS, DDR) ; routeur et qualité, dont les entrées mêlent
 plusieurs bases et des images dégradées fabriquées à la volée (pas de fichier source).
+
+Strict par défaut (constat C de l'audit du 19 novembre) : un dossier de caches absent, un
+cache dont une clé n'a pas pu être contrôlée (image absente, dossier mal nommé) ou un
+cache sans aucune empreinte comparée donne le statut « incomplet » et un code de sortie 1.
+`--allow-partial` accepte explicitement un contrôle partiel (statut « partiel »). Un cache
+« non couvert » n'est jamais une preuve de conformité.
 
 Exemple :
     python scripts/verify_cache_sources.py --data-root data/raw --adopt
@@ -75,7 +81,12 @@ def dataset_paths(name: str, root: Path) -> dict[str, Path]:
 
 # Bases dont la clé est « <base>/<nom du fichier> » (isic2020_external.py, skin_transfer_milk10k.py,
 # pad_ufes20_skin.py) : motif, et nom sans extension (stem) ou complet.
-BY_FILE_NAME = {"isic2020": ("*.jpg", True), "milk10k": ("*.jpg", True), "pad_ufes20": ("*.png", False)}
+BY_FILE_NAME = {
+    "isic2020": ("*.jpg", True),
+    "milk10k": ("*.jpg", True),
+    "derm12345": ("*.jpg", True),  # panderm_derm12345.py : derm12345/<isic_id>
+    "pad_ufes20": ("*.png", False),
+}
 SLICE3D_ZIP = "ISIC_2024_Permissive_Training_Input.zip"
 
 
@@ -95,22 +106,36 @@ DATASETS = {  # préfixe du fichier de cache -> (base, sous-dossier de data/raw)
     "idrid_": ("idrid", "idrid_grading"),
     "isic2020_": ("isic2020", "isic2020"),
     "milk10k_": ("milk10k", "milk10k"),
+    "derm12345_": ("derm12345", "derm12345"),
     "pad_ufes20_": ("pad_ufes20", "pad_ufes20"),
     "slice3d_": ("slice3d", "slice3d"),
 }
 
 
-def main() -> None:
+def status(counts: dict[str, int], allow_partial: bool) -> str:
+    """« ok » seulement si toutes les clés ont été comparées à une empreinte."""
+    compared = counts["verified"] + counts["assumed"]
+    if compared and not counts["not_checked"] and not counts["without_fingerprint"]:
+        return "ok"
+    return "partiel" if allow_partial and compared else "incomplet"
+
+
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--data-root", type=Path, default=Path("data/raw"))
     parser.add_argument("--caches", type=Path, nargs="+", default=[Path("embeddings"), Path("embeddings_derm")])
     parser.add_argument("--adopt", action="store_true", help="Poser l'empreinte actuelle (marquée supposée)")
     parser.add_argument("--out", type=Path, default=None, help="Bilan JSON (facultatif)")
     parser.add_argument("--only", nargs="+", default=None, help="Bases à contrôler (défaut : toutes)")
-    args = parser.parse_args()
+    parser.add_argument("--allow-partial", action="store_true", help="Accepter des clés non contrôlées")
+    args = parser.parse_args(argv)
 
     fingerprints: dict[str, dict[str, str]] = {}
     report, failed = {}, False
+    for d in args.caches:
+        if not d.is_dir():
+            report[str(d)] = {"status": "incomplet", "error": "dossier de caches absent"}
+            failed = True
     for path in sorted(p for d in args.caches if d.is_dir() for p in d.glob("*.npz")):
         match = next((v for prefix, v in DATASETS.items() if path.name.startswith(prefix)), None)
         if match is None:
@@ -129,7 +154,8 @@ def main() -> None:
                 else:
                     fingerprints[name] = {k: file_fingerprint(p) for k, p in dataset_paths(name, root).items()}
             counts = cache.check_sources(fingerprints[name], adopt=args.adopt)
-            report[path.name] = {"status": "ok", **counts}
+            report[path.name] = {"status": status(counts, args.allow_partial), **counts}
+            failed |= report[path.name]["status"] == "incomplet"
         except CacheMismatchError as error:
             report[path.name] = {"status": "IMAGES MODIFIÉES", "error": str(error)}
             failed = True
@@ -139,8 +165,11 @@ def main() -> None:
             print(f"  {name} : non couvert")
     if args.out:
         args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    sys.exit(1 if failed else 0)
+    if args.only and not any(e["status"] != "non couvert" for e in report.values()):
+        print("Aucun cache contrôlé pour", args.only)
+        failed = True
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -393,7 +393,10 @@ d'ISIC 2020 sont des nævus, comptés négatifs pour cette classe.
 
 Limite : l'AUROC sur DERM12345 (0,95) est bien plus haute que sur ISIC 2020 (0,81). Seules
 1 167 lésions de DERM12345 sont confirmées par histologie (tous les cancers, une partie des
-lésions bénignes) ; la tâche y est probablement plus facile qu'en dépistage réel.
+lésions bénignes) ; la tâche y est probablement plus facile qu'en dépistage réel. Autre
+réserve (relevée le 19 nov. après les résultats) : 12 lésions sont « malignes » sans
+diagnostic précis ; le plan les compte négatives pour toutes les classes, mélanome compris.
+Si certaines sont des mélanomes, l'AUROC rapportée est plutôt sous-estimée.
 
 Seuils du mélanome de Q sur DERM12345 (3,2 % de mélanomes) :
 

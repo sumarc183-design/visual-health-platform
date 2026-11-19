@@ -72,6 +72,42 @@ def digest(*arrays) -> str:
     return h.hexdigest()[:16]
 
 
+# Constat F (audit du 19 nov.) : diagnostics DERM12345 (diagnosis_3) hors des huit classes,
+# comptés négatifs partout par le plan du 19 nov. ; « » = lésion maligne sans diagnostic
+# précis (12 lésions). Toute autre valeur est une entrée inattendue (faute de frappe d'une
+# catégorie MEL, nouvelle version de la base) et arrête l'analyse.
+DERM_OUT_OF_SCOPE = {
+    "Lymphangioma",
+    "Lentigo simplex",
+    "Kaposi sarcoma",
+    "Vascular spider",
+    "Paget disease",
+    "Ink-spot lentigo",
+    "Dermatofibrosarcoma protuberans",
+    "",
+}
+
+
+def check_derm_metadata(md: pd.DataFrame) -> None:
+    """Identifiants uniques, patients présents, diagnostics tous connus (classe ou hors périmètre)."""
+    from scripts.panderm_derm12345 import DERM_TO_ISIC
+
+    if not md["isic_id"].is_unique:
+        raise ValueError(f"DERM12345 : {int(md['isic_id'].duplicated().sum())} identifiant(s) en double")
+    if md["patient_id"].isna().any():
+        raise ValueError(f"DERM12345 : {int(md['patient_id'].isna().sum())} image(s) sans patient")
+    unexpected = set(md["diagnosis_3"].fillna("")) - set(DERM_TO_ISIC) - DERM_OUT_OF_SCOPE
+    if unexpected:
+        raise ValueError(f"DERM12345 : diagnostics inattendus {sorted(unexpected)}")
+
+
+def check_unique_stems(paths: list[Path], base: str) -> None:
+    """Les scripts associent clé et image par `{p.stem: p}` : un doublon serait écrasé en silence."""
+    stems = [p.stem for p in paths]
+    if len(set(stems)) != len(stems):
+        raise ValueError(f"{base} : {len(stems) - len(set(stems))} nom(s) d'image en double")
+
+
 def cached(path: Path, keys: list[str], meta: dict) -> np.ndarray:
     cache = EmbeddingCache(path, meta=meta)
     if cache.missing(keys):
@@ -95,6 +131,9 @@ def load_inputs(args) -> dict:
     keys_m = [f"milk10k/{i}" for i in gt["isic_id"]]
     md = pd.read_csv(args.derm_root / "metadata.csv")
     md = md[md["image_type"] == "dermoscopic"].reset_index(drop=True)
+    check_derm_metadata(md)
+    for base, root in (("isic2020", args.isic2020_root), ("milk10k", args.milk_root), ("derm12345", args.derm_root)):
+        check_unique_stems(sorted(root.rglob("*.jpg")), base)
     keys_d = [f"derm12345/{i}" for i in md["isic_id"]]
     held = held_out_patients(m20["patient_id"])
     return {
