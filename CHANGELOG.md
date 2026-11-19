@@ -19,6 +19,9 @@ selon [SemVer](https://semver.org/lang/fr/).
   sur MILK10k : écart P − A, borne basse > 0. SLICE-3D exclue (ISIC 2024 fait partie du
   pré-entraînement de PanDerm). `embed` (scripts peau) utilise désormais la normalisation
   propre au modèle (PanDerm : écart-type rouge 0,228) ; inchangé pour DINOv2.
+  Résultats (18 nov., `results/panderm_external.json`) : ISIC 2020, AUROC mélanome de P
+  0,811 [0,788 ; 0,829], **critère principal non atteint** ; MILK10k, P − A +0,044
+  [+0,029 ; +0,058], confirmation atteinte. La tête servie reste DINOv2-B.
 - Empreinte du contenu des images source dans les caches d'embeddings (constat 6 de
   l'audit du 15 nov.). Chaque nouvel embedding porte l'empreinte de son image, et
   `EmbeddingCache.check_sources` refuse un cache dont une image a été remplacée sous la

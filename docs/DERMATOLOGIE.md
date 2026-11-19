@@ -338,6 +338,35 @@ les embeddings ont un cosinus médian de 1,0 (1er centile 0,9999998), contre 0,5
 images différentes. La réserve ci-dessus sur les deux empreintes est levée : ce sont
 les mêmes poids, sérialisés différemment.
 
+## Tête PanDerm en validation externe (18 novembre 2026)
+
+Plan fixé le 18 nov. avant tout calcul (`scripts/panderm_external.py`, commit `e6894b8`),
+après validation au Point du 18-11. Tête P : régression logistique sur PanDerm-Large
+figé, apprise sur ISIC 2019 comme la tête servie A (DINOv2-B), sans réglage sur les bases
+externes. Critère principal : AUROC du mélanome de P sur ISIC 2020, borne basse ≥ 0,80
+(critère de J90). Confirmation : sur MILK10k, écart P − A pour le mélanome, borne basse
+> 0. SLICE-3D exclue (ISIC 2024 fait partie du préentraînement de PanDerm). IC par
+bootstrap sur les patients (ISIC 2020) ou les lésions (MILK10k) ; aucun quasi-doublon
+avec ISIC 2019, aucune image exclue. [Résultats](../results/panderm_external.json).
+
+| AUROC mélanome [IC 95 %] | P (PanDerm) | A (DINOv2-B, servie) | P − A |
+|---|---|---|---|
+| **ISIC 2020** (33 126 images, 2 056 patients, 584 mélanomes) | **0,811 [0,788 ; 0,829]** | 0,788 [0,765 ; 0,808] | +0,022 [+0,005 ; +0,040] |
+| **MILK10k** (5 240 lésions, 450 mélanomes) | 0,886 [0,868 ; 0,903] | 0,842 [0,821 ; 0,862] | **+0,044 [+0,029 ; +0,058]** |
+| Test ISIC 2019 | | | +0,036 [+0,027 ; +0,045] |
+
+**Critère principal non atteint** : la borne basse (0,788) reste sous 0,80, même si
+l'estimation la dépasse. **Confirmation atteinte** sur MILK10k. PanDerm fait mieux que la
+tête servie sur les trois bases ; sur MILK10k, l'écart est positif pour les huit classes
+(macro +0,027 [+0,019 ; +0,034] ; DF seule non significative, 52 lésions). Sur ISIC 2020,
+au seuil F1 fixé sur la validation ISIC 2019, la sensibilité au mélanome n'est que de
+0,159 [0,126 ; 0,193] (spécificité 0,987) ; au seuil « sensibilité », 0,490
+[0,443 ; 0,535] (spécificité 0,914, VPP 0,093). Les seuils ne transfèrent pas à la faible
+prévalence d'ISIC 2020 (1,8 % de mélanomes).
+
+La tête A reste servie : PanDerm (CC BY-NC-ND) demande un second modèle d'embedding et ne
+passe pas non plus le critère de J90.
+
 ## Photos de smartphone : PAD-UFES-20 (12 novembre 2026)
 
 Plan fixé avant tout calcul (`scripts/pad_ufes20_skin.py`, commit `0eee4a0`). PAD-UFES-20

@@ -62,7 +62,7 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
 
 ## J90 — Modularité démontrée (30 janvier 2027)
 - [ ] Socle modulaire validé sur 2 modalités (rétine + dermato)
-  Amorcé le 12 nov. : `predict.py` accepte une tête peau (DINOv2-B, ISIC 2019, même modèle que le routeur) ; type d'image déclaré par la tête, routeur en avertissement. Seuils peau (13 nov.) et contrôle qualité peau (13 nov.) faits. Validation externe : ISIC 2020, AUROC mélanome 0,788 [0,765 ; 0,808], critère (≥ 0,80) non atteint ; MILK10k : l'ajout d'ISIC 2020 gagne sur le mélanome mais perd sur BCC et nævus, tête servie gardée (décision au tuteur). Reste : une tête peau qui passe une validation externe.
+  Amorcé le 12 nov. : `predict.py` accepte une tête peau (DINOv2-B, ISIC 2019, même modèle que le routeur) ; type d'image déclaré par la tête, routeur en avertissement. Seuils peau (13 nov.) et contrôle qualité peau (13 nov.) faits. Validation externe : ISIC 2020, AUROC mélanome 0,788 [0,765 ; 0,808], critère (≥ 0,80) non atteint ; MILK10k : l'ajout d'ISIC 2020 gagne sur le mélanome mais perd sur BCC et nævus, tête servie gardée (décision au tuteur). 18 nov. : tête PanDerm, ISIC 2020 mélanome 0,811 [0,788 ; 0,829], critère encore non atteint (borne basse sous 0,80) ; MILK10k, PanDerm − tête servie +0,044 [+0,029 ; +0,058], confirmé ([DERMATOLOGIE](DERMATOLOGIE.md#tête-panderm-en-validation-externe-18-novembre-2026)). Reste : une tête peau qui passe une validation externe.
   PAD-UFES-20 (photos de smartphone) : la tête peau ne transfère pas (−0,214 d'AUROC macro face à une tête apprise sur place) ; réservée à la dermoscopie.
 - [ ] Dossier d'accès AI-Hub (étude TSA/rétine) avancé
 - [ ] Note de synthèse pour arbitrage de la 3e indication
