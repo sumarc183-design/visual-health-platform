@@ -275,3 +275,36 @@ def test_head_of_one_model_refuses_the_checkpoint_of_another(setup, green_head):
     path, _, _ = green_head
     with pytest.raises(ValueError, match="checkpoint"):
         Predictor(path, setup["checkpoint"])
+
+
+def test_explain_maps_the_served_model_and_starts_from_its_score(setup, green_head):
+    """Carte d'occlusion sur le modèle servi : même logit que la prédiction, carte finie
+    de la taille de l'image, carré de 1/7 et pas de 1/14 (méthode IDRiD)."""
+    path, checkpoint, _ = green_head
+    predictor = Predictor(path, checkpoint)
+    result = predictor.explain(setup["image"], "DR")
+    assert result["heat"].shape == (GREEN_SIZE, GREEN_SIZE) and np.isfinite(result["heat"]).all()
+    assert (result["patch"], result["stride"]) == (GREEN_SIZE // 7, GREEN_SIZE // 14)
+    probability = predictor.probabilities(setup["image"])[CLASSES.index("DR")]
+    assert abs(torch.sigmoid(torch.tensor(result["logit"])) - probability) < 1e-5
+    assert result["outside_retina_share"] is None or 0.0 <= result["outside_retina_share"] <= 1.0
+    with pytest.raises(ValueError, match="absente"):
+        predictor.explain(setup["image"], "AUTRE")
+
+
+def test_cli_explain_writes_one_map_per_positive_finding(setup, green_head, monkeypatch, tmp_path):
+    import predict
+
+    path, checkpoint, _ = green_head
+    predictor = Predictor(path, checkpoint)
+    predictor.thresholds = {"DR": 0.0, "MYA": 0.0, "RARE": None}  # DR et MYA positifs
+    monkeypatch.setattr(predict, "Predictor", lambda *args, **kwargs: predictor)
+    out, maps = tmp_path / "predictions.json", tmp_path / "cartes"
+    argv = ["predict.py", str(setup["image"]), "--head", str(path), "--checkpoint", str(checkpoint)]
+    argv += ["--no-modality-check", "--device", "cpu", "--out", str(out), "--explain", str(maps), "--explain-max", "1"]
+    monkeypatch.setattr(sys, "argv", argv)
+    predict.main()
+    explanations = json.loads(out.read_text(encoding="utf-8"))[0]["explanations"]
+    assert len(explanations) == 1 and explanations[0]["why"] == "positif"
+    image = Image.open(explanations[0]["file"])
+    assert image.size == (2 * GREEN_SIZE + 4, GREEN_SIZE)  # image | zones fortes

@@ -380,6 +380,21 @@ désactiver) :
 python predict.py lesion.jpg --skin
 ```
 
+Localisation (`--explain DOSSIER`, 20 novembre) : pour chaque maladie positive (trois au
+plus, `--explain-max`), une planche PNG montre l'image et, à droite, en cyan, les 5 % de
+pixels dont le masquage fait le plus baisser le score (carte d'occlusion, carré de 1/7 de
+l'image) ; le JSON donne aussi la part de l'effet hors de la rétine (un fort pourcentage
+signale un raccourci possible). Environ 20 s par carte avec Green sur ce PC (processeur).
+Ce n'est pas une segmentation : sur IDRiD, les cartes de Green suivent les lésions mieux que
+leur seule position, mais l'accord reste modeste (AUROC au pixel 0,66) ; rien n'est mesuré
+pour les autres maladies ni pour la peau. `predict.py` redonne les cartes de cette mesure
+(écart ≤ 2×10⁻⁵ sur les 3 images disponibles sur ce PC,
+[contrôle](../results/predict_check_explain.json)).
+
+```bash
+python predict.py mon_fond_d_oeil.jpg --dr-screening --explain cartes/
+```
+
 Même chaîne que l'entraînement (`src/pipeline/inference.py`, testé pour
 redonner exactement les probabilités de `run_baseline.py` ; Green : écart
 ≤ 6×10⁻⁶ sur 20 images avec les vrais poids,

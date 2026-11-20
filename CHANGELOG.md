@@ -48,6 +48,14 @@ selon [SemVer](https://semver.org/lang/fr/).
   GUIDE pour la console. Test IDRiD rendu indépendant du séparateur de chemin (`bc11964`).
 
 ### Ajouté
+- Localisation dans `predict.py` (J60) : `--explain DOSSIER` enregistre, pour chaque maladie
+  positive (3 au plus, `--explain-max`), une planche PNG (image | 5 % de pixels au plus fort
+  score d'occlusion en cyan) et ajoute au JSON le logit, la taille du carré et la part de
+  l'effet hors de la rétine. `Predictor.explain` réutilise `occlusion_map` sur le modèle et
+  la tête servis (carré 1/7, pas 1/14, comme la mesure IDRiD). Contrôle
+  `scripts/check_explain_reproduction.py` : mêmes cartes que la mesure du 6 novembre
+  (écart ≤ 2×10⁻⁵, 3 images disponibles sur ce PC, `results/predict_check_explain.json`).
+  Pas une segmentation ; rien de mesuré hors rétinopathie. Environ 20 s par carte (Green, CPU).
 - Tête peau servie : PanDerm P (décision du tuteur du 20 nov.). `predict.py --skin` charge
   `heads/isic2019_panderm_head.pt` (PanDerm-Large, ISIC 2019 seul) et le seuil
   « sensibilité » de la validation ISIC 2019 (`results/decision_isic2019_panderm.json`,

@@ -1,6 +1,6 @@
 # Roadmap Visual Health
 
-État au 16 novembre 2026. Échéances fixes : J30 le 1er décembre 2026,
+État au 20 novembre 2026. Échéances fixes : J30 le 1er décembre 2026,
 J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
 
 ## J30 — Socle (1er décembre 2026)
@@ -34,7 +34,10 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
   Appris sur les notes d'experts de DeepDRiD (10 nov.) : repère 67 % des images de
   qualité insuffisante (5 % pour le détecteur actuel) et la plupart des défauts graves,
   mais avec beaucoup de fausses alertes ; candidat pour un avertissement, pas un rejet.
-- [ ] Identification de modalité : routeur entraîné et évalué le 9 novembre
+  20 nov. : question au tuteur pour le Point du 25-11 : l'ajouter à `predict.py` en
+  avertissement « qualité douteuse » (seuil 0,989 : 10 % de fausses alertes, 40 % des images
+  insuffisantes signalées) ? Rien de branché d'ici là.
+- [x] Identification de modalité : routeur entraîné et évalué le 9 novembre
   (DINOv2-B figé, plan fixé avant le run) : 499/500 fonds d'œil, 499/500 dermoscopies
   et 500/500 photos ordinaires bien routés sur d'autres sources. Critère « aucune
   erreur croisée » non atteint (un fond d'œil pathologique envoyé en dermoscopie) ;
@@ -45,10 +48,10 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
   malades) et concentrée sur la hyalose astéroïde (2 images AH sur 25).
   Photos de peau sans dermatoscope (12 nov., SLICE-3D, 6 294 images) : aucune envoyée en
   fond d'œil, mais 91-92 % prises pour des dermoscopies : le type de photo doit rester déclaré.
-  Décision du tuteur (12 nov.) : avertir. Actif par défaut dans `predict.py` (`--no-modality-check` pour le désactiver).
+  Décision du tuteur (12 nov.) : avertir. Actif par défaut dans `predict.py` (`--no-modality-check` pour le désactiver). Fait sous cette forme : avertissement, jamais de blocage ; le critère « aucune erreur croisée » reste non atteint.
 
 ## J60 — Localisation (31 décembre 2026)
-- [x] Localisation/segmentation des zones suspectes (6 nov., première mesure sur IDRiD) : occlusion contre masques d'experts, segmentation par case sur tokens de patch, RETFound et Green ; disque optique AP 0,919, exsudats durs 0,651 (Green, 27 images de test). Pas de validation externe ni d'intégration à `predict.py`.
+- [x] Localisation/segmentation des zones suspectes (6 nov., première mesure sur IDRiD) : occlusion contre masques d'experts, segmentation par case sur tokens de patch, RETFound et Green ; disque optique AP 0,919, exsudats durs 0,651 (Green, 27 images de test). Intégrée à `predict.py --explain` le 20 nov. (mêmes cartes que la mesure) ; pas de validation externe.
 - [x] Seconde indication amorcée (9 nov., dermatologie sur ISIC 2019) : PanDerm,
   DINOv2-L et DINOv2-B figés ; gain principal d'AUROC macro de PanDerm sur
   DINOv2-L +0,037 [+0,030 ; +0,043] sur le test officiel. Sonde linéaire uniquement,

@@ -787,7 +787,7 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 | 2. Identification de la modalité | 🟡 Routeur entraîné et évalué (9 nov.) : 998/1 000 images bien routées sur d'autres sources ; actif par défaut dans `predict.py` en avertissement, jamais bloquant (décision du tuteur, 12 nov. ; [détails](docs/MODALITE.md)) ; ne distingue pas photo de peau et dermoscopie |
 | 3. Prétraitement fond d'œil | ✅ `crop-mask` (recadrage + masque commun), normalisation ImageNet, 224×224 |
 | 4. Classification multi-label | ✅ RFMiD et ODIR, AUROC mesurée |
-| 5. Localisation des zones suspectes | 🟡 Mesurée sur IDRiD (81 images, [détails](#localisation-des-lésions)) ; pas de validation externe ni d'intégration à `predict.py` |
+| 5. Localisation des zones suspectes | 🟡 Mesurée sur IDRiD (81 images, [détails](#localisation-des-lésions)) ; dans `predict.py --explain` depuis le 20 nov. (mêmes cartes que la mesure, [contrôle](results/predict_check_explain.json)) ; pas de validation externe |
 | 6. Explicabilité | 🟡 Grad-CAM peu fiable sur ce ViT (chaleur sur le fond) ; l'occlusion le remplace. Voir [Explicabilité](#explicabilité) |
 | 7. Score de confiance calibré | 🟡 Probabilités déjà bien calibrées (ECE ≈ 0,02-0,03) et seuils par maladie ; à valider cliniquement (jalon J60). Voir [Décisions et calibration](#décisions-et-calibration) |
 | 8. Prédiction sur image nouvelle | ✅ `predict.py` ; avec les vrais poids, mêmes probabilités que l'entraînement (écart ≤ 10⁻⁶ sur 20 images, [contrôle](results/predict_check_odir.json)) |

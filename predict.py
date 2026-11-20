@@ -62,20 +62,32 @@ Exemple :
         --thresholds results/decision_rfmid_green.json
     python predict.py image1.jpg --dr-screening
     python predict.py lesion.jpg --skin
+    python predict.py image1.jpg --dr-screening --explain cartes/
+
+Localisation (`--explain DOSSIER`) : pour chaque maladie positive (3 au plus), une image
+PNG montre en rouge les zones dont le masquage fait baisser le score (carte d'occlusion,
+mesurée sur IDRiD le 6 novembre pour la rétinopathie : avec Green, les cartes suivent les
+lésions au-delà de leur position typique et évitent le disque optique, mais l'accord reste
+modeste, AUROC au pixel 0,66 ; avec RETFound, pas mieux que la position ; pas de validation
+externe, rien de mesuré pour les autres maladies ni pour la peau). Ce n'est pas une
+segmentation des lésions. Durée : voir docs/GUIDE.md.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
 import torch
+from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from src.pipeline.inference import DISCLAIMER, THRESHOLD_POLICIES, Predictor  # noqa: E402
+from src.explainability.occlusion import overlay  # noqa: E402
+from src.pipeline.inference import DISCLAIMER, THRESHOLD_POLICIES, Prediction, Predictor  # noqa: E402
 
 # Réglage « dépistage » de la rétinopathie diabétique (scripts/dr_screening_sensitivity.py,
 # critère atteint le 12 novembre 2026 sur DDR, base du pré-entraînement de Green ; reconfirmé
@@ -94,6 +106,34 @@ SKIN = {
     "thresholds": Path("results/decision_isic2019_panderm.json"),
     "policy": "sensitivity",
 }
+
+
+def explain(predictor: Predictor, prediction: Prediction, image: Path, out_dir: Path, limit: int) -> list[dict]:
+    """Cartes d'occlusion des maladies positives (les plus probables d'abord, `limit` au plus) ;
+    sans maladie positive, celle de la maladie la plus probable, signalée comme telle."""
+    ranked = sorted(prediction.findings.items(), key=lambda kv: -kv[1]["probability"])
+    chosen = [(name, "positif") for name, f in ranked if f["decision"] == "positif"][:limit]
+    if not chosen:
+        chosen = [(ranked[0][0], "aucune maladie positive : la plus probable")]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    items = []
+    for name, why in chosen:
+        result = predictor.explain(image, name)
+        path = out_dir / f"{image.stem}_{name}.png"
+        Image.fromarray(overlay(result["image"], result["heat"])).save(path)
+        share = result.get("outside_retina_share")
+        items.append(
+            {
+                "class": name,
+                "why": why,
+                "file": str(path),
+                "logit": result["logit"],
+                "patch": result["patch"],
+                "stride": result["stride"],
+                "outside_retina_share": None if share is None or math.isnan(share) else share,
+            }
+        )
+    return items
 
 
 def main() -> None:
@@ -132,7 +172,17 @@ def main() -> None:
     parser.add_argument("--router-head", type=Path, default=Path("heads/modality_router_v2.pt"))
     parser.add_argument("--router-checkpoint", type=Path, default=Path("third_party/dinov2/dinov2_vitb14_timm.pth"))
     parser.add_argument("--out", type=Path, default=None, help="Résultats JSON")
+    parser.add_argument(
+        "--explain",
+        type=Path,
+        default=None,
+        metavar="DOSSIER",
+        help="Enregistre la carte d'occlusion (zones qui font monter le score) des maladies positives",
+    )
+    parser.add_argument("--explain-max", type=int, default=3, help="Nombre maximal de cartes par image (3)")
     args = parser.parse_args()
+    if args.explain_max < 1:
+        parser.error("--explain-max doit valoir au moins 1")
     if args.dr_screening and args.skin:
         parser.error("--dr-screening et --skin s'excluent")
     for flag, preset in (("dr_screening", DR_SCREENING), ("skin", SKIN)):
@@ -177,10 +227,16 @@ def main() -> None:
             print(f"\n{image} : refusée par le contrôle qualité ({' ; '.join(prediction.quality['reasons'])})")
             results.append(prediction.to_dict())
             continue
+        if args.explain is not None:
+            prediction.explanations = explain(predictor, prediction, image, args.explain, args.explain_max)
         results.append(prediction.to_dict())
         print(f"\n{image}")
         for warning in prediction.warnings:
             print(f"  ⚠ {warning}")
+        for item in prediction.explanations or []:
+            share = item["outside_retina_share"]
+            outside = "" if share is None else f", {share:.0%} de l'effet hors de la rétine"
+            print(f"  Carte {item['class']} ({item['why']}{outside}) : {item['file']}")
         for name, finding in sorted(prediction.findings.items(), key=lambda kv: -kv[1]["probability"]):
             missing = (
                 "probabilité seule (pas de seuil)"

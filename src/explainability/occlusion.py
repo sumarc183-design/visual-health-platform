@@ -93,3 +93,24 @@ def outside_share(heat: np.ndarray, mask: np.ndarray) -> float:
     positive = np.clip(heat, 0, None)
     total = positive.sum()
     return float(positive[~mask].sum() / total) if total > 0 else float("nan")
+
+
+TOP_FRACTION = 0.05  # même part de pixels que la mesure IDRiD (enrichissement à 5 %)
+
+
+def overlay(image_t: torch.Tensor, heat: np.ndarray, fraction: float = TOP_FRACTION) -> np.ndarray:
+    """Planche (H, 2W + 4, 3) en uint8 : à gauche l'image, à droite la même image assombrie
+    où ressortent en cyan les `fraction` de pixels au plus fort score d'occlusion (zones
+    dont le masquage fait le plus baisser le score). Seuls les scores positifs comptent :
+    une carte sans score positif laisse l'image de droite entièrement assombrie."""
+    image = image_t.permute(1, 2, 0).numpy().astype(np.float64)
+    positive = heat > 0
+    top = np.zeros(heat.shape, dtype=bool)
+    if positive.any():
+        cut = np.quantile(heat, 1 - fraction)
+        top = positive & (heat >= cut)
+    cyan = np.array([0.0, 1.0, 1.0])
+    right = np.where(top[..., None], 0.5 * image + 0.5 * cyan, 0.35 * image)
+    gap = np.ones((image.shape[0], 4, 3))
+    board = np.concatenate([image, gap, right], axis=1)
+    return (np.clip(board, 0, 1) * 255).round().astype(np.uint8)

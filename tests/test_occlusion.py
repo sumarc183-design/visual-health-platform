@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from src.explainability.occlusion import background_test, fundus_mask, occlusion_map, outside_share
+from src.explainability.occlusion import background_test, fundus_mask, occlusion_map, outside_share, overlay
 
 SIZE = 64
 
@@ -64,3 +64,16 @@ def test_outside_share():
     heat[0, 0], heat[1, 1] = 3.0, 1.0
     assert outside_share(heat, mask) == 0.75
     assert np.isnan(outside_share(np.zeros((4, 4)), mask))
+
+
+def test_overlay_highlights_only_the_top_positive_zone():
+    image = torch.full((3, 10, 10), 0.5)
+    heat = np.zeros((10, 10))
+    heat[2, 3], heat[5, 5] = 2.0, -1.0  # négatif : le masquage fait monter le score
+    board = overlay(image, heat, fraction=0.01)
+    assert board.dtype == np.uint8 and board.shape == (10, 24, 3)
+    assert (board[:, :10] == 128).all()  # image d'origine à gauche, intacte
+    right = board[:, 14:]
+    assert right[2, 3, 1] > right[2, 3, 0]  # zone forte en cyan
+    assert (right[5, 5] == right[0, 0]).all()  # partie négative : assombrie comme le reste
+    assert (overlay(image, np.zeros((10, 10)))[:, 14:] == right[0, 0]).all()  # carte nulle : rien en cyan

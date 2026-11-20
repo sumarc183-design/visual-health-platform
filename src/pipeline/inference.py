@@ -17,6 +17,11 @@ centre, résolution : `check_skin_file`).
 
 Une probabilité non finie ou hors de [0, 1], ou une tête aux poids non finis, arrête la
 prédiction : aucune décision n'est rendue.
+
+Localisation (`Predictor.explain`, `predict.py --explain`) : carte d'occlusion sur le modèle
+servi, même méthode que la mesure IDRiD du 6 novembre (`src/explainability/occlusion.py` ;
+carré de 1/7 du côté de l'image, pas de 1/14). Elle montre les zones dont le masquage fait
+baisser le score d'une maladie : ce n'est pas une segmentation des lésions.
 """
 
 from __future__ import annotations
@@ -26,10 +31,13 @@ import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import numpy as np
 import torch
+import torch.nn as nn
 
 from src.data.fundus_preprocess import PREPROCESS_VERSION, load_fundus_image
 from src.data.isic_dataset import load_skin_image
+from src.explainability.occlusion import fundus_mask, occlusion_map, outside_share
 from src.models.classifier_head import MultiLabelHead, check_finite_state_dict, head_contract, head_sha256
 from src.models.embedding_cache import file_fingerprint
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone
@@ -55,6 +63,7 @@ class Prediction:
     warnings: list[str] = field(default_factory=list)
     rejected: bool = False
     modality: dict | None = None  # avis du routeur (predict.py --modality-check)
+    explanations: list[dict] | None = None  # cartes d'occlusion (predict.py --explain)
 
     def to_dict(self) -> dict:
         out = {
@@ -67,7 +76,22 @@ class Prediction:
         }
         if self.modality is not None:
             out["modality"] = self.modality
+        if self.explanations is not None:
+            out["explanations"] = self.explanations
         return out
+
+
+class _Logits(nn.Module):
+    """Images dans [0, 1] -> logits de la tête : ce que l'occlusion fait varier."""
+
+    def __init__(self, predictor: Predictor):
+        super().__init__()
+        self.backbone, self.head = predictor.backbone, predictor.head
+        self.mean, self.std = predictor.input_mean, predictor.input_std
+
+    @torch.no_grad()
+    def forward(self, images: torch.Tensor) -> torch.Tensor:
+        return self.head(self.backbone((images - self.mean) / self.std))
 
 
 def load_thresholds(
@@ -197,13 +221,34 @@ class Predictor:
         self.head.load_state_dict(head_ckpt["state_dict"])
         self.head.to(device).eval()
 
+    def image_tensor(self, image_path: str | Path) -> torch.Tensor:
+        """Image préparée comme pour la tête, (3, H, W) dans [0, 1], avant normalisation."""
+        if self.modality == "dermoscopy":
+            return load_skin_image(image_path, self.image_size)
+        return load_fundus_image(image_path, self.image_size, self.preprocess)
+
+    @torch.no_grad()
+    def explain(self, image_path: str | Path, class_name: str, batch_size: int = 16) -> dict:
+        """Carte d'occlusion (H, W) d'une maladie : chute moyenne du logit quand chaque pixel
+        est caché (positif = zone utile à la prédiction), logit d'origine et, pour un fond
+        d'œil, part de l'effet positif hors du champ rétinien (raccourci possible)."""
+        if class_name not in self.class_names:
+            raise ValueError(f"maladie {class_name!r} absente de la tête")
+        image = self.image_tensor(image_path)
+        patch, stride = max(1, self.image_size // 7), max(1, self.image_size // 14)
+        heat, logit = occlusion_map(
+            _Logits(self), image, self.class_names.index(class_name), patch=patch, stride=stride, batch_size=batch_size
+        )
+        if not np.isfinite(heat).all() or not math.isfinite(logit):
+            raise ValueError(f"{image_path} : carte d'occlusion non finie")
+        out = {"heat": heat, "image": image, "logit": logit, "patch": patch, "stride": stride}
+        if self.modality != "dermoscopy":
+            out["outside_retina_share"] = outside_share(heat, fundus_mask(image).numpy())
+        return out
+
     @torch.no_grad()
     def probabilities(self, image_path: str | Path) -> torch.Tensor:
-        if self.modality == "dermoscopy":
-            image = load_skin_image(image_path, self.image_size)
-        else:
-            image = load_fundus_image(image_path, self.image_size, self.preprocess)
-        image = image.unsqueeze(0).to(self.device)
+        image = self.image_tensor(image_path).unsqueeze(0).to(self.device)
         image = (image - self.input_mean) / self.input_std
         return torch.sigmoid(self.head(self.backbone(image)))[0].cpu()
 

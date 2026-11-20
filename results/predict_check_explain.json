@@ -1,0 +1,45 @@
+{
+ "run": {
+  "git_commit": "d64f9ee-dirty",
+  "python": "3.12.10",
+  "versions": {
+   "numpy": "2.5.5",
+   "scikit-learn": "1.9.1",
+   "torch": "2.15.0+cpu",
+   "timm": "1.0.31"
+  }
+ },
+ "purpose": "predict.py --explain redonne les cartes d'occlusion de la mesure IDRiD du 6 novembre",
+ "archive": "localization_green.npz",
+ "head_sha_matches_archive": true,
+ "images_available": 3,
+ "images_in_archive": 81,
+ "tolerance": 0.001,
+ "max_gap": 1.9311904907226562e-05,
+ "rows": [
+  {
+   "image": "IDRiD_01",
+   "file": "IDRiD_102.jpg",
+   "logit": 0.8163377642631531,
+   "logit_archived": 0.8163394927978516,
+   "map_max_abs_diff": 1.329183578491211e-05,
+   "map_scale": 0.9573670625686646
+  },
+  {
+   "image": "IDRiD_02",
+   "file": "IDRiD_366.jpg",
+   "logit": 3.739114284515381,
+   "logit_archived": 3.7391297817230225,
+   "map_max_abs_diff": 1.9311904907226562e-05,
+   "map_scale": 1.3767435550689697
+  },
+  {
+   "image": "IDRiD_03",
+   "file": "IDRiD_369.jpg",
+   "logit": 3.5694525241851807,
+   "logit_archived": 3.569460153579712,
+   "map_max_abs_diff": 1.6689300537109375e-05,
+   "map_scale": 1.4663090705871582
+  }
+ ]
+}
