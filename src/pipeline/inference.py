@@ -10,7 +10,8 @@ Outil de recherche : les décisions ne sont pas un diagnostic. Les maladies
 marquées « preuve insuffisante » (moins de 10 cas en validation ou en test)
 reçoivent une probabilité mais aucune décision.
 
-Peau (tête `modality = "dermoscopy"`, DINOv2-B, `scripts/save_skin_head.py`) : image au
+Peau (tête `modality = "dermoscopy"` ; servie depuis le 20 nov. : PanDerm-Large,
+`scripts/save_panderm_skin_head.py` ; historique : DINOv2-B, `scripts/save_skin_head.py`) : image au
 petit côté 256 px puis recadrage 224 px ; contrôle qualité propre à la peau (flou au
 centre, résolution : `check_skin_file`).
 
@@ -33,7 +34,7 @@ from src.models.classifier_head import MultiLabelHead, check_finite_state_dict, 
 from src.models.embedding_cache import file_fingerprint
 from src.models.retfound_backbone import IMAGENET_MEAN, IMAGENET_STD, RETFoundBackbone
 from src.models.retfound_green import RETFoundGreenBackbone
-from src.models.timm_backbones import DINOv2Backbone
+from src.models.timm_backbones import DINOv2Backbone, PanDermBackbone
 from src.pipeline.quality_control import (
     DEFAULT_BLUR_THRESHOLD,
     DEFAULT_SKIN_BLUR_THRESHOLD,
@@ -42,7 +43,7 @@ from src.pipeline.quality_control import (
 )
 
 THRESHOLD_POLICIES = ("f1", "sensitivity")
-BACKBONES = ("retfound", "green", "dinov2")
+BACKBONES = ("retfound", "green", "dinov2", "panderm")
 DISCLAIMER = "Outil de recherche, non validé cliniquement : ces décisions ne sont pas un diagnostic."
 
 
@@ -182,6 +183,8 @@ class Predictor:
             backbone = RETFoundGreenBackbone(checkpoint_path, img_size=self.image_size)
         elif self.backbone_name == "dinov2":
             backbone = DINOv2Backbone(checkpoint_path, img_size=self.image_size)
+        elif self.backbone_name == "panderm":
+            backbone = PanDermBackbone(checkpoint_path, img_size=self.image_size)
         else:
             backbone = RETFoundBackbone(
                 checkpoint_path, img_size=self.image_size, embedding_dim=1024, trust_checkpoint=trust_checkpoint

@@ -198,6 +198,15 @@ avec Green. Résultats détaillés :
 
 ## Tête peau (dermoscopie)
 
+**Servie depuis le 20 novembre 2026 (décision du tuteur) : PanDerm P**
+(`heads/isic2019_panderm_head.pt`, `predict.py --skin`), PanDerm-Large figé et tête
+linéaire à 8 classes apprise sur ISIC 2019, seuil « sensibilité » de la validation ISIC
+2019. Usage : aide en dermoscopie, pas dépistage. Mélanome : AUROC 0,947 [0,930 ; 0,962]
+sur DERM12345 (externe, critère J90 atteint), sensibilité 0,922 et spécificité 0,803 à ce
+seuil ; sur le reste d'ISIC 2020 (dépistage), sensibilité 0,486. Poids CC BY-NC-ND 4.0 :
+non commercial. Détails : [DERMATOLOGIE.md](DERMATOLOGIE.md#tête-peau-servie--panderm-p-20-novembre-2026).
+
+Tête servie jusqu'au 20 novembre, gardée en référence :
 `heads/isic2019_dinov2b_head.pt` : DINOv2-B figé (même modèle que le routeur) et tête
 linéaire à 8 classes, apprise sur ISIC 2019 (données CC BY-NC : usage non commercial).
 Détails et chiffres : [DERMATOLOGIE.md](DERMATOLOGIE.md).

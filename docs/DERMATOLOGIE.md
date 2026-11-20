@@ -229,7 +229,34 @@ tâche, la mesure officielle à haute sensibilité reste basse : on est loin d'u
 tri. Exploratoire : sonde linéaire, plusieurs images d'un même patient possibles dans un
 centre (validation croisée optimiste).
 
+## Tête peau servie : PanDerm P (20 novembre 2026)
+
+**Décision du tuteur (20 nov.)** : servir P, PanDerm-Large appris sur ISIC 2019 seul,
+avec le seuil « sensibilité » choisi sur la validation ISIC 2019, et la présenter comme
+**aide en dermoscopie**, pas comme outil de dépistage. `predict.py --skin` la charge.
+
+`heads/isic2019_panderm_head.pt` (`scripts/save_panderm_skin_head.py`) : la tête est
+réapprise comme dans les études (graine 42). Son empreinte est celle de la tête archivée,
+elle redonne exactement les scores archivés de validation et de test ISIC 2019, et le
+seuil du mélanome est celui de l'étude (0,0612). La chaîne complète de `predict.py`
+(image → score) redonne les scores archivés à 3×10⁻⁶ près sur 5 images du test. Seuils
+par classe : `results/decision_isic2019_panderm.json`, liés à la tête.
+
+| Mélanome, seuil « sensibilité » (0,0612) | Sensibilité | Spécificité |
+|---|---|---|
+| Test ISIC 2019 (même source) | 0,957 | 0,539 (VPP 0,36) |
+| **DERM12345 (externe)** | **0,922** | **0,803** |
+| Reste d'ISIC 2020 (dépistage, 1,8 % de mélanomes) | 0,486 | 0,914 |
+
+AUROC du mélanome sur DERM12345 : 0,947 [0,930 ; 0,962] (critère J90 atteint). En
+dépistage de population, ce seuil ne repère qu'un mélanome sur deux : d'où l'usage limité
+à la dermoscopie. Poids PanDerm sous CC BY-NC-ND 4.0, données ISIC CC BY-NC : non
+commercial. Le routeur de modalité reste DINOv2-B. L'ancienne tête DINOv2-B (ci-dessous)
+reste disponible avec `--head`.
+
 ## Tête « peau » du socle (12 novembre 2026)
+
+*Tête servie jusqu'au 20 novembre 2026, remplacée par PanDerm P (ci-dessus).*
 
 `heads/isic2019_dinov2b_head.pt` : DINOv2-B figé, même tête et mêmes réglages que
 l'analyse du 9 novembre, entraînée sur le découpage d'entraînement d'ISIC 2019

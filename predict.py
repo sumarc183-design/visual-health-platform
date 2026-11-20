@@ -19,10 +19,16 @@ et ODIR) ou RETFound-Green (tête RFMiD : meilleure généralisation externe sur
 la rétinopathie diabétique, moins bon sur la DMLA ; voir README). Le
 checkpoint doit être celui de la tête, sinon la prédiction est refusée.
 
-Peau : tête `heads/isic2019_dinov2b_head.pt` (DINOv2-B, ISIC 2019, 8 classes) avec
-`--checkpoint third_party/dinov2/dinov2_vitb14_timm.pth` et, pour décider,
-`--thresholds results/decision_isic2019_dinov2b.json` (seuils choisis sur la validation
-ISIC ; `--policy sensitivity` : mélanome repéré à 94 % au test, VPP 0,32).
+Peau (aide en dermoscopie, pas un outil de dépistage) : `--skin` charge la tête servie
+depuis le 20 novembre (décision du tuteur), PanDerm-Large appris sur ISIC 2019
+(`heads/isic2019_panderm_head.pt`, 8 classes), avec le seuil « sensibilité » choisi sur
+la validation ISIC 2019 (`results/decision_isic2019_panderm.json`). Validation externe
+sur DERM12345 (Turquie, base vue ni par PanDerm ni par ISIC) : AUROC du mélanome 0,947
+[0,930 ; 0,962] ; à ce seuil, 92 % des mélanomes repérés et 20 % de fausses alertes. En
+dépistage de population (ISIC 2020, 1,8 % de mélanomes), aucun seuil ne donne de
+compromis acceptable. Poids PanDerm sous CC BY-NC-ND 4.0 : non commercial. L'ancienne
+tête DINOv2-B (`heads/isic2019_dinov2b_head.pt`, `results/decision_isic2019_dinov2b.json`)
+reste utilisable avec `--head`.
 Contrôle qualité propre à la peau (flou au centre de l'image, seuil calibré sur ISIC
 2019 ; `--reject-unusable` refuse les images floues). Dermoscopie uniquement : sur des
 photos de smartphone, elle perd 0,21 d'AUROC (PAD-UFES-20, docs/DERMATOLOGIE.md) ; le
@@ -55,6 +61,7 @@ Exemple :
         --checkpoint third_party/retfound_green/retfoundgreen_statedict.pth \\
         --thresholds results/decision_rfmid_green.json
     python predict.py image1.jpg --dr-screening
+    python predict.py lesion.jpg --skin
 """
 
 from __future__ import annotations
@@ -79,6 +86,14 @@ DR_SCREENING = {
     "thresholds": Path("results/decision_dr_screening.json"),
     "policy": "sensitivity",
 }
+# Tête peau servie (décision du tuteur du 20 novembre 2026, scripts/save_panderm_skin_head.py) :
+# PanDerm-Large appris sur ISIC 2019 seul (« P »), seuil « sensibilité » de la validation ISIC 2019.
+SKIN = {
+    "head": Path("heads/isic2019_panderm_head.pt"),
+    "checkpoint": Path("third_party/panderm/panderm_large.pth"),
+    "thresholds": Path("results/decision_isic2019_panderm.json"),
+    "policy": "sensitivity",
+}
 
 
 def main() -> None:
@@ -92,6 +107,11 @@ def main() -> None:
         "--dr-screening",
         action="store_true",
         help="Réglage dépistage de la rétinopathie diabétique (tête Green RFMiD + EyePACS, seuil sensibilité)",
+    )
+    parser.add_argument(
+        "--skin",
+        action="store_true",
+        help="Tête peau servie (PanDerm, ISIC 2019, seuil sensibilité) : aide en dermoscopie",
     )
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--trust-checkpoint", action="store_true", help="Voir run_baseline.py --trust-checkpoint")
@@ -113,15 +133,19 @@ def main() -> None:
     parser.add_argument("--router-checkpoint", type=Path, default=Path("third_party/dinov2/dinov2_vitb14_timm.pth"))
     parser.add_argument("--out", type=Path, default=None, help="Résultats JSON")
     args = parser.parse_args()
-    if args.dr_screening:
+    if args.dr_screening and args.skin:
+        parser.error("--dr-screening et --skin s'excluent")
+    for flag, preset in (("dr_screening", DR_SCREENING), ("skin", SKIN)):
+        if not getattr(args, flag):
+            continue
         if args.policy == "f1":
-            parser.error("--dr-screening utilise la politique sensitivity (seule évaluée pour cette tête)")
-        for name, value in DR_SCREENING.items():
+            parser.error(f"--{flag.replace('_', '-')} utilise la politique sensitivity (seule retenue pour cette tête)")
+        for name, value in preset.items():
             if getattr(args, name) is None:
                 setattr(args, name, value)
     args.policy = args.policy or "f1"
     if args.head is None or args.checkpoint is None:
-        parser.error("--head et --checkpoint sont requis (ou --dr-screening)")
+        parser.error("--head et --checkpoint sont requis (ou --dr-screening, ou --skin)")
 
     predictor = Predictor(
         args.head,

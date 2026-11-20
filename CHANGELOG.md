@@ -48,6 +48,14 @@ selon [SemVer](https://semver.org/lang/fr/).
   GUIDE pour la console. Test IDRiD rendu indépendant du séparateur de chemin (`bc11964`).
 
 ### Ajouté
+- Tête peau servie : PanDerm P (décision du tuteur du 20 nov.). `predict.py --skin` charge
+  `heads/isic2019_panderm_head.pt` (PanDerm-Large, ISIC 2019 seul) et le seuil
+  « sensibilité » de la validation ISIC 2019 (`results/decision_isic2019_panderm.json`,
+  seuils liés à la tête). `scripts/save_panderm_skin_head.py` réapprend la tête, vérifie
+  son empreinte, les scores archivés (écart 0) et le seuil du mélanome de l'étude ;
+  `src/pipeline/inference.py` accepte le modèle `panderm`. Chaîne complète image → score
+  vérifiée sur 5 images (écart ≤ 3,5×10⁻⁶). Présentée comme aide en dermoscopie ;
+  l'ancienne tête DINOv2-B reste disponible avec `--head`.
 - `scripts/confirmation_deepdrid.py` : troisième confirmation rétine sur DeepDRiD (2 000
   images, 500 patients, base absente des pré-entraînements de Green et de RETFound), plan
   fixé le 20 nov. avant tout embedding (`310ec9f`). Résultats

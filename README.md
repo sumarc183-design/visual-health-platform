@@ -792,7 +792,7 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 | Messidor-2 | Confirmation externe principale (1 744 images, 874 examens), base vue par aucun des deux modèles |
 | DeepDRiD | Qualité d'image (notes d'experts) ; troisième confirmation externe (2 000 images, 500 patients), base vue par aucun des deux modèles |
 | DDR | Confirmation externe de la rétinopathie diabétique (12 522 images) et mesure du réglage `--dr-screening` |
-| ISIC 2019 | Dermatologie, seconde indication : tête peau servie (DINOv2-B, seuils et contrôle qualité) ; PanDerm − DINOv2-L, AUROC macro +0,037 [+0,030 ; +0,043] sur le test ([résultats](docs/DERMATOLOGIE.md#résultats)) |
+| ISIC 2019 | Dermatologie, seconde indication : tête peau servie depuis le 20 nov. (PanDerm P, `predict.py --skin` ; DINOv2-B avant), seuils et contrôle qualité ; PanDerm − DINOv2-L, AUROC macro +0,037 [+0,030 ; +0,043] sur le test ([résultats](docs/DERMATOLOGIE.md#résultats)) |
 | ISIC 2020 | Validation externe de la tête peau : AUROC mélanome 0,788 [0,765 ; 0,808], critère (≥ 0,80) non atteint |
 | PAD-UFES-20 | Photos de smartphone : la tête peau ne s'y transpose pas (AUROC macro −0,21) |
 | AI-Hub | Dépistage TSA depuis la rétine (à venir, accès à négocier) |
