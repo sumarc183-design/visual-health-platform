@@ -24,12 +24,12 @@ apprises sur l'entraînement DeepDRiD (1 200 images, 300 patients). Le détecteu
 recalculé doit redonner les scores archivés (`results/quality_deepdrid_detector.npz`).
 
 Correction du contrôle, avant toute lecture (20 nov., premier lancement arrêté par ce
-contrôle ; scores Green et RETFound calculés en mémoire, ni affichés ni enregistrés) : le détecteur DINOv2-B recalculé sur ce
-PC (Windows) s'écarte de l'archive (Mac) de 9e-3 en probabilité, avec la même version de
-scikit-learn et une standardisation identique ; seuls les coefficients de la régression
-diffèrent (3e-3) : écart numérique de l'optimisation entre machines. Embeddings gardés en
-float32 comme le 10 nov. ; tolérance 1e-2 sur les probabilités et 1e-3 sur l'AUROC de
-validation archivée (0,721).
+contrôle ; scores Green et RETFound calculés en mémoire, ni affichés ni enregistrés) : le
+détecteur DINOv2-B recalculé sur ce PC (Windows) s'écarte de l'archive (Mac) de 9e-3 en
+probabilité, avec la même version de scikit-learn et une standardisation identique ; seuls
+les coefficients de la régression diffèrent (3e-3) : écart numérique de l'optimisation
+entre machines. Embeddings gardés en float32 comme le 10 nov. ; tolérance 1e-2 sur les
+probabilités et 1e-3 sur l'AUROC de validation archivée (0,721).
 
 Mesures sur la **validation** (400 images, 100 patients) :
 1. Principal : écart d'AUROC à DINOv2-B, IC par bootstrap apparié sur les patients
