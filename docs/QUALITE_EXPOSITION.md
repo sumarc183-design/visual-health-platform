@@ -344,3 +344,28 @@ Intérêt double : la même accréditation PhysioNet ouvre aussi BRSET comme sec
 de confirmation (voir `DROITS_DONNEES.md`). Démarches à faire par Marc : formation CITI
 « Data or Specimens Only Research », puis demande d'accréditation sur PhysioNet (une
 référence est demandée, par exemple le tuteur). Rien n'a été demandé ni téléchargé.
+
+## Détecteur DeepDRiD : DINOv2-B, Green ou RETFound ? (20 novembre 2026, exploratoire)
+
+Plan fixé avant calcul (`scripts/quality_backbone_comparison.py`, `b6376ca` ; contrôle de
+reproduction corrigé avant lecture, `d2316b8` : le détecteur DINOv2-B recalculé sur Windows
+s'écarte de 7×10⁻³ en probabilité de celui du Mac, coefficients à 3×10⁻³ près, même AUROC).
+Même régression logistique sur les embeddings déjà calculés des 2 000 images, apprise sur
+l'entraînement ; critère sur la validation : écart d'AUROC à DINOv2-B, borne basse > 0.
+[Résultats](../results/quality_backbone_comparison.json).
+
+| AUROC [écart à DINOv2-B, IC par patient] | DINOv2-B | Green | RETFound |
+|---|---|---|---|
+| Validation (critère) | 0,721 | 0,761 (+0,040 [−0,020 ; +0,096]) | 0,742 (+0,021 [−0,031 ; +0,077]) |
+| Évaluation (seconde lecture) | 0,693 | 0,794 (+0,101 [+0,052 ; +0,156]) | 0,761 (+0,068 [+0,009 ; +0,125]) |
+| Images insuffisantes repérées à 10 % de fausses alertes (validation) | 0,37 | 0,37 | 0,38 |
+| Idem, évaluation, au seuil de la validation | 0,40 (10 %) | 0,44 (8 %) | 0,37 (6 %) |
+
+**Critère non atteint** : sur la validation, ni Green ni RETFound ne fait mieux que DINOv2-B
+de façon démontrée, et au même taux de fausses alertes les trois repèrent la même part
+d'images insuffisantes. La proposition au tuteur reste donc celle du 10 novembre (DINOv2-B,
+seuil 0,989). Signal à noter : les écarts vont dans le même sens sur les deux découpages et
+sont nets en seconde lecture de l'évaluation, déjà lue le 10 novembre pour DINOv2-B ; ce
+n'est pas une preuve. Le départager demanderait une base annotée en qualité jamais
+utilisée (BRSET, ci-dessus). Pas de transfert mesuré : ODIR a déjà servi et fait partie du
+pré-entraînement de Green.

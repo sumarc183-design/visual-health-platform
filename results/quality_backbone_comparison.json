@@ -1,0 +1,205 @@
+{
+ "run": {
+  "git_commit": "d2316b8-dirty",
+  "python": "3.12.10",
+  "versions": {
+   "numpy": "2.5.5",
+   "scikit-learn": "1.9.1",
+   "torch": "2.15.0+cpu",
+   "timm": "1.0.31"
+  }
+ },
+ "plan": "fixé le 20 novembre 2026 avant tout calcul de détecteur sur Green ou RETFound (docstring du script)",
+ "status": "exploratoire (évaluation déjà lue le 10 nov. ; transfert non mesuré)",
+ "dinov2_reproduction_max_gap": 0.007295131683349609,
+ "dinov2_val_auroc_gap_to_archive": 5.040830728886281e-05,
+ "inputs": {
+  "caches": {
+   "dinov2": {
+    "file": "quality_dinov2_vitb14.npz",
+    "sha256": "89e6c5df01e18478",
+    "meta": {
+     "assumed_not_verified": [
+      "transform"
+     ],
+     "checkpoint_sha256": "ba7954cb2db99604",
+     "image_size": 224,
+     "transform": "crop-mask-512/area-224/imagenet"
+    }
+   },
+   "green": {
+    "file": "deepdrid_crop-mask_392_green.npz",
+    "sha256": "5767dbbc43b065ac",
+    "meta": {
+     "checkpoint_sha256": "431de5dbc1bebbb3",
+     "image_size": 392,
+     "preprocess": "crop-mask",
+     "preprocess_version": 1
+    }
+   },
+   "retfound": {
+    "file": "deepdrid_crop-mask_224_retfound.npz",
+    "sha256": "f3724969b29ded19",
+    "meta": {
+     "checkpoint_sha256": "e1e4f66a1b792eeb",
+     "image_size": 224,
+     "preprocess": "crop-mask",
+     "preprocess_version": 1
+    }
+   }
+  },
+  "deepdrid": {
+   "train": {
+    "images": 1200,
+    "patients": 300,
+    "insufficient": 624
+   },
+   "val": {
+    "images": 400,
+    "patients": 100,
+    "insufficient": 218
+   },
+   "eval": {
+    "images": 400,
+    "patients": 100,
+    "insufficient": 220
+   }
+  }
+ },
+ "models": {
+  "dinov2": {
+   "threshold_val_spec_0_90": 0.9890499114990234,
+   "val": {
+    "auroc": {
+     "auroc": 0.7209648150015123,
+     "ci": [
+      0.6694486333876329,
+      0.7736827719847295
+     ]
+    },
+    "sensitivity": 0.37155963302752293,
+    "sensitivity_ci": [
+     0.2882592989028633,
+     0.4583333333333333
+    ],
+    "false_alert_rate": 0.0989010989010989
+   },
+   "eval": {
+    "auroc": {
+     "auroc": 0.6932070707070708,
+     "ci": [
+      0.6274950894678557,
+      0.7493252039133638
+     ]
+    },
+    "sensitivity": 0.40454545454545454,
+    "sensitivity_ci": [
+     0.33329741379310346,
+     0.475501979638009
+    ],
+    "false_alert_rate": 0.1
+   }
+  },
+  "green": {
+   "threshold_val_spec_0_90": 0.9493875503540039,
+   "val": {
+    "auroc": {
+     "auroc": 0.7609386026817219,
+     "ci": [
+      0.7028777210739109,
+      0.8170237114514222
+     ]
+    },
+    "sensitivity": 0.37155963302752293,
+    "sensitivity_ci": [
+     0.29807449494949495,
+     0.44397749042145596
+    ],
+    "false_alert_rate": 0.0989010989010989,
+    "auroc_minus_dinov2": {
+     "diff": 0.03997378768020976,
+     "ci": [
+      -0.02033359330948287,
+      0.09645829761010949
+     ]
+    }
+   },
+   "eval": {
+    "auroc": {
+     "auroc": 0.7937878787878788,
+     "ci": [
+      0.7402474569770209,
+      0.8404035943675888
+     ]
+    },
+    "sensitivity": 0.4409090909090909,
+    "sensitivity_ci": [
+     0.36860349801658854,
+     0.5087799043062201
+    ],
+    "false_alert_rate": 0.07777777777777778,
+    "auroc_minus_dinov2": {
+     "diff": 0.10058080808080816,
+     "ci": [
+      0.05237768417519208,
+      0.15649548961755996
+     ]
+    }
+   }
+  },
+  "retfound": {
+   "threshold_val_spec_0_90": 0.9952248334884644,
+   "val": {
+    "auroc": {
+     "auroc": 0.7420480895251538,
+     "ci": [
+      0.6894616310599735,
+      0.7922062358914036
+     ]
+    },
+    "sensitivity": 0.3761467889908257,
+    "sensitivity_ci": [
+     0.3089204050522648,
+     0.44120077783179384
+    ],
+    "false_alert_rate": 0.0989010989010989,
+    "auroc_minus_dinov2": {
+     "diff": 0.02108327452364156,
+     "ci": [
+      -0.031034409873789397,
+      0.07689293254395689
+     ]
+    }
+   },
+   "eval": {
+    "auroc": {
+     "auroc": 0.7614646464646464,
+     "ci": [
+      0.6987461783267517,
+      0.8189334334651293
+     ]
+    },
+    "sensitivity": 0.37272727272727274,
+    "sensitivity_ci": [
+     0.30195384121745505,
+     0.4444791666666666
+    ],
+    "false_alert_rate": 0.06111111111111111,
+    "auroc_minus_dinov2": {
+     "diff": 0.06825757575757585,
+     "ci": [
+      0.009470068606655772,
+      0.12506895421646383
+     ]
+    }
+   }
+  }
+ },
+ "criterion": {
+  "better_than_dinov2_on_val": {
+   "green": false,
+   "retfound": false
+  },
+  "proposed_detector": "dinov2"
+ }
+}

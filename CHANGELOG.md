@@ -48,6 +48,11 @@ selon [SemVer](https://semver.org/lang/fr/).
   GUIDE pour la console. Test IDRiD rendu indépendant du séparateur de chemin (`bc11964`).
 
 ### Ajouté
+- `scripts/quality_backbone_comparison.py` (exploratoire, plan `b6376ca` avant calcul) :
+  détecteur de qualité DeepDRiD sur DINOv2-B, Green ou RETFound. Critère non atteint sur la
+  validation (Green +0,040 [−0,020 ; +0,096], RETFound +0,021 [−0,031 ; +0,077] d'AUROC) ;
+  seconde lecture de l'évaluation favorable à Green (+0,101). Proposition inchangée
+  (DINOv2-B, seuil 0,989). `results/quality_backbone_comparison.json`.
 - Localisation dans `predict.py` (J60) : `--explain DOSSIER` enregistre, pour chaque maladie
   positive (3 au plus, `--explain-max`), une planche PNG (image | 5 % de pixels au plus fort
   score d'occlusion en cyan) et ajoute au JSON le logit, la taille du carré et la part de

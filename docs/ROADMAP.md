@@ -37,6 +37,8 @@ J60 le 31 décembre 2026 et J90 le 30 janvier 2027.
   20 nov. : question au tuteur pour le Point du 25-11 : l'ajouter à `predict.py` en
   avertissement « qualité douteuse » (seuil 0,989 : 10 % de fausses alertes, 40 % des images
   insuffisantes signalées) ? Rien de branché d'ici là.
+  Comparaison exploratoire des modèles (20 nov.) : Green et RETFound ne font pas mieux que
+  DINOv2-B sur la validation (critère non atteint), signal favorable à Green en seconde lecture.
 - [x] Identification de modalité : routeur entraîné et évalué le 9 novembre
   (DINOv2-B figé, plan fixé avant le run) : 499/500 fonds d'œil, 499/500 dermoscopies
   et 500/500 photos ordinaires bien routés sur d'autres sources. Critère « aucune
