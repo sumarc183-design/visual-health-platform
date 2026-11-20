@@ -66,11 +66,23 @@ Dépistage de la rétinopathie diabétique (tête Green RFMiD + EyePACS, seuil �
 python predict.py mon_fond_d_oeil.jpg --dr-screening
 ```
 
-Sur DDR, base jamais utilisée pour régler (mais vue par Green pendant son pré-entraînement, mesure peut-être optimiste) : 87 % des rétinopathies repérées (contre 27 %
-avec la tête RFMiD), au prix d'une fausse alerte pour deux personnes saines environ.
+Sur des bases vues par aucun des modèles : 83 % des rétinopathies repérées sur Messidor-2,
+96 % sur IDRiD, 95 % sur DeepDRiD, au prix d'environ une fausse alerte pour deux
+personnes saines (spécificité 0,41 à 0,48).
 
-Green est le modèle par défaut depuis le 12 novembre (décision du tuteur) ; RETFound
-reste disponible (`heads/odir_crop-mask_head.pt`, meilleur sur la DMLA).
+Green est le modèle par défaut depuis le 12 novembre (décision du tuteur), confirmé sur
+deux bases indépendantes sur trois (Messidor-2, DeepDRiD) ; RETFound reste disponible
+(`heads/odir_crop-mask_head.pt`, meilleur sur la DMLA).
+
+Peau, aide en dermoscopie (tête PanDerm servie depuis le 20 novembre, seuil
+« sensibilité ») :
+
+```bash
+python predict.py ma_dermoscopie.jpg --skin
+```
+
+Sur DERM12345 (Turquie, base externe) : 92 % des mélanomes repérés, spécificité 0,80.
+Pas un outil de dépistage : sur ISIC 2020, la moitié des mélanomes seulement.
 
 Installation, préparation des données, entraînement des têtes et exemple Green :
 [guide d'utilisation](docs/GUIDE.md). Les poids et les têtes sont à préparer
@@ -793,7 +805,9 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 | DeepDRiD | Qualité d'image (notes d'experts) ; troisième confirmation externe (2 000 images, 500 patients), base vue par aucun des deux modèles |
 | DDR | Confirmation externe de la rétinopathie diabétique (12 522 images) et mesure du réglage `--dr-screening` |
 | ISIC 2019 | Dermatologie, seconde indication : tête peau servie depuis le 20 nov. (PanDerm P, `predict.py --skin` ; DINOv2-B avant), seuils et contrôle qualité ; PanDerm − DINOv2-L, AUROC macro +0,037 [+0,030 ; +0,043] sur le test ([résultats](docs/DERMATOLOGIE.md#résultats)) |
-| ISIC 2020 | Validation externe de la tête peau : AUROC mélanome 0,788 [0,765 ; 0,808], critère (≥ 0,80) non atteint |
+| ISIC 2020 | Validation externe de la tête peau : AUROC mélanome 0,788 [0,765 ; 0,808] (DINOv2-B), 0,811 [0,788 ; 0,829] (PanDerm), critère (≥ 0,80) non atteint |
+| MILK10k | Confirmation externe : PanDerm − tête DINOv2-B, mélanome +0,044 [+0,029 ; +0,058] |
+| DERM12345 | Validation externe de la tête servie P : AUROC mélanome 0,947 [0,930 ; 0,962], critère J90 atteint |
 | PAD-UFES-20 | Photos de smartphone : la tête peau ne s'y transpose pas (AUROC macro −0,21) |
 | AI-Hub | Dépistage TSA depuis la rétine (à venir, accès à négocier) |
 
@@ -803,7 +817,7 @@ Arbitrage des cas d'usage : [docs/USE_CASES.md](docs/USE_CASES.md).
 
 ```
 run_baseline.py         entraînement d'une tête : contrôle qualité -> RETFound -> tête -> AUROC
-predict.py              prédiction sur une image nouvelle (RETFound ou RETFound-Green)
+predict.py              prédiction sur une image nouvelle (RETFound, RETFound-Green ; peau : PanDerm)
 src/pipeline/           contrôle qualité, identification de modalité, inférence
 src/data/               RFMiD, ODIR, APTOS, EyePACS, IDRiD, prétraitement crop-mask
 src/models/             RETFound, RETFound-Green, fine-tuning, tête, cache d'embeddings
