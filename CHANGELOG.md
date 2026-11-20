@@ -48,6 +48,12 @@ selon [SemVer](https://semver.org/lang/fr/).
   GUIDE pour la console. Test IDRiD rendu indépendant du séparateur de chemin (`bc11964`).
 
 ### Ajouté
+- `scripts/confirmation_deepdrid.py` : troisième confirmation rétine sur DeepDRiD (2 000
+  images, 500 patients, base absente des pré-entraînements de Green et de RETFound), plan
+  fixé le 20 nov. avant tout embedding (`310ec9f`). Résultats
+  (`results/confirmation_deepdrid.json`) : Green − RETFound +0,035 [+0,017 ; +0,056],
+  confirmé ; dépistage : sensibilité 0,946 [0,928 ; 0,961], spécificité 0,47. Sur les
+  images de qualité suffisante, écart +0,014 [−0,008 ; +0,039] (secondaire).
 - `scripts/panderm_p_thresholds.py` : seuils du mélanome de la tête PanDerm P (ISIC 2019
   seul) choisis sur les 20 % de patients d'ISIC 2020 tenus à l'écart ; plan fixé le 19 nov.
   avant calcul, après les résultats de Q (choix de P documenté comme décision a posteriori).

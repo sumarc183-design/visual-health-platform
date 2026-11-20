@@ -147,7 +147,11 @@ avec Green. Résultats détaillés :
   confirmation principale, 1 744 images, 874 examens)** : Green 0,747 contre RETFound
   0,667, écart +0,080 [+0,048 ; +0,111], confirmé ; dépistage : sensibilité 0,832
   [0,802 ; 0,859], spécificité 0,41, VPP 0,50 (critère ≥ 0,80 atteint de justesse).
-  AUROC absolus bas : la tête RFMiD transfère mal les stades légers.
+  AUROC absolus bas : la tête RFMiD transfère mal les stades légers. **DeepDRiD (20 nov.,
+  troisième base, 2 000 images, 500 patients)** : Green 0,886 contre RETFound 0,851,
+  écart +0,035 [+0,017 ; +0,056], confirmé ; sur les seules images de qualité suffisante,
+  +0,014 [−0,008 ; +0,039] ; dépistage : sensibilité 0,946 [0,928 ; 0,961], spécificité
+  0,47. Green est confirmé sur deux bases indépendantes sur trois.
 - **Dépistage (12 nov.)** : une tête Green apprise sur RFMiD + EyePACS, seuil choisi sur
   une validation EyePACS, atteint une sensibilité de 0,87 [0,86 ; 0,88] sur DDR
   (spécificité 0,52), contre 0,27 avec la tête RFMiD. Servie par `predict.py --dr-screening`

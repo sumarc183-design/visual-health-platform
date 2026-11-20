@@ -1,0 +1,206 @@
+{
+ "run": {
+  "git_commit": "310ec9f",
+  "python": "3.12.10",
+  "versions": {
+   "numpy": "2.5.5",
+   "scikit-learn": "1.9.1",
+   "torch": "2.15.0+cpu",
+   "timm": "1.0.31"
+  }
+ },
+ "plan": "fixé le 20 novembre 2026 avant tout calcul d'embedding RETFound/Green sur DeepDRiD (docstring du script)",
+ "dataset": "deepdrid",
+ "all_images": {
+  "images": 2000,
+  "groups": 500,
+  "by_grade": {
+   "0": 914,
+   "1": 222,
+   "2": 398,
+   "3": 354,
+   "4": 112
+  },
+  "auroc_any_dr": {
+   "retfound": {
+    "auroc": 0.8510916740210597,
+    "ci": [
+     0.8268648412041204,
+     0.8737587426984093
+    ]
+   },
+   "green": {
+    "auroc": 0.8859414227627533,
+    "ci": [
+     0.8665274965599904,
+     0.9047326242101384
+    ]
+   }
+  },
+  "auroc_referable": {
+   "retfound": {
+    "auroc": 0.8519206238588941,
+    "ci": [
+     0.8246578160020823,
+     0.8755017237402076
+    ]
+   },
+   "green": {
+    "auroc": 0.9109988344418362,
+    "ci": [
+     0.8935172977015804,
+     0.9273466567322238
+    ]
+   }
+  },
+  "green_minus_retfound": {
+   "diff": 0.03484976291656494,
+   "ci": [
+    0.01717042177915573,
+    0.056446987390518184
+   ]
+  },
+  "dr_screening": {
+   "threshold": 0.12375830113887787,
+   "tp": 1027,
+   "fp": 481,
+   "fn": 59,
+   "tn": 433,
+   "sensitivity": 0.9456721915285451,
+   "specificity": 0.4737417943107221,
+   "ppv": 0.6810344827586207,
+   "npv": 0.8800813008130082,
+   "f1": 0.7918272937548189,
+   "sensitivity_ci": [
+    0.9281686257918059,
+    0.9613451625693894
+   ],
+   "specificity_ci": [
+    0.42976199933796755,
+    0.5147194989106754
+   ],
+   "referable_sensitivity": 0.9814814814814815
+  }
+ },
+ "good_quality_only": {
+  "images": 938,
+  "groups": 327,
+  "by_grade": {
+   "0": 382,
+   "1": 128,
+   "2": 218,
+   "3": 160,
+   "4": 50
+  },
+  "auroc_any_dr": {
+   "retfound": {
+    "auroc": 0.8814315040114505,
+    "ci": [
+     0.8495264842316009,
+     0.9093675090475919
+    ]
+   },
+   "green": {
+    "auroc": 0.8956646201363516,
+    "ci": [
+     0.867973219157847,
+     0.922192105248056
+    ]
+   }
+  },
+  "auroc_referable": {
+   "retfound": {
+    "auroc": 0.896536558548653,
+    "ci": [
+     0.8687335818663463,
+     0.9210950396438553
+    ]
+   },
+   "green": {
+    "auroc": 0.9309968847352026,
+    "ci": [
+     0.9101365033318014,
+     0.9494218672084399
+    ]
+   }
+  },
+  "green_minus_retfound": {
+   "diff": 0.014233112335205078,
+   "ci": [
+    -0.008373156189918516,
+    0.03872952610254287
+   ]
+  },
+  "dr_screening": {
+   "threshold": 0.12375830113887787,
+   "tp": 528,
+   "fp": 212,
+   "fn": 28,
+   "tn": 170,
+   "sensitivity": 0.9496402877697842,
+   "specificity": 0.44502617801047123,
+   "ppv": 0.7135135135135136,
+   "npv": 0.8585858585858586,
+   "f1": 0.8148148148148149,
+   "sensitivity_ci": [
+    0.9265232974910395,
+    0.9702847198926535
+   ],
+   "specificity_ci": [
+    0.3817070860174308,
+    0.505536440930294
+   ],
+   "referable_sensitivity": 0.985981308411215
+  }
+ },
+ "dr_screening_threshold": 0.12375830113887787,
+ "dr_screening_identity": {
+  "head_file": "dr_screening_green_head.pt",
+  "head_sha256": "99ffd6c6b739a059b11b8cb99c19113aee2216a2933cd417ebbb59788ff7f4e5",
+  "head_contract": {
+   "backbone": "green",
+   "checkpoint_sha256": "431de5dbc1bebbb3",
+   "preprocess": "crop-mask",
+   "preprocess_version": 1,
+   "image_size": 392,
+   "class_names": [
+    "DR"
+   ]
+  },
+  "checkpoint_sha256": "431de5dbc1bebbb3",
+  "thresholds_file": "decision_dr_screening.json",
+  "thresholds_fingerprint": "eae50efc4d35443a"
+ },
+ "criteria": {
+  "default_model": {
+   "diff": {
+    "diff": 0.03484976291656494,
+    "ci": [
+     0.01717042177915573,
+     0.056446987390518184
+    ]
+   },
+   "confirmed": true
+  },
+  "screening": {
+   "sensitivity": 0.9456721915285451,
+   "lower_bound": 0.9281686257918059,
+   "threshold": 0.8,
+   "met": true
+  }
+ },
+ "inputs": {
+  "annotations_fingerprint": {
+   "Challenge1_labels.xlsx": "baa39963bc037e34",
+   "Challenge1_upload.csv": "8ceb20b562af0e49",
+   "Challenge2_labels.xlsx": "9a76b7ea16747b7a",
+   "Challenge2_upload.csv": "eb55fb50dfc19d78",
+   "regular-fundus-source-training.csv": "d066f6b0bee99656",
+   "regular-fundus-training.csv": "0f26db5cd2cf1493",
+   "regular-fundus-source-validation.csv": "c3d5bb11829268c5",
+   "regular-fundus-validation.csv": "54c2f11bf0647fe3"
+  },
+  "images_list_fingerprint": "1c8119bddcc042fe"
+ },
+ "local_snapshot": "confirmation_deepdrid.npz (clés, groupes, stades, qualité, scores ; local, non versionné)"
+}

@@ -248,6 +248,25 @@ RFMiD transfère mal les stades légers de Messidor-2 ; au seuil RFMiD, Green ne
 que 36 % des rétinopathies (RETFound 12 %). IDRiD, plus petite, ne montrait pas
 d'écart : la confirmation tient sur la base principale, pas sur les deux.
 
+**DeepDRiD, troisième base** (20 nov., plan fixé avant tout embedding RETFound/Green,
+`310ec9f`, [script](scripts/confirmation_deepdrid.py),
+[résultats](results/confirmation_deepdrid.json) ; 2 000 images, 500 patients, Chine,
+trois découpages officiels réunis, IC sur les patients ; base absente des deux
+pré-entraînements, jamais utilisée pour la rétinopathie dans le projet) :
+
+| DeepDRiD | RETFound | RETFound-Green | Différence [IC 95 %] |
+|---|---|---|---|
+| Toute rétinopathie, tête RFMiD | 0,851 | 0,886 | **+0,035 [+0,017 ; +0,056]** |
+| À adresser (stade ≥ 2) | 0,852 | 0,911 | non calculée |
+| Dépistage `--dr-screening` : sensibilité | | **0,946 [0,928 ; 0,961]** | spécificité 0,47 [0,43 ; 0,52], VPP 0,68 ; à adresser 0,981 |
+
+Les deux critères sont atteints : **Green est confirmé sur deux bases indépendantes sur
+trois** (Messidor-2, DeepDRiD ; pas d'écart sur IDRiD). Secondaire, sans critère : sur les
+938 images jugées de qualité suffisante (327 patients), l'écart se réduit à +0,014
+[−0,008 ; +0,039] ; l'avance de Green tient donc surtout aux images de mauvaise qualité
+(53 % de la base). Le dépistage garde sa sensibilité (0,950) avec la même spécificité
+faible (0,45).
+
 *Contrôle exploratoire des formats* (16 nov., sans critère, plan écrit avant le calcul,
 [script](scripts/messidor_format_check.py), [résultats](results/messidor_format_check.json)) :
 Messidor-2 mêle cinq formats d'image dont la prévalence va de 17 % à 62 %. À format égal,
@@ -771,6 +790,7 @@ leurs étiquettes ; choix sur la validation, mesure sur le test
 | EyePACS | Transfert de la rétinopathie diabétique (2 500 patients) |
 | IDRiD | Localisation : 81 images avec masques d'experts ; gradation (516 images) : confirmation externe, base vue par aucun des deux modèles |
 | Messidor-2 | Confirmation externe principale (1 744 images, 874 examens), base vue par aucun des deux modèles |
+| DeepDRiD | Qualité d'image (notes d'experts) ; troisième confirmation externe (2 000 images, 500 patients), base vue par aucun des deux modèles |
 | DDR | Confirmation externe de la rétinopathie diabétique (12 522 images) et mesure du réglage `--dr-screening` |
 | ISIC 2019 | Dermatologie, seconde indication : tête peau servie (DINOv2-B, seuils et contrôle qualité) ; PanDerm − DINOv2-L, AUROC macro +0,037 [+0,030 ; +0,043] sur le test ([résultats](docs/DERMATOLOGIE.md#résultats)) |
 | ISIC 2020 | Validation externe de la tête peau : AUROC mélanome 0,788 [0,765 ; 0,808], critère (≥ 0,80) non atteint |
